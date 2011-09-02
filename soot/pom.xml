@@ -1,0 +1,110 @@
+<project
+    xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <modelVersion>4.0.0</modelVersion> 
+    <groupId>com.hellblazer</groupId>
+    <artifactId>soot.osgi</artifactId>
+    <version>2.4.1-SNAPSHOT</version>
+    <packaging>bundle</packaging>
+
+    <name>soot-packaging OSGi Bundle</name>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8
+        </project.build.sourceEncoding>
+        <thirdspace.external.repository>/Users/hhildebrand/Projects/3Space/maven-repository</thirdspace.external.repository>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>sable</groupId>
+            <artifactId>soot</artifactId>
+            <version>2.4.1-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
+    
+    <!-- ================================================ -->
+    <!-- Repository Configuration -->
+    <!-- ================================================ -->
+
+    <repositories>
+        <repository>
+            <id>nexus-repo</id>
+            <url>http://repository.sonatype.org/content/groups/public
+            </url>
+            <name>nexus</name>
+        </repository>
+
+        <repository>
+            <id>3rdSpace-repo</id>
+            <url>http://svn.tensegrity.hellblazer.com/3Space/trunk/local-repository/</url>
+            <name>3rdSpace</name>
+        </repository>
+
+
+        <!-- repository> <id>apache.m2.incubator</id> <name>Apache M2 Incubator 
+            Repository</name> <url> http://people.apache.org/repo/m2-snapshot-repository/ 
+            </url> </repository -->
+
+        <repository>
+            <id>eclipse-repository</id>
+            <name>Eclipse Repository</name>
+            <url>http://repo1.maven.org/eclipse/</url>
+        </repository>
+
+        <repository>
+            <id>safehaus-repository</id>
+            <name>Safehaus Repository</name>
+            <url>http://m2.safehaus.org</url>
+        </repository>
+        <repository>
+            <id>i21-s3-maven-repo</id>
+            <name>i21 S3 milestone repo</name>
+            <url>
+                http://s3.amazonaws.com/maven.springframework.org/milestone
+            </url>
+        </repository>
+        <repository>
+            <id>central</id>
+            <name>ibiblio</name>
+            <url>http://mirrors.ibiblio.org/pub/mirrors/maven2/</url>
+        </repository>
+    </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>nexus-repo</id>
+            <url>http://repository.sonatype.org/content/groups/public
+            </url>
+            <name>nexus</name>
+        </pluginRepository>
+    </pluginRepositories>
+    
+    <distributionManagement>
+        <repository>
+            <id>Hellbound Simulations</id>
+            <name>Karios Repository</name>
+            <url>file://${thirdspace.external.repository}</url>
+        </repository>
+    </distributionManagement>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <version>2.1.0</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Embed-Dependency>*;scope=compile|runtime;inline=true</Embed-Dependency>
+                        <_exportcontents>*</_exportcontents>
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

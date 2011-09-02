@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         id="com.hellblazer.primeMover.eclipse.transformer"
+         name="Prime Mover Transformer"
+         point="org.eclipse.core.resources.builders">
+      <builder
+            hasNature="true">
+         <run
+               class="com.hellblazer.primeMover.eclipse.plugin.IdeTransformer">
+         </run>
+      </builder>
+   </extension>
+   <extension
+         id="com.hellblazer.primeMover.eclipse.nature"
+         name="Prime Mover Nature"
+         point="org.eclipse.core.resources.natures">
+      <builder
+            id="com.hellblazer.primeMover.eclipse.transformer">
+      </builder>
+      <runtime>
+         <run
+               class="com.hellblazer.primeMover.eclipse.plugin.EventDrivenNature">
+         </run>
+      </runtime>
+   </extension>
+   <extension
+         point="org.eclipse.ui.popupMenus">
+      <objectContribution
+            adaptable="true"
+            objectClass="org.eclipse.core.resources.IProject"
+            nameFilter="*"
+            id="com.hellblazer.primeMover.eclipse.contribution">
+         <action
+               class="com.hellblazer.primeMover.eclipse.plugin.ToggleNatureAction"
+               enablesFor="+"
+               id="com.hellblazer.primeMover.eclipse.addRemoveNatureAction"
+               label="Add/Remove Prime Mover Nature"
+               menubarPath="additions"
+               tooltip="Add or Remove the Prime Mover Event Driven Simulation Transformation Builder">
+         </action>
+      </objectContribution>
+   </extension>
+   <extension
+         id="transformError"
+         name="Cannot Transform Project"
+         point="org.eclipse.core.resources.markers">
+      <super
+            type="org.eclipse.core.resources.problemmarker">
+      </super>
+      <persistent
+            value="true">
+      </persistent>
+   </extension>
+   <extension
+         point="org.eclipse.ui.console.consoleFactories">
+      <consoleFactory
+            class="plugin.ConsoleFactory1"
+            label="Prime Mover Transform">
+      </consoleFactory>
+   </extension> 
+
+</plugin>

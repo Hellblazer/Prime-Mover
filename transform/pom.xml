@@ -1,0 +1,56 @@
+<project
+    xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>primeMover</artifactId>
+        <groupId>com.hellblazer</groupId>
+        <version>0.0.5-SNAPSHOT</version>
+    </parent>
+    
+    <groupId>com.hellblazer.primeMover</groupId>
+    <artifactId>transform</artifactId>
+    <version>0.0.5-SNAPSHOT</version>
+    <name>Transformation Framework</name>
+    <description>Prime Mover transformation framework</description>
+    <packaging>bundle</packaging>
+
+    <licenses>
+        <license>
+            <name>GNU Affero General Public License V3</name>
+            <url>http://www.gnu.org/licenses/agpl-3.0.txt</url>
+            <distribution>repo</distribution>
+            <comments>
+                Copyright (c) 2010, Hal Hildebrand
+                &lt;hal.hildebrand @ gmail.com&gt; All
+                rights reserved.
+            </comments>
+        </license>
+    </licenses>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.hellblazer</groupId>
+            <artifactId>soot.osgi</artifactId>
+            <version>2.4.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.hellblazer.primeMover</groupId>
+            <artifactId>runtime</artifactId>
+            <version>0.0.5-SNAPSHOT</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <version>2.1.0</version>
+                <extensions>true</extensions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

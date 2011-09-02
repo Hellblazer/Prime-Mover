@@ -1,0 +1,80 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.hellblazer.primeMover</groupId>
+	<artifactId>demo</artifactId>
+	<version>0.0.5-SNAPSHOT</version>
+	<name>PrimeMover Demo</name>
+	<description>A simple introduction to the Prime Mover discrete event driven framework</description>
+	
+    <properties>
+        <project.build.sourceEncoding>UTF-8
+        </project.build.sourceEncoding>
+        <thirdspace.external.repository>/Users/hhildebrand/Projects/3Space/maven-repository</thirdspace.external.repository>
+    </properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>com.hellblazer.primeMover</groupId>
+			<artifactId>runtime</artifactId>
+			<version>0.0.5-SNAPSHOT</version>
+			<scope>compile</scope>
+		</dependency>
+	</dependencies>
+
+	<repositories>
+		<repository>
+			<id>3rdSpace-repo</id>
+			<url>http://svn.tensegrity.hellblazer.com/3Space/trunk/maven-repository</url>
+			<name>3rdSpace</name>
+		</repository>
+	</repositories>
+
+	<licenses>
+		<license>
+			<name>GNU Affero General Public License V3</name>
+			<url>http://www.gnu.org/licenses/agpl-3.0.txt</url>
+			<distribution>repo</distribution>
+			<comments>
+                Copyright (c) 2010, Hal Hildebrand
+                &lt;hal.hildebrand @ gmail.com&gt; All
+                rights reserved.
+            </comments>
+		</license>
+	</licenses>
+    
+    <distributionManagement>
+        <repository>
+            <id>Hellbound Simulations</id>
+            <name>Karios Repository</name>
+            <url>file://${thirdspace.external.repository}</url>
+        </repository>
+    </distributionManagement>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>com.hellblazer.primeMover</groupId>
+				<artifactId>maven.plugin</artifactId>
+				<version>0.0.5-SNAPSHOT</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>transform</goal>
+							<goal>transform-test</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.3.2</version>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>
+				</configuration>
+			</plugin>
+
+		</plugins>
+	</build>
+</project>

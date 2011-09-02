@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <description name="Hellbound Simulations" url="http://svn.tensegrity.hellblazer.com/3Space/trunk/update-site">
+      Prime Mover Event Driven Simulation framework and tools
+   </description>
+   <feature url="features/com.hellblazer.primeMover.eclipse.feature_0.0.3.jar" id="com.hellblazer.primeMover.eclipse.feature" version="0.0.5.qualifier">
+      <category name="transform"/>
+   </feature>
+   <category-def name="transform" label="Prime Mover Eclipse Integration">
+      <description>
+         Integration of the Prime Mover event diven simulation transform with the Eclipse IDE
+      </description>
+   </category-def>
+</site>
