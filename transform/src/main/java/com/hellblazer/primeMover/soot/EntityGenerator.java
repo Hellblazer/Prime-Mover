@@ -256,7 +256,8 @@ public class EntityGenerator {
 
     protected SootMethod generateConstructor(SootMethod constructor,
                                              SootMethod initializeMethod) {
-        MethodHelper helper = new MethodHelper(entity, constructor.getName(),
+        @SuppressWarnings("unchecked")
+		MethodHelper helper = new MethodHelper(entity, constructor.getName(),
                                                constructor.getParameterTypes(),
                                                VoidType.v(),
                                                constructor.getModifiers());
@@ -285,7 +286,8 @@ public class EntityGenerator {
 
     protected SootMethod generateEvent(SootMethod event,
                                        SootMethod initializeMethod) {
-        MethodHelper helper = new MethodHelper(entity, event.getName(),
+        @SuppressWarnings("unchecked")
+		MethodHelper helper = new MethodHelper(entity, event.getName(),
                                                event.getParameterTypes(),
                                                event.getReturnType(),
                                                event.getModifiers());
@@ -346,7 +348,8 @@ public class EntityGenerator {
      * @return
      */
     protected SootMethod generateInitializeMethod() {
-        MethodHelper helper = new MethodHelper(entity, INITIALIZE_METHOD_NAME,
+        @SuppressWarnings("unchecked")
+		MethodHelper helper = new MethodHelper(entity, INITIALIZE_METHOD_NAME,
                                                Collections.EMPTY_LIST,
                                                VoidType.v(),
                                                Modifier.SYNCHRONIZED

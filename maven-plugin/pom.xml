@@ -7,8 +7,7 @@
         <version>0.0.5-SNAPSHOT</version>
     </parent>
 	<groupId>com.hellblazer.primeMover</groupId>
-	<artifactId>maven.plugin</artifactId>
-	<version>0.0.5-SNAPSHOT</version>
+	<artifactId>maven.plugin</artifactId> 
 	<name>Prime Mover Maven Plugin</name>
 	<description>Event driven framework transform plugin for Maven</description>
 	<packaging>maven-plugin</packaging>

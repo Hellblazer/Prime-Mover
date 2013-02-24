@@ -48,7 +48,8 @@ import com.hellblazer.primeMover.soot.util.IdentitySet;
 public class ContinuationAnalysis extends SceneTransformer {
     private static Logger log = Logger.getLogger(ContinuationAnalysis.class.getCanonicalName());
 
-    public ContinuationAnalysis() {
+    @SuppressWarnings("unchecked")
+	public ContinuationAnalysis() {
         Scene.v().setEntryPoints(Collections.EMPTY_LIST);
     }
 
@@ -80,7 +81,8 @@ public class ContinuationAnalysis extends SceneTransformer {
         }
     }
 
-    private void addEdges(SootMethod method,
+    @SuppressWarnings("rawtypes")
+	private void addEdges(SootMethod method,
                           IdentityHashMap<SootMethod, IdentitySet<SootMethod>> callGraph) {
 
         Iterator statements = method.retrieveActiveBody().getUnits().snapshotIterator();
@@ -109,7 +111,8 @@ public class ContinuationAnalysis extends SceneTransformer {
         return callGraph;
     }
 
-    @Override
+    @SuppressWarnings("rawtypes")
+	@Override
     protected void internalTransform(String phaseName, Map options) {
         computeFixedPoint();
     }

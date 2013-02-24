@@ -132,19 +132,22 @@ public class Utils {
         return false;
     }
 
-    public static void markBlocking(SootMethod method) {
+    @SuppressWarnings("unchecked")
+	public static void markBlocking(SootMethod method) {
         AnnotationGenerator.v().annotate(method, BLOCKING_CLASS_BINARY_NAME,
                                          AnnotationConstants.RUNTIME_VISIBLE,
                                          Collections.EMPTY_LIST);
     }
 
-    public static void markContinuable(SootMethod method) {
+    @SuppressWarnings("unchecked")
+	public static void markContinuable(SootMethod method) {
         AnnotationGenerator.v().annotate(method, CONTINUABLE_CLASS_BINARY_NAME,
                                          AnnotationConstants.RUNTIME_VISIBLE,
                                          Collections.EMPTY_LIST);
     }
 
-    public static void markEntity(SootClass clazz) {
+    @SuppressWarnings("unchecked")
+	public static void markEntity(SootClass clazz) {
         AnnotationGenerator.v().annotate(clazz, ENTITY_CLASS_BINARY_NAME,
                                          AnnotationConstants.RUNTIME_VISIBLE,
                                          Collections.EMPTY_LIST);

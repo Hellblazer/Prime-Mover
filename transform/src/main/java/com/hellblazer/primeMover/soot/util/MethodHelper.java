@@ -96,7 +96,8 @@ public class MethodHelper {
              modifiers);
     }
 
-    public MethodHelper(SootClass clazz, String name, int modifiers) {
+    @SuppressWarnings("unchecked")
+	public MethodHelper(SootClass clazz, String name, int modifiers) {
         this(clazz, name, Collections.EMPTY_LIST, Collections.EMPTY_LIST,
              VoidType.v(), modifiers);
     }
@@ -156,7 +157,8 @@ public class MethodHelper {
         }
     }
 
-    public MethodHelper(SootClass clazz, String name, Type returnType,
+    @SuppressWarnings("unchecked")
+	public MethodHelper(SootClass clazz, String name, Type returnType,
                         int modifiers) {
         this(clazz, name, Collections.EMPTY_LIST, Collections.EMPTY_LIST,
              returnType, modifiers);
@@ -333,7 +335,8 @@ public class MethodHelper {
         }
     }
 
-    public void newInstance(Local target, SootClass clazz) {
+    @SuppressWarnings("unchecked")
+	public void newInstance(Local target, SootClass clazz) {
         newInstance(target, clazz, Collections.EMPTY_LIST, new Value[] {});
     }
 

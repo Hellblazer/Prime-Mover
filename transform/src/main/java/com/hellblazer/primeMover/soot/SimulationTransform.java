@@ -68,7 +68,7 @@ public class SimulationTransform {
 
                                                               @Override
                                                               protected void internalTransform(String phaseName,
-                                                                                               Map options) {
+                                                                                               @SuppressWarnings("rawtypes") Map options) {
                                                                   Iterator<SootClass> applicationClasses = Scene.v().getApplicationClasses().snapshotIterator();
                                                                   while (applicationClasses.hasNext()) {
                                                                       SootClass applicationClass = applicationClasses.next();

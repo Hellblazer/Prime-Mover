@@ -1,31 +1,41 @@
-<project
-    xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
                              http://maven.apache.org/maven-v4_0_0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <groupId>com.hellblazer</groupId>
-    <version>0.0.5-SNAPSHOT</version>
-    <artifactId>primeMover</artifactId>
-    <packaging>pom</packaging>
-    <name>Event Driven Framework</name>
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.hellblazer</groupId>
+	<version>0.0.5-SNAPSHOT</version>
+	<artifactId>primeMover</artifactId>
+	<packaging>pom</packaging>
+	<name>Event Driven Framework</name>
 
-    <dependencies>
-    	<dependency>
-    		<groupId>junit</groupId>
-    		<artifactId>junit</artifactId>
-    		<version>4.9</version>
-    		<type>jar</type>
-    		<scope>compile</scope>
-    	</dependency>
-    </dependencies>
-    <modules>
-        <module>framework</module>
-        <module>transform</module>
-        <module>maven-plugin</module>
-        <module>maven-testing</module>
-        <module>demo</module>
-    </modules>
+	<modules>
+		<module>framework</module>
+		<module>transform</module>
+		<module>maven-plugin</module>
+		<module>maven-testing</module>
+		<module>demo</module>
+	</modules>
+
+	<dependencies>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.9</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+	</dependencies>
+
+	<repositories>
+		<repository>
+			<id>hellblazer-release</id>
+			<url>https://repository-hal900000.forge.cloudbees.com/release/</url>
+		</repository>
+		<repository>
+			<id>hellblazer-snapshots</id>
+			<url>https://repository-hal900000.forge.cloudbees.com/snapshot/</url>
+		</repository>
+	</repositories>
 
 	<build>
 		<plugins>

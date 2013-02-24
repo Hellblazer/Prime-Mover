@@ -64,7 +64,7 @@ public abstract class OpenAddressingSet<T> extends AbstractSet<T> {
     @Override
     public Object clone() {
         try {
-            IdentitySet t = (IdentitySet) super.clone();
+            IdentitySet<?> t = (IdentitySet<?>) super.clone();
             if (table != null) {
                 t.table = new Object[table.length];
                 for (int i = table.length; i-- > 0;) {
@@ -118,7 +118,8 @@ public abstract class OpenAddressingSet<T> extends AbstractSet<T> {
                 return false;
             }
 
-            @Override
+            @SuppressWarnings("unchecked")
+			@Override
             public T next() {
                 while (next < table.length) {
                     if (table[next] != null && table[next] != DELETED) {

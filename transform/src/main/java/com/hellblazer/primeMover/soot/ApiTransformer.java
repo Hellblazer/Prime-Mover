@@ -67,7 +67,8 @@ public class ApiTransformer extends BodyTransformer {
         return false;
     }
 
-    @Override
+    @SuppressWarnings("rawtypes")
+	@Override
     protected void internalTransform(Body body, String phaseName, Map options) {
         boolean transformed = false;
         PatchingChain<Unit> units = body.getUnits();

@@ -153,7 +153,8 @@ public class ContinuationTransformer extends BodyTransformer {
                                              local.getType(), Modifier.PUBLIC));
             }
             SootMethod constructor = continuationFrame.getMethod(NO_ARG_CONSTRUCTOR_SIGNATURE);
-            MethodHelper helper = new MethodHelper(
+            @SuppressWarnings("unchecked")
+			MethodHelper helper = new MethodHelper(
                                                    frame,
                                                    constructor.getName(),
                                                    constructor.getParameterTypes(),
@@ -340,7 +341,7 @@ public class ContinuationTransformer extends BodyTransformer {
     }
 
     @Override
-    protected void internalTransform(Body body, String phaseName, Map options) {
+    protected void internalTransform(Body body, String phaseName, @SuppressWarnings("rawtypes") Map options) {
         if (!willContinue(body.getMethod())) {
             return;
         }
@@ -363,7 +364,8 @@ public class ContinuationTransformer extends BodyTransformer {
         }
     }
 
-    List<ContinuationSite> generateContinuationSites(Body body, Type returnType) {
+    @SuppressWarnings("unchecked")
+	List<ContinuationSite> generateContinuationSites(Body body, Type returnType) {
         String id = UUID.randomUUID().toString().replace('-', '_');
         UnusedLocalEliminator.v().transform(body);
         List<ContinuationSite> continuedCalls = new ArrayList<ContinuationSite>();
@@ -371,13 +373,14 @@ public class ContinuationTransformer extends BodyTransformer {
                                                            new ExceptionalUnitGraph(
                                                                                     body));
         int callSite = 0;
-        Iterator statements = body.getUnits().snapshotIterator();
+        @SuppressWarnings("rawtypes")
+		Iterator statements = body.getUnits().snapshotIterator();
         Local thisLocal = body.getMethod().isStatic() ? null
                                                      : body.getThisLocal();
         while (statements.hasNext()) {
             Stmt stmt = (Stmt) statements.next();
             SootClass declaringClass = body.getMethod().getDeclaringClass();
-            List locals = liveLocals.getLiveLocalsBefore(stmt);
+            List<Local> locals = liveLocals.getLiveLocalsBefore(stmt);
             if (thisLocal != null && locals.contains(thisLocal)) {
                 locals = new ArrayList<Local>(locals);
                 locals.remove(thisLocal);

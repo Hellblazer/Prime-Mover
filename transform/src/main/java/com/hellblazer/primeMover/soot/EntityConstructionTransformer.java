@@ -94,7 +94,7 @@ public class EntityConstructionTransformer extends BodyTransformer {
     }
 
     @Override
-    protected void internalTransform(Body body, String phaseName, Map options) {
+    protected void internalTransform(Body body, String phaseName, @SuppressWarnings("rawtypes") Map options) {
         boolean transformed = false;
         PatchingChain<Unit> units = body.getUnits();
         for (Unit unit : units) {
