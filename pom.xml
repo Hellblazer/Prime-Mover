@@ -9,6 +9,7 @@
 	<name>Event Driven Framework</name>
 
 	<modules>
+		<module>soot</module>
 		<module>framework</module>
 		<module>transform</module>
 		<module>maven-plugin</module>
@@ -57,8 +58,8 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>2.3.2</version>
 				<configuration>
-					<source>1.6</source>
-					<target>1.6</target>
+					<source>1.7</source>
+					<target>1.7</target>
 					<debug>true</debug>
 					<fork>true</fork>
 					<meminitial>128m</meminitial>

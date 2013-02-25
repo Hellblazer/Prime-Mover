@@ -26,6 +26,7 @@ import soot.G;
 import soot.Scene;
 import soot.SootClass;
 import soot.SootMethod;
+import soot.options.Options;
 
 import com.hellblazer.primeMover.runtime.Framework;
 
@@ -38,45 +39,49 @@ import com.hellblazer.primeMover.runtime.Framework;
  */
 public class TestEntityConstructionTransformer extends TestCase {
 
-    public void testSubstitution() throws Exception {
-        G.reset();
+	public void testSubstitution() throws Exception {
+		G.reset();
+		Options.v().set_debug_resolver(true);
+		Options.v().set_debug(true);
+		Options.v().set_verbose(true);
 
-        ArrayList<SootClass> classes = new ArrayList<SootClass>();
-        EntityGenerator generator = new EntityGenerator(
-                                                        classes,
-                                                        Scene.v().loadClassAndSupport(PrototypicalEntityImpl.class.getCanonicalName()),
-                                                        true);
-        generator.generateEntity();
-        EntityConstructionTransformer creationTransformer = new EntityConstructionTransformer(
-                                                                                              true);
-        SootClass createEntity = Scene.v().loadClassAndSupport(CreateEntityImpl.class.getCanonicalName());
-        for (SootMethod method : createEntity.getMethods()) {
-            creationTransformer.transform(method.retrieveActiveBody());
-        }
+		ArrayList<SootClass> classes = new ArrayList<SootClass>();
+		EntityGenerator generator = new EntityGenerator(classes, Scene.v()
+				.loadClassAndSupport(
+						PrototypicalEntityImpl.class.getCanonicalName()), true);
+		generator.generateEntity();
+		EntityConstructionTransformer creationTransformer = new EntityConstructionTransformer(
+				true);
+		SootClass createEntity = Scene.v().loadClassAndSupport(
+				CreateEntityImpl.class.getCanonicalName());
+		for (SootMethod method : createEntity.getMethods()) {
+			creationTransformer.transform(method.retrieveActiveBody());
+		}
 
-        classes.add(createEntity);
-        Scene.v().loadNecessaryClasses();
-        ClassLoader loader = new LocalLoader(classes);
+		classes.add(createEntity);
+		Scene.v().loadNecessaryClasses();
+		ClassLoader loader = new LocalLoader(classes);
 
-        MockController controller = new MockController();
-        Framework.setController(controller);
+		MockController controller = new MockController();
+		Framework.setController(controller);
 
-        Class<?> createEntityClass = loader.loadClass(CreateEntityImpl.class.getCanonicalName());
-        assertNotSame(CreateEntityImpl.class, createEntityClass);
+		Class<?> createEntityClass = loader.loadClass(CreateEntityImpl.class
+				.getCanonicalName());
+		assertNotSame(CreateEntityImpl.class, createEntityClass);
 
-        CreateEntity create = (CreateEntity) createEntityClass.newInstance();
+		CreateEntity create = (CreateEntity) createEntityClass.newInstance();
 
-        assertNotSame(PrototypicalEntityImpl.class,
-                      create.getEntityA().getClass());
-        assertNotSame(PrototypicalEntityImpl.class,
-                      create.getEntityB().getClass());
-        assertNotSame(PrototypicalEntityImpl.class,
-                      create.getENTITY_A().getClass());
-        assertNotSame(PrototypicalEntityImpl.class,
-                      create.getENTITY_B().getClass());
+		assertNotSame(PrototypicalEntityImpl.class, create.getEntityA()
+				.getClass());
+		assertNotSame(PrototypicalEntityImpl.class, create.getEntityB()
+				.getClass());
+		assertNotSame(PrototypicalEntityImpl.class, create.getENTITY_A()
+				.getClass());
+		assertNotSame(PrototypicalEntityImpl.class, create.getENTITY_B()
+				.getClass());
 
-        PrototypicalEntityImpl entity = create.testMe();
-        assertNotNull(entity);
-        assertNotSame(PrototypicalEntityImpl.class, entity.getClass());
-    }
+		PrototypicalEntityImpl entity = create.testMe();
+		assertNotNull(entity);
+		assertNotSame(PrototypicalEntityImpl.class, entity.getClass());
+	}
 }
