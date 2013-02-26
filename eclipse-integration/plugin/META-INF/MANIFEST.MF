@@ -7,12 +7,11 @@ Bundle-Activator: com.hellblazer.primeMover.eclipse.plugin.Activator
 Bundle-Vendor: Hellblazer
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
- org.eclipse.core.resources;bundle-version="3.6.0",
- org.eclipse.jdt.core;bundle-version="3.6.1",
- com.hellblazer.soot.osgi;bundle-version="2.4.1",
- com.hellblazer.primeMover.transform;bundle-version="0.0.5",
- org.eclipse.ui.console;bundle-version="3.5.0"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+ org.eclipse.jdt.core,
+ com.hellblazer.soot.osgi,
+ com.hellblazer.primeMover.transform,
+ org.eclipse.ui.console
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .
 Export-Package: com.hellblazer.primeMover.eclipse.plugin;

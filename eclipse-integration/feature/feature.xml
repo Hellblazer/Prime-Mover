@@ -38,10 +38,10 @@ Public License along with this program. If not, see
    <requires>
       <import plugin="org.eclipse.ui"/>
       <import plugin="org.eclipse.core.runtime"/>
-      <import plugin="org.eclipse.core.resources" version="3.6.0" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.jdt.core" version="3.6.1" match="greaterOrEqual"/>
-      <import plugin="com.hellblazer.primeMover.transform" version="0.0.4" match="greaterOrEqual"/>
-      <import plugin="com.hellblazer.soot.osgi" version="2.4.1" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.core.resources"/>
+      <import plugin="org.eclipse.jdt.core"/>
+      <import plugin="com.hellblazer.primeMover.transform" version="0.0.5" match="greaterOrEqual"/>
+      <import plugin="com.hellblazer.soot.osgi" version="2.5.1" match="greaterOrEqual"/>
       <import plugin="org.eclipse.osgi"/>
       <import plugin="org.apache.ant"/>
    </requires>

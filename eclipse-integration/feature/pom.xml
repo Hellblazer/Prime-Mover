@@ -10,15 +10,14 @@
 	</parent>
 	<groupId>com.hellblazer.primeMover.eclipse</groupId>
 	<artifactId>feature</artifactId>
-	<version>0.0.5-SNAPSHOT</version>
 	<packaging>eclipse-feature</packaging>
 
 	<dependencies>
-		<dependency>
-			<groupId>com.hellblazer</groupId>
-			<artifactId>soot.osgi</artifactId>
-			<version>2.4.1-SNAPSHOT</version>
-		</dependency>
+        <dependency>
+            <groupId>com.hellblazer</groupId>
+            <artifactId>soot.osgi</artifactId>
+            <version>2.5.1-SNAPSHOT</version>
+        </dependency>
 		<dependency>
 			<groupId>com.hellblazer.primeMover</groupId>
 			<artifactId>transform</artifactId>

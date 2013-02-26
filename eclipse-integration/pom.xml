@@ -10,7 +10,6 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.hellblazer.primeMover</groupId>
 	<artifactId>eclipse</artifactId>
-	<version>0.0.5-SNAPSHOT</version>
 	<name>Prime Mover - Eclipse Integration</name>
 	<packaging>pom</packaging>
 
@@ -33,16 +32,23 @@
 		</license>
 	</licenses>
 
+	<pluginRepositories>
+		<!-- configure p2 repository to resolve against -->
+		<pluginRepository>
+			<id>juno-plugin</id>
+			<url>http://download.eclipse.org/releases/juno</url>
+		</pluginRepository>
+		<pluginRepository>
+			<id>Mvn Repo</id>
+			<url>http://repo1.maven.org/maven2/</url>
+		</pluginRepository>
+	</pluginRepositories>
+
 	<repositories>
+		<!-- configure p2 repository to resolve against -->
 		<repository>
-			<id>eclipse-helios</id>
-			<layout>p2</layout>
-			<url>http://download.eclipse.org/releases/helios</url>
-		</repository>
-		<repository>
-			<id>update36</id>
-			<url>${eclipse-repository-url}</url>
-			<layout>p2</layout>
+			<id>juno</id>
+			<url>http://download.eclipse.org/releases/juno</url>
 		</repository>
 	</repositories>
 
@@ -51,18 +57,14 @@
 			<plugin>
 				<groupId>org.sonatype.tycho</groupId>
 				<artifactId>tycho-maven-plugin</artifactId>
-				<version>0.10.0</version>
+				<version>0.11.0</version>
 				<extensions>true</extensions>
-				<configuration>
-					<resolver>p2</resolver>
-				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.sonatype.tycho</groupId>
 				<artifactId>target-platform-configuration</artifactId>
-				<version>0.10.0</version>
+				<version>0.11.0</version>
 				<configuration>
-					<resolver>p2</resolver>
 					<pomDependencies>consider</pomDependencies>
 					<environments>
 						<environment>

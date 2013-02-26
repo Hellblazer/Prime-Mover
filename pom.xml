@@ -36,6 +36,10 @@
 			<id>hellblazer-snapshots</id>
 			<url>https://repository-hal900000.forge.cloudbees.com/snapshot/</url>
 		</repository>
+		<repository>
+			<id>Mvn Repo</id>
+			<url>http://repo1.maven.org/maven2/</url>
+		</repository>
 	</repositories>
 
 	<build>
