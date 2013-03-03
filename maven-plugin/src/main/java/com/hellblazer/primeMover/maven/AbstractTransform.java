@@ -61,7 +61,7 @@ public abstract class AbstractTransform extends AbstractMojo {
         if (cp != null) {
             return cp;
         }
-        Enumeration i = System.getProperties().propertyNames();
+        Enumeration<?> i = System.getProperties().propertyNames();
         String name = null;
         while (i.hasMoreElements()) {
             String temp = (String) i.nextElement();
