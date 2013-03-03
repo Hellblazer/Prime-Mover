@@ -383,7 +383,7 @@ public class IdeTransformer extends IncrementalProjectBuilder {
                                   ClasspathEntry entry, IProject prereqProject)
                                                                                throws JavaModelException {
 
-        JavaProject prereqJavaProject = (JavaProject) JavaCore.create(prereqProject);
+		JavaProject prereqJavaProject = (JavaProject) JavaCore.create(prereqProject);
         IClasspathEntry[] prereqClasspathEntries = prereqJavaProject.getRawClasspath();
         ArrayList<IContainer> seen = new ArrayList<IContainer>();
         for (IClasspathEntry prereqEntry : prereqClasspathEntries) {

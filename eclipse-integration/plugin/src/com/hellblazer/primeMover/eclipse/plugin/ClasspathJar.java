@@ -207,9 +207,6 @@ public class ClasspathJar extends ClasspathLocation {
 
         try {
             if (zipFile == null) {
-                if (org.eclipse.jdt.internal.core.JavaModelManager.ZIP_ACCESS_VERBOSE) {
-                    System.out.println("(" + Thread.currentThread() + ") [ClasspathJar.isPackage(String)] Creating ZipFile on " + zipFilename); //$NON-NLS-1$  //$NON-NLS-2$
-                }
                 zipFile = new ZipFile(zipFilename);
                 closeZipFileAtEnd = true;
             }
