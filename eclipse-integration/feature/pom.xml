@@ -9,7 +9,7 @@
 		<version>0.0.5-SNAPSHOT</version>
 	</parent>
 	<groupId>com.hellblazer.primeMover.eclipse</groupId>
-	<artifactId>feature</artifactId>
+	<artifactId>com.hellblazer.primeMover.eclipse.feature</artifactId>
 	<packaging>eclipse-feature</packaging>
 
 	<dependencies>
