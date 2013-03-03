@@ -33,21 +33,22 @@
 	</licenses>
 
 	<pluginRepositories>
-		<!-- configure p2 repository to resolve against -->
 		<pluginRepository>
-			<id>juno-plugin</id>
-			<url>http://download.eclipse.org/releases/juno</url>
-		</pluginRepository>
-		<pluginRepository>
-			<id>Mvn Repo</id>
-			<url>http://repo1.maven.org/maven2/</url>
+			<id>nexus-plugin-repo</id>
+			<url>http://repository.sonatype.org/content/groups/public</url>
+			<name>nexus</name>
 		</pluginRepository>
 	</pluginRepositories>
 
 	<repositories>
-		<!-- configure p2 repository to resolve against -->
+		<repository>
+			<id>nexus-repo</id>
+			<url>http://repository.sonatype.org/content/groups/public</url>
+			<name>nexus</name>
+		</repository>
 		<repository>
 			<id>juno</id>
+			<layout>p2</layout>
 			<url>http://download.eclipse.org/releases/juno</url>
 		</repository>
 	</repositories>
@@ -55,51 +56,37 @@
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>org.sonatype.tycho</groupId>
+				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-maven-plugin</artifactId>
-				<version>0.11.0</version>
 				<extensions>true</extensions>
+				<version>0.16.0</version>
 			</plugin>
 			<plugin>
-				<groupId>org.sonatype.tycho</groupId>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-compiler-plugin</artifactId>
+				<version>0.16.0</version>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>target-platform-configuration</artifactId>
-				<version>0.11.0</version>
+				<version>0.16.0</version>
 				<configuration>
 					<pomDependencies>consider</pomDependencies>
+					<resolver>p2</resolver>
 					<environments>
 						<environment>
-							<os>linux</os>
-							<ws>gtk</ws>
-							<arch>x86_64</arch>
-						</environment>
-						<environment>
-							<os>linux</os>
-							<ws>gtk</ws>
-							<arch>x86</arch>
-						</environment>
-						<environment>
-							<os>macosx</os>
-							<ws>carbon</ws>
-							<arch>x86</arch>
-						</environment>
-						<environment>
-							<os>macosx</os>
-							<ws>cocoa</ws>
-							<arch>x86</arch>
-						</environment>
-						<environment>
-							<os>macosx</os>
-							<ws>cocoa</ws>
-							<arch>x86_64</arch>
-						</environment>
-						<environment>
 							<os>win32</os>
 							<ws>win32</ws>
 							<arch>x86</arch>
 						</environment>
 						<environment>
-							<os>win32</os>
-							<ws>win32</ws>
+							<os>linux</os>
+							<ws>gtk</ws>
+							<arch>x86_64</arch>
+						</environment>
+						<environment>
+							<os>macosx</os>
+							<ws>cocoa</ws>
 							<arch>x86_64</arch>
 						</environment>
 					</environments>
