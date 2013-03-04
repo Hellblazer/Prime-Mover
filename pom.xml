@@ -7,6 +7,10 @@
 	<artifactId>primeMover</artifactId>
 	<packaging>pom</packaging>
 	<name>Event Driven Framework</name>
+	
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
 
 	<modules>
 		<module>soot</module>
