@@ -14,3 +14,45 @@ To build eclipse plugin:
 
 	cd eclipse-integration
 	mvn clean install
+
+## Maven configuration
+
+For snapshots, include the hellblazer snapshot repository:
+
+	<repository>
+	    <id>hellblazer-snapshots</id>
+	    <url>https://repository-hal900000.forge.cloudbees.com/snapshot/</url>
+	</repository>
+
+	<plugin-repository>
+	    <id>hellblazer-plugin-snapshots</id>
+	    <url>https://repository-hal900000.forge.cloudbees.com/snapshot/</url>
+	</plugin-repository>
+
+### Prime Mover Runtime
+
+The artifact required for simulation runtime
+
+	<dependency>
+	    <groupId>com.hellblazer</groupId>
+	    <artifactId>primeMover</artifactId>
+	    <version>0.0.5-SNAPSHOT</version>
+	</dependency>
+
+### Prime Mover Maven Plugin
+
+The plugin required to transform simulation code
+
+	<plugin>
+	    <groupId>com.hellblazer.primeMover</groupId>
+	    <artifactId>maven.plugin</artifactId>
+	    <version>0.0.5-SNAPSHOT</version>
+	    <executions>
+	        <execution> 
+	            <goals>
+	                <goal>transform</goal> 
+	                <goal>transform-test</goal> 
+	            </goals>
+	        </execution>
+	    </executions>
+	</plugin>
