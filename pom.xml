@@ -15,7 +15,6 @@
 		<module>maven-plugin</module>
 		<module>maven-testing</module>
 		<module>demo</module>
-		<module>eclipse-integration</module>
 	</modules>
 
 	<dependencies>
