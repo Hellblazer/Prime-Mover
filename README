@@ -9,11 +9,6 @@ To build:
 
 	cd <top level directory>
 	mvn clean install
-	
-To build eclipse plugin:
-
-	cd eclipse-integration
-	mvn clean install
 
 ## Maven configuration
 
