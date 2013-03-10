@@ -6,12 +6,12 @@
 	<version>0.0.5-SNAPSHOT</version>
 	<name>PrimeMover Demo</name>
 	<description>A simple introduction to the Prime Mover discrete event driven framework</description>
-	
-    <properties>
-        <project.build.sourceEncoding>UTF-8
-        </project.build.sourceEncoding>
-        <thirdspace.external.repository>/Users/hhildebrand/Projects/3Space/maven-repository</thirdspace.external.repository>
-    </properties>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8
+		</project.build.sourceEncoding>
+		<thirdspace.external.repository>/Users/hhildebrand/Projects/3Space/maven-repository</thirdspace.external.repository>
+	</properties>
 
 	<dependencies>
 		<dependency>
@@ -19,6 +19,12 @@
 			<artifactId>runtime</artifactId>
 			<version>0.0.5-SNAPSHOT</version>
 			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.11</version>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 
@@ -42,14 +48,14 @@
             </comments>
 		</license>
 	</licenses>
-    
-    <distributionManagement>
-        <repository>
-            <id>Hellbound Simulations</id>
-            <name>Karios Repository</name>
-            <url>file://${thirdspace.external.repository}</url>
-        </repository>
-    </distributionManagement>
+
+	<distributionManagement>
+		<repository>
+			<id>Hellbound Simulations</id>
+			<name>Karios Repository</name>
+			<url>file://${thirdspace.external.repository}</url>
+		</repository>
+	</distributionManagement>
 
 	<build>
 		<plugins>
@@ -74,11 +80,11 @@
 					<target>1.7</target>
 				</configuration>
 			</plugin>
-
 		</plugins>
 		<pluginManagement>
 			<plugins>
-				<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+				<!--This plugin's configuration is used to store Eclipse m2e settings 
+					only. It has no influence on the Maven build itself. -->
 				<plugin>
 					<groupId>org.eclipse.m2e</groupId>
 					<artifactId>lifecycle-mapping</artifactId>
@@ -88,22 +94,18 @@
 							<pluginExecutions>
 								<pluginExecution>
 									<pluginExecutionFilter>
-										<groupId>
-											com.hellblazer.primeMover
-										</groupId>
-										<artifactId>
-											maven.plugin
-										</artifactId>
-										<versionRange>
-											[0.0.5-SNAPSHOT,)
-										</versionRange>
+										<groupId>com.hellblazer.primeMover</groupId>
+										<artifactId>maven.plugin</artifactId>
+										<versionRange>[0.0.5-SNAPSHOT,)</versionRange>
 										<goals>
 											<goal>transform</goal>
 											<goal>transform-test</goal>
 										</goals>
 									</pluginExecutionFilter>
 									<action>
-										<ignore></ignore>
+										<execute>
+											<runOnIncremental>true</runOnIncremental>
+										</execute>
 									</action>
 								</pluginExecution>
 							</pluginExecutions>
