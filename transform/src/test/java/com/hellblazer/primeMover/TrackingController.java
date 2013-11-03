@@ -32,9 +32,9 @@ import com.hellblazer.primeMover.runtime.EntityReference;
 
 public class TrackingController extends ControllerImpl {
 
-    public List<String> blockingEvents = new ArrayList<String>();
-    public List<String> events = new ArrayList<String>();
-    public List<EntityReference> references = new ArrayList<EntityReference>();
+    public List<String>          blockingEvents = new ArrayList<String>();
+    public List<String>          events         = new ArrayList<String>();
+    public List<EntityReference> references     = new ArrayList<EntityReference>();
 
     @Override
     public Object postContinuingEvent(EntityReference entity, int event,

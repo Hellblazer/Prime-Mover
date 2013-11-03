@@ -64,6 +64,7 @@ public class TestEndToEnd extends TestCase {
         Options.v().set_output_dir(OUTPUT_DIR.getAbsolutePath());
         // Options.v().setPhaseOption("cg", "verbose:true");
         // Options.v().set_verbose(true);
+        SimulationTransform.setStandardClassPath();
         SimulationTransform.main(argv);
 
         ClassLoader loader = new LocalLoader(getTransformed());

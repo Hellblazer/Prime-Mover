@@ -13,7 +13,6 @@
 	</properties>
 
 	<modules>
-		<module>soot</module>
 		<module>framework</module>
 		<module>transform</module>
 		<module>maven-plugin</module>

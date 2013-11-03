@@ -72,6 +72,7 @@ public class TestContinuationTransformer extends TestCase {
 
     public void testContinuations() throws Exception {
         G.reset();
+        SimulationTransform.setStandardClassPath();
         SootClass continuationPrototype = getContinuationPrototypeImpl();
 
         PrintStream out;

@@ -29,23 +29,6 @@ import java.util.Queue;
  */
 public interface SynchronousQueue<E> extends Queue<E> {
     /**
-     * Returns <tt>true</tt> if this queue contains the specified element. More
-     * formally, returns <tt>true</tt> if and only if this queue contains at
-     * least one element <tt>e</tt> such that <tt>o.equals(e)</tt>.
-     * 
-     * @param o
-     *            object to be checked for containment in this queue
-     * @return <tt>true</tt> if this queue contains the specified element
-     * @throws ClassCastException
-     *             if the class of the specified element is incompatible with
-     *             this queue (optional)
-     * @throws NullPointerException
-     *             if the specified element is null (optional)
-     */
-    @Override
-    public boolean contains(Object o);
-
-    /**
      * Inserts the specified element into this queue if it is possible to do so
      * immediately without violating capacity restrictions, returning
      * <tt>true</tt> upon success and throwing an <tt>IllegalStateException</tt>
@@ -69,6 +52,23 @@ public interface SynchronousQueue<E> extends Queue<E> {
      */
     @Override
     boolean add(E e);
+
+    /**
+     * Returns <tt>true</tt> if this queue contains the specified element. More
+     * formally, returns <tt>true</tt> if and only if this queue contains at
+     * least one element <tt>e</tt> such that <tt>o.equals(e)</tt>.
+     * 
+     * @param o
+     *            object to be checked for containment in this queue
+     * @return <tt>true</tt> if this queue contains the specified element
+     * @throws ClassCastException
+     *             if the class of the specified element is incompatible with
+     *             this queue (optional)
+     * @throws NullPointerException
+     *             if the specified element is null (optional)
+     */
+    @Override
+    public boolean contains(Object o);
 
     /**
      * Removes all available elements from this queue and adds them to the given

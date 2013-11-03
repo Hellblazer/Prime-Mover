@@ -23,42 +23,36 @@ import java.io.File;
 import java.util.List;
 
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.InstantiationStrategy;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
 
 /**
  * Transform the module's classes to event driven simulation code.
  * 
- * @goal transform
- * 
- * @phase process-classes
- * 
- * @requiresDependencyResolution compile
  */
+@Mojo(name = "transform", defaultPhase = LifecyclePhase.PROCESS_CLASSES, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME, threadSafe = false, executionStrategy = "once-per-session", instantiationStrategy = InstantiationStrategy.PER_LOOKUP, requiresDependencyCollection = ResolutionScope.COMPILE_PLUS_RUNTIME)
 public class CompileTransform extends AbstractTransform {
 
-    /**
-     * @parameter expression="${project.runtimeClasspathElements}"
-     * @readonly
-     */
+    @Parameter(property = "project.runtime.ClasspathElements", readonly = true)
     protected List<String> runtimeClasspathElements;
 
-    /**
-     * The build output directory
-     * 
-     * @parameter expression="${project.build.outputDirectory}"
-     * @required
-     * @readonly
-     */
-    File buildOutputDirectory;
+    @Parameter(property = "project.build.outputDirectory", readonly = true)
+    File                   buildOutputDirectory;
 
     @Override
     protected String getCompileClasspath() throws MojoExecutionException {
         StringBuffer classpath = new StringBuffer();
-        classpath.append(getJavaClasspath());
+        classpath.append(getBootClasspath());
         for (Object element : runtimeClasspathElements) {
             classpath.append(':');
             classpath.append(element);
         }
-        return classpath.toString();
+        String pathString = classpath.toString();
+        getLog().info(String.format("Transform classpath: %s", pathString));
+        return pathString;
     }
 
     @Override

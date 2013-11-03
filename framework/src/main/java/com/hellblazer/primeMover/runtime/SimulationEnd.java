@@ -28,8 +28,8 @@ import java.lang.reflect.Method;
  * 
  */
 public class SimulationEnd extends Error {
-    public static Method END_SIMULATION_METHOD = getEndSimulationMethod();
-    private static final long serialVersionUID = 1L;
+    public static Method      END_SIMULATION_METHOD = getEndSimulationMethod();
+    private static final long serialVersionUID      = 1L;
 
     public static void endSimulation() {
         throw new SimulationEnd("Simulation has ended");

@@ -48,92 +48,6 @@ public class SplayQueueTest extends TestCase {
         assertTrue(pqueue.size() == 4);
     }
 
-    public void testRemove() {
-        assertTrue(pqueue.remove() == 1);
-        assertTrue(pqueue.remove() == 2);
-        assertTrue(pqueue.remove() == 3);
-    }
-
-    public void testIsEmpty() {
-        int n = pqueue.size();
-        for (int i = 0; i < n; i++) {
-            pqueue.remove();
-        }
-        pqueue.size();
-        assertTrue(pqueue.isEmpty());
-    }
-
-    public void testLargeInsert() {
-
-        Queue<Integer> t = new SplayQueue<Integer>();
-        final int nums = 40000;
-        final int gap = 307;
-        ArrayList<Integer> inserted = new ArrayList<Integer>();
-
-        for (int i = gap; i != 0; i = (i + gap) % nums) {
-            assertTrue(t.add(i));
-            inserted.add(i);
-        }
-
-        for (int i : inserted) {
-            assertTrue(t.contains(i));
-        }
-
-        assertEquals(nums - 1, t.size());
-    }
-
-    public void testIterator() {
-        Queue<Integer> t = new SplayQueue<Integer>();
-        final int targetSize = 40000;
-        final int gap = 307;
-        ArrayList<Integer> inserted = new ArrayList<Integer>();
-
-        for (int i = gap; i != 0; i = (i + gap) % targetSize) {
-            t.add(i);
-            inserted.add(i);
-        }
-        Collections.sort(inserted);
-        int i = 0;
-        for (int e : t) {
-            assertEquals(inserted.get(i++).intValue(), e);
-        }
-    }
-
-    public void testLargeRemoveObject() {
-        Queue<Integer> t = new SplayQueue<Integer>();
-        final int targetSize = 40000;
-        final int gap = 307;
-        ArrayList<Integer> inserted = new ArrayList<Integer>();
-
-        for (int i = gap; i != 0; i = (i + gap) % targetSize) {
-            t.add(i);
-            inserted.add(i);
-        }
-
-        for (int i : inserted) {
-            assertTrue(t.remove(i));
-        }
-        assertEquals(0, t.size());
-    }
-
-    public void testLargeRemove() {
-        Queue<Integer> t = new SplayQueue<Integer>();
-        final int targetSize = 40000;
-        final int gap = 307;
-        ArrayList<Integer> inserted = new ArrayList<Integer>();
-
-        for (int i = gap; i != 0; i = (i + gap) % targetSize) {
-            t.add(i);
-            inserted.add(i);
-        }
-
-        Collections.sort(inserted);
-        for (int i : inserted) {
-            assertEquals(i, t.remove().intValue());
-        }
-        assertEquals(0, t.size());
-    }
-
     public void testDuplicates() {
         Random random = new Random(666);
         Queue<Integer> t = new SplayQueue<Integer>();
@@ -155,5 +69,91 @@ public class SplayQueueTest extends TestCase {
             assertEquals(i, t.remove().intValue());
         }
         assertEquals(0, t.size());
+    }
+
+    public void testIsEmpty() {
+        int n = pqueue.size();
+        for (int i = 0; i < n; i++) {
+            pqueue.remove();
+        }
+        pqueue.size();
+        assertTrue(pqueue.isEmpty());
+    }
+
+    public void testIterator() {
+        Queue<Integer> t = new SplayQueue<Integer>();
+        final int targetSize = 40000;
+        final int gap = 307;
+        ArrayList<Integer> inserted = new ArrayList<Integer>();
+
+        for (int i = gap; i != 0; i = (i + gap) % targetSize) {
+            t.add(i);
+            inserted.add(i);
+        }
+        Collections.sort(inserted);
+        int i = 0;
+        for (int e : t) {
+            assertEquals(inserted.get(i++).intValue(), e);
+        }
+    }
+
+    public void testLargeInsert() {
+
+        Queue<Integer> t = new SplayQueue<Integer>();
+        final int nums = 40000;
+        final int gap = 307;
+        ArrayList<Integer> inserted = new ArrayList<Integer>();
+
+        for (int i = gap; i != 0; i = (i + gap) % nums) {
+            assertTrue(t.add(i));
+            inserted.add(i);
+        }
+
+        for (int i : inserted) {
+            assertTrue(t.contains(i));
+        }
+
+        assertEquals(nums - 1, t.size());
+    }
+
+    public void testLargeRemove() {
+        Queue<Integer> t = new SplayQueue<Integer>();
+        final int targetSize = 40000;
+        final int gap = 307;
+        ArrayList<Integer> inserted = new ArrayList<Integer>();
+
+        for (int i = gap; i != 0; i = (i + gap) % targetSize) {
+            t.add(i);
+            inserted.add(i);
+        }
+
+        Collections.sort(inserted);
+        for (int i : inserted) {
+            assertEquals(i, t.remove().intValue());
+        }
+        assertEquals(0, t.size());
+    }
+
+    public void testLargeRemoveObject() {
+        Queue<Integer> t = new SplayQueue<Integer>();
+        final int targetSize = 40000;
+        final int gap = 307;
+        ArrayList<Integer> inserted = new ArrayList<Integer>();
+
+        for (int i = gap; i != 0; i = (i + gap) % targetSize) {
+            t.add(i);
+            inserted.add(i);
+        }
+
+        for (int i : inserted) {
+            assertTrue(t.remove(i));
+        }
+        assertEquals(0, t.size());
+    }
+
+    public void testRemove() {
+        assertTrue(pqueue.remove() == 1);
+        assertTrue(pqueue.remove() == 2);
+        assertTrue(pqueue.remove() == 3);
     }
 }

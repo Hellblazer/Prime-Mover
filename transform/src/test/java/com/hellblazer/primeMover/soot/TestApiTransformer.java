@@ -33,6 +33,7 @@ public class TestApiTransformer extends TestCase {
 
     public void testTransform() throws Exception {
         G.reset();
+        SimulationTransform.setStandardClassPath();
         Options.v().set_keep_line_number(true);
         PhaseOptions.v().setPhaseOption("tag.ln", "on");
         SootClass apiUserClass = Scene.v().loadClassAndSupport(ApiUserImpl.class.getCanonicalName());

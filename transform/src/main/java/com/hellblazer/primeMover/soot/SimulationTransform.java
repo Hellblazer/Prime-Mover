@@ -22,10 +22,14 @@ package com.hellblazer.primeMover.soot;
 import static com.hellblazer.primeMover.soot.util.Utils.isEntity;
 import static java.util.Arrays.asList;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import soot.PackManager;
 import soot.PhaseOptions;
@@ -46,8 +50,118 @@ import soot.options.Options;
  * 
  */
 public class SimulationTransform {
+    private static Logger log = Logger.getLogger(SimulationTransform.class.getCanonicalName());
+
+    public static String getBootClasspath() {
+        String cp = System.getProperty("sun.boot.class.path");
+        if (cp != null) {
+            log.info(String.format("Using[1] boot class path: %s", cp));
+            return cp;
+        }
+        cp = System.getProperty("java.boot.class.path");
+        if (cp != null) {
+            log.info(String.format("Using[2] boot class path: %s", cp));
+            return cp;
+        }
+        Enumeration<?> i = System.getProperties().propertyNames();
+        String name = null;
+        while (i.hasMoreElements()) {
+            String temp = (String) i.nextElement();
+            if (temp.indexOf(".boot.class.path") != -1) {
+                if (name == null) {
+                    name = temp;
+                } else {
+                    throw new IllegalStateException(
+                                                    "Cannot auto-detect boot class path "
+                                                            + System.getProperty("java.version"));
+                }
+            }
+        }
+        if (name == null) {
+            String version = System.getProperty("java.version");
+            if (version.startsWith("1.1.")) {
+                // by default, the current directory is added to the classpath
+                // we therefore need to strip that out
+                cp = System.getProperty("java.class.path");
+                cp = removeAll(cp, ".");
+                cp = removeAll(cp, new File(".").getAbsolutePath());
+                try {
+                    cp = removeAll(cp, new File(".").getCanonicalPath());
+                } catch (IOException e) {
+                    // ignore
+                }
+                cp = removeAll(cp,
+                               new File(".").getAbsolutePath()
+                                       + System.getProperty("file.separator"));
+                try {
+                    cp = removeAll(cp, new File(".").getCanonicalPath()
+                                       + System.getProperty("file.separator"));
+                } catch (IOException e) {
+                    // ignore
+                }
+                log.info(String.format("Using[3] boot class path: %s", cp));
+                return cp;
+            }
+            log.severe("Cannot auto-detect boot class path "
+                       + System.getProperty("java.version") + " "
+                       + System.getProperty("java.class.path"));
+            throw new IllegalStateException(
+                                            "Cannot auto-detect boot class path ");
+        }
+        log.info(String.format("Using[4] boot class path: %s",
+                               System.getProperty(name)));
+        return System.getProperty(name);
+    }
+
+    public static boolean isWindows() {
+        return System.getProperty("os.name").toUpperCase().startsWith("WINDOWS");
+    }
+
     public static void main(String[] args) {
-        new SimulationTransform().execute(args);
+        try {
+            new SimulationTransform().execute(args);
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static String removeAll(String cp, String prefix) {
+        String pathSeparator = System.getProperty("path.separator");
+        if (cp.startsWith(prefix + pathSeparator)) {
+            cp = cp.substring(prefix.length() + pathSeparator.length());
+        }
+        int j;
+        while (-1 != (j = cp.indexOf(pathSeparator + prefix + pathSeparator))) {
+            cp = cp.substring(0, j)
+                 + cp.substring(j + prefix.length() + pathSeparator.length());
+        }
+        if (cp.endsWith(pathSeparator + prefix)) {
+            cp = cp.substring(0,
+                              cp.length() - prefix.length()
+                                      + pathSeparator.length());
+        }
+        if (isWindows()) {
+            // we might have the prefix or the classpath case differing
+            if (cp.toUpperCase().startsWith((prefix + pathSeparator).toUpperCase())) {
+                cp = cp.substring(prefix.length() + pathSeparator.length());
+            }
+            while (-1 != (j = cp.toUpperCase().indexOf((pathSeparator + prefix + pathSeparator).toUpperCase()))) {
+                cp = cp.substring(0, j)
+                     + cp.substring(j + prefix.length()
+                                    + pathSeparator.length());
+            }
+            if (cp.toUpperCase().endsWith((pathSeparator + prefix).toUpperCase())) {
+                cp = cp.substring(0, cp.length() - prefix.length()
+                                     + pathSeparator.length());
+            }
+        }
+        return cp;
+    }
+
+    public static void setStandardClassPath() {
+        Options.v().set_soot_classpath(String.format("%s:%s",
+                                                     getBootClasspath(),
+                                                     System.getProperty("java.class.path")));
     }
 
     private String generatedDirectory;
@@ -122,4 +236,5 @@ public class SimulationTransform {
     public void setGeneratedDirectory(String generatedDirectory) {
         this.generatedDirectory = generatedDirectory;
     }
+
 }

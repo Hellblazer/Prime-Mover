@@ -45,6 +45,11 @@ public class SteppingController extends Devi {
         this.eventQueue = eventQueue;
     }
 
+    @Override
+    protected void post(EventImpl event) {
+        eventQueue.add(event);
+    }
+
     public boolean step() throws SimulationException {
         if (getCurrentTime() < 0) {
             setCurrentTime(0);
@@ -67,10 +72,5 @@ public class SteppingController extends Devi {
             Framework.setController(current);
         }
         return true;
-    }
-
-    @Override
-    protected void post(EventImpl event) {
-        eventQueue.add(event);
     }
 }

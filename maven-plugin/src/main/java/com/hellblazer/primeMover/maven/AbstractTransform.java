@@ -43,22 +43,22 @@ public abstract class AbstractTransform extends AbstractMojo {
     public void execute() throws MojoExecutionException {
         G.reset();
         String classpath = getCompileClasspath();
+        getLog().info(String.format("Using transform classpath: %s", classpath));
         Options.v().set_soot_classpath(classpath);
         Options.v().set_process_dir(asList(getProcessDirectory()));
         Options.v().set_output_dir(getOutputDirectory());
         SimulationTransform.main(null);
     }
 
-    abstract protected String getCompileClasspath()
-                                                   throws MojoExecutionException;
-
-    String getJavaClasspath() throws MojoExecutionException {
+    String getBootClasspath() throws MojoExecutionException {
         String cp = System.getProperty("sun.boot.class.path");
         if (cp != null) {
+            getLog().info(String.format("Using[1] boot class path: %s", cp));
             return cp;
         }
         cp = System.getProperty("java.boot.class.path");
         if (cp != null) {
+            getLog().info(String.format("Using[2] boot class path: %s", cp));
             return cp;
         }
         Enumeration<?> i = System.getProperties().propertyNames();
@@ -69,9 +69,9 @@ public abstract class AbstractTransform extends AbstractMojo {
                 if (name == null) {
                     name = temp;
                 } else {
-                    System.err.println("Cannot auto-detect boot class path "
-                                       + System.getProperty("java.version"));
-                    System.exit(1);
+                    throw new MojoExecutionException(
+                                                     "Cannot auto-detect boot class path "
+                                                             + System.getProperty("java.version"));
                 }
             }
         }
@@ -97,6 +97,7 @@ public abstract class AbstractTransform extends AbstractMojo {
                 } catch (IOException e) {
                     // ignore
                 }
+                getLog().info(String.format("Using[3] boot class path: %s", cp));
                 return cp;
             }
             getLog().error("Cannot auto-detect boot class path "
@@ -105,8 +106,13 @@ public abstract class AbstractTransform extends AbstractMojo {
             throw new MojoExecutionException(
                                              "Cannot auto-detect boot class path ");
         }
+        getLog().info(String.format("Using[4] boot class path: %s",
+                                    System.getProperty(name)));
         return System.getProperty(name);
     }
+
+    abstract protected String getCompileClasspath()
+                                                   throws MojoExecutionException;
 
     abstract String getOutputDirectory();
 

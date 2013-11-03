@@ -40,15 +40,15 @@ import com.hellblazer.primeMover.runtime.SplayQueue;
  */
 
 public class SimulationController extends Devi implements StatisticalController {
-    static final Logger log = Logger.getLogger(SimulationController.class.getCanonicalName());
-    protected long endTime = Long.MAX_VALUE;
+    static final Logger            log      = Logger.getLogger(SimulationController.class.getCanonicalName());
+    protected long                 endTime  = Long.MAX_VALUE;
     protected Map<String, Integer> spectrum = new HashMap<String, Integer>();
-    protected Queue<EventImpl> eventQueue;
-    protected String name = "Prime Mover Simulation Event Evaluation";
-    protected long simulationEnd;
-    protected long simulationStart;
+    protected Queue<EventImpl>     eventQueue;
+    protected String               name     = "Prime Mover Simulation Event Evaluation";
+    protected long                 simulationEnd;
+    protected long                 simulationStart;
 
-    protected int totalEvents;
+    protected int                  totalEvents;
 
     public SimulationController() {
         this(new SplayQueue<EventImpl>());
@@ -156,6 +156,11 @@ public class SimulationController extends Devi implements StatisticalController 
         return totalEvents;
     }
 
+    @Override
+    protected void post(EventImpl event) {
+        eventQueue.add(event);
+    }
+
     /**
      * Set the scheduled end time of the simulation.
      * 
@@ -198,10 +203,5 @@ public class SimulationController extends Devi implements StatisticalController 
             inc = Integer.valueOf(0);
         }
         spectrum.put(signature, inc + 1);
-    }
-
-    @Override
-    protected void post(EventImpl event) {
-        eventQueue.add(event);
     }
 }

@@ -40,16 +40,6 @@ import com.hellblazer.primeMover.SynchronousQueue;
 @Entity
 public class SynchronousQueueImpl<E> implements SynchronousQueue<E> {
 
-    private class Node {
-        EventImpl consumer;
-        EventImpl producer;
-        E data;
-
-        boolean hasData() {
-            return data != null;
-        }
-    }
-
     static class EmptyIterator<E> implements Iterator<E> {
         @Override
         public boolean hasNext() {
@@ -76,9 +66,9 @@ public class SynchronousQueueImpl<E> implements SynchronousQueue<E> {
     static class entity<E> extends SynchronousQueueImpl<E> implements
             EntityReference {
         private final static int OFFER_TIMEOUT = 0;
-        private final static int POLL_TIMEOUT = 1;
-        private final static int PUT = 2;
-        private final static int TAKE = 3;
+        private final static int POLL_TIMEOUT  = 1;
+        private final static int PUT           = 2;
+        private final static int TAKE          = 3;
 
         entity(Devi controller) {
             this.controller = controller;
@@ -172,7 +162,17 @@ public class SynchronousQueueImpl<E> implements SynchronousQueue<E> {
 
     }
 
-    protected Devi controller;
+    private class Node {
+        EventImpl consumer;
+        EventImpl producer;
+        E         data;
+
+        boolean hasData() {
+            return data != null;
+        }
+    }
+
+    protected Devi            controller;
 
     private final Deque<Node> waitList = new ArrayDeque<SynchronousQueueImpl<E>.Node>();
 
@@ -261,6 +261,21 @@ public class SynchronousQueueImpl<E> implements SynchronousQueue<E> {
             }
         }
         return modified;
+    }
+
+    private void addConsumer() {
+        Node node;
+        node = new Node();
+        node.consumer = controller.swapCaller(null);
+        waitList.add(node);
+    }
+
+    private void addProducer(E data) {
+        Node node;
+        node = new Node();
+        node.data = data;
+        node.producer = controller.swapCaller(null);
+        waitList.add(node);
     }
 
     /**
@@ -361,6 +376,43 @@ public class SynchronousQueueImpl<E> implements SynchronousQueue<E> {
     @Override
     public E element() {
         return null;
+    }
+
+    private void enqueue(E data) {
+        Node node;
+        if (waitList.isEmpty()) {
+            addProducer(data);
+            return;
+        } else {
+            node = waitList.getFirst();
+            if (node.hasData()) {
+                // iterate and find a slot for this producer
+                for (Node waiter : waitList) {
+                    if (!node.hasData()) {
+                        waiter.data = data;
+                        waiter.producer = controller.swapCaller(null);
+                    }
+                    return;
+                }
+                Node node1;
+                node1 = new Node();
+                node1.data = data;
+                node1.producer = controller.swapCaller(null);
+                waitList.add(node1);
+                return;
+            }
+        }
+        node.data = data;
+        node.producer = controller.swapCaller(null);
+        if (node.consumer != null) {
+            // schedule receive callback with result
+            node.consumer.setTime(controller.getCurrentTime());
+            node.consumer.getContinuation().setReturnValue(node.data);
+            controller.post(node.consumer);
+            // return to sender
+            controller.swapCaller(node.producer);
+            waitList.removeFirst();
+        }
     }
 
     /**
@@ -633,57 +685,5 @@ public class SynchronousQueueImpl<E> implements SynchronousQueue<E> {
             a[0] = null;
         }
         return a;
-    }
-
-    private void addConsumer() {
-        Node node;
-        node = new Node();
-        node.consumer = controller.swapCaller(null);
-        waitList.add(node);
-    }
-
-    private void addProducer(E data) {
-        Node node;
-        node = new Node();
-        node.data = data;
-        node.producer = controller.swapCaller(null);
-        waitList.add(node);
-    }
-
-    private void enqueue(E data) {
-        Node node;
-        if (waitList.isEmpty()) {
-            addProducer(data);
-            return;
-        } else {
-            node = waitList.getFirst();
-            if (node.hasData()) {
-                // iterate and find a slot for this producer
-                for (Node waiter : waitList) {
-                    if (!node.hasData()) {
-                        waiter.data = data;
-                        waiter.producer = controller.swapCaller(null);
-                    }
-                    return;
-                }
-                Node node1;
-                node1 = new Node();
-                node1.data = data;
-                node1.producer = controller.swapCaller(null);
-                waitList.add(node1);
-                return;
-            }
-        }
-        node.data = data;
-        node.producer = controller.swapCaller(null);
-        if (node.consumer != null) {
-            // schedule receive callback with result
-            node.consumer.setTime(controller.getCurrentTime());
-            node.consumer.getContinuation().setReturnValue(node.data);
-            controller.post(node.consumer);
-            // return to sender
-            controller.swapCaller(node.producer);
-            waitList.removeFirst();
-        }
     }
 }

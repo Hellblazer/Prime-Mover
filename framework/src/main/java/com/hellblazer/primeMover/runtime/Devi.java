@@ -34,17 +34,17 @@ import com.hellblazer.primeMover.SimulationException;
  * @author <a href="mailto:hal.hildebrand@gmail.com">Hal Hildebrand</a>
  */
 abstract public class Devi implements Controller {
-    private static final String $ENTITY$GEN = "$entity$gen";
-    private EventImpl blockingEvent;
-    private EventImpl continuingEvent;
-    private ContinuationFrame returnFrame;
-    private EventImpl caller;
-    private ContinuationFrame currentFrame;
-    private EventImpl currentEvent;
-    private long currentTime = 0;
-    private boolean debugEvents = false;
-    private Logger eventLog;
-    private boolean trackEventSources = false;
+    private static final String $ENTITY$GEN       = "$entity$gen";
+    private EventImpl           blockingEvent;
+    private EventImpl           continuingEvent;
+    private ContinuationFrame   returnFrame;
+    private EventImpl           caller;
+    private ContinuationFrame   currentFrame;
+    private EventImpl           currentEvent;
+    private long                currentTime       = 0;
+    private boolean             debugEvents       = false;
+    private Logger              eventLog;
+    private boolean             trackEventSources = false;
 
     /**
      * Advance the current time of the controller
@@ -67,154 +67,6 @@ abstract public class Devi implements Controller {
         currentFrame = null;
         caller = null;
         currentEvent = null;
-    }
-
-    /**
-     * Answer the current event of the controller
-     * 
-     * @return
-     */
-    @Override
-    public Event getCurrentEvent() {
-        return currentEvent;
-    }
-
-    /**
-     * Answer the current instant in time of the controller
-     * 
-     * @return
-     */
-    @Override
-    public long getCurrentTime() {
-        return currentTime;
-    }
-
-    /**
-     * @return true if the controller is collecting debug information as to the
-     *         source of where the event was raised
-     */
-    @Override
-    public boolean isDebugEvents() {
-        return debugEvents;
-    }
-
-    /**
-     * @return true if the controller is tracking event sources
-     */
-    @Override
-    public boolean isTrackEventSources() {
-        return trackEventSources;
-    }
-
-    /**
-     * Post the event to be evaluated. The event is blocking, meaning that it
-     * will cause the caller to continue execution until the event is processed.
-     * 
-     * @param entity
-     *            - the target of the event
-     * @param event
-     *            - the event event
-     * @param arguments
-     *            - the arguments to the event
-     * @return
-     * @throws Throwable
-     */
-    @Override
-    public Object postContinuingEvent(EntityReference entity, int event,
-                                      Object... arguments) throws Throwable {
-        assert blockingEvent == null;
-        assert currentEvent != null;
-        if (restoreFrame()) {
-            returnFrame = null;
-            return currentEvent.getContinuation().returnFrom();
-        }
-        blockingEvent = createEvent(currentTime, entity, event, arguments);
-        continuingEvent = currentEvent.clone(currentTime);
-        currentFrame = BASE;
-        return null;
-    }
-
-    /**
-     * Post the event to be evaluated
-     * 
-     * @param entity
-     *            - the target of the event
-     * @param event
-     *            - the event event
-     * @param arguments
-     *            - the arguments to the event
-     */
-    @Override
-    public void postEvent(EntityReference entity, int event,
-                          Object... arguments) {
-        post(createEvent(currentTime, entity, event, arguments));
-    }
-
-    /**
-     * Post the event to be evaluated at the specified instant in time
-     * 
-     * @param time
-     *            - the instant in time the event is to be processed
-     * @param entity
-     *            - the target of the event
-     * @param event
-     *            - the event event
-     * @param arguments
-     *            - the arguments to the event
-     */
-    @Override
-    public void postEvent(long time, EntityReference entity, int event,
-                          Object... arguments) {
-        post(createEvent(time, entity, event, arguments));
-    }
-
-    /**
-     * Set the current time of the controller
-     * 
-     * @param time
-     */
-    @Override
-    public void setCurrentTime(long time) {
-        currentTime = time;
-    }
-
-    /**
-     * Configure the collecting of debug information for raised events. When
-     * debug is enabled, the controller will record the source location where an
-     * event was raised. The collection of debug information for events is
-     * expensive and significantly impacts the performance of the simulation
-     * event processing.
-     * 
-     * @param debug
-     *            - true to trigger the collecting of event debug information
-     */
-    @Override
-    public void setDebugEvents(boolean debug) {
-        debugEvents = debug;
-    }
-
-    /**
-     * Configure the logger for tracing all event processing
-     * 
-     * @param eventLog
-     */
-    @Override
-    public void setEventLogger(Logger eventLog) {
-        this.eventLog = eventLog;
-    }
-
-    /**
-     * Configure whether the controller will track the source event of a raised
-     * event. Tracking event sources has garbage collection implications, as
-     * event chains prevent the elimantion of previous events which have already
-     * been processed.
-     * 
-     * @param track
-     *            - true to track event sources
-     */
-    @Override
-    public void setTrackEventSources(boolean track) {
-        trackEventSources = track;
     }
 
     protected EventImpl createEvent(long time, EntityReference entity,
@@ -284,6 +136,43 @@ abstract public class Devi implements Controller {
     }
 
     /**
+     * Answer the current event of the controller
+     * 
+     * @return
+     */
+    @Override
+    public Event getCurrentEvent() {
+        return currentEvent;
+    }
+
+    /**
+     * Answer the current instant in time of the controller
+     * 
+     * @return
+     */
+    @Override
+    public long getCurrentTime() {
+        return currentTime;
+    }
+
+    /**
+     * @return true if the controller is collecting debug information as to the
+     *         source of where the event was raised
+     */
+    @Override
+    public boolean isDebugEvents() {
+        return debugEvents;
+    }
+
+    /**
+     * @return true if the controller is tracking event sources
+     */
+    @Override
+    public boolean isTrackEventSources() {
+        return trackEventSources;
+    }
+
+    /**
      * Pop the frame off the continuation stack
      * 
      * @return
@@ -300,6 +189,68 @@ abstract public class Devi implements Controller {
      * @param event
      */
     abstract protected void post(EventImpl event);
+
+    /**
+     * Post the event to be evaluated. The event is blocking, meaning that it
+     * will cause the caller to continue execution until the event is processed.
+     * 
+     * @param entity
+     *            - the target of the event
+     * @param event
+     *            - the event event
+     * @param arguments
+     *            - the arguments to the event
+     * @return
+     * @throws Throwable
+     */
+    @Override
+    public Object postContinuingEvent(EntityReference entity, int event,
+                                      Object... arguments) throws Throwable {
+        assert blockingEvent == null;
+        assert currentEvent != null;
+        if (restoreFrame()) {
+            returnFrame = null;
+            return currentEvent.getContinuation().returnFrom();
+        }
+        blockingEvent = createEvent(currentTime, entity, event, arguments);
+        continuingEvent = currentEvent.clone(currentTime);
+        currentFrame = BASE;
+        return null;
+    }
+
+    /**
+     * Post the event to be evaluated
+     * 
+     * @param entity
+     *            - the target of the event
+     * @param event
+     *            - the event event
+     * @param arguments
+     *            - the arguments to the event
+     */
+    @Override
+    public void postEvent(EntityReference entity, int event,
+                          Object... arguments) {
+        post(createEvent(currentTime, entity, event, arguments));
+    }
+
+    /**
+     * Post the event to be evaluated at the specified instant in time
+     * 
+     * @param time
+     *            - the instant in time the event is to be processed
+     * @param entity
+     *            - the target of the event
+     * @param event
+     *            - the event event
+     * @param arguments
+     *            - the arguments to the event
+     */
+    @Override
+    public void postEvent(long time, EntityReference entity, int event,
+                          Object... arguments) {
+        post(createEvent(time, entity, event, arguments));
+    }
 
     /**
      * Answer true if the caller is to restore the continuation frame
@@ -327,6 +278,55 @@ abstract public class Devi implements Controller {
      */
     protected boolean saveFrame() {
         return blockingEvent != null;
+    }
+
+    /**
+     * Set the current time of the controller
+     * 
+     * @param time
+     */
+    @Override
+    public void setCurrentTime(long time) {
+        currentTime = time;
+    }
+
+    /**
+     * Configure the collecting of debug information for raised events. When
+     * debug is enabled, the controller will record the source location where an
+     * event was raised. The collection of debug information for events is
+     * expensive and significantly impacts the performance of the simulation
+     * event processing.
+     * 
+     * @param debug
+     *            - true to trigger the collecting of event debug information
+     */
+    @Override
+    public void setDebugEvents(boolean debug) {
+        debugEvents = debug;
+    }
+
+    /**
+     * Configure the logger for tracing all event processing
+     * 
+     * @param eventLog
+     */
+    @Override
+    public void setEventLogger(Logger eventLog) {
+        this.eventLog = eventLog;
+    }
+
+    /**
+     * Configure whether the controller will track the source event of a raised
+     * event. Tracking event sources has garbage collection implications, as
+     * event chains prevent the elimantion of previous events which have already
+     * been processed.
+     * 
+     * @param track
+     *            - true to track event sources
+     */
+    @Override
+    public void setTrackEventSources(boolean track) {
+        trackEventSources = track;
     }
 
     /**

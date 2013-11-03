@@ -189,8 +189,9 @@ public class TestEntityGenerator extends TestCase {
 
     @Override
     protected void setUp() throws Exception {
-        super.setUp();
+        super.setUp(); 
         G.reset();
+        SimulationTransform.setStandardClassPath();
         Options.v().set_validate(true);
         Scene.v().loadBasicClasses();
         generated = new ArrayList<SootClass>();

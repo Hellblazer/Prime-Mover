@@ -67,39 +67,40 @@ import com.hellblazer.primeMover.soot.util.MethodHelper;
  * 
  */
 public class EntityGenerator {
-    private static Logger log = Logger.getLogger(EntityGenerator.class.getCanonicalName());
-    private static final String INIT = "<init>";
-    private static final String NO_ARG_CONSTRUCTOR_SIGNATURE = "void <init>()";
-    private static final String FRAMEWORK_POST_EVENT_SIGNATURE = "void postEvent(com.hellblazer.primeMover.runtime.EntityReference,int,java.lang.Object[])";
-    private static final String FRAMEWORK_POST_CONTINUING_EVENT_SIGNATURE = "java.lang.Object postContinuingEvent(com.hellblazer.primeMover.runtime.EntityReference,int,java.lang.Object[])";
-    private static final String CLINIT = "<clinit>";
-    public static final String CONTROLLER_FIELD = "__controller";
-    public static final String SIGNATURE_FOR_METHOD_NAME = "__signatureFor";
-    public static final String INITIALIZE_METHOD_NAME = "__initialize";
-    public static final String INITIALIZED_FIELD = "__initialized";
-    public static final String EVENT_MAP = "__EVENT_MAP";
-    public static final String INVOKE_METHOD_NAME = "__invoke";
-    public static final String GENERATED_ENTITY_SUFFIX = "$entity$gen";
+    private static Logger                  log                                       = Logger.getLogger(EntityGenerator.class.getCanonicalName());
+    private static final String            INIT                                      = "<init>";
+    private static final String            NO_ARG_CONSTRUCTOR_SIGNATURE              = "void <init>()";
+    private static final String            FRAMEWORK_POST_EVENT_SIGNATURE            = "void postEvent(com.hellblazer.primeMover.runtime.EntityReference,int,java.lang.Object[])";
+    private static final String            FRAMEWORK_POST_CONTINUING_EVENT_SIGNATURE = "java.lang.Object postContinuingEvent(com.hellblazer.primeMover.runtime.EntityReference,int,java.lang.Object[])";
+    private static final String            CLINIT                                    = "<clinit>";
+    public static final String             CONTROLLER_FIELD                          = "__controller";
+    public static final String             SIGNATURE_FOR_METHOD_NAME                 = "__signatureFor";
+    public static final String             INITIALIZE_METHOD_NAME                    = "__initialize";
+    public static final String             INITIALIZED_FIELD                         = "__initialized";
+    public static final String             EVENT_MAP                                 = "__EVENT_MAP";
+    public static final String             INVOKE_METHOD_NAME                        = "__invoke";
+    public static final String             GENERATED_ENTITY_SUFFIX                   = "$entity$gen";
 
-    private final boolean validate;
-    private final SootClass base;
-    private final SootClass entity;
-    private final Map<SootMethod, Integer> invokeMap = new HashMap<SootMethod, Integer>();
-    private final Map<Integer, SootMethod> inverseInvokeMap = new TreeMap<Integer, SootMethod>();
+    private final boolean                  validate;
+    private final SootClass                base;
+    private final SootClass                entity;
+    private final Map<SootMethod, Integer> invokeMap                                 = new HashMap<SootMethod, Integer>();
+    private final Map<Integer, SootMethod> inverseInvokeMap                          = new TreeMap<Integer, SootMethod>();
 
-    private final SootClass framework = Scene.v().loadClass("com.hellblazer.primeMover.runtime.Framework",
-                                                            SootClass.SIGNATURES);
-    private final SootClass devi = Scene.v().loadClass("com.hellblazer.primeMover.runtime.Devi",
-                                                       SootClass.SIGNATURES);
-    private final SootClass object = Scene.v().loadClass(Object.class.getCanonicalName(),
-                                                         SootClass.SIGNATURES);
-    private final SootClass string = Scene.v().loadClass(String.class.getCanonicalName(),
-                                                         SootClass.SIGNATURES);
-    private final Type stringArrayType = ArrayType.v(string.getType(), 1);
-    private final SootClass entityReference = Scene.v().loadClass("com.hellblazer.primeMover.runtime.EntityReference",
-                                                                  SootClass.SIGNATURES);
-    private final SootClass noSuchMethodError = Scene.v().loadClass(NoSuchMethodError.class.getCanonicalName(),
-                                                                    SootClass.SIGNATURES);
+    private final SootClass                framework                                 = Scene.v().loadClass("com.hellblazer.primeMover.runtime.Framework",
+                                                                                                           SootClass.SIGNATURES);
+    private final SootClass                devi                                      = Scene.v().loadClass("com.hellblazer.primeMover.runtime.Devi",
+                                                                                                           SootClass.SIGNATURES);
+    private final SootClass                object                                    = Scene.v().loadClass(Object.class.getCanonicalName(),
+                                                                                                           SootClass.SIGNATURES);
+    private final SootClass                string                                    = Scene.v().loadClass(String.class.getCanonicalName(),
+                                                                                                           SootClass.SIGNATURES);
+    private final Type                     stringArrayType                           = ArrayType.v(string.getType(),
+                                                                                                   1);
+    private final SootClass                entityReference                           = Scene.v().loadClass("com.hellblazer.primeMover.runtime.EntityReference",
+                                                                                                           SootClass.SIGNATURES);
+    private final SootClass                noSuchMethodError                         = Scene.v().loadClass(NoSuchMethodError.class.getCanonicalName(),
+                                                                                                           SootClass.SIGNATURES);
 
     public EntityGenerator(List<SootClass> generated, SootClass base) {
         this(generated, base, false);
@@ -118,25 +119,30 @@ public class EntityGenerator {
         populateFields();
     }
 
-    public void generateEntity() {
-        constructInvokeMap();
-        generateClassInitMethod();
-        SootMethod initializeMethod = generateInitializeMethod();
-        generateSignatureForMethod();
-        generateConstructors(initializeMethod);
-        generateInvokeMethod();
-        for (SootMethod event : invokeMap.keySet()) {
-            generateEvent(event, initializeMethod);
+    protected void constructInvokeMap() {
+        HashSet<String> mapped = new HashSet<String>();
+        for (SootMethod method : object.getMethods()) {
+            if (method.isPublic() && !method.isStatic() && !isInit(method)) {
+                mapped.add(method.getSubSignature());
+            }
         }
-        markTransformed(base, this, "Generated entity proxy subclass");
-    }
-
-    public SootClass getBase() {
-        return base;
-    }
-
-    public SootClass getEntity() {
-        return entity;
+        int index = 0;
+        Collection<SootClass> entityInterfaces = getEntityInterfaces(base);
+        if (entityInterfaces.isEmpty()) {
+            index = gatherAllMethods(mapped, index);
+        } else {
+            for (SootClass iFace : entityInterfaces) {
+                index = gatherMethodsForInterface(iFace, mapped, index);
+            }
+        }
+        for (SootMethod method : inverseInvokeMap.values()) {
+            if (method.getReturnType() != VoidType.v()
+                && !isMarkedBlocking(method)) {
+                markBlocking(method);
+                log.info(String.format("Inferred blocking status of %1s.  Marking method as @Blocking",
+                                       method));
+            }
+        }
     }
 
     private SootMethod findMethod(String subSignature) {
@@ -184,41 +190,6 @@ public class EntityGenerator {
         return index;
     }
 
-    private boolean isEvent(SootMethod method) {
-        return method.isPublic() && method.isConcrete() && !method.isStatic()
-               && !isInit(method) && !isMarkedNonEvent(method);
-    }
-
-    private boolean isInit(SootMethod method) {
-        return method.getName().equals(INIT) || method.getName().equals(CLINIT);
-    }
-
-    protected void constructInvokeMap() {
-        HashSet<String> mapped = new HashSet<String>();
-        for (SootMethod method : object.getMethods()) {
-            if (method.isPublic() && !method.isStatic() && !isInit(method)) {
-                mapped.add(method.getSubSignature());
-            }
-        }
-        int index = 0;
-        Collection<SootClass> entityInterfaces = getEntityInterfaces(base);
-        if (entityInterfaces.isEmpty()) {
-            index = gatherAllMethods(mapped, index);
-        } else {
-            for (SootClass iFace : entityInterfaces) {
-                index = gatherMethodsForInterface(iFace, mapped, index);
-            }
-        }
-        for (SootMethod method : inverseInvokeMap.values()) {
-            if (method.getReturnType() != VoidType.v()
-                && !isMarkedBlocking(method)) {
-                markBlocking(method);
-                log.info(String.format("Inferred blocking status of %1s.  Marking method as @Blocking",
-                                       method));
-            }
-        }
-    }
-
     /**
      * Generate the static class initialization method. This method initializes
      * the map of event method signatures to their ordinal number.
@@ -257,7 +228,7 @@ public class EntityGenerator {
     protected SootMethod generateConstructor(SootMethod constructor,
                                              SootMethod initializeMethod) {
         @SuppressWarnings("unchecked")
-		MethodHelper helper = new MethodHelper(entity, constructor.getName(),
+        MethodHelper helper = new MethodHelper(entity, constructor.getName(),
                                                constructor.getParameterTypes(),
                                                VoidType.v(),
                                                constructor.getModifiers());
@@ -284,10 +255,23 @@ public class EntityGenerator {
         return constructors;
     }
 
+    public void generateEntity() {
+        constructInvokeMap();
+        generateClassInitMethod();
+        SootMethod initializeMethod = generateInitializeMethod();
+        generateSignatureForMethod();
+        generateConstructors(initializeMethod);
+        generateInvokeMethod();
+        for (SootMethod event : invokeMap.keySet()) {
+            generateEvent(event, initializeMethod);
+        }
+        markTransformed(base, this, "Generated entity proxy subclass");
+    }
+
     protected SootMethod generateEvent(SootMethod event,
                                        SootMethod initializeMethod) {
         @SuppressWarnings("unchecked")
-		MethodHelper helper = new MethodHelper(entity, event.getName(),
+        MethodHelper helper = new MethodHelper(entity, event.getName(),
                                                event.getParameterTypes(),
                                                event.getReturnType(),
                                                event.getModifiers());
@@ -349,7 +333,7 @@ public class EntityGenerator {
      */
     protected SootMethod generateInitializeMethod() {
         @SuppressWarnings("unchecked")
-		MethodHelper helper = new MethodHelper(entity, INITIALIZE_METHOD_NAME,
+        MethodHelper helper = new MethodHelper(entity, INITIALIZE_METHOD_NAME,
                                                Collections.EMPTY_LIST,
                                                VoidType.v(),
                                                Modifier.SYNCHRONIZED
@@ -504,12 +488,29 @@ public class EntityGenerator {
         return helper.getMethod();
     }
 
+    public SootClass getBase() {
+        return base;
+    }
+
+    public SootClass getEntity() {
+        return entity;
+    }
+
     protected String getSignature(SootMethod method) {
         StringBuffer buffer = new StringBuffer();
         buffer.append("<" + Scene.v().quotedNameOf(base.getName()) + ": ");
         buffer.append(method.getSubSignature());
         buffer.append(">");
         return buffer.toString();
+    }
+
+    private boolean isEvent(SootMethod method) {
+        return method.isPublic() && method.isConcrete() && !method.isStatic()
+               && !isInit(method) && !isMarkedNonEvent(method);
+    }
+
+    private boolean isInit(SootMethod method) {
+        return method.getName().equals(INIT) || method.getName().equals(CLINIT);
     }
 
     protected void populateFields() {

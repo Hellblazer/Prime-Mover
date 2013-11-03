@@ -37,54 +37,12 @@ import com.hellblazer.primeMover.runtime.SplayQueue;
  * @author <a href="mailto:hal.hildebrand@gmail.com">Hal Hildebrand</a>
  */
 abstract public class RealTimeController extends Devi {
-    private static final Logger log = Logger.getLogger(RealTimeController.class.getCanonicalName());
-    protected Thread animator;
-    protected Queue<EventImpl> eventQueue = new SplayQueue<EventImpl>();
-    protected String name;
+    private static final Logger log        = Logger.getLogger(RealTimeController.class.getCanonicalName());
+    protected Thread            animator;
+    protected Queue<EventImpl>  eventQueue = new SplayQueue<EventImpl>();
+    protected String            name;
 
-    protected AtomicBoolean running = new AtomicBoolean(false);
-
-    /**
-     * Set the name of the simulation.
-     * 
-     * @param name
-     */
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    /**
-     * Start the controller
-     */
-    public void start() {
-        if (running.getAndSet(true)) {
-            return;
-        }
-        animator = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                eventLoop();
-            }
-        }, "Event Animation Thread [" + name + "]");
-        animator.start();
-    }
-
-    /**
-     * Stop the simulation
-     */
-    public void stop() {
-        if (!running.getAndSet(false)) {
-            return;
-        }
-        synchronized (eventQueue) {
-            eventQueue.clear();
-            eventQueue.notify();
-        }
-        if (animator != null) {
-            animator.interrupt();
-        }
-        animator = null;
-    }
+    protected AtomicBoolean     running    = new AtomicBoolean(false);
 
     /**
      * the event loop of the simulation controller
@@ -135,5 +93,47 @@ abstract public class RealTimeController extends Devi {
                 LockSupport.unpark(animator);
             }
         }
+    }
+
+    /**
+     * Set the name of the simulation.
+     * 
+     * @param name
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
+     * Start the controller
+     */
+    public void start() {
+        if (running.getAndSet(true)) {
+            return;
+        }
+        animator = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                eventLoop();
+            }
+        }, "Event Animation Thread [" + name + "]");
+        animator.start();
+    }
+
+    /**
+     * Stop the simulation
+     */
+    public void stop() {
+        if (!running.getAndSet(false)) {
+            return;
+        }
+        synchronized (eventQueue) {
+            eventQueue.clear();
+            eventQueue.notify();
+        }
+        if (animator != null) {
+            animator.interrupt();
+        }
+        animator = null;
     }
 }

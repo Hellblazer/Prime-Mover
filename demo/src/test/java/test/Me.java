@@ -13,26 +13,26 @@ import com.hellblazer.primeMover.controllers.SimulationController;
 
 public class Me {
 
-	@Test
-	public void helloWorld() throws Exception {
-		SimulationController controller = new SimulationController();
-		controller.setEndTime(200);
-		Kronos.setController(controller);
-		new HelloWorld().event1();
-		controller.eventLoop();
-	}
+    @Test
+    public void helloWorld() throws Exception {
+        SimulationController controller = new SimulationController();
+        controller.setEndTime(200);
+        Kronos.setController(controller);
+        new HelloWorld().event1();
+        controller.eventLoop();
+    }
 
-	@Test
-	public void runDemo() throws Exception {
-		threaded();
-		System.out.println();
-		System.out.println();
-		channel();
-		System.out.println();
-		System.out.println();
-		eventContinuationThroughput();
-		System.out.println();
-		System.out.println();
-		eventThroughput();
-	}
+    @Test
+    public void runDemo() throws Exception {
+        threaded();
+        System.out.println();
+        System.out.println();
+        channel();
+        System.out.println();
+        System.out.println();
+        eventContinuationThroughput();
+        System.out.println();
+        System.out.println();
+        eventThroughput();
+    }
 }

@@ -29,11 +29,11 @@ import java.io.Serializable;
  */
 public class Continuation implements Serializable {
     private static final long serialVersionUID = -4307033871239385970L;
-    private EventImpl caller;
-    private Throwable exception;
+    private EventImpl         caller;
+    private Throwable         exception;
     private ContinuationFrame frame;
 
-    private Object returnValue;
+    private Object            returnValue;
 
     public Continuation(EventImpl caller) {
         this.caller = caller;

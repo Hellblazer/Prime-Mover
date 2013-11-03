@@ -49,8 +49,26 @@ public class ContinuationAnalysis extends SceneTransformer {
     private static Logger log = Logger.getLogger(ContinuationAnalysis.class.getCanonicalName());
 
     @SuppressWarnings("unchecked")
-	public ContinuationAnalysis() {
+    public ContinuationAnalysis() {
         Scene.v().setEntryPoints(Collections.EMPTY_LIST);
+    }
+
+    @SuppressWarnings("rawtypes")
+    private void addEdges(SootMethod method,
+                          IdentityHashMap<SootMethod, IdentitySet<SootMethod>> callGraph) {
+
+        Iterator statements = method.retrieveActiveBody().getUnits().snapshotIterator();
+        while (statements.hasNext()) {
+            Stmt stmt = (Stmt) statements.next();
+            if (stmt.containsInvokeExpr()) {
+                IdentitySet<SootMethod> called = callGraph.get(method);
+                if (called == null) {
+                    called = new IdentitySet<SootMethod>();
+                    callGraph.put(method, called);
+                }
+                called.add(stmt.getInvokeExpr().getMethod());
+            }
+        }
     }
 
     public void computeFixedPoint() {
@@ -81,24 +99,6 @@ public class ContinuationAnalysis extends SceneTransformer {
         }
     }
 
-    @SuppressWarnings("rawtypes")
-	private void addEdges(SootMethod method,
-                          IdentityHashMap<SootMethod, IdentitySet<SootMethod>> callGraph) {
-
-        Iterator statements = method.retrieveActiveBody().getUnits().snapshotIterator();
-        while (statements.hasNext()) {
-            Stmt stmt = (Stmt) statements.next();
-            if (stmt.containsInvokeExpr()) {
-                IdentitySet<SootMethod> called = callGraph.get(method);
-                if (called == null) {
-                    called = new IdentitySet<SootMethod>();
-                    callGraph.put(method, called);
-                }
-                called.add(stmt.getInvokeExpr().getMethod());
-            }
-        }
-    }
-
     private IdentityHashMap<SootMethod, IdentitySet<SootMethod>> constructCallGraph() {
         IdentityHashMap<SootMethod, IdentitySet<SootMethod>> callGraph = new IdentityHashMap<SootMethod, IdentitySet<SootMethod>>();
         for (SootClass applicationClass : Scene.v().getApplicationClasses()) {
@@ -112,7 +112,7 @@ public class ContinuationAnalysis extends SceneTransformer {
     }
 
     @SuppressWarnings("rawtypes")
-	@Override
+    @Override
     protected void internalTransform(String phaseName, Map options) {
         computeFixedPoint();
     }

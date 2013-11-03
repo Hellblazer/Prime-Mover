@@ -23,51 +23,41 @@ import java.io.File;
 import java.util.List;
 
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.Execute;
+import org.apache.maven.plugins.annotations.InstantiationStrategy;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
 
 /**
  * Transform the module's test classes to event driven simulation code.
  * 
- * @goal transform-test
- * 
- * @phase process-test-classes
- * 
- * @requiresDependencyResolution test
  */
+@Mojo(name = "transform-test", defaultPhase = LifecyclePhase.PROCESS_TEST_CLASSES, requiresDependencyResolution = ResolutionScope.TEST, threadSafe = false, executionStrategy = "once-per-session", instantiationStrategy = InstantiationStrategy.PER_LOOKUP, requiresDependencyCollection = ResolutionScope.COMPILE_PLUS_RUNTIME)
+@Execute(phase = LifecyclePhase.PROCESS_TEST_CLASSES)
 public class TestTransform extends AbstractTransform {
 
-    /**
-     * The build output directory
-     * 
-     * @parameter expression="${project.build.outputDirectory}"
-     * @required
-     * @readonly
-     */
-    File buildOutputDirectory;
+    @Parameter(property = "project.build.outputDirectory", readonly = true)
+    File                   buildOutputDirectory;
 
-    /**
-     * Location of the file.
-     * 
-     * @parameter expression="${project.build.testOutputDirectory}"
-     * @required
-     * @readonly
-     */
-    File testOutputDirectory;
+    @Parameter(property = "project.build.testOutputDirectory", readonly = true)
+    File                   testOutputDirectory;
 
-    /**
-     * @parameter expression="${project.testClasspathElements}"
-     * @readonly
-     */
+    @Parameter(property = "project.testClasspathElements", readonly = true)
     protected List<String> testClasspathElements;
 
     @Override
     protected String getCompileClasspath() throws MojoExecutionException {
         StringBuffer classpath = new StringBuffer();
-        classpath.append(getJavaClasspath());
+        classpath.append(getBootClasspath());
         for (Object element : testClasspathElements) {
             classpath.append(':');
             classpath.append(element);
         }
-        return classpath.toString();
+        String pathString = classpath.toString();
+        getLog().info(String.format("Test transform classpath: %s", pathString));
+        return pathString;
     }
 
     @Override

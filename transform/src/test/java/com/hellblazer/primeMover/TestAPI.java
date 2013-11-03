@@ -52,27 +52,12 @@ import com.hellblazer.primeMover.soot.SimulationTransform;
 
 public class TestAPI extends TestCase {
     private static final String TEST_CLASSES = "testClasses";
-    File sourceDir = new File(SOURCE_DIR, TEST_CLASSES);
-    File processedDir = new File(PROCESSED_DIR, TEST_CLASSES);
-    File outputDir = new File(OUTPUT_DIR, TEST_CLASSES);
-
-    public void testApi() throws Exception {
-        G.reset();
-        initializeDirectory(processedDir);
-        initializeDirectory(outputDir);
-        copyDirectory(sourceDir, processedDir);
-        String[] argv = { "-w" };
-
-        Options.v().set_process_dir(asList(PROCESSED_DIR.getAbsolutePath()));
-        Options.v().set_output_dir(OUTPUT_DIR.getAbsolutePath());
-        // Options.v().setPhaseOption("cg", "verbose:true");
-        // Options.v().set_verbose(true);
-        SimulationTransform.main(argv);
-
-        ClassLoader loader = new LocalLoader(getTransformed());
-        testChannel(loader);
-        testThreading(loader);
-    }
+    File                        sourceDir    = new File(SOURCE_DIR,
+                                                        TEST_CLASSES);
+    File                        processedDir = new File(PROCESSED_DIR,
+                                                        TEST_CLASSES);
+    File                        outputDir    = new File(OUTPUT_DIR,
+                                                        TEST_CLASSES);
 
     private Map<String, byte[]> getTransformed() throws IOException {
         HashMap<String, byte[]> classBits = new HashMap<String, byte[]>();
@@ -87,6 +72,25 @@ public class TestAPI extends TestCase {
             }
         }
         return classBits;
+    }
+
+    public void testApi() throws Exception {
+        G.reset();
+        initializeDirectory(processedDir);
+        initializeDirectory(outputDir);
+        copyDirectory(sourceDir, processedDir);
+        String[] argv = { "-w" };
+
+        Options.v().set_process_dir(asList(PROCESSED_DIR.getAbsolutePath()));
+        Options.v().set_output_dir(OUTPUT_DIR.getAbsolutePath());
+        Options.v().setPhaseOption("cg", "verbose:true");
+        Options.v().set_verbose(true);
+        SimulationTransform.setStandardClassPath();
+        SimulationTransform.main(argv);
+
+        ClassLoader loader = new LocalLoader(getTransformed());
+        testChannel(loader);
+        testThreading(loader);
     }
 
     private void testChannel(ClassLoader loader) throws Exception {

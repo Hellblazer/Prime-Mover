@@ -132,6 +132,16 @@ final public class Kairos {
         return Framework.getController();
     }
 
+    private static Method getRunMethod() {
+        try {
+            return Framework.class.getDeclaredMethod("run", Runnable.class);
+        } catch (Exception e) {
+            throw new IllegalStateException(
+                                            "Unable to acquire run(Runnable) event",
+                                            e);
+        }
+    }
+
     /**
      * @return the current controller of the thread, or null if none.
      */
@@ -191,16 +201,6 @@ final public class Kairos {
      */
     public static void sleep(long duration) {
         getController().advance(duration);
-    }
-
-    private static Method getRunMethod() {
-        try {
-            return Framework.class.getDeclaredMethod("run", Runnable.class);
-        } catch (Exception e) {
-            throw new IllegalStateException(
-                                            "Unable to acquire run(Runnable) event",
-                                            e);
-        }
     }
 
     private Kairos() {

@@ -84,13 +84,13 @@ import com.hellblazer.primeMover.soot.util.MethodHelper;
 public class ContinuationTransformer extends BodyTransformer {
     public class ContinuationSite {
 
-        public final int location;
-        public final Unit continuedCall;
-        public final SootClass frameClass;
+        public final int         location;
+        public final Unit        continuedCall;
+        public final SootClass   frameClass;
         public final List<Local> locals;
-        private final UnitBox callSite = Jimple.v().newStmtBox(null);
-        private final Type returnType;
-        private Local frame;
+        private final UnitBox    callSite = Jimple.v().newStmtBox(null);
+        private final Type       returnType;
+        private Local            frame;
 
         private ContinuationSite(String id, int s, Unit u, List<Local> l,
                                  SootClass definingClass, Type t) {
@@ -154,7 +154,7 @@ public class ContinuationTransformer extends BodyTransformer {
             }
             SootMethod constructor = continuationFrame.getMethod(NO_ARG_CONSTRUCTOR_SIGNATURE);
             @SuppressWarnings("unchecked")
-			MethodHelper helper = new MethodHelper(
+            MethodHelper helper = new MethodHelper(
                                                    frame,
                                                    constructor.getName(),
                                                    constructor.getParameterTypes(),
@@ -237,20 +237,20 @@ public class ContinuationTransformer extends BodyTransformer {
         }
     }
 
-    private static final String SAVE_FRAME_LOCAL = "saveFrame";
-    private static final String FRAME_LOCAL = "frame";
-    private static final String FRAMEWORK_SAVE_FRAME_SIGNATURE = "boolean saveFrame()";
-    private static final String CONTINUATION_FRAME_LOCAL = "continuationFrame";
-    private static final String INVALID_LOCATION_LOCAL = "invalidLocation";
-    private static final String LOCATION_LOCAL = "location";
-    private static final String RESTORE_FRAME_LOCAL = "restoreFrame";
-    private static final String NO_ARG_CONSTRUCTOR_SIGNATURE = "void <init>()";
+    private static final String SAVE_FRAME_LOCAL                  = "saveFrame";
+    private static final String FRAME_LOCAL                       = "frame";
+    private static final String FRAMEWORK_SAVE_FRAME_SIGNATURE    = "boolean saveFrame()";
+    private static final String CONTINUATION_FRAME_LOCAL          = "continuationFrame";
+    private static final String INVALID_LOCATION_LOCAL            = "invalidLocation";
+    private static final String LOCATION_LOCAL                    = "location";
+    private static final String RESTORE_FRAME_LOCAL               = "restoreFrame";
+    private static final String NO_ARG_CONSTRUCTOR_SIGNATURE      = "void <init>()";
     private static final String FRAMEWORK_RESTORE_FRAME_SIGNATURE = "boolean restoreFrame()";
-    private static final String PUSH_FRAME_SIGNATURE = "void pushFrame(com.hellblazer.primeMover.runtime.ContinuationFrame)";
-    private static final String POP_FRAME_SIGNATURE = "com.hellblazer.primeMover.runtime.ContinuationFrame popFrame()";
-    private static final String LOCAL_PREFIX = "l_";
-    private static final String CONTINUATON_LOCATION_FIELD = LOCATION_LOCAL;
-    private static final Logger log = Logger.getLogger(ContinuationTransformer.class.getCanonicalName());
+    private static final String PUSH_FRAME_SIGNATURE              = "void pushFrame(com.hellblazer.primeMover.runtime.ContinuationFrame)";
+    private static final String POP_FRAME_SIGNATURE               = "com.hellblazer.primeMover.runtime.ContinuationFrame popFrame()";
+    private static final String LOCAL_PREFIX                      = "l_";
+    private static final String CONTINUATON_LOCATION_FIELD        = LOCATION_LOCAL;
+    private static final Logger log                               = Logger.getLogger(ContinuationTransformer.class.getCanonicalName());
 
     private static Local newLocal(String name, Type t, Body b) {
         Local l = Jimple.v().newLocal(name, t);
@@ -258,11 +258,11 @@ public class ContinuationTransformer extends BodyTransformer {
         return l;
     }
 
-    private final SootClass framework = Scene.v().loadClassAndSupport("com.hellblazer.primeMover.runtime.Framework");
-    private final SootClass continuationFrame = Scene.v().loadClassAndSupport("com.hellblazer.primeMover.runtime.ContinuationFrame");
-    private final SootClass illegalStateException = Scene.v().loadClassAndSupport(IllegalStateException.class.getCanonicalName());
-    private final SootClass emptyContinuationFrame = Scene.v().loadClassAndSupport("com.hellblazer.primeMover.runtime.EmptyContinuationFrame");
-    private final boolean validate;
+    private final SootClass       framework              = Scene.v().loadClassAndSupport("com.hellblazer.primeMover.runtime.Framework");
+    private final SootClass       continuationFrame      = Scene.v().loadClassAndSupport("com.hellblazer.primeMover.runtime.ContinuationFrame");
+    private final SootClass       illegalStateException  = Scene.v().loadClassAndSupport(IllegalStateException.class.getCanonicalName());
+    private final SootClass       emptyContinuationFrame = Scene.v().loadClassAndSupport("com.hellblazer.primeMover.runtime.EmptyContinuationFrame");
+    private final boolean         validate;
     private final List<SootClass> generated;
 
     public ContinuationTransformer(List<SootClass> generated) {
@@ -272,16 +272,6 @@ public class ContinuationTransformer extends BodyTransformer {
     public ContinuationTransformer(List<SootClass> generated, boolean validate) {
         this.validate = validate;
         this.generated = generated;
-    }
-
-    public Local getThisLocal(Body body) {
-        for (Unit unit : body.getUnits()) {
-            if (unit instanceof IdentityStmt
-                && ((IdentityStmt) unit).getRightOp() instanceof ThisRef) {
-                return (Local) ((IdentityStmt) unit).getLeftOp();
-            }
-        }
-        return null;
     }
 
     private List<Unit> generateContinuableReentry(Body body,
@@ -340,32 +330,8 @@ public class ContinuationTransformer extends BodyTransformer {
         return reentry;
     }
 
-    @Override
-    protected void internalTransform(Body body, String phaseName, @SuppressWarnings("rawtypes") Map options) {
-        if (!willContinue(body.getMethod())) {
-            return;
-        }
-        List<ContinuationSite> continuedCalls = generateContinuationSites(body,
-                                                                          body.getMethod().getReturnType());
-        if (continuedCalls.size() != 0) {
-            Local poppedFrame = newLocal(CONTINUATION_FRAME_LOCAL,
-                                         continuationFrame.getType(), body);
-            for (ContinuationSite site : continuedCalls) {
-                site.transformContinuation(body, poppedFrame);
-            }
-            body.getUnits().insertBefore(generateContinuableReentry(body,
-                                                                    poppedFrame,
-                                                                    continuedCalls),
-                                         ((JimpleBody) body).getFirstNonIdentityStmt());
-            markTransformed(body.getMethod(), this, "Transformed continuations");
-            if (validate) {
-                body.validate();
-            }
-        }
-    }
-
     @SuppressWarnings("unchecked")
-	List<ContinuationSite> generateContinuationSites(Body body, Type returnType) {
+    List<ContinuationSite> generateContinuationSites(Body body, Type returnType) {
         String id = UUID.randomUUID().toString().replace('-', '_');
         UnusedLocalEliminator.v().transform(body);
         List<ContinuationSite> continuedCalls = new ArrayList<ContinuationSite>();
@@ -374,7 +340,7 @@ public class ContinuationTransformer extends BodyTransformer {
                                                                                     body));
         int callSite = 0;
         @SuppressWarnings("rawtypes")
-		Iterator statements = body.getUnits().snapshotIterator();
+        Iterator statements = body.getUnits().snapshotIterator();
         Local thisLocal = body.getMethod().isStatic() ? null
                                                      : body.getThisLocal();
         while (statements.hasNext()) {
@@ -419,5 +385,40 @@ public class ContinuationTransformer extends BodyTransformer {
             }
         }
         return continuedCalls;
+    }
+
+    public Local getThisLocal(Body body) {
+        for (Unit unit : body.getUnits()) {
+            if (unit instanceof IdentityStmt
+                && ((IdentityStmt) unit).getRightOp() instanceof ThisRef) {
+                return (Local) ((IdentityStmt) unit).getLeftOp();
+            }
+        }
+        return null;
+    }
+
+    @Override
+    protected void internalTransform(Body body, String phaseName,
+                                     @SuppressWarnings("rawtypes") Map options) {
+        if (!willContinue(body.getMethod())) {
+            return;
+        }
+        List<ContinuationSite> continuedCalls = generateContinuationSites(body,
+                                                                          body.getMethod().getReturnType());
+        if (continuedCalls.size() != 0) {
+            Local poppedFrame = newLocal(CONTINUATION_FRAME_LOCAL,
+                                         continuationFrame.getType(), body);
+            for (ContinuationSite site : continuedCalls) {
+                site.transformContinuation(body, poppedFrame);
+            }
+            body.getUnits().insertBefore(generateContinuableReentry(body,
+                                                                    poppedFrame,
+                                                                    continuedCalls),
+                                         ((JimpleBody) body).getFirstNonIdentityStmt());
+            markTransformed(body.getMethod(), this, "Transformed continuations");
+            if (validate) {
+                body.validate();
+            }
+        }
     }
 }

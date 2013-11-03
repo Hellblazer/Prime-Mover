@@ -41,7 +41,7 @@ import com.hellblazer.primeMover.runtime.SplayQueue.BinaryNode.duplicate;
 public class SplayQueue<K extends Comparable<K>> implements Queue<K> {
     static class BinaryNode<K extends Comparable<K>> {
         static class duplicate<K extends Comparable<K>> {
-            final K value;
+            final K            value;
             final duplicate<K> next;
 
             duplicate(K value, duplicate<K> next) {
@@ -50,8 +50,8 @@ public class SplayQueue<K extends Comparable<K>> implements Queue<K> {
             }
         }
 
-        K value;
-        duplicate<K> duplicates;
+        K             value;
+        duplicate<K>  duplicates;
         BinaryNode<K> left;
         BinaryNode<K> right;
 
@@ -131,7 +131,7 @@ public class SplayQueue<K extends Comparable<K>> implements Queue<K> {
 
     private BinaryNode<K> root;
 
-    private int size = 0;
+    private int           size = 0;
 
     public SplayQueue() {
         root = null;
@@ -213,6 +213,19 @@ public class SplayQueue<K extends Comparable<K>> implements Queue<K> {
         return true;
     }
 
+    private void deleteRoot(K result) {
+        BinaryNode<K> x;
+        // Now delete the root
+        if (root.left == null) {
+            root = root.right;
+        } else {
+            x = root.right;
+            root = root.left;
+            splay(result);
+            root.right = x;
+        }
+    }
+
     @Override
     public K element() {
         BinaryNode<K> x = root;
@@ -224,6 +237,24 @@ public class SplayQueue<K extends Comparable<K>> implements Queue<K> {
         }
         splay(x.value);
         return x.value;
+    }
+
+    private void fill(Object[] result) {
+        BinaryNode<K> node = root;
+        int i = 0;
+        while (null != node) {
+            Deque<BinaryNode<K>> nodes = new ArrayDeque<BinaryNode<K>>();
+            while (!nodes.isEmpty() || null != node) {
+                if (null != node) {
+                    nodes.push(node);
+                    node = node.left;
+                } else {
+                    node = nodes.pop();
+                    i = node.fill(i, result);
+                    node = node.right;
+                }
+            }
+        }
     }
 
     /**
@@ -239,9 +270,9 @@ public class SplayQueue<K extends Comparable<K>> implements Queue<K> {
     @Override
     public Iterator<K> iterator() {
         return new Iterator<K>() {
-            Deque<BinaryNode<K>> visiting = new ArrayDeque<BinaryNode<K>>();
-            BinaryNode<K> currentRoot = root;
-            duplicate<K> duplicates;
+            Deque<BinaryNode<K>> visiting    = new ArrayDeque<BinaryNode<K>>();
+            BinaryNode<K>        currentRoot = root;
+            duplicate<K>         duplicates;
 
             @Override
             public boolean hasNext() {
@@ -275,16 +306,16 @@ public class SplayQueue<K extends Comparable<K>> implements Queue<K> {
                 return result;
             }
 
-            @Override
-            public void remove() {
-                throw new UnsupportedOperationException();
-            }
-
             private void pushLeft(BinaryNode<K> node) {
                 if (node != null) {
                     visiting.push(node);
                     pushLeft(node.left);
                 }
+            }
+
+            @Override
+            public void remove() {
+                throw new UnsupportedOperationException();
             }
         };
     }
@@ -377,106 +408,6 @@ public class SplayQueue<K extends Comparable<K>> implements Queue<K> {
         return size;
     }
 
-    @Override
-    public Object[] toArray() {
-        Object[] result = new Object[size];
-        fill(result);
-        return result;
-    }
-
-    @Override
-    public <T> T[] toArray(T[] a) {
-        if (a.length < size) {
-            @SuppressWarnings("unchecked")
-            T[] newInstance = (T[]) Array.newInstance(a.getClass().getComponentType(),
-                                                      size);
-            a = newInstance;
-        }
-        fill(a);
-        return a;
-    }
-
-    /**
-     * Returns a string representation of this collection. The string
-     * representation consists of a list of the collection's elements in the
-     * order they are returned by its iterator, enclosed in square brackets (
-     * <tt>"[]"</tt>). Adjacent elements are separated by the characters
-     * <tt>", "</tt> (comma and space). Elements are converted to strings as by
-     * {@link String#valueOf(Object)}.
-     * 
-     * @return a string representation of this collection
-     */
-    @Override
-    public String toString() {
-        if (isEmpty()) {
-            return "[]";
-        }
-
-        StringBuilder sb = new StringBuilder();
-        sb.append('[');
-        BinaryNode<K> node = root;
-        int i = 0;
-        while (null != node) {
-            Deque<BinaryNode<K>> nodes = new ArrayDeque<BinaryNode<K>>();
-            while (!nodes.isEmpty() || null != node) {
-                if (null != node) {
-                    nodes.push(node);
-                    node = node.left;
-                } else {
-                    node = nodes.pop();
-                    K e = node.value;
-                    sb.append(e == this ? "(this Collection)" : e);
-                    i++;
-                    duplicate<K> current = node.duplicates;
-                    while (current != null) {
-                        e = current.value;
-                        sb.append(", ");
-                        sb.append(e == this ? "(this Collection)" : e);
-                        i++;
-                        current = current.next;
-                    }
-                    node = node.right;
-                    if (i != size) { 
-                        sb.append(", ");
-                    }
-                }
-            }
-        }
-        sb.append(']');
-        return sb.toString();
-    }
-
-    private void deleteRoot(K result) {
-        BinaryNode<K> x;
-        // Now delete the root
-        if (root.left == null) {
-            root = root.right;
-        } else {
-            x = root.right;
-            root = root.left;
-            splay(result);
-            root.right = x;
-        }
-    }
-
-    private void fill(Object[] result) {
-        BinaryNode<K> node = root;
-        int i = 0;
-        while (null != node) {
-            Deque<BinaryNode<K>> nodes = new ArrayDeque<BinaryNode<K>>();
-            while (!nodes.isEmpty() || null != node) {
-                if (null != node) {
-                    nodes.push(node);
-                    node = node.left;
-                } else {
-                    node = nodes.pop();
-                    i = node.fill(i, result);
-                    node = node.right;
-                }
-            }
-        }
-    }
-
     /**
      * splay(key) does the splay operation on the given key. If key is in the
      * tree, then the BinaryNode containing that key becomes the root. If key is
@@ -536,5 +467,74 @@ public class SplayQueue<K extends Comparable<K>> implements Queue<K> {
         t.left = header.right;
         t.right = header.left;
         root = t;
+    }
+
+    @Override
+    public Object[] toArray() {
+        Object[] result = new Object[size];
+        fill(result);
+        return result;
+    }
+
+    @Override
+    public <T> T[] toArray(T[] a) {
+        if (a.length < size) {
+            @SuppressWarnings("unchecked")
+            T[] newInstance = (T[]) Array.newInstance(a.getClass().getComponentType(),
+                                                      size);
+            a = newInstance;
+        }
+        fill(a);
+        return a;
+    }
+
+    /**
+     * Returns a string representation of this collection. The string
+     * representation consists of a list of the collection's elements in the
+     * order they are returned by its iterator, enclosed in square brackets (
+     * <tt>"[]"</tt>). Adjacent elements are separated by the characters
+     * <tt>", "</tt> (comma and space). Elements are converted to strings as by
+     * {@link String#valueOf(Object)}.
+     * 
+     * @return a string representation of this collection
+     */
+    @Override
+    public String toString() {
+        if (isEmpty()) {
+            return "[]";
+        }
+
+        StringBuilder sb = new StringBuilder();
+        sb.append('[');
+        BinaryNode<K> node = root;
+        int i = 0;
+        while (null != node) {
+            Deque<BinaryNode<K>> nodes = new ArrayDeque<BinaryNode<K>>();
+            while (!nodes.isEmpty() || null != node) {
+                if (null != node) {
+                    nodes.push(node);
+                    node = node.left;
+                } else {
+                    node = nodes.pop();
+                    K e = node.value;
+                    sb.append(e == this ? "(this Collection)" : e);
+                    i++;
+                    duplicate<K> current = node.duplicates;
+                    while (current != null) {
+                        e = current.value;
+                        sb.append(", ");
+                        sb.append(e == this ? "(this Collection)" : e);
+                        i++;
+                        current = current.next;
+                    }
+                    node = node.right;
+                    if (i != size) {
+                        sb.append(", ");
+                    }
+                }
+            }
+        }
+        sb.append(']');
+        return sb.toString();
     }
 }

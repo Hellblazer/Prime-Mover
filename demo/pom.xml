@@ -28,14 +28,6 @@
 		</dependency>
 	</dependencies>
 
-	<repositories>
-		<repository>
-			<id>3rdSpace-repo</id>
-			<url>http://svn.tensegrity.hellblazer.com/3Space/trunk/maven-repository</url>
-			<name>3rdSpace</name>
-		</repository>
-	</repositories>
-
 	<licenses>
 		<license>
 			<name>GNU Affero General Public License V3</name>

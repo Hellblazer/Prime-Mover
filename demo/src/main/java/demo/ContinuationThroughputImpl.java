@@ -36,9 +36,9 @@ public class ContinuationThroughputImpl implements ContinuationThroughput {
     /** benchmark type. */
     protected final String mode;
     /** number of continuation events. */
-    protected final int nevents;
+    protected final int    nevents;
     /** number of warm-up events. */
-    protected final int nwarm;
+    protected final int    nwarm;
 
     /**
      * Create new continuation event benchmarking entity.
@@ -57,6 +57,32 @@ public class ContinuationThroughputImpl implements ContinuationThroughput {
         System.out.println("   type: " + mode);
         System.out.println(" events: " + nevents);
         System.out.println(" warmup: " + nwarm);
+    }
+
+    /**
+     * Perform single continuation call.
+     */
+    protected int call() {
+        if (mode.equals("NULL")) {
+            operation_null();
+        } else if (mode.equals("INT")) {
+            operation_int(1);
+        } else if (mode.equals("DOUBLE")) {
+            operation_double(1.0);
+        } else if (mode.equals("STRING")) {
+            operation_string("foo");
+        } else if (mode.equals("ARRAY")) {
+            operation_array(new byte[] {});
+        } else if (mode.equals("SHOW")) {
+            try {
+                operation_show();
+            } catch (RuntimeException e) {
+                System.out.println("caught exception: " + e);
+            }
+        } else {
+            throw new RuntimeException("unrecognized benchmark: " + mode);
+        }
+        return 1;
     }
 
     /* (non-Javadoc)
@@ -79,7 +105,7 @@ public class ContinuationThroughputImpl implements ContinuationThroughput {
         long endTime = System.nanoTime();
         double duration = (endTime - startTime) / 1000000000.0;
         System.out.println("seconds: " + duration);
-        System.out.println(Math.round((nevents / duration)) + " " + mode
+        System.out.println(Math.round(nevents / duration) + " " + mode
                            + " continuation events/second");
         System.out.println();
     }
@@ -139,32 +165,6 @@ public class ContinuationThroughputImpl implements ContinuationThroughput {
     @Blocking
     public void operation_string(String s) {
         sleep(1);
-    }
-
-    /**
-     * Perform single continuation call.
-     */
-    protected int call() {
-        if (mode.equals("NULL")) {
-            operation_null();
-        } else if (mode.equals("INT")) {
-            operation_int(1);
-        } else if (mode.equals("DOUBLE")) {
-            operation_double(1.0);
-        } else if (mode.equals("STRING")) {
-            operation_string("foo");
-        } else if (mode.equals("ARRAY")) {
-            operation_array(new byte[] {});
-        } else if (mode.equals("SHOW")) {
-            try {
-                operation_show();
-            } catch (RuntimeException e) {
-                System.out.println("caught exception: " + e);
-            }
-        } else {
-            throw new RuntimeException("unrecognized benchmark: " + mode);
-        }
-        return 1;
     }
 
 }

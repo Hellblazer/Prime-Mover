@@ -33,14 +33,14 @@ import com.hellblazer.primeMover.Entity;
 @Entity()
 public class EventThroughput {
     /** benchmark end time. */
-    private long endTime;
+    private long         endTime;
     /** benchmark type. */
     private final String mode;
     /** total number of events. */
     /** number of warm-up events. */
-    private final int nevents;
+    private final int    nevents;
     /** benchmark start time. */
-    private long startTime;
+    private long         startTime;
 
     /**
      * Create new event throughput benchmark entity.
@@ -87,7 +87,7 @@ public class EventThroughput {
         endTime = System.nanoTime();
         double duration = (endTime - startTime) / 1000000000.0;
         System.out.println("seconds: " + duration);
-        System.out.println(Math.round((nevents / duration)) + " " + mode
+        System.out.println(Math.round(nevents / duration) + " " + mode
                            + " events/second");
         System.out.println();
         endSimulation();

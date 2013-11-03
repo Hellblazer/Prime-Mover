@@ -49,9 +49,9 @@ import soot.jimple.Stmt;
 public class EntityConstructionTransformer extends BodyTransformer {
 
     private static final String INIT = "<init>";
-    private static Logger log = Logger.getLogger(EntityConstructionTransformer.class.getCanonicalName());
+    private static Logger       log  = Logger.getLogger(EntityConstructionTransformer.class.getCanonicalName());
 
-    private final boolean validate;
+    private final boolean       validate;
 
     public EntityConstructionTransformer() {
         this(false);
@@ -59,6 +59,33 @@ public class EntityConstructionTransformer extends BodyTransformer {
 
     public EntityConstructionTransformer(boolean validate) {
         this.validate = validate;
+    }
+
+    @Override
+    protected void internalTransform(Body body, String phaseName,
+                                     @SuppressWarnings("rawtypes") Map options) {
+        boolean transformed = false;
+        PatchingChain<Unit> units = body.getUnits();
+        for (Unit unit : units) {
+            if (unit instanceof InvokeStmt) {
+                InvokeExpr invoke = ((InvokeStmt) unit).getInvokeExpr();
+                if (invoke instanceof NewExpr) {
+                    transformed |= transform((NewExpr) invoke,
+                                             units.getSuccOf(unit), units);
+                }
+            } else if (unit instanceof AssignStmt
+                       && ((AssignStmt) unit).getRightOp() instanceof NewExpr) {
+                NewExpr invoke = (NewExpr) ((AssignStmt) unit).getRightOp();
+                transformed |= transform(invoke, units.getSuccOf(unit), units);
+            }
+        }
+        if (transformed) {
+            markTransformed(body.getMethod(), this,
+                            "Transformed entity construction");
+            if (validate) {
+                body.validate();
+            }
+        }
     }
 
     private boolean transform(NewExpr newExpr, Unit initUnit,
@@ -91,31 +118,5 @@ public class EntityConstructionTransformer extends BodyTransformer {
             throw new VerifyError(errorMessage);
         }
         return false;
-    }
-
-    @Override
-    protected void internalTransform(Body body, String phaseName, @SuppressWarnings("rawtypes") Map options) {
-        boolean transformed = false;
-        PatchingChain<Unit> units = body.getUnits();
-        for (Unit unit : units) {
-            if (unit instanceof InvokeStmt) {
-                InvokeExpr invoke = ((InvokeStmt) unit).getInvokeExpr();
-                if (invoke instanceof NewExpr) {
-                    transformed |= transform((NewExpr) invoke,
-                                             units.getSuccOf(unit), units);
-                }
-            } else if (unit instanceof AssignStmt
-                       && ((AssignStmt) unit).getRightOp() instanceof NewExpr) {
-                NewExpr invoke = (NewExpr) ((AssignStmt) unit).getRightOp();
-                transformed |= transform(invoke, units.getSuccOf(unit), units);
-            }
-        }
-        if (transformed) {
-            markTransformed(body.getMethod(), this,
-                            "Transformed entity construction");
-            if (validate) {
-                body.validate();
-            }
-        }
     }
 }

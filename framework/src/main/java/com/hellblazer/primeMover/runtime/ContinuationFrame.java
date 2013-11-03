@@ -30,14 +30,14 @@ import com.hellblazer.primeMover.Event;
  * @author <a href="mailto:hal.hildebrand@gmail.com">Hal Hildebrand</a>
  */
 abstract public class ContinuationFrame implements Serializable {
-    public static final ContinuationFrame BASE = new ContinuationFrame() {
-        private static final long serialVersionUID = 1L;
-    };
-    private static final long serialVersionUID = 1L;
-    public Event caller;
-    public int location;
+    public static final ContinuationFrame BASE             = new ContinuationFrame() {
+                                                               private static final long serialVersionUID = 1L;
+                                                           };
+    private static final long             serialVersionUID = 1L;
+    public Event                          caller;
+    public int                            location;
 
-    public ContinuationFrame next;
+    public ContinuationFrame              next;
 
     public ContinuationFrame() {
 

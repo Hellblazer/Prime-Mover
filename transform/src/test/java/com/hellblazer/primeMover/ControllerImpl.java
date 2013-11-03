@@ -35,6 +35,11 @@ import com.hellblazer.primeMover.runtime.SplayQueue;
 public class ControllerImpl extends Devi {
     public Queue<EventImpl> eventQueue = new SplayQueue<EventImpl>();
 
+    @Override
+    protected void post(EventImpl event) {
+        eventQueue.add(event);
+    }
+
     public boolean send() throws SimulationException {
         try {
             evaluate(eventQueue.remove());
@@ -42,10 +47,5 @@ public class ControllerImpl extends Devi {
             return false;
         }
         return true;
-    }
-
-    @Override
-    protected void post(EventImpl event) {
-        eventQueue.add(event);
     }
 }
