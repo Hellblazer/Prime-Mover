@@ -22,6 +22,7 @@ package com.hellblazer.primeMover.maven;
 import java.io.File;
 import java.util.List;
 
+import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Execute;
 import org.apache.maven.plugins.annotations.InstantiationStrategy;
@@ -29,6 +30,7 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
+import org.apache.maven.project.MavenProject;
 
 /**
  * Transform the module's test classes to event driven simulation code.
@@ -39,16 +41,26 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 public class TestTransform extends AbstractTransform {
 
     @Parameter(property = "project.build.outputDirectory", readonly = true)
-    File                   buildOutputDirectory;
+    File         buildOutputDirectory;
 
     @Parameter(property = "project.build.testOutputDirectory", readonly = true)
-    File                   testOutputDirectory;
+    File         testOutputDirectory;
 
-    @Parameter(property = "project.testClasspathElements", readonly = true)
-    protected List<String> testClasspathElements;
+    @Parameter(property = "project")
+    MavenProject project;
 
     @Override
     protected String getCompileClasspath() throws MojoExecutionException {
+        List<?> testClasspathElements;
+        try {
+            testClasspathElements = project.getTestClasspathElements();
+        } catch (DependencyResolutionRequiredException e) {
+            throw new MojoExecutionException(
+                                             "Unable to perform test dependency resolution",
+                                             e);
+        }
+        getLog().debug(String.format("Runtime classpath elements: %s",
+                                     testClasspathElements));
         StringBuffer classpath = new StringBuffer();
         classpath.append(getBootClasspath());
         for (Object element : testClasspathElements) {
