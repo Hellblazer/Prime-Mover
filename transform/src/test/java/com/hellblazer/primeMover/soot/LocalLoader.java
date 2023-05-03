@@ -4,7 +4,7 @@
  * This file is part of the Prime Mover Event Driven Simulation Framework.
  * 
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as 
+ * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  * 
@@ -30,6 +30,7 @@ import soot.SootClass;
 import soot.SootMethod;
 import soot.baf.Baf;
 import soot.baf.JasminClass;
+import soot.jimple.JimpleBody;
 import soot.util.JasminOutputStream;
 
 /**
@@ -53,9 +54,23 @@ public class LocalLoader extends ClassLoader {
         this.classBits = classBits;
     }
 
+    @Override
+    protected synchronized Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
+        Class<?> loaded = findLoadedClass(name);
+        if (loaded != null) {
+            return loaded;
+        }
+        byte[] bits = classBits.get(name);
+        if (bits != null) {
+            return defineClass(name, bits, 0, bits.length);
+        } else {
+            return super.loadClass(name, resolve);
+        }
+    }
+
     private byte[] generateClassBits(SootClass clazz) {
         for (SootMethod method : clazz.getMethods()) {
-            method.setActiveBody(Baf.v().newBody(method.getActiveBody()));
+            method.setActiveBody(Baf.v().newBody((JimpleBody) method.getActiveBody()));
         }
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -68,19 +83,4 @@ public class LocalLoader extends ClassLoader {
         classWriter.close();
         return baos.toByteArray();
     }
-
-    @Override
-    protected synchronized Class<?> loadClass(String name, boolean resolve)
-                                                                           throws ClassNotFoundException {
-        Class<?> loaded = findLoadedClass(name);
-        if (loaded != null) {
-            return loaded;
-        }
-        byte[] bits = classBits.get(name);
-        if (bits != null) {
-            return defineClass(name, bits, 0, bits.length);
-        } else {
-            return super.loadClass(name, resolve);
-        }
-    };
 }

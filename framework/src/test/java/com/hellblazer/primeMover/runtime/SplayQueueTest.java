@@ -32,16 +32,43 @@ import junit.framework.TestCase;
  * 
  */
 public class SplayQueueTest extends TestCase {
-    SplayQueue<Integer> pqueue;
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-        pqueue = new SplayQueue<Integer>();
-        pqueue.add(3);
-        pqueue.add(1);
-        pqueue.add(2);
+    public static void main(String[] args) {
+        SplayQueue<Integer> t = new SplayQueue<Integer>();
+        final int NUMS = 40000;
+        final int GAP = 307;
+
+        System.out.println("Checking... (no bad output means success)");
+
+        for (int i = GAP; i != 0; i = (i + GAP) % NUMS) {
+            t.add(Integer.valueOf(i));
+        }
+        System.out.println("Inserts complete");
+
+        for (int i = 1; i < NUMS; i += 2) {
+            t.remove(Integer.valueOf(i));
+        }
+        System.out.println("Removes complete");
+
+        /*
+         * if (t.findMin().intValue() != 2 || t.findMax().intValue() != NUMS - 2) {
+         * System.out.println("FindMin or FindMax error!"); }
+         */
+
+        for (int i = 2; i < NUMS; i += 2) {
+            if (!t.contains(Integer.valueOf(i))) {
+                System.out.println("Error: find fails for " + i);
+            }
+        }
+
+        for (int i = 1; i < NUMS; i += 2) {
+            if (t.contains(Integer.valueOf(i))) {
+                System.out.println("Error: Found deleted item " + i);
+            }
+        }
     }
+
+    SplayQueue<Integer> pqueue;
 
     public void testAdd() {
         pqueue.add(5);
@@ -155,5 +182,14 @@ public class SplayQueueTest extends TestCase {
         assertTrue(pqueue.remove() == 1);
         assertTrue(pqueue.remove() == 2);
         assertTrue(pqueue.remove() == 3);
+    }
+
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        pqueue = new SplayQueue<Integer>();
+        pqueue.add(3);
+        pqueue.add(1);
+        pqueue.add(2);
     }
 }

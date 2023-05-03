@@ -25,14 +25,6 @@
                 rights reserved.
             </comments>
         </license>
-    </licenses>
-
-    <dependencies>
-        <dependency>
-            <groupId>com.hellblazer</groupId>
-            <artifactId>utils</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
-    </dependencies>
+    </licenses> 
 </project>
 

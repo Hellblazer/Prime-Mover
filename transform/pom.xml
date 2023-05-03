@@ -8,13 +8,11 @@
         <groupId>com.hellblazer</groupId>
         <version>0.0.5-SNAPSHOT</version>
     </parent>
-    
     <groupId>com.hellblazer.primeMover</groupId>
-    <artifactId>transform</artifactId> 
+    <artifactId>transform</artifactId>
     <name>Transformation Framework</name>
     <description>Prime Mover transformation framework</description>
     <packaging>bundle</packaging>
-
     <licenses>
         <license>
             <name>GNU Affero General Public License V3</name>
@@ -27,12 +25,11 @@
             </comments>
         </license>
     </licenses>
-
     <dependencies>
         <dependency>
-            <groupId>com.hellblazer</groupId>
-            <artifactId>soot.osgi</artifactId>
-            <version>2.5.1-SNAPSHOT</version>
+            <groupId>org.soot-oss</groupId>
+            <artifactId>soot</artifactId>
+            <version>4.4.1</version>
         </dependency>
         <dependency>
             <groupId>com.hellblazer.primeMover</groupId>
@@ -41,7 +38,6 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>

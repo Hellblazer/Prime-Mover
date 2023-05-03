@@ -4,7 +4,7 @@
  * This file is part of the Prime Mover Event Driven Simulation Framework.
  * 
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as 
+ * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  * 
@@ -31,6 +31,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Logger;
 
+import com.hellblazer.primeMover.soot.util.MethodHelper;
+
 import soot.ArrayType;
 import soot.Body;
 import soot.BodyTransformer;
@@ -53,7 +55,6 @@ import soot.SootMethod;
 import soot.Type;
 import soot.Unit;
 import soot.UnitBox;
-import soot.Value;
 import soot.VoidType;
 import soot.jimple.AssignStmt;
 import soot.jimple.DoubleConstant;
@@ -72,8 +73,6 @@ import soot.toolkits.graph.ExceptionalUnitGraph;
 import soot.toolkits.scalar.SimpleLiveLocals;
 import soot.toolkits.scalar.UnusedLocalEliminator;
 
-import com.hellblazer.primeMover.soot.util.MethodHelper;
-
 /**
  * Transform the method body, creating continuations at blocking or continuing
  * method call sites.
@@ -84,16 +83,15 @@ import com.hellblazer.primeMover.soot.util.MethodHelper;
 public class ContinuationTransformer extends BodyTransformer {
     public class ContinuationSite {
 
-        public final int         location;
         public final Unit        continuedCall;
         public final SootClass   frameClass;
         public final List<Local> locals;
+        public final int         location;
         private final UnitBox    callSite = Jimple.v().newStmtBox(null);
-        private final Type       returnType;
         private Local            frame;
+        private final Type       returnType;
 
-        private ContinuationSite(String id, int s, Unit u, List<Local> l,
-                                 SootClass definingClass, Type t) {
+        private ContinuationSite(String id, int s, Unit u, List<Local> l, SootClass definingClass, Type t) {
             location = s;
             continuedCall = u;
             locals = l;
@@ -105,8 +103,7 @@ public class ContinuationTransformer extends BodyTransformer {
             if (returnType == VoidType.v()) {
                 return Jimple.v().newReturnVoidStmt();
             }
-            if (returnType instanceof RefType
-                || returnType instanceof ArrayType) {
+            if (returnType instanceof RefType || returnType instanceof ArrayType) {
                 return Jimple.v().newReturnStmt(NullConstant.v());
             }
 
@@ -134,8 +131,7 @@ public class ContinuationTransformer extends BodyTransformer {
             if (returnType instanceof ShortType) {
                 return Jimple.v().newReturnStmt(IntConstant.v(0));
             }
-            throw new VerifyError(String.format("Invalid return type: %1s",
-                                                returnType));
+            throw new VerifyError(String.format("Invalid return type: %1s", returnType));
         }
 
         private SootClass generateFrame(String id, SootClass definingClass) {
@@ -143,25 +139,22 @@ public class ContinuationTransformer extends BodyTransformer {
                 return emptyContinuationFrame;
             }
             StringBuffer generatedName = new StringBuffer(100);
-            generatedName.append(definingClass.getName()).append('$').append(id).append('$').append(location).append("$gen");
-            SootClass frame = new SootClass(generatedName.toString(),
-                                            Modifier.PUBLIC);
+            generatedName.append(definingClass.getName())
+                         .append('$')
+                         .append(id)
+                         .append('$')
+                         .append(location)
+                         .append("$gen");
+            SootClass frame = new SootClass(generatedName.toString(), Modifier.PUBLIC);
             frame.setSuperclass(continuationFrame);
             int i = 0;
             for (Local local : locals) {
-                frame.addField(new SootField(LOCAL_PREFIX + i++,
-                                             local.getType(), Modifier.PUBLIC));
+                frame.addField(new SootField(LOCAL_PREFIX + i++, local.getType(), Modifier.PUBLIC));
             }
             SootMethod constructor = continuationFrame.getMethod(NO_ARG_CONSTRUCTOR_SIGNATURE);
-            @SuppressWarnings("unchecked")
-            MethodHelper helper = new MethodHelper(
-                                                   frame,
-                                                   constructor.getName(),
-                                                   constructor.getParameterTypes(),
-                                                   VoidType.v(),
-                                                   constructor.getModifiers());
-            helper.invoke(Jimple.v().newSpecialInvokeExpr(helper.thisLocal(),
-                                                          constructor.makeRef()));
+            MethodHelper helper = new MethodHelper(frame, constructor.getName(), constructor.getParameterTypes(),
+                                                   VoidType.v(), constructor.getModifiers());
+            helper.invoke(Jimple.v().newSpecialInvokeExpr(helper.thisLocal(), constructor.makeRef()));
             helper.returnVoid();
 
             frame.addMethod(helper.getMethod());
@@ -173,15 +166,14 @@ public class ContinuationTransformer extends BodyTransformer {
         private List<Unit> popFrame(Body body, Local poppedFrame) {
             ArrayList<Unit> pop = new ArrayList<Unit>();
             Jimple jimple = Jimple.v();
-            pop.add(jimple.newAssignStmt(frame,
-                                         jimple.newCastExpr(poppedFrame,
-                                                            frameClass.getType())));
+            pop.add(jimple.newAssignStmt(frame, jimple.newCastExpr(poppedFrame, frameClass.getType())));
             int index = 0;
             for (Local l : locals) {
                 pop.add(jimple.newAssignStmt(l,
-                                             jimple.newInstanceFieldRef(frame,
-                                                                        frameClass.getFieldByName(LOCAL_PREFIX
-                                                                                                          + index++).makeRef())));
+                                             jimple.newInstanceFieldRef(frame, frameClass
+                                                                                         .getFieldByName(LOCAL_PREFIX
+                                                                                         + index++)
+                                                                                         .makeRef())));
             }
             pop.add(jimple.newGotoStmt(callSite));
             return pop;
@@ -192,21 +184,22 @@ public class ContinuationTransformer extends BodyTransformer {
             Jimple jimple = Jimple.v();
 
             // <FrameClass> frame = new <FrameClass>();
-            push.add(jimple.newAssignStmt(frame,
-                                          jimple.newNewExpr(frameClass.getType())));
+            push.add(jimple.newAssignStmt(frame, jimple.newNewExpr(frameClass.getType())));
             push.add(jimple.newInvokeStmt(jimple.newSpecialInvokeExpr(frame,
-                                                                      frameClass.getMethod(NO_ARG_CONSTRUCTOR_SIGNATURE).makeRef())));
+                                                                      frameClass.getMethod(NO_ARG_CONSTRUCTOR_SIGNATURE)
+                                                                                .makeRef())));
 
             InstanceFieldRef ref = jimple.newInstanceFieldRef(frame,
-                                                              frameClass.getSuperclass().getFieldByName(CONTINUATON_LOCATION_FIELD).makeRef());
+                                                              frameClass.getSuperclass()
+                                                                        .getFieldByName(CONTINUATON_LOCATION_FIELD)
+                                                                        .makeRef());
             push.add(jimple.newAssignStmt(ref, IntConstant.v(location)));
 
             // Load the live locals into the frame instance variables
             int index = 0;
             for (Local l : locals) {
                 String instVar = LOCAL_PREFIX + index++;
-                ref = jimple.newInstanceFieldRef(frame,
-                                                 frameClass.getFieldByName(instVar).makeRef());
+                ref = jimple.newInstanceFieldRef(frame, frameClass.getFieldByName(instVar).makeRef());
                 push.add(jimple.newAssignStmt(ref, l));
             }
             return push;
@@ -221,11 +214,12 @@ public class ContinuationTransformer extends BodyTransformer {
             UnitBox next = jimple.newStmtBox(null);
             ArrayList<Unit> post = new ArrayList<Unit>();
             post.add(jimple.newAssignStmt(saveFrame,
-                                          jimple.newStaticInvokeExpr(framework.getMethod(FRAMEWORK_SAVE_FRAME_SIGNATURE).makeRef())));
-            post.add(jimple.newIfStmt(jimple.newEqExpr(saveFrame,
-                                                       IntConstant.v(0)), next));
+                                          jimple.newStaticInvokeExpr(framework.getMethod(FRAMEWORK_SAVE_FRAME_SIGNATURE)
+                                                                              .makeRef())));
+            post.add(jimple.newIfStmt(jimple.newEqExpr(saveFrame, IntConstant.v(0)), next));
 
-            post.add(jimple.newInvokeStmt(jimple.newStaticInvokeExpr(framework.getMethod(PUSH_FRAME_SIGNATURE).makeRef(),
+            post.add(jimple.newInvokeStmt(jimple.newStaticInvokeExpr(framework.getMethod(PUSH_FRAME_SIGNATURE)
+                                                                              .makeRef(),
                                                                      asList(frame))));
             post.add(defaultReturn(returnType));
 
@@ -237,20 +231,24 @@ public class ContinuationTransformer extends BodyTransformer {
         }
     }
 
-    private static final String SAVE_FRAME_LOCAL                  = "saveFrame";
-    private static final String FRAME_LOCAL                       = "frame";
-    private static final String FRAMEWORK_SAVE_FRAME_SIGNATURE    = "boolean saveFrame()";
     private static final String CONTINUATION_FRAME_LOCAL          = "continuationFrame";
-    private static final String INVALID_LOCATION_LOCAL            = "invalidLocation";
-    private static final String LOCATION_LOCAL                    = "location";
-    private static final String RESTORE_FRAME_LOCAL               = "restoreFrame";
-    private static final String NO_ARG_CONSTRUCTOR_SIGNATURE      = "void <init>()";
+    private static final String CONTINUATON_LOCATION_FIELD;
+    private static final String FRAME_LOCAL                       = "frame";
     private static final String FRAMEWORK_RESTORE_FRAME_SIGNATURE = "boolean restoreFrame()";
-    private static final String PUSH_FRAME_SIGNATURE              = "void pushFrame(com.hellblazer.primeMover.runtime.ContinuationFrame)";
-    private static final String POP_FRAME_SIGNATURE               = "com.hellblazer.primeMover.runtime.ContinuationFrame popFrame()";
+    private static final String FRAMEWORK_SAVE_FRAME_SIGNATURE    = "boolean saveFrame()";
+    private static final String INVALID_LOCATION_LOCAL            = "invalidLocation";
     private static final String LOCAL_PREFIX                      = "l_";
-    private static final String CONTINUATON_LOCATION_FIELD        = LOCATION_LOCAL;
+    private static final String LOCATION_LOCAL                    = "location";
     private static final Logger log                               = Logger.getLogger(ContinuationTransformer.class.getCanonicalName());
+    private static final String NO_ARG_CONSTRUCTOR_SIGNATURE      = "void <init>()";
+    private static final String POP_FRAME_SIGNATURE               = "com.hellblazer.primeMover.runtime.ContinuationFrame popFrame()";
+    private static final String PUSH_FRAME_SIGNATURE              = "void pushFrame(com.hellblazer.primeMover.runtime.ContinuationFrame)";
+    private static final String RESTORE_FRAME_LOCAL               = "restoreFrame";
+    private static final String SAVE_FRAME_LOCAL                  = "saveFrame";
+
+    static {
+        CONTINUATON_LOCATION_FIELD = LOCATION_LOCAL;
+    }
 
     private static Local newLocal(String name, Type t, Body b) {
         Local l = Jimple.v().newLocal(name, t);
@@ -258,12 +256,16 @@ public class ContinuationTransformer extends BodyTransformer {
         return l;
     }
 
-    private final SootClass       framework              = Scene.v().loadClassAndSupport("com.hellblazer.primeMover.runtime.Framework");
-    private final SootClass       continuationFrame      = Scene.v().loadClassAndSupport("com.hellblazer.primeMover.runtime.ContinuationFrame");
-    private final SootClass       illegalStateException  = Scene.v().loadClassAndSupport(IllegalStateException.class.getCanonicalName());
-    private final SootClass       emptyContinuationFrame = Scene.v().loadClassAndSupport("com.hellblazer.primeMover.runtime.EmptyContinuationFrame");
-    private final boolean         validate;
+    private final SootClass       continuationFrame      = Scene.v()
+                                                                .loadClassAndSupport("com.hellblazer.primeMover.runtime.ContinuationFrame");
+    private final SootClass       emptyContinuationFrame = Scene.v()
+                                                                .loadClassAndSupport("com.hellblazer.primeMover.runtime.EmptyContinuationFrame");
+    private final SootClass       framework              = Scene.v()
+                                                                .loadClassAndSupport("com.hellblazer.primeMover.runtime.Framework");
     private final List<SootClass> generated;
+    private final SootClass       illegalStateException  = Scene.v()
+                                                                .loadClassAndSupport(IllegalStateException.class.getCanonicalName());
+    private final boolean         validate;
 
     public ContinuationTransformer(List<SootClass> generated) {
         this(generated, false);
@@ -274,75 +276,45 @@ public class ContinuationTransformer extends BodyTransformer {
         this.generated = generated;
     }
 
-    private List<Unit> generateContinuableReentry(Body body,
-                                                  Local poppedFrame,
-                                                  List<ContinuationSite> continuations) {
-        ArrayList<Unit> reentry = new ArrayList<Unit>();
-        Jimple jimple = Jimple.v();
-
-        UnitBox normalEntry = jimple.newStmtBox(jimple.newNopStmt());
-        Local restoreFrame = newLocal(RESTORE_FRAME_LOCAL, BooleanType.v(),
-                                      body);
-
-        // boolean restoreFramew = Framework.restoreFrame();
-        reentry.add(jimple.newAssignStmt(restoreFrame,
-                                         jimple.newStaticInvokeExpr(framework.getMethod(FRAMEWORK_RESTORE_FRAME_SIGNATURE).makeRef())));
-        // if (restoreFrame) {
-        reentry.add(jimple.newIfStmt(jimple.newEqExpr(restoreFrame,
-                                                      IntConstant.v(0)),
-                                     normalEntry));
-        reentry.add(jimple.newAssignStmt(poppedFrame,
-                                         jimple.newStaticInvokeExpr(framework.getMethod(POP_FRAME_SIGNATURE).makeRef())));
-        Local location = newLocal(LOCATION_LOCAL, IntType.v(), body);
-        InstanceFieldRef ref = jimple.newInstanceFieldRef(poppedFrame,
-                                                          continuationFrame.getFieldByName(CONTINUATON_LOCATION_FIELD).makeRef());
-        reentry.add(jimple.newAssignStmt(location, ref));
-
-        UnitBox reentryBranch = jimple.newStmtBox(null);
-        reentry.add(jimple.newGotoStmt(reentryBranch));
-
-        ArrayList<Value> lookupValues = new ArrayList<Value>();
-        ArrayList<Unit> targets = new ArrayList<Unit>();
-
-        for (ContinuationSite site : continuations) {
-            List<Unit> popFrame = site.popFrame(body, poppedFrame);
-            reentry.addAll(popFrame);
-
-            lookupValues.add(IntConstant.v(site.location));
-            targets.add(popFrame.get(0));
+    public Local getThisLocal(Body body) {
+        for (Unit unit : body.getUnits()) {
+            if (unit instanceof IdentityStmt && ((IdentityStmt) unit).getRightOp() instanceof ThisRef) {
+                return (Local) ((IdentityStmt) unit).getLeftOp();
+            }
         }
-
-        Local ise = newLocal(INVALID_LOCATION_LOCAL,
-                             illegalStateException.getType(), body);
-
-        Unit defaultTarget = jimple.newAssignStmt(ise,
-                                                  jimple.newNewExpr(illegalStateException.getType()));
-        reentry.add(defaultTarget);
-        reentry.add(jimple.newInvokeStmt(jimple.newSpecialInvokeExpr(ise,
-                                                                     illegalStateException.getMethod(NO_ARG_CONSTRUCTOR_SIGNATURE).makeRef())));
-        reentry.add(jimple.newThrowStmt(ise));
-
-        reentryBranch.setUnit(jimple.newLookupSwitchStmt(location,
-                                                         lookupValues, targets,
-                                                         defaultTarget));
-        reentry.add(reentryBranch.getUnit());
-        reentry.add(normalEntry.getUnit());
-        return reentry;
+        return null;
     }
 
-    @SuppressWarnings("unchecked")
+    @Override
+    protected void internalTransform(Body body, String phaseName, @SuppressWarnings("rawtypes") Map options) {
+        if (!willContinue(body.getMethod())) {
+            return;
+        }
+        List<ContinuationSite> continuedCalls = generateContinuationSites(body, body.getMethod().getReturnType());
+        if (continuedCalls.size() != 0) {
+            Local poppedFrame = newLocal(CONTINUATION_FRAME_LOCAL, continuationFrame.getType(), body);
+            for (ContinuationSite site : continuedCalls) {
+                site.transformContinuation(body, poppedFrame);
+            }
+            body.getUnits()
+                .insertBefore(generateContinuableReentry(body, poppedFrame, continuedCalls),
+                              ((JimpleBody) body).getFirstNonIdentityStmt());
+            markTransformed(body.getMethod(), this, "Transformed continuations");
+            if (validate) {
+                body.validate();
+            }
+        }
+    }
+
     List<ContinuationSite> generateContinuationSites(Body body, Type returnType) {
         String id = UUID.randomUUID().toString().replace('-', '_');
         UnusedLocalEliminator.v().transform(body);
         List<ContinuationSite> continuedCalls = new ArrayList<ContinuationSite>();
-        SimpleLiveLocals liveLocals = new SimpleLiveLocals(
-                                                           new ExceptionalUnitGraph(
-                                                                                    body));
+        SimpleLiveLocals liveLocals = new SimpleLiveLocals(new ExceptionalUnitGraph(body));
         int callSite = 0;
         @SuppressWarnings("rawtypes")
         Iterator statements = body.getUnits().snapshotIterator();
-        Local thisLocal = body.getMethod().isStatic() ? null
-                                                     : body.getThisLocal();
+        Local thisLocal = body.getMethod().isStatic() ? null : body.getThisLocal();
         while (statements.hasNext()) {
             Stmt stmt = (Stmt) statements.next();
             SootClass declaringClass = body.getMethod().getDeclaringClass();
@@ -355,25 +327,14 @@ public class ContinuationTransformer extends BodyTransformer {
             if (stmt instanceof InvokeStmt) {
                 InvokeStmt invoke = (InvokeStmt) stmt;
                 if (willContinue(invoke.getInvokeExpr().getMethod())) {
-                    ContinuationSite site = new ContinuationSite(
-                                                                 id,
-                                                                 callSite++,
-                                                                 stmt,
-                                                                 locals,
-                                                                 declaringClass,
+                    ContinuationSite site = new ContinuationSite(id, callSite++, stmt, locals, declaringClass,
                                                                  returnType);
                     continuedCalls.add(site);
                 }
             } else if (stmt instanceof AssignStmt) {
                 AssignStmt assign = (AssignStmt) stmt;
-                if (assign.containsInvokeExpr()
-                    && willContinue(assign.getInvokeExpr().getMethod())) {
-                    ContinuationSite site = new ContinuationSite(
-                                                                 id,
-                                                                 callSite++,
-                                                                 stmt,
-                                                                 locals,
-                                                                 declaringClass,
+                if (assign.containsInvokeExpr() && willContinue(assign.getInvokeExpr().getMethod())) {
+                    ContinuationSite site = new ContinuationSite(id, callSite++, stmt, locals, declaringClass,
                                                                  returnType);
                     continuedCalls.add(site);
                 }
@@ -387,38 +348,54 @@ public class ContinuationTransformer extends BodyTransformer {
         return continuedCalls;
     }
 
-    public Local getThisLocal(Body body) {
-        for (Unit unit : body.getUnits()) {
-            if (unit instanceof IdentityStmt
-                && ((IdentityStmt) unit).getRightOp() instanceof ThisRef) {
-                return (Local) ((IdentityStmt) unit).getLeftOp();
-            }
-        }
-        return null;
-    }
+    private List<Unit> generateContinuableReentry(Body body, Local poppedFrame, List<ContinuationSite> continuations) {
+        ArrayList<Unit> reentry = new ArrayList<Unit>();
+        Jimple jimple = Jimple.v();
 
-    @Override
-    protected void internalTransform(Body body, String phaseName,
-                                     @SuppressWarnings("rawtypes") Map options) {
-        if (!willContinue(body.getMethod())) {
-            return;
+        UnitBox normalEntry = jimple.newStmtBox(jimple.newNopStmt());
+        Local restoreFrame = newLocal(RESTORE_FRAME_LOCAL, BooleanType.v(), body);
+
+        // boolean restoreFramew = Framework.restoreFrame();
+        reentry.add(jimple.newAssignStmt(restoreFrame,
+                                         jimple.newStaticInvokeExpr(framework.getMethod(FRAMEWORK_RESTORE_FRAME_SIGNATURE)
+                                                                             .makeRef())));
+        // if (restoreFrame) {
+        reentry.add(jimple.newIfStmt(jimple.newEqExpr(restoreFrame, IntConstant.v(0)), normalEntry));
+        reentry.add(jimple.newAssignStmt(poppedFrame,
+                                         jimple.newStaticInvokeExpr(framework.getMethod(POP_FRAME_SIGNATURE)
+                                                                             .makeRef())));
+        Local location = newLocal(LOCATION_LOCAL, IntType.v(), body);
+        InstanceFieldRef ref = jimple.newInstanceFieldRef(poppedFrame,
+                                                          continuationFrame.getFieldByName(CONTINUATON_LOCATION_FIELD)
+                                                                           .makeRef());
+        reentry.add(jimple.newAssignStmt(location, ref));
+
+        UnitBox reentryBranch = jimple.newStmtBox(null);
+        reentry.add(jimple.newGotoStmt(reentryBranch));
+
+        List<IntConstant> lookupValues = new ArrayList<>();
+        ArrayList<Unit> targets = new ArrayList<Unit>();
+
+        for (ContinuationSite site : continuations) {
+            List<Unit> popFrame = site.popFrame(body, poppedFrame);
+            reentry.addAll(popFrame);
+
+            lookupValues.add(IntConstant.v(site.location));
+            targets.add(popFrame.get(0));
         }
-        List<ContinuationSite> continuedCalls = generateContinuationSites(body,
-                                                                          body.getMethod().getReturnType());
-        if (continuedCalls.size() != 0) {
-            Local poppedFrame = newLocal(CONTINUATION_FRAME_LOCAL,
-                                         continuationFrame.getType(), body);
-            for (ContinuationSite site : continuedCalls) {
-                site.transformContinuation(body, poppedFrame);
-            }
-            body.getUnits().insertBefore(generateContinuableReentry(body,
-                                                                    poppedFrame,
-                                                                    continuedCalls),
-                                         ((JimpleBody) body).getFirstNonIdentityStmt());
-            markTransformed(body.getMethod(), this, "Transformed continuations");
-            if (validate) {
-                body.validate();
-            }
-        }
+
+        Local ise = newLocal(INVALID_LOCATION_LOCAL, illegalStateException.getType(), body);
+
+        Unit defaultTarget = jimple.newAssignStmt(ise, jimple.newNewExpr(illegalStateException.getType()));
+        reentry.add(defaultTarget);
+        reentry.add(jimple.newInvokeStmt(jimple.newSpecialInvokeExpr(ise,
+                                                                     illegalStateException.getMethod(NO_ARG_CONSTRUCTOR_SIGNATURE)
+                                                                                          .makeRef())));
+        reentry.add(jimple.newThrowStmt(ise));
+
+        reentryBranch.setUnit(jimple.newLookupSwitchStmt(location, lookupValues, targets, defaultTarget));
+        reentry.add(reentryBranch.getUnit());
+        reentry.add(normalEntry.getUnit());
+        return reentry;
     }
 }
