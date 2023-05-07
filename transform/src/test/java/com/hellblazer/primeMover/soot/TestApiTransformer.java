@@ -1,6 +1,10 @@
 package com.hellblazer.primeMover.soot;
 
 import static java.util.Arrays.asList;
+
+import com.hellblazer.primeMover.runtime.EntityReference;
+import com.hellblazer.primeMover.runtime.Framework;
+
 import junit.framework.Assert;
 import junit.framework.TestCase;
 import soot.G;
@@ -10,17 +14,14 @@ import soot.SootClass;
 import soot.SootMethod;
 import soot.options.Options;
 
-import com.hellblazer.primeMover.runtime.EntityReference;
-import com.hellblazer.primeMover.runtime.Framework;
-
+@SuppressWarnings("deprecation")
 public class TestApiTransformer extends TestCase {
 
     static class MyMockController extends MockController {
         boolean continuationPosted = false;
 
         @Override
-        public Object postContinuingEvent(EntityReference entity, int event,
-                                          Object... arguments) throws Throwable {
+        public Object postContinuingEvent(EntityReference entity, int event, Object... arguments) throws Throwable {
             Assert.assertEquals("com.hellblazer.primeMover.runtime.BlockingSleep",
                                 entity.getClass().getCanonicalName());
             Assert.assertEquals(0, event);

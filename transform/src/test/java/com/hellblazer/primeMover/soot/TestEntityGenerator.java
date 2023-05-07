@@ -98,6 +98,7 @@ public class TestEntityGenerator extends TestCase {
         assertTrue(constructors.size() > 0);
     }
 
+    @SuppressWarnings("deprecation")
     public void testGenerateEntity() throws Throwable {
         generator.generateEntity();
         assertNotNull(generator.getEntity());

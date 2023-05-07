@@ -25,15 +25,15 @@ import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 
+import com.hellblazer.primeMover.runtime.ContinuationFrame;
+import com.hellblazer.primeMover.runtime.Framework;
+
 import junit.framework.TestCase;
 import soot.G;
 import soot.Printer;
 import soot.Scene;
 import soot.SootClass;
 import soot.SootMethod;
-
-import com.hellblazer.primeMover.runtime.ContinuationFrame;
-import com.hellblazer.primeMover.runtime.Framework;
 
 /**
  * Test the transformation which implements the event continuations.
@@ -43,9 +43,9 @@ import com.hellblazer.primeMover.runtime.Framework;
  */
 public class TestContinuationTransformer extends TestCase {
     private static class MyMockController extends MockController {
-        boolean saveFrame = false;
-        boolean restoreFrame = false;
         ContinuationFrame frame;
+        boolean           restoreFrame = false;
+        boolean           saveFrame    = false;
 
         @Override
         public ContinuationFrame popFrame() {
@@ -85,9 +85,7 @@ public class TestContinuationTransformer extends TestCase {
 
         ArrayList<SootClass> generated = new ArrayList<SootClass>();
         for (SootMethod method : continuationPrototype.getMethods()) {
-            ContinuationTransformer transformer = new ContinuationTransformer(
-                                                                              generated,
-                                                                              true);
+            ContinuationTransformer transformer = new ContinuationTransformer(generated, true);
             transformer.transform(method.retrieveActiveBody());
         }
 
@@ -102,16 +100,16 @@ public class TestContinuationTransformer extends TestCase {
         LocalLoader loader = new LocalLoader(generated);
         Thread.currentThread().setContextClassLoader(loader);
         /*
-        verifyGenerated(loader,
-                        new ByteArrayInputStream(
-                                                 loader.classBits.get(ContinuationPrototypeImpl.class.getCanonicalName())));
-                                                 */
+         * verifyGenerated(loader, new ByteArrayInputStream(
+         * loader.classBits.get(ContinuationPrototypeImpl.class.getCanonicalName())));
+         */
         Class<?> clazz = loader.loadClass(ContinuationPrototypeImpl.class.getCanonicalName());
         assertNotSame(ContinuationPrototypeImpl.class, clazz);
 
+        @SuppressWarnings("deprecation")
         ContinuationPrototype prototype = (ContinuationPrototype) clazz.newInstance();
 
-        // Test transformed behavior with no controller present 
+        // Test transformed behavior with no controller present
         Framework.setController(null);
         assertEquals(2, prototype.zeroth());
         assertEquals("AB", prototype.first());
@@ -155,7 +153,8 @@ public class TestContinuationTransformer extends TestCase {
     }
 
     private SootClass getContinuationPrototypeImpl() {
-        SootClass continuationPrototypeImpl = Scene.v().loadClassAndSupport(ContinuationPrototypeImpl.class.getCanonicalName());
+        SootClass continuationPrototypeImpl = Scene.v()
+                                                   .loadClassAndSupport(ContinuationPrototypeImpl.class.getCanonicalName());
         for (SootMethod method : continuationPrototypeImpl.getMethods()) {
             method.retrieveActiveBody();
         }
