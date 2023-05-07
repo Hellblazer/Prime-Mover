@@ -205,7 +205,7 @@ public class Utils {
                 return true;
             }
         }
-        return inferEntity(base.getSuperclass());
+        return base.hasSuperclass() ? inferEntity(base.getSuperclass()) : false;
     }
 
     static boolean isMarkedEntity(SootClass base) {

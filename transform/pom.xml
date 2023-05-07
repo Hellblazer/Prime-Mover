@@ -12,7 +12,7 @@
     <artifactId>transform</artifactId>
     <name>Transformation Framework</name>
     <description>Prime Mover transformation framework</description>
-    <packaging>bundle</packaging>
+    <packaging>jar</packaging>
     <licenses>
         <license>
             <name>GNU Affero General Public License V3</name>
@@ -32,9 +32,20 @@
             <version>4.4.1</version>
         </dependency>
         <dependency>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>java-boot-classpath-detector</artifactId>
+            <version>1.23</version>
+        </dependency>
+        <dependency>
             <groupId>com.hellblazer.primeMover</groupId>
             <artifactId>runtime</artifactId>
             <version>0.0.5-SNAPSHOT</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.4.7</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

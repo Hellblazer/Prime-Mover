@@ -29,6 +29,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import com.hellblazer.primeMover.runtime.EntityReference;
+import com.hellblazer.primeMover.runtime.Framework;
+
 import junit.framework.TestCase;
 import soot.G;
 import soot.Printer;
@@ -37,9 +40,6 @@ import soot.SootClass;
 import soot.SootMethod;
 import soot.options.Options;
 import testClasses.Entity2Impl;
-
-import com.hellblazer.primeMover.runtime.EntityReference;
-import com.hellblazer.primeMover.runtime.Framework;
 
 /**
  * Test the generation of the proxies which implement the actual mechanics of
@@ -51,14 +51,13 @@ import com.hellblazer.primeMover.runtime.Framework;
 public class TestEntityGenerator extends TestCase {
 
     private static class MyMockController extends MockController {
-        int event1Ordinal;
-        int event2Ordinal;
+        int     event1Ordinal;
         boolean event1Posted = false;
+        int     event2Ordinal;
         boolean event2Posted = false;
 
         @Override
-        public Object postContinuingEvent(EntityReference entity, int event,
-                                          Object... arguments) throws Throwable {
+        public Object postContinuingEvent(EntityReference entity, int event, Object... arguments) throws Throwable {
             assertNotNull(arguments);
             assertEquals(1, arguments.length);
             event2Ordinal = event;
@@ -67,8 +66,7 @@ public class TestEntityGenerator extends TestCase {
         }
 
         @Override
-        public void postEvent(EntityReference entity, int event,
-                              Object... arguments) {
+        public void postEvent(EntityReference entity, int event, Object... arguments) {
             assertNull(arguments);
             event1Ordinal = event;
             event1Posted = true;
@@ -76,8 +74,8 @@ public class TestEntityGenerator extends TestCase {
 
     }
 
-    EntityGenerator generator;
     ArrayList<SootClass> generated;
+    EntityGenerator      generator;
 
     public void testCreateClass() {
         assertNotNull(generator.getEntity());
@@ -103,8 +101,7 @@ public class TestEntityGenerator extends TestCase {
     public void testGenerateEntity() throws Throwable {
         generator.generateEntity();
         assertNotNull(generator.getEntity());
-        assertSame(generator.getEntity(),
-                   Scene.v().getSootClass(generator.getEntity().toString()));
+        assertSame(generator.getEntity(), Scene.v().getSootClass(generator.getEntity().toString()));
 
         PrintStream out;
         out = System.out;
@@ -115,8 +112,7 @@ public class TestEntityGenerator extends TestCase {
 
         Scene.v().loadNecessaryClasses();
 
-        ClassLoader entityLoader = new LocalLoader(
-                                                   asList(generator.getEntity()));
+        ClassLoader entityLoader = new LocalLoader(asList(generator.getEntity()));
 
         Class<?> entityClass = entityLoader.loadClass(generator.getEntity().toString());
         assertNotNull(entityClass);
@@ -137,8 +133,7 @@ public class TestEntityGenerator extends TestCase {
         assertNull(entity.field2);
         assertFalse(entity.invoke2);
 
-        ref.__invoke(controller.event2Ordinal,
-                     new Object[] { new Entity2Impl() });
+        ref.__invoke(controller.event2Ordinal, new Object[] { new Entity2Impl() });
         assertTrue(entity.invoke2);
 
         try {
@@ -179,24 +174,22 @@ public class TestEntityGenerator extends TestCase {
         Collection<SootClass> interfaces = getEntityInterfaces(generator.getBase());
         assertNotNull(interfaces);
         assertEquals(3, interfaces.size());
-        assertTrue(interfaces.contains(Scene.v().loadClass(CompositeInterface.class.getCanonicalName(),
-                                                           SootClass.SIGNATURES)));
-        assertTrue(interfaces.contains(Scene.v().loadClass(Interface1.class.getCanonicalName(),
-                                                           SootClass.SIGNATURES)));
-        assertTrue(interfaces.contains(Scene.v().loadClass(Interface2.class.getCanonicalName(),
-                                                           SootClass.SIGNATURES)));
+        assertTrue(interfaces.contains(Scene.v()
+                                            .loadClass(CompositeInterface.class.getCanonicalName(),
+                                                       SootClass.SIGNATURES)));
+        assertTrue(interfaces.contains(Scene.v().loadClass(Interface1.class.getCanonicalName(), SootClass.SIGNATURES)));
+        assertTrue(interfaces.contains(Scene.v().loadClass(Interface2.class.getCanonicalName(), SootClass.SIGNATURES)));
     }
 
     @Override
     protected void setUp() throws Exception {
-        super.setUp(); 
+        super.setUp();
         G.reset();
         SimulationTransform.setStandardClassPath();
         Options.v().set_validate(true);
         Scene.v().loadBasicClasses();
         generated = new ArrayList<SootClass>();
-        generator = new EntityGenerator(
-                                        generated,
+        generator = new EntityGenerator(generated,
                                         Scene.v().loadClassAndSupport(EntityThroughSuperclass.class.getCanonicalName()),
                                         true);
     }

@@ -258,7 +258,7 @@ public class EntityGenerator {
             helper.returnVoid();
         }
 
-        entity.addMethod(helper.getMethod());
+        entity.getOrAddMethod(helper.getMethod());
         if (validate) {
             helper.validate();
         }

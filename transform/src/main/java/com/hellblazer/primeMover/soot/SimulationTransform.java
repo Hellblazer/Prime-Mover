@@ -25,12 +25,14 @@ import static java.util.Arrays.asList;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import soot.Hack;
 import soot.PackManager;
 import soot.PhaseOptions;
 import soot.Scene;
@@ -54,9 +56,9 @@ public class SimulationTransform {
     private static Logger log = Logger.getLogger(SimulationTransform.class.getCanonicalName());
 
     public static String getBootClasspath() {
-        String cp = System.getProperty("sun.boot.class.path");
+        String cp = System.getProperty("sun.boot.library.path");
         if (cp != null) {
-            log.info(String.format("Using[1] boot class path: %s", cp));
+            log.info(String.format("Using[1] boot library path: %s", cp));
             return cp;
         }
         cp = System.getProperty("java.boot.class.path");
@@ -147,8 +149,9 @@ public class SimulationTransform {
     }
 
     public static void setStandardClassPath() {
-        Options.v()
-               .set_soot_classpath(String.format("%s:%s", getBootClasspath(), System.getProperty("java.class.path")));
+        final var mp = System.getProperty("jdk.module.path");
+        Options.v().set_soot_modulepath(mp == null ? "" : mp);
+        Options.v().set_process_dir(Arrays.asList(System.getProperty("java.class.path").split(File.pathSeparator)));
     }
 
     private String generatedDirectory;
@@ -202,7 +205,7 @@ public class SimulationTransform {
             for (SootMethod method : generatedClass.getMethods()) {
                 method.setActiveBody(Baf.v().newBody((JimpleBody) method.getActiveBody()));
             }
-            PackManager.v().writeClass(generatedClass);
+            Hack.writeClass(generatedClass, PackManager.v());
         }
     }
 
