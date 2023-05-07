@@ -4,7 +4,7 @@
  * This file is part of the Prime Mover Event Driven Simulation Framework.
  * 
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as 
+ * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  * 
@@ -33,16 +33,16 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.hellblazer.primeMover.runtime.Framework;
+import com.hellblazer.primeMover.soot.EntityGenerator;
+import com.hellblazer.primeMover.soot.LocalLoader;
+import com.hellblazer.primeMover.soot.SimulationTransform;
+
 import junit.framework.TestCase;
 import soot.G;
 import soot.options.Options;
 import testClasses.DriverImpl;
 import testClasses.UseChannelImpl;
-
-import com.hellblazer.primeMover.runtime.Framework;
-import com.hellblazer.primeMover.soot.EntityGenerator;
-import com.hellblazer.primeMover.soot.LocalLoader;
-import com.hellblazer.primeMover.soot.SimulationTransform;
 
 /**
  * 
@@ -52,27 +52,9 @@ import com.hellblazer.primeMover.soot.SimulationTransform;
 
 public class TestAPI extends TestCase {
     private static final String TEST_CLASSES = "testClasses";
-    File                        sourceDir    = new File(SOURCE_DIR,
-                                                        TEST_CLASSES);
-    File                        processedDir = new File(PROCESSED_DIR,
-                                                        TEST_CLASSES);
-    File                        outputDir    = new File(OUTPUT_DIR,
-                                                        TEST_CLASSES);
-
-    private Map<String, byte[]> getTransformed() throws IOException {
-        HashMap<String, byte[]> classBits = new HashMap<String, byte[]>();
-        File[] listing = outputDir.listFiles();
-        assertNotNull(listing);
-        for (File classFile : listing) {
-            String name = classFile.getName();
-            if (name.endsWith(".class")) {
-                String className = TEST_CLASSES + '.'
-                                   + name.substring(0, name.lastIndexOf('.'));
-                classBits.put(className, getBits(classFile));
-            }
-        }
-        return classBits;
-    }
+    File                        outputDir    = new File(OUTPUT_DIR, TEST_CLASSES);
+    File                        processedDir = new File(PROCESSED_DIR, TEST_CLASSES);
+    File                        sourceDir    = new File(SOURCE_DIR, TEST_CLASSES);
 
     public void testApi() throws Exception {
         G.reset();
@@ -93,31 +75,41 @@ public class TestAPI extends TestCase {
         testThreading(loader);
     }
 
+    private Map<String, byte[]> getTransformed() throws IOException {
+        HashMap<String, byte[]> classBits = new HashMap<String, byte[]>();
+        File[] listing = outputDir.listFiles();
+        assertNotNull(listing);
+        for (File classFile : listing) {
+            String name = classFile.getName();
+            if (name.endsWith(".class")) {
+                String className = TEST_CLASSES + '.' + name.substring(0, name.lastIndexOf('.'));
+                classBits.put(className, getBits(classFile));
+            }
+        }
+        return classBits;
+    }
+
     private void testChannel(ClassLoader loader) throws Exception {
         TrackingController controller = new TrackingController();
         Framework.setController(controller);
         controller.setCurrentTime(0);
         Class<?> useChannelImplClass = loader.loadClass(UseChannelImpl.class.getCanonicalName()
-                                                        + EntityGenerator.GENERATED_ENTITY_SUFFIX);
+        + EntityGenerator.GENERATED_ENTITY_SUFFIX);
+        @SuppressWarnings("deprecation")
         Object useChannel = useChannelImplClass.newInstance();
         Method test = useChannelImplClass.getDeclaredMethod("test");
         test.invoke(useChannel);
 
         while (controller.send()) {
-            ;
+
         }
 
         assertEquals(5, controller.events.size());
-        assertEquals("<testClasses.UseChannelImpl: void test()>",
-                     controller.events.get(0));
-        assertEquals("<testClasses.UseChannelImpl: void take()>",
-                     controller.events.get(1));
-        assertEquals("<testClasses.UseChannelImpl: void put(java.lang.String)>",
-                     controller.events.get(2));
-        assertEquals("<testClasses.UseChannelImpl: void put(java.lang.String)>",
-                     controller.events.get(3));
-        assertEquals("<testClasses.UseChannelImpl: void take()>",
-                     controller.events.get(4));
+        assertEquals("<testClasses.UseChannelImpl: void test()>", controller.events.get(0));
+        assertEquals("<testClasses.UseChannelImpl: void take()>", controller.events.get(1));
+        assertEquals("<testClasses.UseChannelImpl: void put(java.lang.String)>", controller.events.get(2));
+        assertEquals("<testClasses.UseChannelImpl: void put(java.lang.String)>", controller.events.get(3));
+        assertEquals("<testClasses.UseChannelImpl: void take()>", controller.events.get(4));
 
         assertEquals(8, controller.blockingEvents.size());
         assertEquals("<com.hellblazer.primeMover.runtime.SynchronousQueueImpl: java.lang.Object take()>",
@@ -147,24 +139,21 @@ public class TestAPI extends TestCase {
         controller.setCurrentTime(0);
 
         Class<?> driverImplClass = loader.loadClass(DriverImpl.class.getCanonicalName()
-                                                    + EntityGenerator.GENERATED_ENTITY_SUFFIX);
+        + EntityGenerator.GENERATED_ENTITY_SUFFIX);
+        @SuppressWarnings("deprecation")
         Object driverImpl = driverImplClass.newInstance();
         Method runThreaded = driverImplClass.getDeclaredMethod("runThreaded");
         runThreaded.invoke(driverImpl);
 
         while (controller.send()) {
-            ;
+
         }
 
         assertEquals(4, controller.events.size());
-        assertEquals("<testClasses.DriverImpl: void runThreaded()>",
-                     controller.events.get(0));
-        assertEquals("<testClasses.ThreadedImpl: void process(int)>",
-                     controller.events.get(1));
-        assertEquals("<testClasses.ThreadedImpl: void process(int)>",
-                     controller.events.get(2));
-        assertEquals("<testClasses.ThreadedImpl: void process(int)>",
-                     controller.events.get(3));
+        assertEquals("<testClasses.DriverImpl: void runThreaded()>", controller.events.get(0));
+        assertEquals("<testClasses.ThreadedImpl: void process(int)>", controller.events.get(1));
+        assertEquals("<testClasses.ThreadedImpl: void process(int)>", controller.events.get(2));
+        assertEquals("<testClasses.ThreadedImpl: void process(int)>", controller.events.get(3));
 
         assertEquals(30, controller.blockingEvents.size());
         for (String contEvent : controller.blockingEvents) {
