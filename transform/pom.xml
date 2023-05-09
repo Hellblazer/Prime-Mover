@@ -5,7 +5,7 @@
 	<parent>
 		<artifactId>primeMover</artifactId>
 		<groupId>com.hellblazer</groupId>
-		<version>0.0.5-SNAPSHOT</version>
+    <version>0.1.0-SNAPSHOT</version>
 	</parent>
 	<groupId>com.hellblazer.primeMover</groupId>
 	<artifactId>transform</artifactId>
@@ -27,35 +27,23 @@
 	<dependencies>
 		<dependency>
 			<groupId>org.soot-oss</groupId>
-			<artifactId>soot</artifactId>
-			<version>4.4.1</version>
-		</dependency>
-		<dependency>
-			<groupId>org.codehaus.mojo</groupId>
-			<artifactId>java-boot-classpath-detector</artifactId>
-			<version>1.23</version>
-		</dependency>
+			<artifactId>soot</artifactId> 
+		</dependency> 
+		<!-- Test Only Dependencies Below This Line-->
 		<dependency>
 			<groupId>com.hellblazer.primeMover</groupId>
-			<artifactId>runtime</artifactId>
-			<version>0.0.5-SNAPSHOT</version>
+			<artifactId>runtime</artifactId> 
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
-			<artifactId>logback-classic</artifactId>
-			<version>1.4.7</version>
+			<artifactId>logback-classic</artifactId> 
 			<scope>test</scope>
 		</dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
 	</dependencies>
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.felix</groupId>
-				<artifactId>maven-bundle-plugin</artifactId>
-				<version>2.3.7</version>
-				<extensions>true</extensions>
-			</plugin>
-		</plugins>
-	</build>
 </project>

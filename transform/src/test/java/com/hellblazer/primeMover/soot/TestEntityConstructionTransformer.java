@@ -19,11 +19,15 @@
 
 package com.hellblazer.primeMover.soot;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+
 import java.util.ArrayList;
+
+import org.junit.jupiter.api.Test;
 
 import com.hellblazer.primeMover.runtime.Framework;
 
-import junit.framework.TestCase;
 import soot.G;
 import soot.Scene;
 import soot.SootClass;
@@ -37,8 +41,9 @@ import soot.options.Options;
  * @author <a href="mailto:hal.hildebrand@gmail.com">Hal Hildebrand</a>
  * 
  */
-public class TestEntityConstructionTransformer extends TestCase {
+public class TestEntityConstructionTransformer {
 
+    @Test
     public void testSubstitution() throws Exception {
         // TODO Fix me.
         if (Boolean.parseBoolean("true")) {

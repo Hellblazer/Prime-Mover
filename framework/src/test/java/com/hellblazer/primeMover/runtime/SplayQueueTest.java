@@ -19,19 +19,23 @@
 
 package com.hellblazer.primeMover.runtime;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Queue;
 import java.util.Random;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * 
  * @author <a href="mailto:hal.hildebrand@gmail.com">Hal Hildebrand</a>
  * 
  */
-public class SplayQueueTest extends TestCase {
+public class SplayQueueTest {
 
     public static void main(String[] args) {
         SplayQueue<Integer> t = new SplayQueue<Integer>();
@@ -75,6 +79,7 @@ public class SplayQueueTest extends TestCase {
         assertTrue(pqueue.size() == 4);
     }
 
+    @Test
     public void testDuplicates() {
         Random random = new Random(666);
         Queue<Integer> t = new SplayQueue<Integer>();
@@ -98,6 +103,7 @@ public class SplayQueueTest extends TestCase {
         assertEquals(0, t.size());
     }
 
+    @Test
     public void testIsEmpty() {
         int n = pqueue.size();
         for (int i = 0; i < n; i++) {
@@ -107,6 +113,7 @@ public class SplayQueueTest extends TestCase {
         assertTrue(pqueue.isEmpty());
     }
 
+    @Test
     public void testIterator() {
         Queue<Integer> t = new SplayQueue<Integer>();
         final int targetSize = 40000;
@@ -124,6 +131,7 @@ public class SplayQueueTest extends TestCase {
         }
     }
 
+    @Test
     public void testLargeInsert() {
 
         Queue<Integer> t = new SplayQueue<Integer>();
@@ -143,6 +151,7 @@ public class SplayQueueTest extends TestCase {
         assertEquals(nums - 1, t.size());
     }
 
+    @Test
     public void testLargeRemove() {
         Queue<Integer> t = new SplayQueue<Integer>();
         final int targetSize = 40000;
@@ -161,6 +170,7 @@ public class SplayQueueTest extends TestCase {
         assertEquals(0, t.size());
     }
 
+    @Test
     public void testLargeRemoveObject() {
         Queue<Integer> t = new SplayQueue<Integer>();
         final int targetSize = 40000;
@@ -178,15 +188,15 @@ public class SplayQueueTest extends TestCase {
         assertEquals(0, t.size());
     }
 
+    @Test
     public void testRemove() {
         assertTrue(pqueue.remove() == 1);
         assertTrue(pqueue.remove() == 2);
         assertTrue(pqueue.remove() == 3);
     }
 
-    @Override
+    @BeforeEach
     protected void setUp() throws Exception {
-        super.setUp();
         pqueue = new SplayQueue<Integer>();
         pqueue.add(3);
         pqueue.add(1);

@@ -114,6 +114,7 @@ public class MethodHelper {
 
         body = jimple.newBody(method);
         method.setActiveBody(body);
+        method.setDeclaringClass(clazz);
         units = body.getUnits();
 
         if (!method.isStatic()) {

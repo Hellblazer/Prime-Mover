@@ -21,6 +21,13 @@ package com.hellblazer.primeMover.soot;
 
 import static com.hellblazer.primeMover.soot.util.Utils.getEntityInterfaces;
 import static java.util.Arrays.asList;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -29,10 +36,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import com.hellblazer.primeMover.runtime.EntityReference;
 import com.hellblazer.primeMover.runtime.Framework;
 
-import junit.framework.TestCase;
 import soot.G;
 import soot.Printer;
 import soot.Scene;
@@ -48,7 +57,7 @@ import testClasses.Entity2Impl;
  * @author <a href="mailto:hal.hildebrand@gmail.com">Hal Hildebrand</a>
  * 
  */
-public class TestEntityGenerator extends TestCase {
+public class TestEntityGenerator {
 
     private static class MyMockController extends MockController {
         int     event1Ordinal;
@@ -77,21 +86,23 @@ public class TestEntityGenerator extends TestCase {
     ArrayList<SootClass> generated;
     EntityGenerator      generator;
 
+    @Test
     public void testCreateClass() {
         assertNotNull(generator.getEntity());
         assertNotNull(generator.getEntity().getFieldByName(EntityGenerator.INITIALIZED_FIELD));
         assertNotNull(generator.getEntity().getFieldByName(EntityGenerator.CONTROLLER_FIELD));
     }
 
+    @Test
     public void testGenerateClassInitMethod() {
         generator.constructInvokeMap();
         SootMethod init = generator.generateClassInitMethod();
         assertNotNull(init);
     }
 
+    @Test
     public void testGenerateConstructors() {
         SootMethod initialize = generator.generateInitializeMethod();
-        initialize.setDeclaringClass(generator.getBase());
         assertNotNull(initialize);
         List<SootMethod> constructors = generator.generateConstructors(initialize);
         assertNotNull(constructors);
@@ -99,6 +110,7 @@ public class TestEntityGenerator extends TestCase {
     }
 
     @SuppressWarnings("deprecation")
+    @Test
     public void testGenerateEntity() throws Throwable {
         generator.generateEntity();
         assertNotNull(generator.getEntity());
@@ -145,13 +157,13 @@ public class TestEntityGenerator extends TestCase {
         }
     }
 
+    @Test
     public void testGenerateEvents() {
         SootMethod event1 = generator.getBase().getSuperclass().getMethod("void event1()");
         SootMethod event2 = generator.getBase().getSuperclass().getMethod("void event2(testClasses.Entity2)");
         generator.constructInvokeMap();
         SootMethod initialize = generator.generateInitializeMethod();
         assertNotNull(initialize);
-        initialize.setDeclaringClass(generator.getBase());
         SootMethod generatedEvent1 = generator.generateEvent(event1, initialize);
         assertNotNull(generatedEvent1);
         SootMethod generatedEvent2 = generator.generateEvent(event2, initialize);
@@ -159,11 +171,13 @@ public class TestEntityGenerator extends TestCase {
 
     }
 
+    @Test
     public void testGenerateInitializeMethod() {
         SootMethod initialize = generator.generateInitializeMethod();
         assertNotNull(initialize);
     }
 
+    @Test
     public void testGenerateInvokeMethod() {
         generator.constructInvokeMap();
         SootMethod invoke = generator.generateInvokeMethod();
@@ -171,6 +185,7 @@ public class TestEntityGenerator extends TestCase {
 
     }
 
+    @Test
     public void testGetEntityInterfaces() {
         Collection<SootClass> interfaces = getEntityInterfaces(generator.getBase());
         assertNotNull(interfaces);
@@ -182,9 +197,8 @@ public class TestEntityGenerator extends TestCase {
         assertTrue(interfaces.contains(Scene.v().loadClass(Interface2.class.getCanonicalName(), SootClass.SIGNATURES)));
     }
 
-    @Override
+    @BeforeEach
     protected void setUp() throws Exception {
-        super.setUp();
         G.reset();
         SimulationTransform.setStandardClassPath();
         Options.v().set_validate(true);

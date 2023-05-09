@@ -26,6 +26,8 @@ import static com.hellblazer.utils.Utils.copyDirectory;
 import static com.hellblazer.utils.Utils.getBits;
 import static com.hellblazer.utils.Utils.initializeDirectory;
 import static java.util.Arrays.asList;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,12 +35,13 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.junit.jupiter.api.Test;
+
 import com.hellblazer.primeMover.runtime.Framework;
 import com.hellblazer.primeMover.soot.EntityGenerator;
 import com.hellblazer.primeMover.soot.LocalLoader;
 import com.hellblazer.primeMover.soot.SimulationTransform;
 
-import junit.framework.TestCase;
 import soot.G;
 import soot.options.Options;
 import testClasses.DriverImpl;
@@ -50,12 +53,13 @@ import testClasses.UseChannelImpl;
  * 
  */
 
-public class TestAPI extends TestCase {
+public class TestAPI {
     private static final String TEST_CLASSES = "testClasses";
     File                        outputDir    = new File(OUTPUT_DIR, TEST_CLASSES);
     File                        processedDir = new File(PROCESSED_DIR, TEST_CLASSES);
     File                        sourceDir    = new File(SOURCE_DIR, TEST_CLASSES);
 
+    @Test
     public void testApi() throws Exception {
         G.reset();
         initializeDirectory(processedDir);

@@ -19,16 +19,22 @@
 
 package com.hellblazer.primeMover.soot;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 
+import org.junit.jupiter.api.Test;
+
 import com.hellblazer.primeMover.runtime.ContinuationFrame;
 import com.hellblazer.primeMover.runtime.Framework;
 
-import junit.framework.TestCase;
 import soot.G;
 import soot.Printer;
 import soot.Scene;
@@ -41,7 +47,7 @@ import soot.SootMethod;
  * @author <a href="mailto:hal.hildebrand@gmail.com">Hal Hildebrand</a>
  * 
  */
-public class TestContinuationTransformer extends TestCase {
+public class TestContinuationTransformer {
     private static class MyMockController extends MockController {
         ContinuationFrame frame;
         boolean           restoreFrame = false;
@@ -70,6 +76,7 @@ public class TestContinuationTransformer extends TestCase {
         }
     }
 
+    @Test
     public void testContinuations() throws Exception {
         G.reset();
         SimulationTransform.setStandardClassPath();

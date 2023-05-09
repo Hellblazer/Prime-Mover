@@ -1,12 +1,16 @@
 package com.hellblazer.primeMover.soot;
 
 import static java.util.Arrays.asList;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.junit.jupiter.api.Test;
 
 import com.hellblazer.primeMover.runtime.EntityReference;
 import com.hellblazer.primeMover.runtime.Framework;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
 import soot.G;
 import soot.PhaseOptions;
 import soot.Scene;
@@ -15,23 +19,23 @@ import soot.SootMethod;
 import soot.options.Options;
 
 @SuppressWarnings("deprecation")
-public class TestApiTransformer extends TestCase {
+public class TestApiTransformer {
 
     static class MyMockController extends MockController {
         boolean continuationPosted = false;
 
         @Override
         public Object postContinuingEvent(EntityReference entity, int event, Object... arguments) throws Throwable {
-            Assert.assertEquals("com.hellblazer.primeMover.runtime.BlockingSleep",
-                                entity.getClass().getCanonicalName());
-            Assert.assertEquals(0, event);
-            Assert.assertNotNull(arguments);
-            Assert.assertEquals(1, arguments.length);
+            assertEquals("com.hellblazer.primeMover.runtime.BlockingSleep", entity.getClass().getCanonicalName());
+            assertEquals(0, event);
+            assertNotNull(arguments);
+            assertEquals(1, arguments.length);
             continuationPosted = true;
             return null;
         }
     }
 
+    @Test
     public void testTransform() throws Exception {
         G.reset();
         SimulationTransform.setStandardClassPath();

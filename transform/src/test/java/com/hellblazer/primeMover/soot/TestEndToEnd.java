@@ -26,6 +26,10 @@ import static com.hellblazer.utils.Utils.copyDirectory;
 import static com.hellblazer.utils.Utils.getBits;
 import static com.hellblazer.utils.Utils.initializeDirectory;
 import static java.util.Arrays.asList;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,10 +37,11 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.junit.jupiter.api.Test;
+
 import com.hellblazer.primeMover.TrackingController;
 import com.hellblazer.primeMover.runtime.Framework;
 
-import junit.framework.TestCase;
 import soot.G;
 import soot.options.Options;
 import testClasses.Entity1Impl;
@@ -47,13 +52,14 @@ import testClasses.Entity1Impl;
  * @author <a href="mailto:hal.hildebrand@gmail.com">Hal Hildebrand</a>
  * 
  */
-public class TestEndToEnd extends TestCase {
+public class TestEndToEnd {
     private static final String TEST_CLASSES = "testClasses";
     File                        outputDir    = new File(OUTPUT_DIR, TEST_CLASSES);
     File                        processedDir = new File(PROCESSED_DIR, TEST_CLASSES);
     File                        sourceDir    = new File(SOURCE_DIR, TEST_CLASSES);
 
     @SuppressWarnings("deprecation")
+    @Test
     public void testTransform() throws Exception {
         G.reset();
         initializeDirectory(processedDir);
@@ -86,19 +92,18 @@ public class TestEndToEnd extends TestCase {
 
         }
 
-        assertEquals("2 events", 2, controller.events.size());
-        assertEquals("2 continued event", 4, controller.blockingEvents.size());
+        assertEquals(2, controller.events.size());
+        assertEquals(4, controller.blockingEvents.size());
         String eventSignature = controller.events.get(0);
-        assertEquals("Entity1.event() invoked", "<testClasses.Entity1Impl: void event1()>", eventSignature);
+        assertEquals("<testClasses.Entity1Impl: void event1()>", eventSignature);
         eventSignature = controller.blockingEvents.get(0);
-        assertEquals("Entity1.event2(Entity2) invoked", "<testClasses.Entity1Impl: void event2(testClasses.Entity2)>",
-                     eventSignature);
+        assertEquals("<testClasses.Entity1Impl: void event2(testClasses.Entity2)>", eventSignature);
         eventSignature = controller.events.get(1);
-        assertEquals("Entity2.myEvent() invoked", "<testClasses.Entity2Impl: void myEvent()>", eventSignature);
-        assertEquals("6 references", 6, controller.references.size());
-        assertSame("Same entities", controller.references.get(0), controller.references.get(1));
-        assertSame("Same entities", controller.references.get(1), controller.references.get(2));
-        assertNotSame("Different entities", controller.references.get(2), controller.references.get(3));
+        assertEquals("<testClasses.Entity2Impl: void myEvent()>", eventSignature);
+        assertEquals(6, controller.references.size());
+        assertSame(controller.references.get(0), controller.references.get(1));
+        assertSame(controller.references.get(1), controller.references.get(2));
+        assertNotSame(controller.references.get(2), controller.references.get(3));
     }
 
     private Map<String, byte[]> getTransformed() throws IOException {
