@@ -34,57 +34,29 @@ final public class Framework {
     public static Devi getController() {
         Devi controller = CONTROLLER.get();
         if (controller == null) {
-            throw new IllegalStateException(
-                                            "No controller has been set for the current thread");
+            throw new IllegalStateException("No controller has been set for the current thread");
         }
         return controller;
     }
 
-    public static ContinuationFrame popFrame() {
-        return getController().popFrame();
-    }
-
     @Blocking
-    public static Object postContinuingEvent(EntityReference entity,
-                                             Object[] arguments, int event)
-                                                                           throws Throwable {
+    public static Object postContinuingEvent(EntityReference entity, Object[] arguments, int event) throws Throwable {
         return getController().postContinuingEvent(entity, event, arguments);
     }
 
-    public static void postEvent(EntityReference entity, Object[] arguments,
-                                 int event) {
+    public static void postEvent(EntityReference entity, Object[] arguments, int event) {
         if (entity == null) {
             throw new NullPointerException("entity is null");
         }
         getController().postEvent(entity, event, arguments);
     }
 
-    public static void pushFrame(ContinuationFrame frame) {
-        getController().pushFrame(frame);
-    }
-
     public static Devi queryController() {
         return CONTROLLER.get();
     }
 
-    public static boolean restoreFrame() {
-        Devi current = CONTROLLER.get();
-        if (current == null) {
-            return false;
-        }
-        return current.restoreFrame();
-    }
-
     public static void run(Runnable r) {
         r.run();
-    }
-
-    public static boolean saveFrame() {
-        Devi current = CONTROLLER.get();
-        if (current == null) {
-            return false;
-        }
-        return current.saveFrame();
     }
 
     public static void setController(Devi controller) {

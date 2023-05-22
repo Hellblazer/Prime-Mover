@@ -4,7 +4,7 @@
  * This file is part of the Prime Mover Event Driven Simulation Framework.
  * 
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as 
+ * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  * 
@@ -21,6 +21,7 @@ package com.hellblazer.primeMover;
 
 import java.util.NoSuchElementException;
 import java.util.Queue;
+import java.util.logging.Logger;
 
 import com.hellblazer.primeMover.runtime.Devi;
 import com.hellblazer.primeMover.runtime.EventImpl;
@@ -35,17 +36,21 @@ import com.hellblazer.primeMover.runtime.SplayQueue;
 public class ControllerImpl extends Devi {
     public Queue<EventImpl> eventQueue = new SplayQueue<EventImpl>();
 
-    @Override
-    protected void post(EventImpl event) {
-        eventQueue.add(event);
-    }
-
     public boolean send() throws SimulationException {
         try {
+            Logger.getLogger(ControllerImpl.class.getCanonicalName())
+                  .info("Remaining: %s".formatted(eventQueue.size()));
             evaluate(eventQueue.remove());
         } catch (NoSuchElementException e) {
             return false;
         }
         return true;
+    }
+
+    @Override
+    protected void post(EventImpl event) {
+        eventQueue.add(event);
+        Logger.getLogger(ControllerImpl.class.getCanonicalName())
+              .info("Posting: %s size: %s".formatted(event, eventQueue.size()));
     }
 }

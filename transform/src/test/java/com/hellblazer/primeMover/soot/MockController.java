@@ -2,7 +2,6 @@ package com.hellblazer.primeMover.soot;
 
 import java.util.logging.Logger;
 
-import com.hellblazer.primeMover.runtime.ContinuationFrame;
 import com.hellblazer.primeMover.runtime.Devi;
 import com.hellblazer.primeMover.runtime.EntityReference;
 import com.hellblazer.primeMover.runtime.EventImpl;
@@ -29,42 +28,20 @@ class MockController extends Devi {
     }
 
     @Override
-    public ContinuationFrame popFrame() {
-        return null;
-    }
-
-    @Override
     public void post(EventImpl event) {
     }
 
     @Override
-    public Object postContinuingEvent(EntityReference entity, int event,
-                                      Object... arguments) throws Throwable {
+    public Object postContinuingEvent(EntityReference entity, int event, Object... arguments) throws Throwable {
         return null;
     }
 
     @Override
-    public void postEvent(EntityReference entity, int event,
-                          Object... arguments) {
+    public void postEvent(EntityReference entity, int event, Object... arguments) {
     }
 
     @Override
-    public void postEvent(long time, EntityReference entity, int event,
-                          Object... arguments) {
-    }
-
-    @Override
-    public void pushFrame(ContinuationFrame frame) {
-    }
-
-    @Override
-    public boolean restoreFrame() {
-        return false;
-    }
-
-    @Override
-    public boolean saveFrame() {
-        return false;
+    public void postEvent(long time, EntityReference entity, int event, Object... arguments) {
     }
 
     @Override

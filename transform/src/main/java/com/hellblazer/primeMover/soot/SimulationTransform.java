@@ -163,7 +163,6 @@ public class SimulationTransform {
         Options.v().set_unfriendly_mode(true);
         final List<SootClass> generated = new ArrayList<SootClass>();
 
-        PackManager.v().getPack("wjtp").add(new Transform("wjtp.continuation.analysis", new ContinuationAnalysis()));
         PackManager.v().getPack("wjtp").add(new Transform("wjtp.entity.generation", new SceneTransformer() {
 
             @Override
@@ -181,9 +180,6 @@ public class SimulationTransform {
         PackManager.v().getPack("jtp").add(new Transform("jtp.api.transform", new ApiTransformer()));
         PackManager.v()
                    .getPack("jtp")
-                   .add(new Transform("jtp.continuation.transform", new ContinuationTransformer(generated)));
-        PackManager.v()
-                   .getPack("jtp")
                    .add(new Transform("jtp.entity.creation.transform", new EntityConstructionTransformer()));
         Options.v().set_keep_line_number(true);
         PhaseOptions.v().setPhaseOption("tag.ln", "on");
@@ -194,6 +190,7 @@ public class SimulationTransform {
         Options.v().set_no_bodies_for_excluded(true);
         Options.v().set_whole_program(true);
         // Options.v().set_app(true);
+        Scene.v().addBasicClass("java.lang.Object", SootClass.BODIES);
 
         soot.Main.main(args);
 

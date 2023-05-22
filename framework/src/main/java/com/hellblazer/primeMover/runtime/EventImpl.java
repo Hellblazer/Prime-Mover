@@ -21,6 +21,7 @@ package com.hellblazer.primeMover.runtime;
 
 import java.io.PrintStream;
 import java.io.Serializable;
+import java.util.logging.Logger;
 
 import com.hellblazer.primeMover.Event;
 
@@ -30,8 +31,7 @@ import com.hellblazer.primeMover.Event;
  * @author <a href="mailto:hal.hildebrand@gmail.com">Hal Hildebrand</a>
  * 
  */
-public class EventImpl implements Cloneable, Serializable,
-        Comparable<EventImpl>, Event {
+public class EventImpl implements Cloneable, Serializable, Comparable<EventImpl>, Event {
     private static final long         serialVersionUID = -628833433139964756L;
     /**
      * The arguments for the event
@@ -41,6 +41,7 @@ public class EventImpl implements Cloneable, Serializable,
      * The continuation state of the event
      */
     private Continuation              continuation;
+    private final String              debugInfo;
     /**
      * The event
      */
@@ -49,25 +50,23 @@ public class EventImpl implements Cloneable, Serializable,
      * The entity which is the target of the event
      */
     private transient EntityReference reference;
+
     /**
      * The event that was the source of this event
      */
-    private final Event               source;
+    private final Event source;
 
     /**
      * The instant in time when this event was raised
      */
-    private long                      time;
+    private long time;
 
-    private final String              debugInfo;
-
-    EventImpl(long time, Event sourceEvent, EntityReference reference,
-              int ordinal, Object... arguments) {
+    EventImpl(long time, Event sourceEvent, EntityReference reference, int ordinal, Object... arguments) {
         this(null, time, sourceEvent, reference, ordinal, arguments);
     }
 
-    EventImpl(String debugInfo, long time, Event sourceEvent,
-              EntityReference reference, int ordinal, Object... arguments) {
+    EventImpl(String debugInfo, long time, Event sourceEvent, EntityReference reference, int ordinal,
+              Object... arguments) {
         assert reference != null;
         this.debugInfo = debugInfo;
         this.time = time;
@@ -104,11 +103,9 @@ public class EventImpl implements Cloneable, Serializable,
         }
     }
 
-    Continuation getContinuation() {
-        return continuation;
-    }
-
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     *
      * @see com.hellblazer.primeMover.runtime.Event#getSignature()
      */
     @Override
@@ -116,7 +113,9 @@ public class EventImpl implements Cloneable, Serializable,
         return reference.__signatureFor(event);
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     *
      * @see com.hellblazer.primeMover.runtime.Event#getSource()
      */
     @Override
@@ -124,7 +123,9 @@ public class EventImpl implements Cloneable, Serializable,
         return source;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     *
      * @see com.hellblazer.primeMover.runtime.Event#getTime()
      */
     @Override
@@ -132,11 +133,9 @@ public class EventImpl implements Cloneable, Serializable,
         return time;
     }
 
-    Object invoke() throws Throwable {
-        return reference.__invoke(event, arguments);
-    }
-
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     *
      * @see com.hellblazer.primeMover.runtime.Event#printTrace()
      */
     @Override
@@ -144,7 +143,9 @@ public class EventImpl implements Cloneable, Serializable,
         printTrace(System.err);
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     *
      * @see com.hellblazer.primeMover.runtime.Event#printTrace(java.io.PrintStream)
      */
     @Override
@@ -159,6 +160,28 @@ public class EventImpl implements Cloneable, Serializable,
         }
     }
 
+    @Override
+    public String toString() {
+        if (debugInfo == null) {
+            return String.format("%s : %s%s", time, getSignature(), continuation == null ? "" : " : c");
+        } else {
+            return String.format("%s : %s%s @ %s", time, getSignature(), debugInfo, continuation == null ? "" : " : c");
+        }
+    }
+
+    Continuation getContinuation() {
+        return continuation;
+    }
+
+    Object invoke() throws Throwable {
+        if (continuation != null) {
+            Logger.getLogger(EventImpl.class.getCanonicalName()).info("Continuing: %s".formatted(this));
+            continuation.resume();
+            return null;
+        }
+        return reference.__invoke(event, arguments);
+    }
+
     EventImpl resume(long currentTime, Object result, Throwable exception) {
         time = currentTime;
         continuation.setReturnState(result, exception);
@@ -171,15 +194,5 @@ public class EventImpl implements Cloneable, Serializable,
 
     void setTime(long time) {
         this.time = time;
-    }
-
-    @Override
-    public String toString() {
-        if (debugInfo == null) {
-            return String.format("%s : %s", time, getSignature());
-        } else {
-            return String.format("%s : %s @ %s", time, getSignature(),
-                                 debugInfo);
-        }
     }
 }
