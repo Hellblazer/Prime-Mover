@@ -37,9 +37,11 @@ public class ControllerImpl extends Devi {
     public Queue<EventImpl> eventQueue = new SplayQueue<EventImpl>();
 
     public boolean send() throws SimulationException {
+        Logger.getLogger(ControllerImpl.class.getCanonicalName()).info("Remaining: %s".formatted(eventQueue.size()));
+        if (eventQueue.isEmpty()) {
+            return false;
+        }
         try {
-            Logger.getLogger(ControllerImpl.class.getCanonicalName())
-                  .info("Remaining: %s".formatted(eventQueue.size()));
             evaluate(eventQueue.remove());
         } catch (NoSuchElementException e) {
             return false;

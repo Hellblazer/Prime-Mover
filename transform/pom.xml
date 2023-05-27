@@ -29,14 +29,6 @@
             <groupId>org.soot-oss</groupId>
             <artifactId>soot</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.ow2.asm</groupId>
-            <artifactId>asm</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.ow2.asm</groupId>
-            <artifactId>asm-util</artifactId>
-        </dependency>
         <!-- Test Only Dependencies Below This Line-->
         <dependency>
             <groupId>com.hellblazer.primeMover</groupId>

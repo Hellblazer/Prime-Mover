@@ -103,51 +103,26 @@ public class EventImpl implements Cloneable, Serializable, Comparable<EventImpl>
         }
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see com.hellblazer.primeMover.runtime.Event#getSignature()
-     */
     @Override
     public String getSignature() {
         return reference.__signatureFor(event);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see com.hellblazer.primeMover.runtime.Event#getSource()
-     */
     @Override
     public Event getSource() {
         return source;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see com.hellblazer.primeMover.runtime.Event#getTime()
-     */
     @Override
     public long getTime() {
         return time;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see com.hellblazer.primeMover.runtime.Event#printTrace()
-     */
     @Override
     public void printTrace() {
         printTrace(System.err);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see com.hellblazer.primeMover.runtime.Event#printTrace(java.io.PrintStream)
-     */
     @Override
     public void printTrace(PrintStream s) {
         synchronized (s) {
@@ -185,10 +160,13 @@ public class EventImpl implements Cloneable, Serializable, Comparable<EventImpl>
     EventImpl resume(long currentTime, Object result, Throwable exception) {
         time = currentTime;
         continuation.setReturnState(result, exception);
+        Logger.getLogger(EventImpl.class.getCanonicalName())
+              .info("Resuming: %s r: %s ex: %s".formatted(this, result, exception));
         return this;
     }
 
     void setContinuation(Continuation continuation) {
+        assert this.continuation == null;
         this.continuation = continuation;
     }
 

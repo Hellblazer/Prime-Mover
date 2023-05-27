@@ -48,8 +48,10 @@ public class Continuation implements Serializable {
     }
 
     public void resume() {
-        logger.info("Resuming: %s".formatted(thread));
-        LockSupport.unpark(thread);
+        if (thread.isAlive()) {
+            logger.info("Resuming: %s".formatted(thread));
+            LockSupport.unpark(thread);
+        }
     }
 
     public Object returnFrom() throws Throwable {

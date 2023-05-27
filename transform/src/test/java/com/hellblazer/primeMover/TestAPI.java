@@ -75,8 +75,8 @@ public class TestAPI {
         SimulationTransform.main(argv);
 
         ClassLoader loader = new LocalLoader(getTransformed());
-        testChannel(loader);
         testThreading(loader);
+        testChannel(loader);
     }
 
     private Map<String, byte[]> getTransformed() throws IOException {
