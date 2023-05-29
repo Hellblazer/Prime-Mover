@@ -4,7 +4,7 @@
  * This file is part of the Prime Mover Event Driven Simulation Framework.
  * 
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as 
+ * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  * 
@@ -20,6 +20,8 @@
 package com.hellblazer.primeMover.runtime;
 
 import java.io.Serializable;
+import java.util.concurrent.locks.LockSupport;
+import java.util.logging.Logger;
 
 /**
  * Represents the blocking continuation of blocking simulated event processing
@@ -28,28 +30,32 @@ import java.io.Serializable;
  * 
  */
 public class Continuation implements Serializable {
-    private static final long serialVersionUID = -4307033871239385970L;
-    private EventImpl         caller;
-    private Throwable         exception;
-    private ContinuationFrame frame;
+    private static final Logger logger           = Logger.getLogger(Continuation.class.getCanonicalName());
+    private static final long   serialVersionUID = -4307033871239385970L;
 
-    private Object            returnValue;
+    private Throwable exception;
+    private Object    returnValue;
+    private Thread    thread;
 
-    public Continuation(EventImpl caller) {
-        this.caller = caller;
+    public boolean isParked() {
+        return thread != null;
     }
 
-    public Continuation(EventImpl caller, ContinuationFrame frame) {
-        this.caller = caller;
-        this.frame = frame;
+    public Object park() throws Throwable {
+        assert thread == null;
+        thread = Thread.currentThread();
+        LockSupport.park();
+        if (exception != null) {
+            throw exception;
+        }
+        return returnValue;
     }
 
-    public EventImpl getCaller() {
-        return caller;
-    }
-
-    public ContinuationFrame getFrame() {
-        return frame;
+    public void resume() {
+        if (thread != null && thread.isAlive()) {
+            logger.info("Resuming: %s".formatted(thread));
+            LockSupport.unpark(thread);
+        }
     }
 
     public Object returnFrom() throws Throwable {

@@ -4,7 +4,7 @@
  * This file is part of the Prime Mover Event Driven Simulation Framework.
  * 
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as 
+ * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  * 
@@ -30,15 +30,17 @@ import com.hellblazer.primeMover.Kronos;
 
 @Entity({ Threaded.class })
 public class ThreadedImpl implements Threaded {
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     *
      * @see testClasses.Threaded#process(int)
      */
     @Override
     public void process(int id) {
         for (int i = 1; i <= 5; i++) {
-            System.out.println(Kronos.currentTime() + ": thread=" + id + ", i="
-                               + i);
+            System.out.println("Sleeping at: " + Kronos.currentTime() + " thread=" + id + ", i=" + i);
             Kronos.blockingSleep(1);
+            System.out.println("Resuming from sleep: " + Kronos.currentTime() + " thread=" + id + ", i=" + i);
         }
     }
 }

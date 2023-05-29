@@ -1,19 +1,22 @@
-<project
-    xmlns="http://maven.apache.org/POM/4.0.0"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
-                             http://maven.apache.org/maven-v4_0_0.xsd">
-
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <parent>
         <groupId>com.hellblazer</groupId>
         <artifactId>primeMover</artifactId>
-        <version>0.0.5-SNAPSHOT</version>
+    <version>0.1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.hellblazer.primeMover</groupId>
-    <artifactId>runtime</artifactId> 
+    <artifactId>runtime</artifactId>
     <name>Prime Mover - Event Driven Simulation Framework</name>
-
+    <dependencies>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
     <licenses>
         <license>
             <name>GNU Affero General Public License V3</name>
@@ -26,13 +29,4 @@
             </comments>
         </license>
     </licenses>
-
-    <dependencies>
-        <dependency>
-            <groupId>com.hellblazer</groupId>
-            <artifactId>utils</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
-    </dependencies>
 </project>
-

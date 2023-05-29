@@ -10,20 +10,6 @@ To build:
      cd <top level directory>
      mvn clean install
 
-## Maven configuration
-
-For snapshots, include the hellblazer snapshot repository:
-
-     <repository>
-         <id>hellblazer-snapshots</id>
-         <url>https://repository-hal900000.forge.cloudbees.com/snapshot/</url>
-     </repository>
-
-     <plugin-repository>
-         <id>hellblazer-plugin-snapshots</id>
-         <url>https://repository-hal900000.forge.cloudbees.com/snapshot/</url>
-     </plugin-repository>
-
 ### Prime Mover Runtime
 
 The artifact required for simulation runtime

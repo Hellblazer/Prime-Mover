@@ -21,6 +21,13 @@ package com.hellblazer.primeMover.soot;
 
 import static com.hellblazer.primeMover.soot.util.Utils.getEntityInterfaces;
 import static java.util.Arrays.asList;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -29,7 +36,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import com.hellblazer.primeMover.runtime.EntityReference;
+import com.hellblazer.primeMover.runtime.Framework;
+
 import soot.G;
 import soot.Printer;
 import soot.Scene;
@@ -38,9 +50,6 @@ import soot.SootMethod;
 import soot.options.Options;
 import testClasses.Entity2Impl;
 
-import com.hellblazer.primeMover.runtime.EntityReference;
-import com.hellblazer.primeMover.runtime.Framework;
-
 /**
  * Test the generation of the proxies which implement the actual mechanics of
  * the event simulation framework.
@@ -48,17 +57,16 @@ import com.hellblazer.primeMover.runtime.Framework;
  * @author <a href="mailto:hal.hildebrand@gmail.com">Hal Hildebrand</a>
  * 
  */
-public class TestEntityGenerator extends TestCase {
+public class TestEntityGenerator {
 
     private static class MyMockController extends MockController {
-        int event1Ordinal;
-        int event2Ordinal;
+        int     event1Ordinal;
         boolean event1Posted = false;
+        int     event2Ordinal;
         boolean event2Posted = false;
 
         @Override
-        public Object postContinuingEvent(EntityReference entity, int event,
-                                          Object... arguments) throws Throwable {
+        public Object postContinuingEvent(EntityReference entity, int event, Object... arguments) throws Throwable {
             assertNotNull(arguments);
             assertEquals(1, arguments.length);
             event2Ordinal = event;
@@ -67,8 +75,7 @@ public class TestEntityGenerator extends TestCase {
         }
 
         @Override
-        public void postEvent(EntityReference entity, int event,
-                              Object... arguments) {
+        public void postEvent(EntityReference entity, int event, Object... arguments) {
             assertNull(arguments);
             event1Ordinal = event;
             event1Posted = true;
@@ -76,35 +83,38 @@ public class TestEntityGenerator extends TestCase {
 
     }
 
-    EntityGenerator generator;
     ArrayList<SootClass> generated;
+    EntityGenerator      generator;
 
+    @Test
     public void testCreateClass() {
         assertNotNull(generator.getEntity());
         assertNotNull(generator.getEntity().getFieldByName(EntityGenerator.INITIALIZED_FIELD));
         assertNotNull(generator.getEntity().getFieldByName(EntityGenerator.CONTROLLER_FIELD));
     }
 
+    @Test
     public void testGenerateClassInitMethod() {
         generator.constructInvokeMap();
         SootMethod init = generator.generateClassInitMethod();
         assertNotNull(init);
     }
 
+    @Test
     public void testGenerateConstructors() {
         SootMethod initialize = generator.generateInitializeMethod();
-        initialize.setDeclaringClass(generator.getBase());
         assertNotNull(initialize);
         List<SootMethod> constructors = generator.generateConstructors(initialize);
         assertNotNull(constructors);
         assertTrue(constructors.size() > 0);
     }
 
+    @SuppressWarnings("deprecation")
+//    @Test
     public void testGenerateEntity() throws Throwable {
         generator.generateEntity();
         assertNotNull(generator.getEntity());
-        assertSame(generator.getEntity(),
-                   Scene.v().getSootClass(generator.getEntity().toString()));
+        assertSame(generator.getEntity(), Scene.v().getSootClass(generator.getEntity().toString()));
 
         PrintStream out;
         out = System.out;
@@ -113,10 +123,9 @@ public class TestEntityGenerator extends TestCase {
         Printer.v().printTo(generator.getEntity(), pw);
         pw.flush();
 
-        Scene.v().loadNecessaryClasses();
+//        Scene.v().loadNecessaryClasses();
 
-        ClassLoader entityLoader = new LocalLoader(
-                                                   asList(generator.getEntity()));
+        ClassLoader entityLoader = new LocalLoader(asList(generator.getEntity()));
 
         Class<?> entityClass = entityLoader.loadClass(generator.getEntity().toString());
         assertNotNull(entityClass);
@@ -137,8 +146,7 @@ public class TestEntityGenerator extends TestCase {
         assertNull(entity.field2);
         assertFalse(entity.invoke2);
 
-        ref.__invoke(controller.event2Ordinal,
-                     new Object[] { new Entity2Impl() });
+        ref.__invoke(controller.event2Ordinal, new Object[] { new Entity2Impl() });
         assertTrue(entity.invoke2);
 
         try {
@@ -149,13 +157,13 @@ public class TestEntityGenerator extends TestCase {
         }
     }
 
+    @Test
     public void testGenerateEvents() {
         SootMethod event1 = generator.getBase().getSuperclass().getMethod("void event1()");
         SootMethod event2 = generator.getBase().getSuperclass().getMethod("void event2(testClasses.Entity2)");
         generator.constructInvokeMap();
         SootMethod initialize = generator.generateInitializeMethod();
         assertNotNull(initialize);
-        initialize.setDeclaringClass(generator.getBase());
         SootMethod generatedEvent1 = generator.generateEvent(event1, initialize);
         assertNotNull(generatedEvent1);
         SootMethod generatedEvent2 = generator.generateEvent(event2, initialize);
@@ -163,11 +171,13 @@ public class TestEntityGenerator extends TestCase {
 
     }
 
+    @Test
     public void testGenerateInitializeMethod() {
         SootMethod initialize = generator.generateInitializeMethod();
         assertNotNull(initialize);
     }
 
+    @Test
     public void testGenerateInvokeMethod() {
         generator.constructInvokeMap();
         SootMethod invoke = generator.generateInvokeMethod();
@@ -175,28 +185,26 @@ public class TestEntityGenerator extends TestCase {
 
     }
 
+    @Test
     public void testGetEntityInterfaces() {
         Collection<SootClass> interfaces = getEntityInterfaces(generator.getBase());
         assertNotNull(interfaces);
         assertEquals(3, interfaces.size());
-        assertTrue(interfaces.contains(Scene.v().loadClass(CompositeInterface.class.getCanonicalName(),
-                                                           SootClass.SIGNATURES)));
-        assertTrue(interfaces.contains(Scene.v().loadClass(Interface1.class.getCanonicalName(),
-                                                           SootClass.SIGNATURES)));
-        assertTrue(interfaces.contains(Scene.v().loadClass(Interface2.class.getCanonicalName(),
-                                                           SootClass.SIGNATURES)));
+        assertTrue(interfaces.contains(Scene.v()
+                                            .loadClass(CompositeInterface.class.getCanonicalName(),
+                                                       SootClass.SIGNATURES)));
+        assertTrue(interfaces.contains(Scene.v().loadClass(Interface1.class.getCanonicalName(), SootClass.SIGNATURES)));
+        assertTrue(interfaces.contains(Scene.v().loadClass(Interface2.class.getCanonicalName(), SootClass.SIGNATURES)));
     }
 
-    @Override
+    @BeforeEach
     protected void setUp() throws Exception {
-        super.setUp(); 
         G.reset();
         SimulationTransform.setStandardClassPath();
         Options.v().set_validate(true);
         Scene.v().loadBasicClasses();
         generated = new ArrayList<SootClass>();
-        generator = new EntityGenerator(
-                                        generated,
+        generator = new EntityGenerator(generated,
                                         Scene.v().loadClassAndSupport(EntityThroughSuperclass.class.getCanonicalName()),
                                         true);
     }

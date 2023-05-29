@@ -25,12 +25,14 @@ import static java.util.Arrays.asList;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import soot.Hack;
 import soot.PackManager;
 import soot.PhaseOptions;
 import soot.Scene;
@@ -39,6 +41,7 @@ import soot.SootClass;
 import soot.SootMethod;
 import soot.Transform;
 import soot.baf.Baf;
+import soot.jimple.JimpleBody;
 import soot.options.Options;
 
 /**
@@ -53,9 +56,9 @@ public class SimulationTransform {
     private static Logger log = Logger.getLogger(SimulationTransform.class.getCanonicalName());
 
     public static String getBootClasspath() {
-        String cp = System.getProperty("sun.boot.class.path");
+        String cp = System.getProperty("sun.boot.library.path");
         if (cp != null) {
-            log.info(String.format("Using[1] boot class path: %s", cp));
+            log.info(String.format("Using[1] boot library path: %s", cp));
             return cp;
         }
         cp = System.getProperty("java.boot.class.path");
@@ -71,9 +74,8 @@ public class SimulationTransform {
                 if (name == null) {
                     name = temp;
                 } else {
-                    throw new IllegalStateException(
-                                                    "Cannot auto-detect boot class path "
-                                                            + System.getProperty("java.version"));
+                    throw new IllegalStateException("Cannot auto-detect boot class path "
+                    + System.getProperty("java.version"));
                 }
             }
         }
@@ -90,26 +92,20 @@ public class SimulationTransform {
                 } catch (IOException e) {
                     // ignore
                 }
-                cp = removeAll(cp,
-                               new File(".").getAbsolutePath()
-                                       + System.getProperty("file.separator"));
+                cp = removeAll(cp, new File(".").getAbsolutePath() + System.getProperty("file.separator"));
                 try {
-                    cp = removeAll(cp, new File(".").getCanonicalPath()
-                                       + System.getProperty("file.separator"));
+                    cp = removeAll(cp, new File(".").getCanonicalPath() + System.getProperty("file.separator"));
                 } catch (IOException e) {
                     // ignore
                 }
                 log.info(String.format("Using[3] boot class path: %s", cp));
                 return cp;
             }
-            log.severe("Cannot auto-detect boot class path "
-                       + System.getProperty("java.version") + " "
-                       + System.getProperty("java.class.path"));
-            throw new IllegalStateException(
-                                            "Cannot auto-detect boot class path ");
+            log.severe("Cannot auto-detect boot class path " + System.getProperty("java.version") + " "
+            + System.getProperty("java.class.path"));
+            throw new IllegalStateException("Cannot auto-detect boot class path ");
         }
-        log.info(String.format("Using[4] boot class path: %s",
-                               System.getProperty(name)));
+        log.info(String.format("Using[4] boot class path: %s", System.getProperty(name)));
         return System.getProperty(name);
     }
 
@@ -132,13 +128,10 @@ public class SimulationTransform {
         }
         int j;
         while (-1 != (j = cp.indexOf(pathSeparator + prefix + pathSeparator))) {
-            cp = cp.substring(0, j)
-                 + cp.substring(j + prefix.length() + pathSeparator.length());
+            cp = cp.substring(0, j) + cp.substring(j + prefix.length() + pathSeparator.length());
         }
         if (cp.endsWith(pathSeparator + prefix)) {
-            cp = cp.substring(0,
-                              cp.length() - prefix.length()
-                                      + pathSeparator.length());
+            cp = cp.substring(0, cp.length() - prefix.length() + pathSeparator.length());
         }
         if (isWindows()) {
             // we might have the prefix or the classpath case differing
@@ -146,22 +139,19 @@ public class SimulationTransform {
                 cp = cp.substring(prefix.length() + pathSeparator.length());
             }
             while (-1 != (j = cp.toUpperCase().indexOf((pathSeparator + prefix + pathSeparator).toUpperCase()))) {
-                cp = cp.substring(0, j)
-                     + cp.substring(j + prefix.length()
-                                    + pathSeparator.length());
+                cp = cp.substring(0, j) + cp.substring(j + prefix.length() + pathSeparator.length());
             }
             if (cp.toUpperCase().endsWith((pathSeparator + prefix).toUpperCase())) {
-                cp = cp.substring(0, cp.length() - prefix.length()
-                                     + pathSeparator.length());
+                cp = cp.substring(0, cp.length() - prefix.length() + pathSeparator.length());
             }
         }
         return cp;
     }
 
     public static void setStandardClassPath() {
-        Options.v().set_soot_classpath(String.format("%s:%s",
-                                                     getBootClasspath(),
-                                                     System.getProperty("java.class.path")));
+        final var mp = System.getProperty("jdk.module.path");
+        Options.v().set_soot_modulepath(mp == null ? "" : mp);
+        Options.v().set_process_dir(Arrays.asList(System.getProperty("java.class.path").split(File.pathSeparator)));
     }
 
     private String generatedDirectory;
@@ -173,47 +163,34 @@ public class SimulationTransform {
         Options.v().set_unfriendly_mode(true);
         final List<SootClass> generated = new ArrayList<SootClass>();
 
-        PackManager.v().getPack("wjtp").add(new Transform(
-                                                          "wjtp.continuation.analysis",
-                                                          new ContinuationAnalysis()));
-        PackManager.v().getPack("wjtp").add(new Transform(
-                                                          "wjtp.entity.generation",
-                                                          new SceneTransformer() {
+        PackManager.v().getPack("wjtp").add(new Transform("wjtp.entity.generation", new SceneTransformer() {
 
-                                                              @Override
-                                                              protected void internalTransform(String phaseName,
-                                                                                               @SuppressWarnings("rawtypes") Map options) {
-                                                                  Iterator<SootClass> applicationClasses = Scene.v().getApplicationClasses().snapshotIterator();
-                                                                  while (applicationClasses.hasNext()) {
-                                                                      SootClass applicationClass = applicationClasses.next();
-                                                                      if (isEntity(applicationClass)) {
-                                                                          new EntityGenerator(
-                                                                                              generated,
-                                                                                              applicationClass).generateEntity();
-                                                                      }
-                                                                  }
+            @Override
+            protected void internalTransform(String phaseName, @SuppressWarnings("rawtypes") Map options) {
+                Iterator<SootClass> applicationClasses = Scene.v().getApplicationClasses().snapshotIterator();
+                while (applicationClasses.hasNext()) {
+                    SootClass applicationClass = applicationClasses.next();
+                    if (isEntity(applicationClass)) {
+                        new EntityGenerator(generated, applicationClass).generateEntity();
+                    }
+                }
 
-                                                              }
-                                                          }));
-        PackManager.v().getPack("jtp").add(new Transform("jtp.api.transform",
-                                                         new ApiTransformer()));
-        PackManager.v().getPack("jtp").add(new Transform(
-                                                         "jtp.continuation.transform",
-                                                         new ContinuationTransformer(
-                                                                                     generated)));
-        PackManager.v().getPack("jtp").add(new Transform(
-                                                         "jtp.entity.creation.transform",
-                                                         new EntityConstructionTransformer()));
+            }
+        }));
+        PackManager.v().getPack("jtp").add(new Transform("jtp.api.transform", new ApiTransformer()));
+        PackManager.v()
+                   .getPack("jtp")
+                   .add(new Transform("jtp.entity.creation.transform", new EntityConstructionTransformer()));
         Options.v().set_keep_line_number(true);
         PhaseOptions.v().setPhaseOption("tag.ln", "on");
 
-        Options.v().set_exclude(asList("com.hellblazer.primeMover",
-                                       "com.hellblazer.primeMover.controllers",
-                                       "com.hellblazer.primeMover.runtime",
-                                       "com.hellblazer.primeMover.soot"));
+        Options.v()
+               .set_exclude(asList("com.hellblazer.primeMover", "com.hellblazer.primeMover.controllers",
+                                   "com.hellblazer.primeMover.runtime", "com.hellblazer.primeMover.soot"));
         Options.v().set_no_bodies_for_excluded(true);
         Options.v().set_whole_program(true);
         // Options.v().set_app(true);
+        Scene.v().addBasicClass("java.lang.Object", SootClass.BODIES);
 
         soot.Main.main(args);
 
@@ -223,9 +200,9 @@ public class SimulationTransform {
 
         for (SootClass generatedClass : generated) {
             for (SootMethod method : generatedClass.getMethods()) {
-                method.setActiveBody(Baf.v().newBody(method.getActiveBody()));
+                method.setActiveBody(Baf.v().newBody((JimpleBody) method.getActiveBody()));
             }
-            PackManager.v().writeClass(generatedClass);
+            Hack.writeClass(generatedClass, PackManager.v());
         }
     }
 

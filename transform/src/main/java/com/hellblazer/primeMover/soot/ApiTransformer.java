@@ -4,7 +4,7 @@
  * This file is part of the Prime Mover Event Driven Simulation Framework.
  * 
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as 
+ * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  * 
@@ -43,10 +43,8 @@ import soot.jimple.Stmt;
  * 
  */
 public class ApiTransformer extends BodyTransformer {
-    private SootClass     kronos = Scene.v().forceResolve("com.hellblazer.primeMover.Kronos",
-                                                          SootClass.SIGNATURES);
-    private SootClass     kairos = Scene.v().forceResolve("com.hellblazer.primeMover.runtime.Kairos",
-                                                          SootClass.SIGNATURES);
+    private SootClass kairos = Scene.v().forceResolve("com.hellblazer.primeMover.runtime.Kairos", SootClass.SIGNATURES);
+    private SootClass kronos = Scene.v().forceResolve("com.hellblazer.primeMover.Kronos", SootClass.SIGNATURES);
 
     private final boolean validate;
 
@@ -68,15 +66,13 @@ public class ApiTransformer extends BodyTransformer {
                 InvokeStmt stmt = (InvokeStmt) unit;
                 InvokeExpr invokeExpr = stmt.getInvokeExpr();
                 transformed |= mutateInvoke(invokeExpr);
-            } else if (unit instanceof AssignStmt
-                       && ((Stmt) unit).containsInvokeExpr()) {
+            } else if (unit instanceof AssignStmt && ((Stmt) unit).containsInvokeExpr()) {
                 InvokeExpr expr = ((AssignStmt) unit).getInvokeExpr();
                 transformed |= mutateInvoke(expr);
             }
         }
         if (transformed) {
-            markTransformed(body.getMethod(), this,
-                            "Transformed Kronos api calls");
+            markTransformed(body.getMethod(), this, "Transformed Kronos api calls");
             if (validate) {
                 body.validate();
             }
@@ -84,7 +80,7 @@ public class ApiTransformer extends BodyTransformer {
     }
 
     private boolean mutateInvoke(InvokeExpr invokeExpr) {
-        if (invokeExpr.getMethodRef().declaringClass().equals(kronos)) {
+        if (invokeExpr.getMethodRef().getDeclaringClass().equals(kronos)) {
             SootMethod replacement = kairos.getMethod(invokeExpr.getMethod().getSubSignature());
             invokeExpr.setMethodRef(replacement.makeRef());
             return true;

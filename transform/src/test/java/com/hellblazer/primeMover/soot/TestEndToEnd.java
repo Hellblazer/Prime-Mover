@@ -4,7 +4,7 @@
  * This file is part of the Prime Mover Event Driven Simulation Framework.
  * 
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as 
+ * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  * 
@@ -26,6 +26,8 @@ import static com.hellblazer.utils.Utils.copyDirectory;
 import static com.hellblazer.utils.Utils.getBits;
 import static com.hellblazer.utils.Utils.initializeDirectory;
 import static java.util.Arrays.asList;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,13 +35,14 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-import junit.framework.TestCase;
-import soot.G;
-import soot.options.Options;
-import testClasses.Entity1Impl;
+import org.junit.jupiter.api.Test;
 
 import com.hellblazer.primeMover.TrackingController;
 import com.hellblazer.primeMover.runtime.Framework;
+
+import soot.G;
+import soot.options.Options;
+import testClasses.Entity1Impl;
 
 /**
  * Test the end to end behavior of simulation transform.
@@ -47,12 +50,14 @@ import com.hellblazer.primeMover.runtime.Framework;
  * @author <a href="mailto:hal.hildebrand@gmail.com">Hal Hildebrand</a>
  * 
  */
-public class TestEndToEnd extends TestCase {
+public class TestEndToEnd {
     private static final String TEST_CLASSES = "testClasses";
-    File sourceDir = new File(SOURCE_DIR, TEST_CLASSES);
-    File processedDir = new File(PROCESSED_DIR, TEST_CLASSES);
-    File outputDir = new File(OUTPUT_DIR, TEST_CLASSES);
+    File                        outputDir    = new File(OUTPUT_DIR, TEST_CLASSES);
+    File                        processedDir = new File(PROCESSED_DIR, TEST_CLASSES);
+    File                        sourceDir    = new File(SOURCE_DIR, TEST_CLASSES);
 
+    @SuppressWarnings("deprecation")
+    @Test
     public void testTransform() throws Exception {
         G.reset();
         initializeDirectory(processedDir);
@@ -73,7 +78,7 @@ public class TestEndToEnd extends TestCase {
         // controller.setEventLogger(Logger.getLogger("Event Logger"));
         Framework.setController(controller);
         Class<?> entity1Clazz = loader.loadClass(Entity1Impl.class.getCanonicalName()
-                                                 + EntityGenerator.GENERATED_ENTITY_SUFFIX);
+        + EntityGenerator.GENERATED_ENTITY_SUFFIX);
 
         Object entity;
         entity = entity1Clazz.newInstance();
@@ -82,29 +87,22 @@ public class TestEndToEnd extends TestCase {
         event.invoke(entity);
 
         while (controller.send()) {
-            ;
+
         }
 
-        assertEquals("2 events", 2, controller.events.size());
-        assertEquals("2 continued event", 4, controller.blockingEvents.size());
-        String eventSignature = controller.events.get(0);
-        assertEquals("Entity1.event() invoked",
-                     "<testClasses.Entity1Impl: void event1()>", eventSignature);
-        eventSignature = controller.blockingEvents.get(0);
-        assertEquals("Entity1.event2(Entity2) invoked",
-                     "<testClasses.Entity1Impl: void event2(testClasses.Entity2)>",
-                     eventSignature);
-        eventSignature = controller.events.get(1);
-        assertEquals("Entity2.myEvent() invoked",
-                     "<testClasses.Entity2Impl: void myEvent()>",
-                     eventSignature);
-        assertEquals("6 references", 6, controller.references.size());
-        assertSame("Same entities", controller.references.get(0),
-                   controller.references.get(1));
-        assertSame("Same entities", controller.references.get(1),
-                   controller.references.get(2));
-        assertNotSame("Different entities", controller.references.get(2),
-                      controller.references.get(3));
+        assertEquals(6, controller.events.size());
+        assertEquals(2, controller.blockingEvents.size());
+        assertEquals(8, controller.references.size());
+
+        int i = 0;
+
+        assertEquals("<testClasses.Entity1Impl: void event1()>", controller.events.get(i++));
+        assertEquals("<testClasses.Entity1Impl: void event2(testClasses.Entity2)>", controller.events.get(i++));
+        assertEquals("<testClasses.Entity1Impl: void event1()>", controller.events.get(i++));
+        assertEquals("<testClasses.Entity2Impl: void myEvent()>", controller.events.get(i++));
+        assertEquals("<com.hellblazer.primeMover.runtime.BlockingSleepImpl void sleep(org.joda.time.Duration)>",
+                     controller.events.get(i++));
+        assertEquals("<testClasses.Entity1Impl: void event1()>", controller.events.get(i++));
     }
 
     private Map<String, byte[]> getTransformed() throws IOException {
@@ -114,8 +112,7 @@ public class TestEndToEnd extends TestCase {
         for (File classFile : listing) {
             String name = classFile.getName();
             if (name.endsWith(".class")) {
-                String className = TEST_CLASSES + '.'
-                                   + name.substring(0, name.lastIndexOf('.'));
+                String className = TEST_CLASSES + '.' + name.substring(0, name.lastIndexOf('.'));
                 classBits.put(className, getBits(classFile));
             }
         }

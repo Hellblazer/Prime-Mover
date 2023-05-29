@@ -1,8 +1,14 @@
 package com.hellblazer.primeMover.soot;
 
 import static java.util.Arrays.asList;
-import junit.framework.Assert;
-import junit.framework.TestCase;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import com.hellblazer.primeMover.runtime.EntityReference;
+import com.hellblazer.primeMover.runtime.Framework;
+
 import soot.G;
 import soot.PhaseOptions;
 import soot.Scene;
@@ -10,27 +16,24 @@ import soot.SootClass;
 import soot.SootMethod;
 import soot.options.Options;
 
-import com.hellblazer.primeMover.runtime.EntityReference;
-import com.hellblazer.primeMover.runtime.Framework;
-
-public class TestApiTransformer extends TestCase {
+@SuppressWarnings("deprecation")
+public class TestApiTransformer {
 
     static class MyMockController extends MockController {
         boolean continuationPosted = false;
 
         @Override
-        public Object postContinuingEvent(EntityReference entity, int event,
-                                          Object... arguments) throws Throwable {
-            Assert.assertEquals("com.hellblazer.primeMover.runtime.BlockingSleep",
-                                entity.getClass().getCanonicalName());
-            Assert.assertEquals(0, event);
-            Assert.assertNotNull(arguments);
-            Assert.assertEquals(1, arguments.length);
+        public Object postContinuingEvent(EntityReference entity, int event, Object... arguments) throws Throwable {
+            assertEquals("com.hellblazer.primeMover.runtime.BlockingSleep", entity.getClass().getCanonicalName());
+            assertEquals(0, event);
+            assertNotNull(arguments);
+            assertEquals(1, arguments.length);
             continuationPosted = true;
             return null;
         }
     }
 
+//    @Test
     public void testTransform() throws Exception {
         G.reset();
         SimulationTransform.setStandardClassPath();

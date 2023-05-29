@@ -27,23 +27,21 @@ import soot.tagkit.Tag;
 import soot.tagkit.VisibilityAnnotationTag;
 
 public class Utils {
-    private static Logger log = Logger.getLogger(Utils.class.getCanonicalName());
-
     private static final String BLOCKING_CLASS_BINARY_NAME = "Lcom/hellblazer/primeMover/Blocking;";
-
-    private static final String NON_EVENT_CLASS_BINARY_NAME = "Lcom/hellblazer/primeMover/NonEvent;";
 
     private static final String CONTINUABLE_CLASS_BINARY_NAME = "Lcom/hellblazer/primeMover/Continuable;";
 
-    private static final String TRANSFORMED_CLASS_BINARY_NAME = "Lcom/hellblazer/primeMover/Transformed;";
-
     private static final String ENTITY_CLASS_BINARY_NAME = "Lcom/hellblazer/primeMover/Entity;";
 
-    private static SimpleDateFormat ISO8601FORMAT = new SimpleDateFormat(
-                                                                         "yyyy-MM-dd'T'HH:mm:ssZ");
+    private static SimpleDateFormat ISO8601FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
 
-    public static Collection<SootMethod> gatherImplementationsOf(SootMethod method,
-                                                                 SootClass base) {
+    private static Logger log = Logger.getLogger(Utils.class.getCanonicalName());
+
+    private static final String NON_EVENT_CLASS_BINARY_NAME = "Lcom/hellblazer/primeMover/NonEvent;";
+
+    private static final String TRANSFORMED_CLASS_BINARY_NAME = "Lcom/hellblazer/primeMover/Transformed;";
+
+    public static Collection<SootMethod> gatherImplementationsOf(SootMethod method, SootClass base) {
         ArrayList<SootMethod> implementations = new ArrayList<SootMethod>();
         SootClass current = base;
         String subSignature = method.getSubSignature();
@@ -75,8 +73,7 @@ public class Utils {
             return false;
         }
         if (inferEntity(base)) {
-            log.info(String.format("Inferred Entity status of %1s.  Marking class as @Enity",
-                                   base));
+            log.info(String.format("Inferred Entity status of %1s.  Marking class as @Enity", base));
             markEntity(base);
             markTransformed(base, "EntityInference", "Entity Status Inferred");
             return true;
@@ -133,53 +130,43 @@ public class Utils {
     }
 
     @SuppressWarnings("unchecked")
-	public static void markBlocking(SootMethod method) {
-        AnnotationGenerator.v().annotate(method, BLOCKING_CLASS_BINARY_NAME,
-                                         AnnotationConstants.RUNTIME_VISIBLE,
-                                         Collections.EMPTY_LIST);
+    public static void markBlocking(SootMethod method) {
+        AnnotationGenerator.v()
+                           .annotate(method, BLOCKING_CLASS_BINARY_NAME, AnnotationConstants.RUNTIME_VISIBLE,
+                                     Collections.EMPTY_LIST);
     }
 
     @SuppressWarnings("unchecked")
-	public static void markContinuable(SootMethod method) {
-        AnnotationGenerator.v().annotate(method, CONTINUABLE_CLASS_BINARY_NAME,
-                                         AnnotationConstants.RUNTIME_VISIBLE,
-                                         Collections.EMPTY_LIST);
+    public static void markContinuable(SootMethod method) {
+        AnnotationGenerator.v()
+                           .annotate(method, CONTINUABLE_CLASS_BINARY_NAME, AnnotationConstants.RUNTIME_VISIBLE,
+                                     Collections.EMPTY_LIST);
     }
 
     @SuppressWarnings("unchecked")
-	public static void markEntity(SootClass clazz) {
-        AnnotationGenerator.v().annotate(clazz, ENTITY_CLASS_BINARY_NAME,
-                                         AnnotationConstants.RUNTIME_VISIBLE,
-                                         Collections.EMPTY_LIST);
+    public static void markEntity(SootClass clazz) {
+        AnnotationGenerator.v()
+                           .annotate(clazz, ENTITY_CLASS_BINARY_NAME, AnnotationConstants.RUNTIME_VISIBLE,
+                                     Collections.EMPTY_LIST);
     }
 
     public static void markTransformed(AbstractHost host, Object generator) {
         markTransformed(host, generator, "");
     }
 
-    public static void markTransformed(AbstractHost host, Object generator,
-                                       String comment) {
+    public static void markTransformed(AbstractHost host, Object generator, String comment) {
         markTransformed(host, generator.getClass().getCanonicalName(), comment);
     }
 
-    public static void markTransformed(AbstractHost host, String transformer,
-                                       String comment) {
-        List<AnnotationElem> elems = new ArrayList<AnnotationElem>(
-                                                                   asList(new AnnotationStringElem(
-                                                                                                   transformer,
-                                                                                                   's',
+    public static void markTransformed(AbstractHost host, String transformer, String comment) {
+        List<AnnotationElem> elems = new ArrayList<AnnotationElem>(asList(new AnnotationStringElem(transformer, 's',
                                                                                                    "value"),
-                                                                          new AnnotationStringElem(
-                                                                                                   comment,
-                                                                                                   's',
+                                                                          new AnnotationStringElem(comment, 's',
                                                                                                    "comment"),
-                                                                          new AnnotationStringElem(
-                                                                                                   ISO8601FORMAT.format(new Date()),
-                                                                                                   's',
-                                                                                                   "date")));
-        AnnotationGenerator.v().annotate(host, TRANSFORMED_CLASS_BINARY_NAME,
-                                         AnnotationConstants.RUNTIME_VISIBLE,
-                                         elems);
+                                                                          new AnnotationStringElem(ISO8601FORMAT.format(new Date()),
+                                                                                                   's', "date")));
+        AnnotationGenerator.v()
+                           .annotate(host, TRANSFORMED_CLASS_BINARY_NAME, AnnotationConstants.RUNTIME_VISIBLE, elems);
     }
 
     public static boolean willContinue(SootMethod method) {
@@ -189,8 +176,7 @@ public class Utils {
                 if (vTag.getVisibility() == AnnotationConstants.RUNTIME_VISIBLE) {
                     for (AnnotationTag aTag : vTag.getAnnotations()) {
                         String type = aTag.getType();
-                        if (type.equals(CONTINUABLE_CLASS_BINARY_NAME)
-                            || type.equals(BLOCKING_CLASS_BINARY_NAME)) {
+                        if (type.equals(CONTINUABLE_CLASS_BINARY_NAME) || type.equals(BLOCKING_CLASS_BINARY_NAME)) {
                             return true;
                         }
                     }
@@ -200,55 +186,15 @@ public class Utils {
         return false;
     }
 
-    private static void gatherEntityInterfacesOf(SootClass base,
-                                                 Set<SootClass> interfaces) {
-        for (Tag tag : base.getTags()) {
-            if (tag instanceof VisibilityAnnotationTag) {
-                VisibilityAnnotationTag vTag = (VisibilityAnnotationTag) tag;
-                if (vTag.getVisibility() == AnnotationConstants.RUNTIME_VISIBLE) {
-                    for (AnnotationTag aTag : vTag.getAnnotations()) {
-                        if (aTag.getType().equals(ENTITY_CLASS_BINARY_NAME)) {
-                            if (aTag.getNumElems() != 0) {
-                                AnnotationArrayElem values = (AnnotationArrayElem) aTag.getElemAt(0);
-                                for (AnnotationElem element : values.getValues()) {
-                                    AnnotationClassElem classElement = (AnnotationClassElem) element;
-                                    String desc = classElement.getDesc();
-                                    String className = desc.substring(1,
-                                                                      desc.length() - 1).replace('/',
-                                                                                                 '.');
-                                    SootClass iFace = Scene.v().loadClassAndSupport(className);
-                                    if (interfaces.add(iFace)) {
-                                        gatherInterfaceExtensions(iFace,
-                                                                  interfaces);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private static void gatherInterfaceExtensions(SootClass base,
-                                                  Set<SootClass> interfaces) {
-        for (SootClass extension : base.getInterfaces()) {
-            if (interfaces.add(extension)) {
-                gatherInterfaceExtensions(extension, interfaces);
-            }
-        }
-    }
-
     static boolean inferEntity(SootClass base) {
         if (base == null) {
             return false;
         }
-        if (base.equals(Scene.v().loadClass(Object.class.getCanonicalName(),
-                                            SootClass.SIGNATURES))) {
+        if (base.equals(Scene.v().loadClass(Object.class.getCanonicalName(), SootClass.SIGNATURES))) {
             return false;
         }
-        if (base.equals(Scene.v().loadClass("com.hellblazer.primeMover.runtime.EntityReference",
-                                            SootClass.SIGNATURES))) {
+        if (base.equals(Scene.v()
+                             .loadClass("com.hellblazer.primeMover.runtime.EntityReference", SootClass.SIGNATURES))) {
             return false;
         }
         if (isMarkedEntity(base)) {
@@ -259,7 +205,7 @@ public class Utils {
                 return true;
             }
         }
-        return inferEntity(base.getSuperclass());
+        return base.hasSuperclass() ? inferEntity(base.getSuperclass()) : false;
     }
 
     static boolean isMarkedEntity(SootClass base) {
@@ -276,5 +222,39 @@ public class Utils {
             }
         }
         return false;
+    }
+
+    private static void gatherEntityInterfacesOf(SootClass base, Set<SootClass> interfaces) {
+        for (Tag tag : base.getTags()) {
+            if (tag instanceof VisibilityAnnotationTag) {
+                VisibilityAnnotationTag vTag = (VisibilityAnnotationTag) tag;
+                if (vTag.getVisibility() == AnnotationConstants.RUNTIME_VISIBLE) {
+                    for (AnnotationTag aTag : vTag.getAnnotations()) {
+                        if (aTag.getType().equals(ENTITY_CLASS_BINARY_NAME)) {
+                            if (aTag.getElems().size() != 0) {
+                                AnnotationArrayElem values = (AnnotationArrayElem) new ArrayList<>(aTag.getElems()).get(0);
+                                for (AnnotationElem element : values.getValues()) {
+                                    AnnotationClassElem classElement = (AnnotationClassElem) element;
+                                    String desc = classElement.getDesc();
+                                    String className = desc.substring(1, desc.length() - 1).replace('/', '.');
+                                    SootClass iFace = Scene.v().loadClassAndSupport(className);
+                                    if (interfaces.add(iFace)) {
+                                        gatherInterfaceExtensions(iFace, interfaces);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private static void gatherInterfaceExtensions(SootClass base, Set<SootClass> interfaces) {
+        for (SootClass extension : base.getInterfaces()) {
+            if (interfaces.add(extension)) {
+                gatherInterfaceExtensions(extension, interfaces);
+            }
+        }
     }
 }

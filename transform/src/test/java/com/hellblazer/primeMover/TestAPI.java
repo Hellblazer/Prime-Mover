@@ -4,7 +4,7 @@
  * This file is part of the Prime Mover Event Driven Simulation Framework.
  * 
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as 
+ * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  * 
@@ -26,6 +26,8 @@ import static com.hellblazer.utils.Utils.copyDirectory;
 import static com.hellblazer.utils.Utils.getBits;
 import static com.hellblazer.utils.Utils.initializeDirectory;
 import static java.util.Arrays.asList;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,16 +35,17 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-import junit.framework.TestCase;
-import soot.G;
-import soot.options.Options;
-import testClasses.DriverImpl;
-import testClasses.UseChannelImpl;
+import org.junit.jupiter.api.Test;
 
 import com.hellblazer.primeMover.runtime.Framework;
 import com.hellblazer.primeMover.soot.EntityGenerator;
 import com.hellblazer.primeMover.soot.LocalLoader;
 import com.hellblazer.primeMover.soot.SimulationTransform;
+
+import soot.G;
+import soot.options.Options;
+import testClasses.DriverImpl;
+import testClasses.UseChannelImpl;
 
 /**
  * 
@@ -50,30 +53,13 @@ import com.hellblazer.primeMover.soot.SimulationTransform;
  * 
  */
 
-public class TestAPI extends TestCase {
+public class TestAPI {
     private static final String TEST_CLASSES = "testClasses";
-    File                        sourceDir    = new File(SOURCE_DIR,
-                                                        TEST_CLASSES);
-    File                        processedDir = new File(PROCESSED_DIR,
-                                                        TEST_CLASSES);
-    File                        outputDir    = new File(OUTPUT_DIR,
-                                                        TEST_CLASSES);
+    File                        outputDir    = new File(OUTPUT_DIR, TEST_CLASSES);
+    File                        processedDir = new File(PROCESSED_DIR, TEST_CLASSES);
+    File                        sourceDir    = new File(SOURCE_DIR, TEST_CLASSES);
 
-    private Map<String, byte[]> getTransformed() throws IOException {
-        HashMap<String, byte[]> classBits = new HashMap<String, byte[]>();
-        File[] listing = outputDir.listFiles();
-        assertNotNull(listing);
-        for (File classFile : listing) {
-            String name = classFile.getName();
-            if (name.endsWith(".class")) {
-                String className = TEST_CLASSES + '.'
-                                   + name.substring(0, name.lastIndexOf('.'));
-                classBits.put(className, getBits(classFile));
-            }
-        }
-        return classBits;
-    }
-
+    @Test
     public void testApi() throws Exception {
         G.reset();
         initializeDirectory(processedDir);
@@ -89,8 +75,22 @@ public class TestAPI extends TestCase {
         SimulationTransform.main(argv);
 
         ClassLoader loader = new LocalLoader(getTransformed());
-        testChannel(loader);
         testThreading(loader);
+        testChannel(loader);
+    }
+
+    private Map<String, byte[]> getTransformed() throws IOException {
+        HashMap<String, byte[]> classBits = new HashMap<String, byte[]>();
+        File[] listing = outputDir.listFiles();
+        assertNotNull(listing);
+        for (File classFile : listing) {
+            String name = classFile.getName();
+            if (name.endsWith(".class")) {
+                String className = TEST_CLASSES + '.' + name.substring(0, name.lastIndexOf('.'));
+                classBits.put(className, getBits(classFile));
+            }
+        }
+        return classBits;
     }
 
     private void testChannel(ClassLoader loader) throws Exception {
@@ -98,46 +98,48 @@ public class TestAPI extends TestCase {
         Framework.setController(controller);
         controller.setCurrentTime(0);
         Class<?> useChannelImplClass = loader.loadClass(UseChannelImpl.class.getCanonicalName()
-                                                        + EntityGenerator.GENERATED_ENTITY_SUFFIX);
+        + EntityGenerator.GENERATED_ENTITY_SUFFIX);
+        @SuppressWarnings("deprecation")
         Object useChannel = useChannelImplClass.newInstance();
         Method test = useChannelImplClass.getDeclaredMethod("test");
         test.invoke(useChannel);
 
         while (controller.send()) {
-            ;
+
         }
 
-        assertEquals(5, controller.events.size());
-        assertEquals("<testClasses.UseChannelImpl: void test()>",
-                     controller.events.get(0));
-        assertEquals("<testClasses.UseChannelImpl: void take()>",
-                     controller.events.get(1));
-        assertEquals("<testClasses.UseChannelImpl: void put(java.lang.String)>",
-                     controller.events.get(2));
-        assertEquals("<testClasses.UseChannelImpl: void put(java.lang.String)>",
-                     controller.events.get(3));
-        assertEquals("<testClasses.UseChannelImpl: void take()>",
-                     controller.events.get(4));
+        assertEquals(13, controller.events.size(),
+                     String.format("events: %s", controller.events.stream().map(s -> "\n" + s).toList()));
+        var i = 0;
+        assertEquals("<testClasses.UseChannelImpl: void test()>", controller.events.get(i++));
+        assertEquals("<testClasses.UseChannelImpl: void take()>", controller.events.get(i++));
+        assertEquals("<testClasses.UseChannelImpl: void put(java.lang.String)>", controller.events.get(i++));
+        assertEquals("<testClasses.UseChannelImpl: void put(java.lang.String)>", controller.events.get(i++));
+        assertEquals("<testClasses.UseChannelImpl: void take()>", controller.events.get(i++));
+        assertEquals("<com.hellblazer.primeMover.runtime.SynchronousQueueImpl: java.lang.Object take()>",
+                     controller.events.get(i++));
+        assertEquals("<com.hellblazer.primeMover.runtime.SynchronousQueueImpl: void put(java.lang.Object)>",
+                     controller.events.get(i++));
+        assertEquals("<testClasses.UseChannelImpl: void take()>", controller.events.get(i++));
+        assertEquals("<testClasses.UseChannelImpl: void put(java.lang.String)>", controller.events.get(i++));
+        assertEquals("<com.hellblazer.primeMover.runtime.SynchronousQueueImpl: void put(java.lang.Object)>",
+                     controller.events.get(i++));
+        assertEquals("<com.hellblazer.primeMover.runtime.SynchronousQueueImpl: java.lang.Object take()>",
+                     controller.events.get(i++));
+        assertEquals("<testClasses.UseChannelImpl: void put(java.lang.String)>", controller.events.get(i++));
+        assertEquals("<testClasses.UseChannelImpl: void take()>", controller.events.get(i++));
 
-        assertEquals(8, controller.blockingEvents.size());
+        assertEquals(4, controller.blockingEvents.size());
         assertEquals("<com.hellblazer.primeMover.runtime.SynchronousQueueImpl: java.lang.Object take()>",
                      controller.blockingEvents.get(0));
         assertEquals("<com.hellblazer.primeMover.runtime.SynchronousQueueImpl: void put(java.lang.Object)>",
                      controller.blockingEvents.get(1));
-        assertEquals("<com.hellblazer.primeMover.runtime.SynchronousQueueImpl: java.lang.Object take()>",
+        assertEquals("<com.hellblazer.primeMover.runtime.SynchronousQueueImpl: void put(java.lang.Object)>",
                      controller.blockingEvents.get(2));
-        assertEquals("<com.hellblazer.primeMover.runtime.SynchronousQueueImpl: void put(java.lang.Object)>",
+        assertEquals("<com.hellblazer.primeMover.runtime.SynchronousQueueImpl: java.lang.Object take()>",
                      controller.blockingEvents.get(3));
-        assertEquals("<com.hellblazer.primeMover.runtime.SynchronousQueueImpl: void put(java.lang.Object)>",
-                     controller.blockingEvents.get(4));
-        assertEquals("<com.hellblazer.primeMover.runtime.SynchronousQueueImpl: java.lang.Object take()>",
-                     controller.blockingEvents.get(5));
-        assertEquals("<com.hellblazer.primeMover.runtime.SynchronousQueueImpl: void put(java.lang.Object)>",
-                     controller.blockingEvents.get(6));
-        assertEquals("<com.hellblazer.primeMover.runtime.SynchronousQueueImpl: java.lang.Object take()>",
-                     controller.blockingEvents.get(7));
 
-        assertEquals(13, controller.references.size());
+        assertEquals(17, controller.references.size());
 
     }
 
@@ -147,31 +149,94 @@ public class TestAPI extends TestCase {
         controller.setCurrentTime(0);
 
         Class<?> driverImplClass = loader.loadClass(DriverImpl.class.getCanonicalName()
-                                                    + EntityGenerator.GENERATED_ENTITY_SUFFIX);
-        Object driverImpl = driverImplClass.newInstance();
+        + EntityGenerator.GENERATED_ENTITY_SUFFIX);
+        Object driverImpl = driverImplClass.getConstructor().newInstance();
         Method runThreaded = driverImplClass.getDeclaredMethod("runThreaded");
         runThreaded.invoke(driverImpl);
 
-        while (controller.send()) {
+        while (controller.send())
             ;
-        }
 
-        assertEquals(4, controller.events.size());
-        assertEquals("<testClasses.DriverImpl: void runThreaded()>",
-                     controller.events.get(0));
-        assertEquals("<testClasses.ThreadedImpl: void process(int)>",
-                     controller.events.get(1));
-        assertEquals("<testClasses.ThreadedImpl: void process(int)>",
-                     controller.events.get(2));
-        assertEquals("<testClasses.ThreadedImpl: void process(int)>",
-                     controller.events.get(3));
+        assertEquals(34, controller.events.size(),
+                     String.format("events: %s", controller.events.stream().map(s -> '\n' + s).toList()));
+        var i = 0;
+        assertEquals("<testClasses.DriverImpl: void runThreaded()>", controller.events.get(i++));
 
-        assertEquals(30, controller.blockingEvents.size());
+        assertEquals("<testClasses.ThreadedImpl: void process(int)>", controller.events.get(i++));
+        assertEquals("<testClasses.ThreadedImpl: void process(int)>", controller.events.get(i++));
+        assertEquals("<testClasses.ThreadedImpl: void process(int)>", controller.events.get(i++));
+
+        assertEquals("<com.hellblazer.primeMover.runtime.BlockingSleepImpl void sleep(org.joda.time.Duration)>",
+                     controller.events.get(i++));
+        assertEquals("<com.hellblazer.primeMover.runtime.BlockingSleepImpl void sleep(org.joda.time.Duration)>",
+                     controller.events.get(i++));
+
+        assertEquals("<testClasses.ThreadedImpl: void process(int)>", controller.events.get(i++));
+        assertEquals("<testClasses.ThreadedImpl: void process(int)>", controller.events.get(i++));
+
+        assertEquals("<com.hellblazer.primeMover.runtime.BlockingSleepImpl void sleep(org.joda.time.Duration)>",
+                     controller.events.get(i++));
+
+        assertEquals("<testClasses.ThreadedImpl: void process(int)>", controller.events.get(i++));
+
+        assertEquals("<com.hellblazer.primeMover.runtime.BlockingSleepImpl void sleep(org.joda.time.Duration)>",
+                     controller.events.get(i++));
+        assertEquals("<com.hellblazer.primeMover.runtime.BlockingSleepImpl void sleep(org.joda.time.Duration)>",
+                     controller.events.get(i++));
+
+        assertEquals("<testClasses.ThreadedImpl: void process(int)>", controller.events.get(i++));
+        assertEquals("<testClasses.ThreadedImpl: void process(int)>", controller.events.get(i++));
+
+        assertEquals("<com.hellblazer.primeMover.runtime.BlockingSleepImpl void sleep(org.joda.time.Duration)>",
+                     controller.events.get(i++));
+
+        assertEquals("<testClasses.ThreadedImpl: void process(int)>", controller.events.get(i++));
+
+        assertEquals("<com.hellblazer.primeMover.runtime.BlockingSleepImpl void sleep(org.joda.time.Duration)>",
+                     controller.events.get(i++));
+        assertEquals("<com.hellblazer.primeMover.runtime.BlockingSleepImpl void sleep(org.joda.time.Duration)>",
+                     controller.events.get(i++));
+
+        assertEquals("<testClasses.ThreadedImpl: void process(int)>", controller.events.get(i++));
+        assertEquals("<testClasses.ThreadedImpl: void process(int)>", controller.events.get(i++));
+
+        assertEquals("<com.hellblazer.primeMover.runtime.BlockingSleepImpl void sleep(org.joda.time.Duration)>",
+                     controller.events.get(i++));
+
+        assertEquals("<testClasses.ThreadedImpl: void process(int)>", controller.events.get(i++));
+
+        assertEquals("<com.hellblazer.primeMover.runtime.BlockingSleepImpl void sleep(org.joda.time.Duration)>",
+                     controller.events.get(i++));
+        assertEquals("<com.hellblazer.primeMover.runtime.BlockingSleepImpl void sleep(org.joda.time.Duration)>",
+                     controller.events.get(i++));
+
+        assertEquals("<testClasses.ThreadedImpl: void process(int)>", controller.events.get(i++));
+        assertEquals("<testClasses.ThreadedImpl: void process(int)>", controller.events.get(i++));
+
+        assertEquals("<com.hellblazer.primeMover.runtime.BlockingSleepImpl void sleep(org.joda.time.Duration)>",
+                     controller.events.get(i++));
+
+        assertEquals("<testClasses.ThreadedImpl: void process(int)>", controller.events.get(i++));
+
+        assertEquals("<com.hellblazer.primeMover.runtime.BlockingSleepImpl void sleep(org.joda.time.Duration)>",
+                     controller.events.get(i++));
+        assertEquals("<com.hellblazer.primeMover.runtime.BlockingSleepImpl void sleep(org.joda.time.Duration)>",
+                     controller.events.get(i++));
+
+        assertEquals("<testClasses.ThreadedImpl: void process(int)>", controller.events.get(i++));
+        assertEquals("<testClasses.ThreadedImpl: void process(int)>", controller.events.get(i++));
+
+        assertEquals("<com.hellblazer.primeMover.runtime.BlockingSleepImpl void sleep(org.joda.time.Duration)>",
+                     controller.events.get(i++));
+
+        assertEquals("<testClasses.ThreadedImpl: void process(int)>", controller.events.get(i++));
+
+        assertEquals(15, controller.blockingEvents.size());
         for (String contEvent : controller.blockingEvents) {
             assertEquals("<com.hellblazer.primeMover.runtime.BlockingSleepImpl void sleep(org.joda.time.Duration)>",
                          contEvent);
         }
 
-        assertEquals(34, controller.references.size());
+        assertEquals(49, controller.references.size());
     }
 }

@@ -19,35 +19,67 @@
 
 package com.hellblazer.primeMover.runtime;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Queue;
 import java.util.Random;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * 
  * @author <a href="mailto:hal.hildebrand@gmail.com">Hal Hildebrand</a>
  * 
  */
-public class SplayQueueTest extends TestCase {
-    SplayQueue<Integer> pqueue;
+public class SplayQueueTest {
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-        pqueue = new SplayQueue<Integer>();
-        pqueue.add(3);
-        pqueue.add(1);
-        pqueue.add(2);
+    public static void main(String[] args) {
+        SplayQueue<Integer> t = new SplayQueue<Integer>();
+        final int NUMS = 40000;
+        final int GAP = 307;
+
+        System.out.println("Checking... (no bad output means success)");
+
+        for (int i = GAP; i != 0; i = (i + GAP) % NUMS) {
+            t.add(Integer.valueOf(i));
+        }
+        System.out.println("Inserts complete");
+
+        for (int i = 1; i < NUMS; i += 2) {
+            t.remove(Integer.valueOf(i));
+        }
+        System.out.println("Removes complete");
+
+        /*
+         * if (t.findMin().intValue() != 2 || t.findMax().intValue() != NUMS - 2) {
+         * System.out.println("FindMin or FindMax error!"); }
+         */
+
+        for (int i = 2; i < NUMS; i += 2) {
+            if (!t.contains(Integer.valueOf(i))) {
+                System.out.println("Error: find fails for " + i);
+            }
+        }
+
+        for (int i = 1; i < NUMS; i += 2) {
+            if (t.contains(Integer.valueOf(i))) {
+                System.out.println("Error: Found deleted item " + i);
+            }
+        }
     }
+
+    SplayQueue<Integer> pqueue;
 
     public void testAdd() {
         pqueue.add(5);
         assertTrue(pqueue.size() == 4);
     }
 
+    @Test
     public void testDuplicates() {
         Random random = new Random(666);
         Queue<Integer> t = new SplayQueue<Integer>();
@@ -71,6 +103,7 @@ public class SplayQueueTest extends TestCase {
         assertEquals(0, t.size());
     }
 
+    @Test
     public void testIsEmpty() {
         int n = pqueue.size();
         for (int i = 0; i < n; i++) {
@@ -80,6 +113,7 @@ public class SplayQueueTest extends TestCase {
         assertTrue(pqueue.isEmpty());
     }
 
+    @Test
     public void testIterator() {
         Queue<Integer> t = new SplayQueue<Integer>();
         final int targetSize = 40000;
@@ -97,6 +131,7 @@ public class SplayQueueTest extends TestCase {
         }
     }
 
+    @Test
     public void testLargeInsert() {
 
         Queue<Integer> t = new SplayQueue<Integer>();
@@ -116,6 +151,7 @@ public class SplayQueueTest extends TestCase {
         assertEquals(nums - 1, t.size());
     }
 
+    @Test
     public void testLargeRemove() {
         Queue<Integer> t = new SplayQueue<Integer>();
         final int targetSize = 40000;
@@ -134,6 +170,7 @@ public class SplayQueueTest extends TestCase {
         assertEquals(0, t.size());
     }
 
+    @Test
     public void testLargeRemoveObject() {
         Queue<Integer> t = new SplayQueue<Integer>();
         final int targetSize = 40000;
@@ -151,9 +188,18 @@ public class SplayQueueTest extends TestCase {
         assertEquals(0, t.size());
     }
 
+    @Test
     public void testRemove() {
         assertTrue(pqueue.remove() == 1);
         assertTrue(pqueue.remove() == 2);
         assertTrue(pqueue.remove() == 3);
+    }
+
+    @BeforeEach
+    protected void setUp() throws Exception {
+        pqueue = new SplayQueue<Integer>();
+        pqueue.add(3);
+        pqueue.add(1);
+        pqueue.add(2);
     }
 }

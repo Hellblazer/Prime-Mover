@@ -34,28 +34,10 @@ import com.hellblazer.primeMover.SynchronousQueue;
  * 
  * @author <a href="mailto:hal.hildebrand@gmail.com">Hal Hildebrand</a>
  * 
- * @param <E>
- *            - the type of the contents
+ * @param <E> - the type of the contents
  */
 @Entity
 public class SynchronousQueueImpl<E> implements SynchronousQueue<E> {
-
-    static class EmptyIterator<E> implements Iterator<E> {
-        @Override
-        public boolean hasNext() {
-            return false;
-        }
-
-        @Override
-        public E next() {
-            throw new NoSuchElementException();
-        }
-
-        @Override
-        public void remove() {
-            throw new IllegalStateException();
-        }
-    }
 
     /**
      * The simulated entity.
@@ -63,14 +45,13 @@ public class SynchronousQueueImpl<E> implements SynchronousQueue<E> {
      * @author <a href="mailto:hal.hildebrand@gmail.com">Hal Hildebrand</a>
      * 
      */
-    static class entity<E> extends SynchronousQueueImpl<E> implements
-            EntityReference {
+    public static class entity<E> extends SynchronousQueueImpl<E> implements EntityReference {
         private final static int OFFER_TIMEOUT = 0;
         private final static int POLL_TIMEOUT  = 1;
         private final static int PUT           = 2;
         private final static int TAKE          = 3;
 
-        entity(Devi controller) {
+        public entity(Devi controller) {
             this.controller = controller;
         }
 
@@ -83,41 +64,37 @@ public class SynchronousQueueImpl<E> implements SynchronousQueue<E> {
         @Override
         public Object __invoke(int event, Object[] arguments) throws Throwable {
             switch (event) {
-                case OFFER_TIMEOUT: {
-                    return super.offer((E) arguments[0], (Integer) arguments[1]);
-                }
-                case POLL_TIMEOUT: {
-                    return super.poll((Integer) arguments[1]);
-                }
-                case PUT: {
-                    super.put((E) arguments[0]);
-                    return null;
-                }
-                case TAKE: {
-                    return super.take();
-                }
-                default:
-                    throw new IllegalArgumentException(
-                                                       "Unknown event ordinal: "
-                                                               + event);
+            case OFFER_TIMEOUT: {
+                return super.offer((E) arguments[0], (Integer) arguments[1]);
+            }
+            case POLL_TIMEOUT: {
+                return super.poll((Integer) arguments[1]);
+            }
+            case PUT: {
+                super.put((E) arguments[0]);
+                return null;
+            }
+            case TAKE: {
+                return super.take();
+            }
+            default:
+                throw new IllegalArgumentException("Unknown event ordinal: " + event);
             }
         }
 
         @Override
         public String __signatureFor(int event) {
             switch (event) {
-                case OFFER_TIMEOUT:
-                    return "<com.hellblazer.primeMover.runtime.SynchronousQueueImpl: boolean offer(java.lang.Object, int, java.util.concurrent.TimeUnit";
-                case POLL_TIMEOUT:
-                    return "<com.hellblazer.primeMover.runtime.SynchronousQueueImpl: java.lang.Object poll(int, java.util.concurrent.TimeUnit)";
-                case PUT:
-                    return "<com.hellblazer.primeMover.runtime.SynchronousQueueImpl: void put(java.lang.Object)>";
-                case TAKE:
-                    return "<com.hellblazer.primeMover.runtime.SynchronousQueueImpl: java.lang.Object take()>";
-                default:
-                    throw new IllegalArgumentException(
-                                                       "Unknown event ordinal: "
-                                                               + event);
+            case OFFER_TIMEOUT:
+                return "<com.hellblazer.primeMover.runtime.SynchronousQueueImpl: boolean offer(java.lang.Object, int, java.util.concurrent.TimeUnit";
+            case POLL_TIMEOUT:
+                return "<com.hellblazer.primeMover.runtime.SynchronousQueueImpl: java.lang.Object poll(int, java.util.concurrent.TimeUnit)";
+            case PUT:
+                return "<com.hellblazer.primeMover.runtime.SynchronousQueueImpl: void put(java.lang.Object)>";
+            case TAKE:
+                return "<com.hellblazer.primeMover.runtime.SynchronousQueueImpl: java.lang.Object take()>";
+            default:
+                throw new IllegalArgumentException("Unknown event ordinal: " + event);
             }
         }
 
@@ -134,8 +111,7 @@ public class SynchronousQueueImpl<E> implements SynchronousQueue<E> {
         @Override
         public E poll(long timeout) {
             try {
-                return (E) controller.postContinuingEvent(this, POLL_TIMEOUT,
-                                                          timeout);
+                return (E) controller.postContinuingEvent(this, POLL_TIMEOUT, timeout);
             } catch (Throwable e) {
                 throw new IllegalStateException("Exception invoking event", e);
             }
@@ -162,45 +138,57 @@ public class SynchronousQueueImpl<E> implements SynchronousQueue<E> {
 
     }
 
+    static class EmptyIterator<E> implements Iterator<E> {
+        @Override
+        public boolean hasNext() {
+            return false;
+        }
+
+        @Override
+        public E next() {
+            throw new NoSuchElementException();
+        }
+
+        @Override
+        public void remove() {
+            throw new IllegalStateException();
+        }
+    }
+
     private class Node {
         EventImpl consumer;
-        EventImpl producer;
         E         data;
+        EventImpl producer;
 
         boolean hasData() {
             return data != null;
         }
     }
 
-    protected Devi            controller;
+    protected Devi controller;
 
     private final Deque<Node> waitList = new ArrayDeque<SynchronousQueueImpl<E>.Node>();
 
     /**
      * Inserts the specified element into this queue if it is possible to do so
-     * immediately without violating capacity restrictions, returning
-     * <tt>true</tt> upon success and throwing an <tt>IllegalStateException</tt>
-     * if no space is currently available.
+     * immediately without violating capacity restrictions, returning <tt>true</tt>
+     * upon success and throwing an <tt>IllegalStateException</tt> if no space is
+     * currently available.
      * 
      * <p>
-     * This implementation returns <tt>true</tt> if <tt>offer</tt> succeeds,
-     * else throws an <tt>IllegalStateException</tt>.
+     * This implementation returns <tt>true</tt> if <tt>offer</tt> succeeds, else
+     * throws an <tt>IllegalStateException</tt>.
      * 
-     * @param e
-     *            the element to add
+     * @param e the element to add
      * @return <tt>true</tt> (as specified by {@link Collection#add})
-     * @throws IllegalStateException
-     *             if the element cannot be added at this time due to capacity
-     *             restrictions
-     * @throws ClassCastException
-     *             if the class of the specified element prevents it from being
-     *             added to this queue
-     * @throws NullPointerException
-     *             if the specified element is null and this queue does not
-     *             permit null elements
-     * @throws IllegalArgumentException
-     *             if some property of this element prevents it from being added
-     *             to this queue
+     * @throws IllegalStateException    if the element cannot be added at this time
+     *                                  due to capacity restrictions
+     * @throws ClassCastException       if the class of the specified element
+     *                                  prevents it from being added to this queue
+     * @throws NullPointerException     if the specified element is null and this
+     *                                  queue does not permit null elements
+     * @throws IllegalArgumentException if some property of this element prevents it
+     *                                  from being added to this queue
      */
     @Override
     public boolean add(E e) {
@@ -212,37 +200,33 @@ public class SynchronousQueueImpl<E> implements SynchronousQueue<E> {
     }
 
     /**
-     * Adds all of the elements in the specified collection to this queue.
-     * Attempts to addAll of a queue to itself result in
-     * <tt>IllegalArgumentException</tt>. Further, the behavior of this
-     * operation is undefined if the specified collection is modified while the
-     * operation is in progress.
+     * Adds all of the elements in the specified collection to this queue. Attempts
+     * to addAll of a queue to itself result in <tt>IllegalArgumentException</tt>.
+     * Further, the behavior of this operation is undefined if the specified
+     * collection is modified while the operation is in progress.
      * 
      * <p>
      * This implementation iterates over the specified collection, and adds each
-     * element returned by the iterator to this queue, in turn. A runtime
-     * exception encountered while trying to add an element (including, in
-     * particular, a <tt>null</tt> element) may result in only some of the
-     * elements having been successfully added when the associated exception is
-     * thrown.
+     * element returned by the iterator to this queue, in turn. A runtime exception
+     * encountered while trying to add an element (including, in particular, a
+     * <tt>null</tt> element) may result in only some of the elements having been
+     * successfully added when the associated exception is thrown.
      * 
-     * @param c
-     *            collection containing elements to be added to this queue
+     * @param c collection containing elements to be added to this queue
      * @return <tt>true</tt> if this queue changed as a result of the call
-     * @throws ClassCastException
-     *             if the class of an element of the specified collection
-     *             prevents it from being added to this queue
-     * @throws NullPointerException
-     *             if the specified collection contains a null element and this
-     *             queue does not permit null elements, or if the specified
-     *             collection is null
-     * @throws IllegalArgumentException
-     *             if some property of an element of the specified collection
-     *             prevents it from being added to this queue, or if the
-     *             specified collection is this queue
-     * @throws IllegalStateException
-     *             if not all the elements can be added at this time due to
-     *             insertion restrictions
+     * @throws ClassCastException       if the class of an element of the specified
+     *                                  collection prevents it from being added to
+     *                                  this queue
+     * @throws NullPointerException     if the specified collection contains a null
+     *                                  element and this queue does not permit null
+     *                                  elements, or if the specified collection is
+     *                                  null
+     * @throws IllegalArgumentException if some property of an element of the
+     *                                  specified collection prevents it from being
+     *                                  added to this queue, or if the specified
+     *                                  collection is this queue
+     * @throws IllegalStateException    if not all the elements can be added at this
+     *                                  time due to insertion restrictions
      * @see #add(Object)
      */
     @Override
@@ -263,21 +247,6 @@ public class SynchronousQueueImpl<E> implements SynchronousQueue<E> {
         return modified;
     }
 
-    private void addConsumer() {
-        Node node;
-        node = new Node();
-        node.consumer = controller.swapCaller(null);
-        waitList.add(node);
-    }
-
-    private void addProducer(E data) {
-        Node node;
-        node = new Node();
-        node.data = data;
-        node.producer = controller.swapCaller(null);
-        waitList.add(node);
-    }
-
     /**
      * Does nothing. A <tt>SynchronousQueue</tt> has no internal capacity.
      */
@@ -286,11 +255,10 @@ public class SynchronousQueueImpl<E> implements SynchronousQueue<E> {
     }
 
     /**
-     * Always returns <tt>false</tt>. A <tt>SynchronousQueue</tt> has no
-     * internal capacity.
+     * Always returns <tt>false</tt>. A <tt>SynchronousQueue</tt> has no internal
+     * capacity.
      * 
-     * @param o
-     *            the element
+     * @param o the element
      * @return <tt>false</tt>
      */
     @Override
@@ -302,8 +270,7 @@ public class SynchronousQueueImpl<E> implements SynchronousQueue<E> {
      * Returns <tt>false</tt> unless the given collection is empty. A
      * <tt>SynchronousQueue</tt> has no internal capacity.
      * 
-     * @param c
-     *            the collection
+     * @param c the collection
      * @return <tt>false</tt> unless given collection is empty
      */
     @Override
@@ -312,14 +279,10 @@ public class SynchronousQueueImpl<E> implements SynchronousQueue<E> {
     }
 
     /**
-     * @throws UnsupportedOperationException
-     *             {@inheritDoc}
-     * @throws ClassCastException
-     *             {@inheritDoc}
-     * @throws NullPointerException
-     *             {@inheritDoc}
-     * @throws IllegalArgumentException
-     *             {@inheritDoc}
+     * @throws UnsupportedOperationException {@inheritDoc}
+     * @throws ClassCastException            {@inheritDoc}
+     * @throws NullPointerException          {@inheritDoc}
+     * @throws IllegalArgumentException      {@inheritDoc}
      */
     @Override
     @Blocking
@@ -340,14 +303,10 @@ public class SynchronousQueueImpl<E> implements SynchronousQueue<E> {
     }
 
     /**
-     * @throws UnsupportedOperationException
-     *             {@inheritDoc}
-     * @throws ClassCastException
-     *             {@inheritDoc}
-     * @throws NullPointerException
-     *             {@inheritDoc}
-     * @throws IllegalArgumentException
-     *             {@inheritDoc}
+     * @throws UnsupportedOperationException {@inheritDoc}
+     * @throws ClassCastException            {@inheritDoc}
+     * @throws NullPointerException          {@inheritDoc}
+     * @throws IllegalArgumentException      {@inheritDoc}
      */
     @Override
     @Blocking
@@ -378,43 +337,6 @@ public class SynchronousQueueImpl<E> implements SynchronousQueue<E> {
         return null;
     }
 
-    private void enqueue(E data) {
-        Node node;
-        if (waitList.isEmpty()) {
-            addProducer(data);
-            return;
-        } else {
-            node = waitList.getFirst();
-            if (node.hasData()) {
-                // iterate and find a slot for this producer
-                for (Node waiter : waitList) {
-                    if (!node.hasData()) {
-                        waiter.data = data;
-                        waiter.producer = controller.swapCaller(null);
-                    }
-                    return;
-                }
-                Node node1;
-                node1 = new Node();
-                node1.data = data;
-                node1.producer = controller.swapCaller(null);
-                waitList.add(node1);
-                return;
-            }
-        }
-        node.data = data;
-        node.producer = controller.swapCaller(null);
-        if (node.consumer != null) {
-            // schedule receive callback with result
-            node.consumer.setTime(controller.getCurrentTime());
-            node.consumer.getContinuation().setReturnValue(node.data);
-            controller.post(node.consumer);
-            // return to sender
-            controller.swapCaller(node.producer);
-            waitList.removeFirst();
-        }
-    }
-
     /**
      * Always returns <tt>true</tt>. A <tt>SynchronousQueue</tt> has no internal
      * capacity.
@@ -438,15 +360,13 @@ public class SynchronousQueueImpl<E> implements SynchronousQueue<E> {
     }
 
     /**
-     * Inserts the specified element into this queue, if another thread is
-     * waiting to receive it.
+     * Inserts the specified element into this queue, if another thread is waiting
+     * to receive it.
      * 
-     * @param e
-     *            the element to add
+     * @param e the element to add
      * @return <tt>true</tt> if the element was added to this queue, else
      *         <tt>false</tt>
-     * @throws NullPointerException
-     *             if the specified element is null
+     * @throws NullPointerException if the specified element is null
      */
     @Override
     public boolean offer(E e) {
@@ -489,11 +409,10 @@ public class SynchronousQueueImpl<E> implements SynchronousQueue<E> {
     }
 
     /**
-     * Retrieves and removes the head of this queue, if another thread is
-     * currently making an element available.
+     * Retrieves and removes the head of this queue, if another thread is currently
+     * making an element available.
      * 
-     * @return the head of this queue, or <tt>null</tt> if no element is
-     *         available.
+     * @return the head of this queue, or <tt>null</tt> if no element is available.
      */
     @Override
     public E poll() {
@@ -520,13 +439,11 @@ public class SynchronousQueueImpl<E> implements SynchronousQueue<E> {
     }
 
     /**
-     * Adds the specified element to this queue, waiting if necessary for
-     * another thread to receive it.
+     * Adds the specified element to this queue, waiting if necessary for another
+     * thread to receive it.
      * 
-     * @throws InterruptedException
-     *             {@inheritDoc}
-     * @throws NullPointerException
-     *             {@inheritDoc}
+     * @throws InterruptedException {@inheritDoc}
+     * @throws NullPointerException {@inheritDoc}
      */
     @Override
     @Blocking
@@ -535,8 +452,7 @@ public class SynchronousQueueImpl<E> implements SynchronousQueue<E> {
     }
 
     /**
-     * Always returns zero. A <tt>SynchronousQueue</tt> has no internal
-     * capacity.
+     * Always returns zero. A <tt>SynchronousQueue</tt> has no internal capacity.
      * 
      * @return zero.
      */
@@ -551,12 +467,11 @@ public class SynchronousQueueImpl<E> implements SynchronousQueue<E> {
      * empty.
      * 
      * <p>
-     * This implementation returns the result of <tt>poll</tt> unless the queue
-     * is empty.
+     * This implementation returns the result of <tt>poll</tt> unless the queue is
+     * empty.
      * 
      * @return the head of this queue
-     * @throws NoSuchElementException
-     *             if this queue is empty
+     * @throws NoSuchElementException if this queue is empty
      */
     @Override
     @Blocking
@@ -570,11 +485,10 @@ public class SynchronousQueueImpl<E> implements SynchronousQueue<E> {
     }
 
     /**
-     * Always returns <tt>false</tt>. A <tt>SynchronousQueue</tt> has no
-     * internal capacity.
+     * Always returns <tt>false</tt>. A <tt>SynchronousQueue</tt> has no internal
+     * capacity.
      * 
-     * @param o
-     *            the element to remove
+     * @param o the element to remove
      * @return <tt>false</tt>
      */
     @Override
@@ -583,11 +497,10 @@ public class SynchronousQueueImpl<E> implements SynchronousQueue<E> {
     }
 
     /**
-     * Always returns <tt>false</tt>. A <tt>SynchronousQueue</tt> has no
-     * internal capacity.
+     * Always returns <tt>false</tt>. A <tt>SynchronousQueue</tt> has no internal
+     * capacity.
      * 
-     * @param c
-     *            the collection
+     * @param c the collection
      * @return <tt>false</tt>
      */
     @Override
@@ -596,11 +509,10 @@ public class SynchronousQueueImpl<E> implements SynchronousQueue<E> {
     }
 
     /**
-     * Always returns <tt>false</tt>. A <tt>SynchronousQueue</tt> has no
-     * internal capacity.
+     * Always returns <tt>false</tt>. A <tt>SynchronousQueue</tt> has no internal
+     * capacity.
      * 
-     * @param c
-     *            the collection
+     * @param c the collection
      * @return <tt>false</tt>
      */
     @Override
@@ -609,8 +521,7 @@ public class SynchronousQueueImpl<E> implements SynchronousQueue<E> {
     }
 
     /**
-     * Always returns zero. A <tt>SynchronousQueue</tt> has no internal
-     * capacity.
+     * Always returns zero. A <tt>SynchronousQueue</tt> has no internal capacity.
      * 
      * @return zero.
      */
@@ -648,7 +559,7 @@ public class SynchronousQueueImpl<E> implements SynchronousQueue<E> {
         }
         node.consumer = controller.swapCaller(null);
         if (node.hasData()) {
-            // schedule send callback 
+            // schedule send callback
             node.producer.setTime(controller.getCurrentTime());
             controller.post(node.producer);
             // return to receiver
@@ -673,11 +584,9 @@ public class SynchronousQueueImpl<E> implements SynchronousQueue<E> {
      * Sets the zeroeth element of the specified array to <tt>null</tt> (if the
      * array has non-zero length) and returns it.
      * 
-     * @param a
-     *            the array
+     * @param a the array
      * @return the specified array
-     * @throws NullPointerException
-     *             if the specified array is null
+     * @throws NullPointerException if the specified array is null
      */
     @Override
     public <T> T[] toArray(T[] a) {
@@ -685,5 +594,57 @@ public class SynchronousQueueImpl<E> implements SynchronousQueue<E> {
             a[0] = null;
         }
         return a;
+    }
+
+    private void addConsumer() {
+        Node node;
+        node = new Node();
+        node.consumer = controller.swapCaller(null);
+        waitList.add(node);
+    }
+
+    private void addProducer(E data) {
+        Node node;
+        node = new Node();
+        node.data = data;
+        node.producer = controller.swapCaller(null);
+        waitList.add(node);
+    }
+
+    private void enqueue(E data) {
+        Node node;
+        if (waitList.isEmpty()) {
+            addProducer(data);
+            return;
+        } else {
+            node = waitList.getFirst();
+            if (node.hasData()) {
+                // iterate and find a slot for this producer
+                for (Node waiter : waitList) {
+                    if (!node.hasData()) {
+                        waiter.data = data;
+                        waiter.producer = controller.swapCaller(null);
+                    }
+                    return;
+                }
+                Node node1;
+                node1 = new Node();
+                node1.data = data;
+                node1.producer = controller.swapCaller(null);
+                waitList.add(node1);
+                return;
+            }
+        }
+        node.data = data;
+        node.producer = controller.swapCaller(null);
+        if (node.consumer != null) {
+            // schedule receive callback with result
+            node.consumer.setTime(controller.getCurrentTime());
+            node.consumer.getContinuation().setReturnValue(node.data);
+            controller.post(node.consumer);
+            // return to sender
+            controller.swapCaller(node.producer);
+            waitList.removeFirst();
+        }
     }
 }

@@ -21,6 +21,7 @@ package com.hellblazer.primeMover.runtime;
 
 import java.io.PrintStream;
 import java.io.Serializable;
+import java.util.logging.Logger;
 
 import com.hellblazer.primeMover.Event;
 
@@ -30,17 +31,22 @@ import com.hellblazer.primeMover.Event;
  * @author <a href="mailto:hal.hildebrand@gmail.com">Hal Hildebrand</a>
  * 
  */
-public class EventImpl implements Cloneable, Serializable,
-        Comparable<EventImpl>, Event {
+public class EventImpl implements Cloneable, Serializable, Comparable<EventImpl>, Event {
+    private static final Logger       logger           = Logger.getLogger(EventImpl.class.getCanonicalName());
     private static final long         serialVersionUID = -628833433139964756L;
     /**
      * The arguments for the event
      */
     private Object[]                  arguments;
     /**
+     * The caller of an event, if this is a blocking event
+     */
+    private EventImpl                 caller;
+    /**
      * The continuation state of the event
      */
     private Continuation              continuation;
+    private final String              debugInfo;
     /**
      * The event
      */
@@ -49,25 +55,23 @@ public class EventImpl implements Cloneable, Serializable,
      * The entity which is the target of the event
      */
     private transient EntityReference reference;
+
     /**
      * The event that was the source of this event
      */
-    private final Event               source;
+    private final Event source;
 
     /**
      * The instant in time when this event was raised
      */
-    private long                      time;
+    private long time;
 
-    private final String              debugInfo;
-
-    EventImpl(long time, Event sourceEvent, EntityReference reference,
-              int ordinal, Object... arguments) {
+    EventImpl(long time, Event sourceEvent, EntityReference reference, int ordinal, Object... arguments) {
         this(null, time, sourceEvent, reference, ordinal, arguments);
     }
 
-    EventImpl(String debugInfo, long time, Event sourceEvent,
-              EntityReference reference, int ordinal, Object... arguments) {
+    EventImpl(String debugInfo, long time, Event sourceEvent, EntityReference reference, int ordinal,
+              Object... arguments) {
         assert reference != null;
         this.debugInfo = debugInfo;
         this.time = time;
@@ -104,49 +108,40 @@ public class EventImpl implements Cloneable, Serializable,
         }
     }
 
-    Continuation getContinuation() {
-        return continuation;
+    public EventImpl getCaller() {
+        return caller;
     }
 
-    /* (non-Javadoc)
-     * @see com.hellblazer.primeMover.runtime.Event#getSignature()
-     */
+    public EntityReference getReference() {
+        return reference;
+    }
+
     @Override
     public String getSignature() {
         return reference.__signatureFor(event);
     }
 
-    /* (non-Javadoc)
-     * @see com.hellblazer.primeMover.runtime.Event#getSource()
-     */
     @Override
     public Event getSource() {
         return source;
     }
 
-    /* (non-Javadoc)
-     * @see com.hellblazer.primeMover.runtime.Event#getTime()
-     */
     @Override
     public long getTime() {
         return time;
     }
 
-    Object invoke() throws Throwable {
-        return reference.__invoke(event, arguments);
+    public Object park() throws Throwable {
+        continuation = new Continuation();
+        logger.info("Continuing: %s event: %s".formatted(Thread.currentThread(), this));
+        return continuation.park();
     }
 
-    /* (non-Javadoc)
-     * @see com.hellblazer.primeMover.runtime.Event#printTrace()
-     */
     @Override
     public void printTrace() {
         printTrace(System.err);
     }
 
-    /* (non-Javadoc)
-     * @see com.hellblazer.primeMover.runtime.Event#printTrace(java.io.PrintStream)
-     */
     @Override
     public void printTrace(PrintStream s) {
         synchronized (s) {
@@ -159,27 +154,62 @@ public class EventImpl implements Cloneable, Serializable,
         }
     }
 
-    EventImpl resume(long currentTime, Object result, Throwable exception) {
-        time = currentTime;
-        continuation.setReturnState(result, exception);
-        return this;
-    }
-
-    void setContinuation(Continuation continuation) {
-        this.continuation = continuation;
-    }
-
-    void setTime(long time) {
-        this.time = time;
+    /**
+     * @param caller
+     */
+    public void setCaller(EventImpl caller) {
+        this.caller = caller;
     }
 
     @Override
     public String toString() {
         if (debugInfo == null) {
-            return String.format("%s : %s", time, getSignature());
+            return String.format("%s : %s%s", time, getSignature(), continuation == null ? "" : " : c");
         } else {
-            return String.format("%s : %s @ %s", time, getSignature(),
-                                 debugInfo);
+            return String.format("%s : %s%s @ %s", time, getSignature(), debugInfo, continuation == null ? "" : " : c");
         }
+    }
+
+    Continuation getContinuation() {
+        return continuation;
+    }
+
+    Object invoke() throws Throwable {
+        logger.info("Invoking " + this);
+        final var result = reference.__invoke(event, arguments);
+        logger.info("Finished invoking " + this);
+        return result;
+    }
+
+    boolean isContinuation() {
+        final var cont = continuation;
+        return cont != null;
+    }
+
+    void proceed() {
+        final var cont = continuation;
+        assert (cont != null && cont.isParked());
+        continuation = null;
+        Logger.getLogger(EventImpl.class.getCanonicalName()).info("Continuing: %s".formatted(this));
+        cont.resume();
+    }
+
+    EventImpl resume(long currentTime, Object result, Throwable exception) {
+        time = currentTime;
+        Logger.getLogger(EventImpl.class.getCanonicalName())
+              .info("Resume at: %s r: %s ex: %s".formatted(this, result, exception));
+        if (continuation != null) {
+            continuation.setReturnState(result, exception);
+        }
+        return this;
+    }
+
+    void setContinuation(Continuation continuation) {
+        assert this.continuation == null;
+        this.continuation = continuation;
+    }
+
+    void setTime(long time) {
+        this.time = time;
     }
 }

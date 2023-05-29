@@ -4,7 +4,7 @@
  * This file is part of the Prime Mover Event Driven Simulation Framework.
  * 
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as 
+ * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  * 
@@ -19,10 +19,11 @@
 
 package com.hellblazer.primeMover;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.hellblazer.primeMover.runtime.EntityReference;
+import com.hellblazer.primeMover.runtime.EventImpl;
 
 /**
  * 
@@ -32,23 +33,21 @@ import com.hellblazer.primeMover.runtime.EntityReference;
 
 public class TrackingController extends ControllerImpl {
 
-    public List<String>          blockingEvents = new ArrayList<String>();
-    public List<String>          events         = new ArrayList<String>();
-    public List<EntityReference> references     = new ArrayList<EntityReference>();
+    public List<String>          blockingEvents = new CopyOnWriteArrayList<String>();
+    public List<String>          events         = new CopyOnWriteArrayList<String>();
+    public List<EntityReference> references     = new CopyOnWriteArrayList<EntityReference>();
 
     @Override
-    public Object postContinuingEvent(EntityReference entity, int event,
-                                      Object... arguments) throws Throwable {
+    public Object postContinuingEvent(EntityReference entity, int event, Object... arguments) throws Throwable {
         blockingEvents.add(entity.__signatureFor(event));
         references.add(entity);
         return super.postContinuingEvent(entity, event, arguments);
     }
 
     @Override
-    public synchronized void postEvent(EntityReference entity, int event,
-                                       Object... arguments) {
-        events.add(entity.__signatureFor(event));
-        references.add(entity);
-        super.postEvent(entity, event, arguments);
+    protected void post(EventImpl event) {
+        events.add(event.getSignature());
+        references.add(event.getReference());
+        super.post(event);
     }
 }
