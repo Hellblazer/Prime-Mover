@@ -4,7 +4,7 @@
  * This file is part of the Prime Mover Event Driven Simulation Framework.
  * 
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as 
+ * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  * 
@@ -22,6 +22,7 @@ package testClasses;
 import static com.hellblazer.primeMover.Kronos.sleep;
 
 import com.hellblazer.primeMover.Entity;
+import com.hellblazer.primeMover.Kronos;
 
 /*
  * A trampoline for tests which lives in the transformed class space of the
@@ -33,40 +34,47 @@ import com.hellblazer.primeMover.Entity;
 @Entity({ Driver.class })
 public class DriverImpl implements Driver {
 
-    /* (non-Javadoc)
-     * @see testClasses.Driver#runContinuationBenchmark(java.lang.String, java.lang.Integer, java.lang.Integer)
+    /*
+     * (non-Javadoc)
+     *
+     * @see testClasses.Driver#runContinuationBenchmark(java.lang.String,
+     * java.lang.Integer, java.lang.Integer)
      */
     @Override
-    public void runContinuationBenchmark(String mode, Integer nevents,
-                                         Integer nwarm) {
-        ContinuationThroughput benchmark = new ContinuationThroughputImpl(
-                                                                          mode,
-                                                                          nevents,
-                                                                          nwarm);
+    public void runContinuationBenchmark(String mode, Integer nevents, Integer nwarm) {
+        ContinuationThroughput benchmark = new ContinuationThroughputImpl(mode, nevents, nwarm);
         benchmark.go();
     }
 
-    /* (non-Javadoc)
-     * @see testClasses.Driver#runEventBenchmark(java.lang.String, java.lang.Integer, java.lang.Integer)
+    /*
+     * (non-Javadoc)
+     *
+     * @see testClasses.Driver#runEventBenchmark(java.lang.String,
+     * java.lang.Integer, java.lang.Integer)
      */
     @Override
     public void runEventBenchmark(String mode, Integer nevents, Integer nwarm) {
-        EventThroughputImpl benchmark = new EventThroughputImpl(mode, nevents,
-                                                                nwarm);
+        EventThroughputImpl benchmark = new EventThroughputImpl(mode, nevents, nwarm);
         sleep(nwarm);
         benchmark.start();
         sleep(nevents + 1);
         benchmark.finish();
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     *
      * @see testClasses.Driver#runThreaded()
      */
     @Override
     public void runThreaded() {
         Threaded threaded = new ThreadedImpl();
+        System.out.println("Begin: 1 at: " + Kronos.currentTime());
         threaded.process(1);
+        System.out.println("Begin: 2 at: " + Kronos.currentTime());
         threaded.process(2);
+        System.out.println("Begin: 3 at: " + Kronos.currentTime());
         threaded.process(3);
+        System.out.println("Finish at: " + Kronos.currentTime());
     }
 }

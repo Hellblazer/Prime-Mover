@@ -32,11 +32,16 @@ import com.hellblazer.primeMover.Event;
  * 
  */
 public class EventImpl implements Cloneable, Serializable, Comparable<EventImpl>, Event {
+    private static final Logger       logger           = Logger.getLogger(EventImpl.class.getCanonicalName());
     private static final long         serialVersionUID = -628833433139964756L;
     /**
      * The arguments for the event
      */
     private Object[]                  arguments;
+    /**
+     * The caller of an event, if this is a blocking event
+     */
+    private EventImpl                 caller;
     /**
      * The continuation state of the event
      */
@@ -103,6 +108,14 @@ public class EventImpl implements Cloneable, Serializable, Comparable<EventImpl>
         }
     }
 
+    public EventImpl getCaller() {
+        return caller;
+    }
+
+    public EntityReference getReference() {
+        return reference;
+    }
+
     @Override
     public String getSignature() {
         return reference.__signatureFor(event);
@@ -116,6 +129,12 @@ public class EventImpl implements Cloneable, Serializable, Comparable<EventImpl>
     @Override
     public long getTime() {
         return time;
+    }
+
+    public Object park() throws Throwable {
+        continuation = new Continuation();
+        logger.info("Continuing: %s event: %s".formatted(Thread.currentThread(), this));
+        return continuation.park();
     }
 
     @Override
@@ -135,6 +154,13 @@ public class EventImpl implements Cloneable, Serializable, Comparable<EventImpl>
         }
     }
 
+    /**
+     * @param caller
+     */
+    public void setCaller(EventImpl caller) {
+        this.caller = caller;
+    }
+
     @Override
     public String toString() {
         if (debugInfo == null) {
@@ -149,19 +175,32 @@ public class EventImpl implements Cloneable, Serializable, Comparable<EventImpl>
     }
 
     Object invoke() throws Throwable {
-        if (continuation != null) {
-            Logger.getLogger(EventImpl.class.getCanonicalName()).info("Continuing: %s".formatted(this));
-            continuation.resume();
-            return null;
-        }
-        return reference.__invoke(event, arguments);
+        logger.info("Invoking " + this);
+        final var result = reference.__invoke(event, arguments);
+        logger.info("Finished invoking " + this);
+        return result;
+    }
+
+    boolean isContinuation() {
+        final var cont = continuation;
+        return cont != null;
+    }
+
+    void proceed() {
+        final var cont = continuation;
+        assert (cont != null && cont.isParked());
+        continuation = null;
+        Logger.getLogger(EventImpl.class.getCanonicalName()).info("Continuing: %s".formatted(this));
+        cont.resume();
     }
 
     EventImpl resume(long currentTime, Object result, Throwable exception) {
         time = currentTime;
-        continuation.setReturnState(result, exception);
         Logger.getLogger(EventImpl.class.getCanonicalName())
-              .info("Resuming: %s r: %s ex: %s".formatted(this, result, exception));
+              .info("Resume at: %s r: %s ex: %s".formatted(this, result, exception));
+        if (continuation != null) {
+            continuation.setReturnState(result, exception);
+        }
         return this;
     }
 

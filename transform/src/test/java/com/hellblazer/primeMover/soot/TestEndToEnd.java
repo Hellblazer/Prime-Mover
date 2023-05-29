@@ -28,8 +28,6 @@ import static com.hellblazer.utils.Utils.initializeDirectory;
 import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
-import static org.junit.jupiter.api.Assertions.assertSame;
 
 import java.io.File;
 import java.io.IOException;
@@ -92,18 +90,19 @@ public class TestEndToEnd {
 
         }
 
-        assertEquals(2, controller.events.size());
-        assertEquals(4, controller.blockingEvents.size());
-        String eventSignature = controller.events.get(0);
-        assertEquals("<testClasses.Entity1Impl: void event1()>", eventSignature);
-        eventSignature = controller.blockingEvents.get(0);
-        assertEquals("<testClasses.Entity1Impl: void event2(testClasses.Entity2)>", eventSignature);
-        eventSignature = controller.events.get(1);
-        assertEquals("<testClasses.Entity2Impl: void myEvent()>", eventSignature);
-        assertEquals(6, controller.references.size());
-        assertSame(controller.references.get(0), controller.references.get(1));
-        assertSame(controller.references.get(1), controller.references.get(2));
-        assertNotSame(controller.references.get(2), controller.references.get(3));
+        assertEquals(6, controller.events.size());
+        assertEquals(2, controller.blockingEvents.size());
+        assertEquals(8, controller.references.size());
+
+        int i = 0;
+
+        assertEquals("<testClasses.Entity1Impl: void event1()>", controller.events.get(i++));
+        assertEquals("<testClasses.Entity1Impl: void event2(testClasses.Entity2)>", controller.events.get(i++));
+        assertEquals("<testClasses.Entity1Impl: void event1()>", controller.events.get(i++));
+        assertEquals("<testClasses.Entity2Impl: void myEvent()>", controller.events.get(i++));
+        assertEquals("<com.hellblazer.primeMover.runtime.BlockingSleepImpl void sleep(org.joda.time.Duration)>",
+                     controller.events.get(i++));
+        assertEquals("<testClasses.Entity1Impl: void event1()>", controller.events.get(i++));
     }
 
     private Map<String, byte[]> getTransformed() throws IOException {

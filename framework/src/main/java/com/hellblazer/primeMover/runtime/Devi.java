@@ -19,13 +19,11 @@
 
 package com.hellblazer.primeMover.runtime;
 
-import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import java.util.concurrent.locks.LockSupport;
+import java.util.concurrent.ThreadFactory;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.hellblazer.primeMover.Controller;
@@ -39,18 +37,26 @@ import com.hellblazer.primeMover.SimulationException;
  * @author <a href="mailto:hal.hildebrand@gmail.com">Hal Hildebrand</a>
  */
 abstract public class Devi implements Controller {
-    private static final String   $ENTITY$GEN     = "$entity$gen";
-    private static final Duration DEFAULT_TIMEOUT = Duration.ofSeconds(1);
-    private static final Logger   logger          = Logger.getLogger(Devi.class.getCanonicalName());
+    private static final String $ENTITY$GEN = "$entity$gen";
+    private static final Logger logger      = Logger.getLogger(Devi.class.getCanonicalName());
 
-    private EventImpl                          caller;
-    private EventImpl                          currentEvent;
-    private long                               currentTime       = 0;
+    private volatile EventImpl                 blockingEvent;
+    private volatile EventImpl                 caller;
+    private volatile EventImpl                 continuingEvent;
+    private volatile EventImpl                 currentEvent;
+    private volatile long                      currentTime       = 0;
     private boolean                            debugEvents       = false;
     private Logger                             eventLog;
     private volatile CompletableFuture<Object> futureSailor;
     private final Semaphore                    serializer        = new Semaphore(1);
+    private final ThreadFactory                tf;
     private boolean                            trackEventSources = false;
+
+    public Devi() {
+        tf = Thread.ofVirtual().uncaughtExceptionHandler((thread, t) -> {
+            logger.log(Level.SEVERE, "unhandled exception in: " + thread, t);
+        }).name("Event Execution: ", 0).factory();
+    }
 
     /**
      * Advance the current time of the controller
@@ -60,7 +66,7 @@ abstract public class Devi implements Controller {
     @Override
     public void advance(long duration) {
         final var current = currentTime;
-        currentTime = currentTime + duration;
+        currentTime = current + duration;
         logger.info("Advancing time from: %s to: %s".formatted(current, currentTime));
     }
 
@@ -72,6 +78,9 @@ abstract public class Devi implements Controller {
         currentTime = 0;
         caller = null;
         currentEvent = null;
+        blockingEvent = null;
+        continuingEvent = null;
+        futureSailor = null;
     }
 
     /**
@@ -124,20 +133,24 @@ abstract public class Devi implements Controller {
      */
     @Override
     public Object postContinuingEvent(EntityReference entity, int event, Object... arguments) throws Throwable {
-        assert currentEvent != null;
+        final var be = blockingEvent;
+        final var ce = continuingEvent;
+        assert be == null : "uncleared: " + be;
+        assert ce == null : "uncleared: " + ce;
+        final var current = currentEvent;
+        assert current != null : "no current event";
+        final var sailorMoon = futureSailor;
+        assert sailorMoon != null : "No future to signal";
+        assert !sailorMoon.isDone() : "Future sailure is done";
 
-        final var blocking = createEvent(currentTime, entity, event, arguments);
-        final var continuingEvent = currentEvent.clone(currentTime);
-        continuingEvent.setContinuation(new Continuation(caller));
-        blocking.setContinuation(new Continuation(continuingEvent));
-        post(blocking);
-        logger.info("Blocking: %s on: %s; continuation: %s".formatted(Thread.currentThread(), blocking,
-                                                                      continuingEvent));
-        futureSailor.complete(null);
-        LockSupport.park();
-        logger.info("Continuing: %s event: %s; from blocking: %s".formatted(Thread.currentThread(), continuingEvent,
-                                                                            blocking));
-        return blocking.getContinuation().returnFrom();
+        final var ct = currentTime;
+        final var continuing = current.clone(ct);
+        continuingEvent = continuing;
+        var blocking = blockingEvent = createEvent(ct, entity, event, arguments);
+        logger.info("Blocking: %s on: %s; continuation: %s".formatted(Thread.currentThread(), blocking, continuing));
+        sailorMoon.complete(null);
+
+        return continuing.park();
     }
 
     /**
@@ -227,7 +240,7 @@ abstract public class Devi implements Controller {
     }
 
     /**
-     * The heart of the event processing loop. This is where the events are actually
+     * The heart of the event processing loop. This is where the events are
      * evaluated.
      * 
      * @param next - the event to evaluate.
@@ -235,39 +248,18 @@ abstract public class Devi implements Controller {
      *                             the event.
      */
     protected final void evaluate(EventImpl next) throws SimulationException {
-        evaluate(next, DEFAULT_TIMEOUT);
-    }
-
-    /**
-     * The heart of the event processing loop. This is where the events are
-     * evaluated.
-     * 
-     * @param next    - the event to evaluate.
-     * @param timeout - how long to wait for the event evaluation
-     * @throws SimulationException - if an exception occurs during the evaluation of
-     *                             the event.
-     */
-    protected final void evaluate(EventImpl next, Duration timeout) throws SimulationException {
         try {
             serializer.acquire();
+            assert caller == null;
+            assert futureSailor == null;
+            assert currentEvent == null;
+            evaluation(next);
         } catch (InterruptedException e1) {
             Thread.currentThread().interrupt();
             return;
-        }
-        assert futureSailor == null;
-        final var current = futureSailor = new CompletableFuture<>();
-        Thread.ofVirtual().start(() -> eval(next));
-        try {
-            current.get(timeout.toNanos(), TimeUnit.NANOSECONDS);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        } catch (ExecutionException e) {
-            throw new SimulationException(e.getCause());
-        } catch (TimeoutException e) {
-            throw new SimulationException(e);
         } finally {
+            caller = null;
             serializer.release();
-            futureSailor = null;
         }
     }
 
@@ -281,56 +273,81 @@ abstract public class Devi implements Controller {
     /**
      * Swap the calling event for the current caller
      * 
-     * @param caller
+     * @param newCaller
      * @return
      */
-    protected EventImpl swapCaller(EventImpl caller) {
-        EventImpl tmp = this.caller;
-        this.caller = caller;
-        logger.info("Swap caller: %s for: %s".formatted(tmp, caller));
+    protected EventImpl swapCaller(EventImpl newCaller) {
+        var tmp = caller;
+        caller = newCaller;
+        logger.info("Swap caller: %s for: %s".formatted(tmp, newCaller));
         return tmp;
     }
 
-    private void eval(EventImpl next) {
-        logger.info("evaluating: %s".formatted(next));
-        currentEvent = next;
-        currentTime = currentEvent.getTime();
-        Continuation continuation = currentEvent.getContinuation();
-        if (continuation != null) {
-            caller = continuation.getCaller();
-            logger.info("continuation caller: %s".formatted(caller));
-        }
-        Throwable exception = null;
-        Object result = null;
-        final var sailorMoon = futureSailor;
-        try {
+    private Runnable eval(EventImpl event) {
+        return () -> {
             try {
                 if (eventLog != null) {
-                    eventLog.info(currentEvent.toString());
+                    eventLog.info(event.toString());
                 }
-                result = currentEvent.invoke();
+                final var result = event.invoke();
+                if (futureSailor.isDone()) {
+                    logger.severe("Future sailor already done");
+                }
+                futureSailor.complete(result);
             } catch (SimulationEnd e) {
-                sailorMoon.completeExceptionally(e);
+                futureSailor.completeExceptionally(e);
                 return;
             } catch (Throwable e) {
-                if (caller == null) {
-                    sailorMoon.completeExceptionally(new SimulationException(e));
-                }
-                exception = e;
+                futureSailor.completeExceptionally(e);
             }
-            if (caller != null) {
-                post(caller.resume(currentTime, result, exception));
+        };
+    }
+
+    private void evaluation(EventImpl next) throws SimulationException {
+        logger.info("evaluating: %s".formatted(next));
+        final var sailorMoon = futureSailor = new CompletableFuture<>();
+        currentEvent = next;
+        currentTime = next.getTime();
+        caller = next.getCaller();
+        if (next.getCaller() != null) {
+            logger.info("blocked caller: %s".formatted(next.getCaller()));
+        }
+        if (next.isContinuation()) {
+            next.proceed();
+        } else {
+            tf.newThread(eval(next)).start();
+        }
+        Object result = null;
+        Throwable exception = null;
+        try {
+            result = sailorMoon.get();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return;
+        } catch (ExecutionException e) {
+            final var cc = caller;
+            final var blocking = blockingEvent;
+            if (cc == null || blocking != null) {
+                throw new SimulationException(e.getCause());
             }
+            exception = e.getCause();
         } finally {
-            final var current = currentEvent;
+            futureSailor = null;
             currentEvent = null;
-            caller = null;
-            if (!sailorMoon.isDone()) {
-                logger.info("Evaluation completed: %s".formatted(current));
-                sailorMoon.complete(null);
-            } else {
-                logger.info("Evaluation continued: %s".formatted(current));
-            }
+        }
+
+        final var cc = caller;
+        final var blocking = blockingEvent;
+        if (blocking != null) {
+            final var continuing = continuingEvent;
+            continuing.setCaller(cc);
+            blocking.setCaller(continuing);
+            post(blocking);
+            blockingEvent = null;
+            continuingEvent = null;
+        } else if (cc != null) {
+            final var ct = currentTime;
+            post(cc.resume(ct, result, exception));
         }
     }
 }

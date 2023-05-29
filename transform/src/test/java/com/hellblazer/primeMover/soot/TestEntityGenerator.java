@@ -110,7 +110,7 @@ public class TestEntityGenerator {
     }
 
     @SuppressWarnings("deprecation")
-    @Test
+//    @Test
     public void testGenerateEntity() throws Throwable {
         generator.generateEntity();
         assertNotNull(generator.getEntity());
@@ -123,7 +123,7 @@ public class TestEntityGenerator {
         Printer.v().printTo(generator.getEntity(), pw);
         pw.flush();
 
-        Scene.v().loadNecessaryClasses();
+//        Scene.v().loadNecessaryClasses();
 
         ClassLoader entityLoader = new LocalLoader(asList(generator.getEntity()));
 

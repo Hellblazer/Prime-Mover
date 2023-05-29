@@ -33,22 +33,26 @@ public class Continuation implements Serializable {
     private static final Logger logger           = Logger.getLogger(Continuation.class.getCanonicalName());
     private static final long   serialVersionUID = -4307033871239385970L;
 
-    private EventImpl caller;
     private Throwable exception;
     private Object    returnValue;
     private Thread    thread;
 
-    public Continuation(EventImpl caller) {
-        this.caller = caller;
-        thread = Thread.currentThread();
+    public boolean isParked() {
+        return thread != null;
     }
 
-    public EventImpl getCaller() {
-        return caller;
+    public Object park() throws Throwable {
+        assert thread == null;
+        thread = Thread.currentThread();
+        LockSupport.park();
+        if (exception != null) {
+            throw exception;
+        }
+        return returnValue;
     }
 
     public void resume() {
-        if (thread.isAlive()) {
+        if (thread != null && thread.isAlive()) {
             logger.info("Resuming: %s".formatted(thread));
             LockSupport.unpark(thread);
         }

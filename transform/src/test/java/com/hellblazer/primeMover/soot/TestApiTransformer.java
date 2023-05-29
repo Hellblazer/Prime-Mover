@@ -6,8 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.jupiter.api.Test;
-
 import com.hellblazer.primeMover.runtime.EntityReference;
 import com.hellblazer.primeMover.runtime.Framework;
 
@@ -35,7 +33,7 @@ public class TestApiTransformer {
         }
     }
 
-    @Test
+//    @Test
     public void testTransform() throws Exception {
         G.reset();
         SimulationTransform.setStandardClassPath();

@@ -21,11 +21,11 @@ package com.hellblazer.primeMover;
 
 import java.util.NoSuchElementException;
 import java.util.Queue;
+import java.util.concurrent.PriorityBlockingQueue;
 import java.util.logging.Logger;
 
 import com.hellblazer.primeMover.runtime.Devi;
 import com.hellblazer.primeMover.runtime.EventImpl;
-import com.hellblazer.primeMover.runtime.SplayQueue;
 
 /**
  * 
@@ -34,10 +34,9 @@ import com.hellblazer.primeMover.runtime.SplayQueue;
  */
 
 public class ControllerImpl extends Devi {
-    public Queue<EventImpl> eventQueue = new SplayQueue<EventImpl>();
+    public final Queue<EventImpl> eventQueue = new PriorityBlockingQueue<EventImpl>();
 
     public boolean send() throws SimulationException {
-        Logger.getLogger(ControllerImpl.class.getCanonicalName()).info("Remaining: %s".formatted(eventQueue.size()));
         if (eventQueue.isEmpty()) {
             return false;
         }
@@ -52,7 +51,6 @@ public class ControllerImpl extends Devi {
     @Override
     protected void post(EventImpl event) {
         eventQueue.add(event);
-        Logger.getLogger(ControllerImpl.class.getCanonicalName())
-              .info("Posting: %s size: %s".formatted(event, eventQueue.size()));
+        Logger.getLogger(ControllerImpl.class.getCanonicalName()).info("Posting: %s".formatted(event));
     }
 }

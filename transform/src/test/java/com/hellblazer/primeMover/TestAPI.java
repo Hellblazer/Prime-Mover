@@ -108,32 +108,38 @@ public class TestAPI {
 
         }
 
-        assertEquals(5, controller.events.size());
-        assertEquals("<testClasses.UseChannelImpl: void test()>", controller.events.get(0));
-        assertEquals("<testClasses.UseChannelImpl: void take()>", controller.events.get(1));
-        assertEquals("<testClasses.UseChannelImpl: void put(java.lang.String)>", controller.events.get(2));
-        assertEquals("<testClasses.UseChannelImpl: void put(java.lang.String)>", controller.events.get(3));
-        assertEquals("<testClasses.UseChannelImpl: void take()>", controller.events.get(4));
+        assertEquals(13, controller.events.size(),
+                     String.format("events: %s", controller.events.stream().map(s -> "\n" + s).toList()));
+        var i = 0;
+        assertEquals("<testClasses.UseChannelImpl: void test()>", controller.events.get(i++));
+        assertEquals("<testClasses.UseChannelImpl: void take()>", controller.events.get(i++));
+        assertEquals("<testClasses.UseChannelImpl: void put(java.lang.String)>", controller.events.get(i++));
+        assertEquals("<testClasses.UseChannelImpl: void put(java.lang.String)>", controller.events.get(i++));
+        assertEquals("<testClasses.UseChannelImpl: void take()>", controller.events.get(i++));
+        assertEquals("<com.hellblazer.primeMover.runtime.SynchronousQueueImpl: java.lang.Object take()>",
+                     controller.events.get(i++));
+        assertEquals("<com.hellblazer.primeMover.runtime.SynchronousQueueImpl: void put(java.lang.Object)>",
+                     controller.events.get(i++));
+        assertEquals("<testClasses.UseChannelImpl: void take()>", controller.events.get(i++));
+        assertEquals("<testClasses.UseChannelImpl: void put(java.lang.String)>", controller.events.get(i++));
+        assertEquals("<com.hellblazer.primeMover.runtime.SynchronousQueueImpl: void put(java.lang.Object)>",
+                     controller.events.get(i++));
+        assertEquals("<com.hellblazer.primeMover.runtime.SynchronousQueueImpl: java.lang.Object take()>",
+                     controller.events.get(i++));
+        assertEquals("<testClasses.UseChannelImpl: void put(java.lang.String)>", controller.events.get(i++));
+        assertEquals("<testClasses.UseChannelImpl: void take()>", controller.events.get(i++));
 
-        assertEquals(8, controller.blockingEvents.size());
+        assertEquals(4, controller.blockingEvents.size());
         assertEquals("<com.hellblazer.primeMover.runtime.SynchronousQueueImpl: java.lang.Object take()>",
                      controller.blockingEvents.get(0));
         assertEquals("<com.hellblazer.primeMover.runtime.SynchronousQueueImpl: void put(java.lang.Object)>",
                      controller.blockingEvents.get(1));
-        assertEquals("<com.hellblazer.primeMover.runtime.SynchronousQueueImpl: java.lang.Object take()>",
+        assertEquals("<com.hellblazer.primeMover.runtime.SynchronousQueueImpl: void put(java.lang.Object)>",
                      controller.blockingEvents.get(2));
-        assertEquals("<com.hellblazer.primeMover.runtime.SynchronousQueueImpl: void put(java.lang.Object)>",
+        assertEquals("<com.hellblazer.primeMover.runtime.SynchronousQueueImpl: java.lang.Object take()>",
                      controller.blockingEvents.get(3));
-        assertEquals("<com.hellblazer.primeMover.runtime.SynchronousQueueImpl: void put(java.lang.Object)>",
-                     controller.blockingEvents.get(4));
-        assertEquals("<com.hellblazer.primeMover.runtime.SynchronousQueueImpl: java.lang.Object take()>",
-                     controller.blockingEvents.get(5));
-        assertEquals("<com.hellblazer.primeMover.runtime.SynchronousQueueImpl: void put(java.lang.Object)>",
-                     controller.blockingEvents.get(6));
-        assertEquals("<com.hellblazer.primeMover.runtime.SynchronousQueueImpl: java.lang.Object take()>",
-                     controller.blockingEvents.get(7));
 
-        assertEquals(13, controller.references.size());
+        assertEquals(17, controller.references.size());
 
     }
 
@@ -144,27 +150,93 @@ public class TestAPI {
 
         Class<?> driverImplClass = loader.loadClass(DriverImpl.class.getCanonicalName()
         + EntityGenerator.GENERATED_ENTITY_SUFFIX);
-        @SuppressWarnings("deprecation")
-        Object driverImpl = driverImplClass.newInstance();
+        Object driverImpl = driverImplClass.getConstructor().newInstance();
         Method runThreaded = driverImplClass.getDeclaredMethod("runThreaded");
         runThreaded.invoke(driverImpl);
 
-        while (controller.send()) {
+        while (controller.send())
+            ;
 
-        }
+        assertEquals(34, controller.events.size(),
+                     String.format("events: %s", controller.events.stream().map(s -> '\n' + s).toList()));
+        var i = 0;
+        assertEquals("<testClasses.DriverImpl: void runThreaded()>", controller.events.get(i++));
 
-        assertEquals(4, controller.events.size());
-        assertEquals("<testClasses.DriverImpl: void runThreaded()>", controller.events.get(0));
-        assertEquals("<testClasses.ThreadedImpl: void process(int)>", controller.events.get(1));
-        assertEquals("<testClasses.ThreadedImpl: void process(int)>", controller.events.get(2));
-        assertEquals("<testClasses.ThreadedImpl: void process(int)>", controller.events.get(3));
+        assertEquals("<testClasses.ThreadedImpl: void process(int)>", controller.events.get(i++));
+        assertEquals("<testClasses.ThreadedImpl: void process(int)>", controller.events.get(i++));
+        assertEquals("<testClasses.ThreadedImpl: void process(int)>", controller.events.get(i++));
 
-        assertEquals(30, controller.blockingEvents.size());
+        assertEquals("<com.hellblazer.primeMover.runtime.BlockingSleepImpl void sleep(org.joda.time.Duration)>",
+                     controller.events.get(i++));
+        assertEquals("<com.hellblazer.primeMover.runtime.BlockingSleepImpl void sleep(org.joda.time.Duration)>",
+                     controller.events.get(i++));
+
+        assertEquals("<testClasses.ThreadedImpl: void process(int)>", controller.events.get(i++));
+        assertEquals("<testClasses.ThreadedImpl: void process(int)>", controller.events.get(i++));
+
+        assertEquals("<com.hellblazer.primeMover.runtime.BlockingSleepImpl void sleep(org.joda.time.Duration)>",
+                     controller.events.get(i++));
+
+        assertEquals("<testClasses.ThreadedImpl: void process(int)>", controller.events.get(i++));
+
+        assertEquals("<com.hellblazer.primeMover.runtime.BlockingSleepImpl void sleep(org.joda.time.Duration)>",
+                     controller.events.get(i++));
+        assertEquals("<com.hellblazer.primeMover.runtime.BlockingSleepImpl void sleep(org.joda.time.Duration)>",
+                     controller.events.get(i++));
+
+        assertEquals("<testClasses.ThreadedImpl: void process(int)>", controller.events.get(i++));
+        assertEquals("<testClasses.ThreadedImpl: void process(int)>", controller.events.get(i++));
+
+        assertEquals("<com.hellblazer.primeMover.runtime.BlockingSleepImpl void sleep(org.joda.time.Duration)>",
+                     controller.events.get(i++));
+
+        assertEquals("<testClasses.ThreadedImpl: void process(int)>", controller.events.get(i++));
+
+        assertEquals("<com.hellblazer.primeMover.runtime.BlockingSleepImpl void sleep(org.joda.time.Duration)>",
+                     controller.events.get(i++));
+        assertEquals("<com.hellblazer.primeMover.runtime.BlockingSleepImpl void sleep(org.joda.time.Duration)>",
+                     controller.events.get(i++));
+
+        assertEquals("<testClasses.ThreadedImpl: void process(int)>", controller.events.get(i++));
+        assertEquals("<testClasses.ThreadedImpl: void process(int)>", controller.events.get(i++));
+
+        assertEquals("<com.hellblazer.primeMover.runtime.BlockingSleepImpl void sleep(org.joda.time.Duration)>",
+                     controller.events.get(i++));
+
+        assertEquals("<testClasses.ThreadedImpl: void process(int)>", controller.events.get(i++));
+
+        assertEquals("<com.hellblazer.primeMover.runtime.BlockingSleepImpl void sleep(org.joda.time.Duration)>",
+                     controller.events.get(i++));
+        assertEquals("<com.hellblazer.primeMover.runtime.BlockingSleepImpl void sleep(org.joda.time.Duration)>",
+                     controller.events.get(i++));
+
+        assertEquals("<testClasses.ThreadedImpl: void process(int)>", controller.events.get(i++));
+        assertEquals("<testClasses.ThreadedImpl: void process(int)>", controller.events.get(i++));
+
+        assertEquals("<com.hellblazer.primeMover.runtime.BlockingSleepImpl void sleep(org.joda.time.Duration)>",
+                     controller.events.get(i++));
+
+        assertEquals("<testClasses.ThreadedImpl: void process(int)>", controller.events.get(i++));
+
+        assertEquals("<com.hellblazer.primeMover.runtime.BlockingSleepImpl void sleep(org.joda.time.Duration)>",
+                     controller.events.get(i++));
+        assertEquals("<com.hellblazer.primeMover.runtime.BlockingSleepImpl void sleep(org.joda.time.Duration)>",
+                     controller.events.get(i++));
+
+        assertEquals("<testClasses.ThreadedImpl: void process(int)>", controller.events.get(i++));
+        assertEquals("<testClasses.ThreadedImpl: void process(int)>", controller.events.get(i++));
+
+        assertEquals("<com.hellblazer.primeMover.runtime.BlockingSleepImpl void sleep(org.joda.time.Duration)>",
+                     controller.events.get(i++));
+
+        assertEquals("<testClasses.ThreadedImpl: void process(int)>", controller.events.get(i++));
+
+        assertEquals(15, controller.blockingEvents.size());
         for (String contEvent : controller.blockingEvents) {
             assertEquals("<com.hellblazer.primeMover.runtime.BlockingSleepImpl void sleep(org.joda.time.Duration)>",
                          contEvent);
         }
 
-        assertEquals(34, controller.references.size());
+        assertEquals(49, controller.references.size());
     }
 }
