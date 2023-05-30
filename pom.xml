@@ -20,6 +20,7 @@
     <modules>
         <module>framework</module>
         <module>transform</module>
+        <module>transform-2</module>
         <!-- <module>maven-plugin</module> <module>maven-testing</module> <module>demo</module> -->
     </modules>
     <dependencyManagement>
@@ -33,6 +34,41 @@
                 <groupId>${project.groupId}</groupId>
                 <artifactId>transform</artifactId>
                 <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.soot-oss</groupId>
+                <artifactId>sootup.core</artifactId>
+                <version>${sootUp.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.soot-oss</groupId>
+                <artifactId>sootup.java.core</artifactId>
+                <version>${sootUp.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.soot-oss</groupId>
+                <artifactId>sootup.java.sourcecode</artifactId>
+                <version>${sootUp.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.soot-oss</groupId>
+                <artifactId>sootup.java.bytecode</artifactId>
+                <version>${sootUp.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.soot-oss</groupId>
+                <artifactId>sootup.jimple.parser</artifactId>
+                <version>${sootUp.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.soot-oss</groupId>
+                <artifactId>sootup.callgraph</artifactId>
+                <version>${sootUp.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.soot-oss</groupId>
+                <artifactId>sootup.analysis</artifactId>
+                <version>${sootUp.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.soot-oss</groupId>
