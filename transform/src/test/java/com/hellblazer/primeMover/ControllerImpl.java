@@ -20,8 +20,8 @@
 package com.hellblazer.primeMover;
 
 import java.util.NoSuchElementException;
+import java.util.PriorityQueue;
 import java.util.Queue;
-import java.util.concurrent.PriorityBlockingQueue;
 import java.util.logging.Logger;
 
 import com.hellblazer.primeMover.runtime.Devi;
@@ -34,7 +34,7 @@ import com.hellblazer.primeMover.runtime.EventImpl;
  */
 
 public class ControllerImpl extends Devi {
-    public final Queue<EventImpl> eventQueue = new PriorityBlockingQueue<EventImpl>();
+    public final Queue<EventImpl> eventQueue = new PriorityQueue<EventImpl>();
 
     public boolean send() throws SimulationException {
         if (eventQueue.isEmpty()) {

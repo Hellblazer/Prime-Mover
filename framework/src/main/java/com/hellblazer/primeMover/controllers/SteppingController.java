@@ -4,7 +4,7 @@
  * This file is part of the Prime Mover Event Driven Simulation Framework.
  * 
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as 
+ * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  * 
@@ -20,6 +20,7 @@
 package com.hellblazer.primeMover.controllers;
 
 import java.util.NoSuchElementException;
+import java.util.PriorityQueue;
 import java.util.Queue;
 
 import com.hellblazer.primeMover.SimulationException;
@@ -27,7 +28,6 @@ import com.hellblazer.primeMover.runtime.Devi;
 import com.hellblazer.primeMover.runtime.EventImpl;
 import com.hellblazer.primeMover.runtime.Framework;
 import com.hellblazer.primeMover.runtime.SimulationEnd;
-import com.hellblazer.primeMover.runtime.SplayQueue;
 
 /**
  * A simulation controller which allows stepping through events
@@ -38,16 +38,11 @@ public class SteppingController extends Devi {
     protected Queue<EventImpl> eventQueue;
 
     public SteppingController() {
-        this(new SplayQueue<EventImpl>());
+        this(new PriorityQueue<EventImpl>());
     }
 
     public SteppingController(Queue<EventImpl> eventQueue) {
         this.eventQueue = eventQueue;
-    }
-
-    @Override
-    protected void post(EventImpl event) {
-        eventQueue.add(event);
     }
 
     public boolean step() throws SimulationException {
@@ -72,5 +67,10 @@ public class SteppingController extends Devi {
             Framework.setController(current);
         }
         return true;
+    }
+
+    @Override
+    protected void post(EventImpl event) {
+        eventQueue.add(event);
     }
 }

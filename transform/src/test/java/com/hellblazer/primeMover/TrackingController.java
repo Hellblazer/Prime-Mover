@@ -19,8 +19,8 @@
 
 package com.hellblazer.primeMover;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.hellblazer.primeMover.runtime.EntityReference;
 import com.hellblazer.primeMover.runtime.EventImpl;
@@ -33,9 +33,9 @@ import com.hellblazer.primeMover.runtime.EventImpl;
 
 public class TrackingController extends ControllerImpl {
 
-    public List<String>          blockingEvents = new CopyOnWriteArrayList<String>();
-    public List<String>          events         = new CopyOnWriteArrayList<String>();
-    public List<EntityReference> references     = new CopyOnWriteArrayList<EntityReference>();
+    public List<String>          blockingEvents = new ArrayList<String>();
+    public List<String>          events         = new ArrayList<String>();
+    public List<EntityReference> references     = new ArrayList<EntityReference>();
 
     @Override
     public Object postContinuingEvent(EntityReference entity, int event, Object... arguments) throws Throwable {

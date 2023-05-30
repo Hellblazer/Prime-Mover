@@ -73,7 +73,7 @@ public class Utils {
             return false;
         }
         if (inferEntity(base)) {
-            log.info(String.format("Inferred Entity status of %1s.  Marking class as @Enity", base));
+            log.info(String.format("Inferred Entity status of %1s.  Marking class as @Entity", base));
             markEntity(base);
             markTransformed(base, "EntityInference", "Entity Status Inferred");
             return true;

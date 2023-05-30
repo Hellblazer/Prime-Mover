@@ -22,6 +22,7 @@ package com.hellblazer.primeMover.controllers;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.logging.Logger;
 
@@ -30,7 +31,6 @@ import com.hellblazer.primeMover.runtime.Devi;
 import com.hellblazer.primeMover.runtime.EventImpl;
 import com.hellblazer.primeMover.runtime.Framework;
 import com.hellblazer.primeMover.runtime.SimulationEnd;
-import com.hellblazer.primeMover.runtime.SplayQueue;
 
 /**
  * The cannonical simulation controller which gathers statistics of the events
@@ -42,16 +42,15 @@ import com.hellblazer.primeMover.runtime.SplayQueue;
 public class SimulationController extends Devi implements StatisticalController {
     static final Logger            log      = Logger.getLogger(SimulationController.class.getCanonicalName());
     protected long                 endTime  = Long.MAX_VALUE;
-    protected Map<String, Integer> spectrum = new HashMap<String, Integer>();
     protected Queue<EventImpl>     eventQueue;
     protected String               name     = "Prime Mover Simulation Event Evaluation";
     protected long                 simulationEnd;
     protected long                 simulationStart;
-
+    protected Map<String, Integer> spectrum = new HashMap<String, Integer>();
     protected int                  totalEvents;
 
     public SimulationController() {
-        this(new SplayQueue<EventImpl>());
+        this(new PriorityQueue<EventImpl>());
     }
 
     public SimulationController(Queue<EventImpl> eventQueue) {
@@ -59,8 +58,8 @@ public class SimulationController extends Devi implements StatisticalController 
     }
 
     /**
-     * Continuously process events until the end of the simulation is reached,
-     * or the simulation clock has advanced to the simulation end time.
+     * Continuously process events until the end of the simulation is reached, or
+     * the simulation clock has advanced to the simulation end time.
      * 
      * @throws SimulationException
      */
@@ -110,7 +109,8 @@ public class SimulationController extends Devi implements StatisticalController 
     /*
      * (non-Javadoc)
      * 
-     * @see com.hellblazer.primeMover.runtime.StatisticalController#getSimulationEnd()
+     * @see
+     * com.hellblazer.primeMover.runtime.StatisticalController#getSimulationEnd()
      */
     @Override
     public long getSimulationEnd() {
@@ -120,7 +120,8 @@ public class SimulationController extends Devi implements StatisticalController 
     /*
      * (non-Javadoc)
      * 
-     * @see com.hellblazer.primeMover.runtime.StatisticalController#getSimulationStart()
+     * @see
+     * com.hellblazer.primeMover.runtime.StatisticalController#getSimulationStart()
      */
     @Override
     public long getSimulationStart() {
@@ -154,11 +155,6 @@ public class SimulationController extends Devi implements StatisticalController 
     @Override
     public int getTotalEvents() {
         return totalEvents;
-    }
-
-    @Override
-    protected void post(EventImpl event) {
-        eventQueue.add(event);
     }
 
     /**
@@ -203,5 +199,10 @@ public class SimulationController extends Devi implements StatisticalController 
             inc = Integer.valueOf(0);
         }
         spectrum.put(signature, inc + 1);
+    }
+
+    @Override
+    protected void post(EventImpl event) {
+        eventQueue.add(event);
     }
 }

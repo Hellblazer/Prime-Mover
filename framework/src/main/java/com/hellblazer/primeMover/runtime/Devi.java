@@ -31,9 +31,8 @@ import com.hellblazer.primeMover.Event;
 import com.hellblazer.primeMover.SimulationException;
 
 /**
- * The processor of events, the continuation of time. This is the central
- * control interface of PrimeMover.
- * 
+ * The processor of events, the continuation of time.
+ *
  * @author <a href="mailto:hal.hildebrand@gmail.com">Hal Hildebrand</a>
  */
 abstract public class Devi implements Controller {
@@ -133,15 +132,13 @@ abstract public class Devi implements Controller {
      */
     @Override
     public Object postContinuingEvent(EntityReference entity, int event, Object... arguments) throws Throwable {
-        final var be = blockingEvent;
-        final var ce = continuingEvent;
-        assert be == null : "uncleared: " + be;
-        assert ce == null : "uncleared: " + ce;
+        assert blockingEvent == null : "uncleared: " + blockingEvent;
+        assert continuingEvent == null : "uncleared: " + continuingEvent;
         final var current = currentEvent;
         assert current != null : "no current event";
         final var sailorMoon = futureSailor;
         assert sailorMoon != null : "No future to signal";
-        assert !sailorMoon.isDone() : "Future sailure is done";
+        assert !sailorMoon.isDone() : "Future sailor is done";
 
         final var ct = currentTime;
         final var continuing = current.clone(ct);
@@ -150,7 +147,7 @@ abstract public class Devi implements Controller {
         logger.info("Blocking: %s on: %s; continuation: %s".formatted(Thread.currentThread(), blocking, continuing));
         sailorMoon.complete(null);
 
-        return continuing.park();
+        return continuing.park(); // the continuation
     }
 
     /**
@@ -225,10 +222,10 @@ abstract public class Devi implements Controller {
     }
 
     protected EventImpl createEvent(long time, EntityReference entity, int event, Object... arguments) {
-        Event sourceEvent = trackEventSources ? currentEvent : null;
+        final var sourceEvent = trackEventSources ? currentEvent : null;
 
         if (debugEvents) {
-            StackTraceElement[] stackTrace = new Throwable().getStackTrace();
+            var stackTrace = new Throwable().getStackTrace();
             for (int i = 0; i < stackTrace.length; i++) {
                 if (stackTrace[i].getClassName().endsWith($ENTITY$GEN)) {
                     return new EventImpl(stackTrace[i + 1].toString(), time, sourceEvent, entity, event, arguments);
@@ -325,6 +322,9 @@ abstract public class Devi implements Controller {
             Thread.currentThread().interrupt();
             return;
         } catch (ExecutionException e) {
+            if (e.getCause() instanceof SimulationException simE) {
+                throw simE;
+            }
             final var cc = caller;
             final var blocking = blockingEvent;
             if (cc == null || blocking != null) {
@@ -346,8 +346,7 @@ abstract public class Devi implements Controller {
             blockingEvent = null;
             continuingEvent = null;
         } else if (cc != null) {
-            final var ct = currentTime;
-            post(cc.resume(ct, result, exception));
+            post(cc.resume(currentTime, result, exception));
         }
     }
 }
