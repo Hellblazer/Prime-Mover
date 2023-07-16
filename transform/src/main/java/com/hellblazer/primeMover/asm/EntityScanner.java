@@ -26,6 +26,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
+import com.hellblazer.primeMover.AllMethodsMarker;
 import com.hellblazer.primeMover.Blocking;
 import com.hellblazer.primeMover.Entity;
 import com.hellblazer.primeMover.Event;
@@ -33,7 +34,7 @@ import com.hellblazer.primeMover.NonEvent;
 import com.hellblazer.primeMover.soot.util.OpenAddressingSet.OpenSet;
 
 /**
- * Basic scanning for <code>Enity
+ * Basic scanning for {@code Entity}
  * 
  * @author hal.hildebrand
  */
@@ -48,6 +49,9 @@ public class EntityScanner extends ClassVisitor {
         public void visit(String name, Object value) {
             var type = (Type) value;
             eventInterfaces.add(type);
+            if (ALL_METHODS_MARKER.equals(type)) {
+                allMethods = true;
+            }
         }
 
         @Override
@@ -78,21 +82,30 @@ public class EntityScanner extends ClassVisitor {
             final var type = Type.getType(descriptor);
 
             if (EVENT_ANNOTATION_TYPE.equals(type)) {
-                events.add(method);
-            } else if (NON_EVENT_ANNOTATION_TYPE.equals(type)) {
+                if (!nonEvents.contains(method)) {
+                    events.add(method);
+                }
+            } else if (NON_EVENT_ANNOTATION_TYPE.equals(type)) { // takes precedence
+                events.remove(method);
+                blocking.remove(method);
                 nonEvents.add(method);
             } else if (BLOCKING_ANNOTATION_TYPE.equals(type)) {
-                blocking.add(method);
+                if (!nonEvents.contains(method)) {
+                    events.add(method);
+                    blocking.add(method);
+                }
             }
             return null;
         }
     }
 
+    private static final Type ALL_METHODS_MARKER        = Type.getType(AllMethodsMarker.class);
     private static final Type BLOCKING_ANNOTATION_TYPE  = Type.getType(Blocking.class);
     private static final Type ENTITY_ANNOTATION_TYPE    = Type.getType(Entity.class);
     private static final Type EVENT_ANNOTATION_TYPE     = Type.getType(Event.class);
     private static final Type NON_EVENT_ANNOTATION_TYPE = Type.getType(NonEvent.class);
 
+    private boolean                     allMethods      = false;
     private final Clazz                 base;
     private final Set<MethodDescriptor> blocking        = new OpenSet<>();
     private final Set<Type>             eventInterfaces = new OpenSet<>();
@@ -130,6 +143,9 @@ public class EntityScanner extends ClassVisitor {
     public MethodVisitor visitMethod(int access, String name, String descriptor, String signature,
                                      String[] exceptions) {
         var method = new MethodDescriptor(access, name, descriptor, exceptions, signature);
+        if (allMethods) {
+            events.add(method);
+        }
         return new EntityMethodScanner(Opcodes.ASM9, method);
     }
 }

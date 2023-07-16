@@ -50,8 +50,8 @@ public class EntityScannerTest {
             reader.accept(scanner, ClassReader.SKIP_CODE);
             var applied = (EntityClass) scanner.applied();
             assertNotNull(applied);
-            assertEquals(0, applied.events.size());
             assertEquals(0, applied.nonEvents.size());
+            assertEquals(1, applied.events.size());
             assertEquals(1, applied.blocking.size());
             assertEquals(1, applied.eventInterfaces.size());
         }
