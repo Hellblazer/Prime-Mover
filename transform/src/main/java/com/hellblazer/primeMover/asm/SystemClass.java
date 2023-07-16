@@ -18,6 +18,7 @@
  */
 package com.hellblazer.primeMover.asm;
 
+import java.net.URL;
 import java.util.Set;
 
 import org.objectweb.asm.Type;
@@ -25,41 +26,23 @@ import org.objectweb.asm.Type;
 /**
  * @author hal.hildebrand
  */
-public class EntityClass extends Clazz {
+public class SystemClass extends Clazz {
 
-    final Set<MethodDescriptor> blocking;
-    final Set<Type>             eventInterfaces;
-    final Set<MethodDescriptor> events;
-    final Set<MethodDescriptor> nonEvents;
-
-    public EntityClass(Clazz clazz, Set<Type> eventInterfaces, Set<MethodDescriptor> blocking,
-                       Set<MethodDescriptor> events, Set<MethodDescriptor> nonEvents) {
-        super(clazz);
-        this.eventInterfaces = eventInterfaces;
-        this.blocking = blocking;
-        this.events = events;
-        this.nonEvents = nonEvents;
-        model.transform(this);
+    public SystemClass(TransformModel model, Type superClass, Type type, URL file) {
+        super(model, superClass, type, file);
     }
 
-    public void addBlocking(MethodDescriptor method) {
-        blocking.add(method);
-    }
-
-    public void addEvent(MethodDescriptor method) {
-        events.add(method);
-    }
-
-    public void addEventInterface(Type iFace) {
-        eventInterfaces.add(iFace);
-    }
-
-    public void addNonEvent(MethodDescriptor method) {
-        nonEvents.add(method);
+    @Override
+    public Clazz asEntity(Set<Type> eventInterfaces, Set<MethodDescriptor> blocking, Set<MethodDescriptor> events,
+                          Set<MethodDescriptor> nonEvents) {
+        throw new UnsupportedOperationException("System classes cannot be Entities: %s".formatted(type.getInternalName()
+                                                                                                      .replace('/',
+                                                                                                               '.')));
     }
 
     @Override
     public boolean isEntity() {
-        return true;
+        return false;
     }
+
 }

@@ -78,6 +78,10 @@ public class Clazz {
         return type.hashCode();
     }
 
+    public boolean isEntity() {
+        return false;
+    }
+
     public void process(Consumer<ClassReader> processor) {
         try (var fis = file.openStream()) {
             processor.accept(new ClassReader(fis));

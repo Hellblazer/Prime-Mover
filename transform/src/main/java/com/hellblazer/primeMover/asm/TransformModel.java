@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 import com.hellblazer.primeMover.soot.util.OpenAddressingSet.OpenSet;
@@ -43,8 +44,15 @@ public class TransformModel {
         this.resources = resources;
     }
 
-    public Clazz get(Type clazz) {
-        return classes.computeIfAbsent(clazz, t -> lookup(t));
+    public Clazz get(Type type) {
+        return classes.computeIfAbsent(type, t -> lookup(t));
+    }
+
+    public void scan(Type type) {
+        var clazz = get(type);
+        clazz.process(reader -> {
+            reader.accept(new EntityScanner(Opcodes.ASM9, clazz), ClassReader.SKIP_CODE);
+        });
     }
 
     void transform(EntityClass clazz) {
