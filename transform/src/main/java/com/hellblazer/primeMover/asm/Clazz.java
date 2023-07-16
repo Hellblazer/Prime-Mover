@@ -20,6 +20,7 @@ package com.hellblazer.primeMover.asm;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Set;
 import java.util.function.Consumer;
 
 import org.objectweb.asm.ClassReader;
@@ -35,10 +36,18 @@ public class Clazz {
     private final Type superClass;
     private final Type type;
 
+    public Clazz(Clazz clazz) {
+        this(clazz.superClass, clazz.type, clazz.file);
+    }
+
     public Clazz(Type superClass, Type type, URL file) {
         this.superClass = superClass;
         this.type = type;
         this.file = file;
+    }
+
+    public Clazz asEntity(Set<Type> eventInterfaces, Set<Type> blocking, Set<Type> events, Set<Type> nonEvents) {
+        return new EntityClass(this, eventInterfaces, blocking, events, nonEvents);
     }
 
     @Override

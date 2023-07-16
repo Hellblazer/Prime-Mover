@@ -23,6 +23,7 @@ import java.util.Set;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 import com.hellblazer.primeMover.Blocking;
@@ -37,6 +38,24 @@ import com.hellblazer.primeMover.soot.util.OpenAddressingSet.OpenSet;
  * @author hal.hildebrand
  */
 public class EntityScanner extends ClassVisitor {
+    public class EntityAnnotationScanner extends AnnotationVisitor {
+
+        protected EntityAnnotationScanner(int api) {
+            super(api);
+        }
+
+        @Override
+        public void visit(String name, Object value) {
+            var type = (Type) value;
+            eventInterfaces.add(type);
+        }
+
+        @Override
+        public AnnotationVisitor visitArray(String name) {
+            return new EntityAnnotationScanner(Opcodes.ASM9);
+        }
+    }
+
     public class EntityMethodScanner extends MethodVisitor {
 
         private final Type method;
@@ -65,7 +84,7 @@ public class EntityScanner extends ClassVisitor {
             } else if (BLOCKING_ANNOTATION_TYPE.equals(type)) {
                 blocking.add(method);
             }
-            return super.visitAnnotation(descriptor, visible);
+            return null;
         }
     }
 
@@ -75,10 +94,11 @@ public class EntityScanner extends ClassVisitor {
     private static final Type NON_EVENT_ANNOTATION_TYPE = Type.getType(NonEvent.class);
 
     private final Clazz     base;
-    private final Set<Type> blocking  = new OpenSet<>();
-    private final Set<Type> events    = new OpenSet<>();
-    private boolean         isEntity  = false;
-    private final Set<Type> nonEvents = new OpenSet<>();
+    private final Set<Type> blocking        = new OpenSet<>();
+    private final Set<Type> eventInterfaces = new OpenSet<>();
+    private final Set<Type> events          = new OpenSet<>();
+    private boolean         isEntity        = false;
+    private final Set<Type> nonEvents       = new OpenSet<>();
 
     public EntityScanner(int api, ClassVisitor classVisitor, Clazz clazz) {
         super(api, classVisitor);
@@ -90,6 +110,10 @@ public class EntityScanner extends ClassVisitor {
         this.base = clazz;
     }
 
+    public Clazz applied() {
+        return isEntity ? base.asEntity(eventInterfaces, blocking, events, nonEvents) : base;
+    }
+
     @Override
     public AnnotationVisitor visitAnnotation(String descriptor, boolean visible) {
         if (!visible) {
@@ -97,20 +121,15 @@ public class EntityScanner extends ClassVisitor {
         }
         if (ENTITY_ANNOTATION_TYPE.equals(Type.getType(descriptor))) {
             isEntity = true;
+            return new EntityAnnotationScanner(Opcodes.ASM9);
         }
         return null;
     }
 
     @Override
-    public void visitEnd() {
-        // TODO Auto-generated method stub
-        super.visitEnd();
-    }
-
-    @Override
     public MethodVisitor visitMethod(int access, String name, String descriptor, String signature,
                                      String[] exceptions) {
-        // TODO Auto-generated method stub
-        return super.visitMethod(access, name, descriptor, signature, exceptions);
+        var method = Type.getMethodType(descriptor);
+        return new EntityMethodScanner(Opcodes.ASM9, method);
     }
 }

@@ -18,23 +18,27 @@
  */
 package com.hellblazer.primeMover.asm;
 
-import java.net.URL;
 import java.util.Set;
 
 import org.objectweb.asm.Type;
-
-import com.hellblazer.primeMover.soot.util.OpenAddressingSet.OpenSet;
 
 /**
  * @author hal.hildebrand
  */
 public class EntityClass extends Clazz {
 
-    private final Set<Type> blocking = new OpenSet<>();
-    private final Set<Type> events   = new OpenSet<>();
+    final Set<Type> blocking;
+    final Set<Type> eventInterfaces;
+    final Set<Type> events;
+    final Set<Type> nonEvents;
 
-    public EntityClass(Type superClass, Type type, URL file) {
-        super(superClass, type, file);
+    public EntityClass(Clazz clazz, Set<Type> eventInterfaces, Set<Type> blocking, Set<Type> events,
+                       Set<Type> nonEvents) {
+        super(clazz);
+        this.eventInterfaces = eventInterfaces;
+        this.blocking = blocking;
+        this.events = events;
+        this.nonEvents = nonEvents;
     }
 
     public void addBlocking(Type method) {
@@ -43,6 +47,10 @@ public class EntityClass extends Clazz {
 
     public void addEvent(Type method) {
         events.add(method);
+    }
+
+    public void addNonEvent(Type method) {
+        nonEvents.add(method);
     }
 
 }
