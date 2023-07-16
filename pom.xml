@@ -20,7 +20,8 @@
     <modules>
         <module>framework</module>
         <module>transform</module>
-        <!-- <module>maven-plugin</module> <module>maven-testing</module> <module>demo</module> -->
+        <!-- <module>maven-plugin</module> <module>maven-testing</module>
+        <module>demo</module> -->
     </modules>
     <dependencyManagement>
         <dependencies>
@@ -39,6 +40,37 @@
                 <artifactId>soot</artifactId>
                 <version>4.4.1</version>
             </dependency>
+            <dependency>
+                <groupId>org.ow2.asm</groupId>
+                <artifactId>asm</artifactId>
+                <version>${asm.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ow2.asm</groupId>
+                <artifactId>asm-commons</artifactId>
+                <version>${asm.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ow2.asm</groupId>
+                <artifactId>asm-util</artifactId>
+                <version>${asm.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ow2.asm</groupId>
+                <artifactId>asm-tree</artifactId>
+                <version>${asm.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ow2.asm</groupId>
+                <artifactId>asm-analysis</artifactId>
+                <version>${asm.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ow2.asm</groupId>
+                <artifactId>asm-test</artifactId>
+                <version>${asm.version}</version>
+            </dependency>
+
             <!-- Test Only Dependencies Below This Line-->
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
