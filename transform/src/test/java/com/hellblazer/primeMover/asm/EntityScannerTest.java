@@ -21,6 +21,9 @@ package com.hellblazer.primeMover.asm;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import java.net.URL;
+import java.net.URLClassLoader;
+
 import org.junit.jupiter.api.Test;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
@@ -39,7 +42,8 @@ public class EntityScannerTest {
         var superType = Type.getType(Entity1Impl.class.getSuperclass());
         var url = Entity1Impl.class.getClassLoader()
                                    .getResource(Entity1Impl.class.getName().replace('.', '/') + ".class");
-        var clazz = new Clazz(superType, type, url);
+        var model = new TransformModel(new URLClassLoader(new URL[0]));
+        var clazz = new Clazz(model, superType, type, url);
         try (var is = url.openStream()) {
             var reader = new ClassReader(is);
             var scanner = new EntityScanner(Opcodes.ASM9, clazz);

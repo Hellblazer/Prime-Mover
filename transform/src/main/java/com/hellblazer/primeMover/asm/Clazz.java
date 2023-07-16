@@ -32,21 +32,24 @@ import org.objectweb.asm.Type;
  * @author hal.hildebrand
  */
 public class Clazz {
-    private final URL  file;
-    private final Type superClass;
-    private final Type type;
+    protected final URL            file;
+    protected final TransformModel model;
+    protected final Type           superClass;
+    protected final Type           type;
 
     public Clazz(Clazz clazz) {
-        this(clazz.superClass, clazz.type, clazz.file);
+        this(clazz.model, clazz.superClass, clazz.type, clazz.file);
     }
 
-    public Clazz(Type superClass, Type type, URL file) {
+    public Clazz(TransformModel model, Type superClass, Type type, URL file) {
         this.superClass = superClass;
         this.type = type;
         this.file = file;
+        this.model = model;
     }
 
-    public Clazz asEntity(Set<Type> eventInterfaces, Set<Type> blocking, Set<Type> events, Set<Type> nonEvents) {
+    public Clazz asEntity(Set<Type> eventInterfaces, Set<MethodDescriptor> blocking, Set<MethodDescriptor> events,
+                          Set<MethodDescriptor> nonEvents) {
         return new EntityClass(this, eventInterfaces, blocking, events, nonEvents);
     }
 

@@ -27,7 +27,7 @@
     <dependencies>
         <dependency>
             <groupId>com.hellblazer.primeMover</groupId>
-            <artifactId>runtime</artifactId> 
+            <artifactId>runtime</artifactId>
         </dependency>
         <dependency>
             <groupId>org.soot-oss</groupId>
@@ -38,8 +38,8 @@
             <artifactId>asm</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.reflections</groupId>
-            <artifactId>reflections</artifactId>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm-analysis</artifactId>
         </dependency>
 
         <!-- Test Only Dependencies Below This Line-->

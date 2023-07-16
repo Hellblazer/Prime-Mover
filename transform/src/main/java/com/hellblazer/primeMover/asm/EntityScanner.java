@@ -58,15 +58,15 @@ public class EntityScanner extends ClassVisitor {
 
     public class EntityMethodScanner extends MethodVisitor {
 
-        private final Type method;
+        private final MethodDescriptor method;
 
-        public EntityMethodScanner(int api, MethodVisitor methodVisitor, Type method) {
-            super(api, methodVisitor);
+        public EntityMethodScanner(int api, MethodDescriptor method) {
+            super(api);
             this.method = method;
         }
 
-        public EntityMethodScanner(int api, Type method) {
-            super(api);
+        public EntityMethodScanner(int api, MethodVisitor methodVisitor, MethodDescriptor method) {
+            super(api, methodVisitor);
             this.method = method;
         }
 
@@ -78,7 +78,7 @@ public class EntityScanner extends ClassVisitor {
             final var type = Type.getType(descriptor);
 
             if (EVENT_ANNOTATION_TYPE.equals(type)) {
-                events.add(type);
+                events.add(method);
             } else if (NON_EVENT_ANNOTATION_TYPE.equals(type)) {
                 nonEvents.add(method);
             } else if (BLOCKING_ANNOTATION_TYPE.equals(type)) {
@@ -93,12 +93,12 @@ public class EntityScanner extends ClassVisitor {
     private static final Type EVENT_ANNOTATION_TYPE     = Type.getType(Event.class);
     private static final Type NON_EVENT_ANNOTATION_TYPE = Type.getType(NonEvent.class);
 
-    private final Clazz     base;
-    private final Set<Type> blocking        = new OpenSet<>();
-    private final Set<Type> eventInterfaces = new OpenSet<>();
-    private final Set<Type> events          = new OpenSet<>();
-    private boolean         isEntity        = false;
-    private final Set<Type> nonEvents       = new OpenSet<>();
+    private final Clazz                 base;
+    private final Set<MethodDescriptor> blocking        = new OpenSet<>();
+    private final Set<Type>             eventInterfaces = new OpenSet<>();
+    private final Set<MethodDescriptor> events          = new OpenSet<>();
+    private boolean                     isEntity        = false;
+    private final Set<MethodDescriptor> nonEvents       = new OpenSet<>();
 
     public EntityScanner(int api, ClassVisitor classVisitor, Clazz clazz) {
         super(api, classVisitor);
@@ -129,7 +129,7 @@ public class EntityScanner extends ClassVisitor {
     @Override
     public MethodVisitor visitMethod(int access, String name, String descriptor, String signature,
                                      String[] exceptions) {
-        var method = Type.getMethodType(descriptor);
+        var method = new MethodDescriptor(access, name, descriptor, exceptions, signature);
         return new EntityMethodScanner(Opcodes.ASM9, method);
     }
 }

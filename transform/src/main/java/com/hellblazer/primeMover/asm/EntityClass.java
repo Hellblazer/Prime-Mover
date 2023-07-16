@@ -27,29 +27,34 @@ import org.objectweb.asm.Type;
  */
 public class EntityClass extends Clazz {
 
-    final Set<Type> blocking;
-    final Set<Type> eventInterfaces;
-    final Set<Type> events;
-    final Set<Type> nonEvents;
+    final Set<MethodDescriptor> blocking;
+    final Set<Type>             eventInterfaces;
+    final Set<MethodDescriptor> events;
+    final Set<MethodDescriptor> nonEvents;
 
-    public EntityClass(Clazz clazz, Set<Type> eventInterfaces, Set<Type> blocking, Set<Type> events,
-                       Set<Type> nonEvents) {
+    public EntityClass(Clazz clazz, Set<Type> eventInterfaces, Set<MethodDescriptor> blocking,
+                       Set<MethodDescriptor> events, Set<MethodDescriptor> nonEvents) {
         super(clazz);
         this.eventInterfaces = eventInterfaces;
         this.blocking = blocking;
         this.events = events;
         this.nonEvents = nonEvents;
+        model.transform(this);
     }
 
-    public void addBlocking(Type method) {
+    public void addBlocking(MethodDescriptor method) {
         blocking.add(method);
     }
 
-    public void addEvent(Type method) {
+    public void addEvent(MethodDescriptor method) {
         events.add(method);
     }
 
-    public void addNonEvent(Type method) {
+    public void addEventInterface(Type iFace) {
+        eventInterfaces.add(iFace);
+    }
+
+    public void addNonEvent(MethodDescriptor method) {
         nonEvents.add(method);
     }
 

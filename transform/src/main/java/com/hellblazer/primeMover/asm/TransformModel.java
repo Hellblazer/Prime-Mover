@@ -47,11 +47,16 @@ public class TransformModel {
         return classes.computeIfAbsent(clazz, t -> lookup(t));
     }
 
+    void transform(EntityClass clazz) {
+        entities.add(clazz.getType());
+        classes.put(clazz.getType(), clazz);
+    }
+
     private Clazz lookup(Type t) {
-        var url = resources.findResource(t.getInternalName());
+        var url = resources.findResource(t.getInternalName() + ".class");
         try (var fis = url.openStream()) {
             var reader = new ClassReader(fis);
-            return new Clazz(Type.getObjectType(reader.getSuperName()), t, url);
+            return new Clazz(this, Type.getObjectType(reader.getSuperName()), t, url);
         } catch (IOException e) {
             throw new IllegalStateException("Class files are always accessible!  Cannot open class: %s stream for: %s".formatted(t,
                                                                                                                                  url.toExternalForm()),
