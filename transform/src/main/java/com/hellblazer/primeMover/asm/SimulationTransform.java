@@ -18,11 +18,11 @@
  */
 package com.hellblazer.primeMover.asm;
 
-import com.hellblazer.primeMover.Blocking;
-import com.hellblazer.primeMover.Entity;
-import com.hellblazer.primeMover.Event;
 import com.hellblazer.primeMover.Kronos;
-import com.hellblazer.primeMover.NonEvent;
+import com.hellblazer.primeMover.annotations.Blocking;
+import com.hellblazer.primeMover.annotations.Entity;
+import com.hellblazer.primeMover.annotations.Event;
+import com.hellblazer.primeMover.annotations.NonEvent;
 import com.hellblazer.primeMover.runtime.Kairos;
 
 import io.github.classgraph.ClassGraph;
@@ -54,14 +54,6 @@ public class SimulationTransform {
     }
 
     public ClassInfoList findAllEntities() {
-        var allEntities = new ClassInfoList();
-
-        final var explicitEntities = scan.getClassesWithAnnotation(Entity.class.getCanonicalName());
-        allEntities = allEntities.union(explicitEntities);
-        for (var ci : explicitEntities) {
-            allEntities = allEntities.union(ci.getSubclasses());
-        }
-        return allEntities;
+        return scan.getClassesWithAnnotation(Entity.class.getCanonicalName());
     }
-
 }

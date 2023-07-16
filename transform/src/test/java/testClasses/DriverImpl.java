@@ -21,8 +21,8 @@ package testClasses;
 
 import static com.hellblazer.primeMover.Kronos.sleep;
 
-import com.hellblazer.primeMover.Entity;
 import com.hellblazer.primeMover.Kronos;
+import com.hellblazer.primeMover.annotations.Entity;
 
 /*
  * A trampoline for tests which lives in the transformed class space of the

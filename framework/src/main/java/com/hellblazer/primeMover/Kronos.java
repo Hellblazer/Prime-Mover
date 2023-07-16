@@ -21,6 +21,8 @@ package com.hellblazer.primeMover;
 
 import java.lang.reflect.Method;
 
+import com.hellblazer.primeMover.annotations.Blocking;
+
 /**
  * The static API of the simulation kernel as exposed to compilation. In the
  * execution of the simulation, usages of these static methods will be replaced

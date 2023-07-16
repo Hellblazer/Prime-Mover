@@ -424,13 +424,13 @@ public class EntityGenerator {
 
     private SootMethod findMethod(String subSignature) {
         SootClass current = base;
-        while (base != null) {
+        while (current != null) {
             if (current.declaresMethod(subSignature)) {
                 return current.getMethod(subSignature);
             }
             current = current.hasSuperclass() ? current.getSuperclass() : null;
         }
-        throw new IllegalStateException(String.format("Cannot find concrete method %s in %s", subSignature, base));
+        return null;
     }
 
     private int gatherAllMethods(Set<String> mapped, int index) {
@@ -453,7 +453,7 @@ public class EntityGenerator {
             String subSignature = method.getSubSignature();
             if (!mapped.contains(subSignature) && !isMarkedNonEvent(method)) {
                 SootMethod concrete = findMethod(subSignature);
-                if (!isMarkedNonEvent(concrete)) {
+                if (concrete != null && !isMarkedNonEvent(concrete)) {
                     invokeMap.put(concrete, index);
                     inverseInvokeMap.put(index++, concrete);
                     mapped.add(subSignature);

@@ -17,9 +17,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.hellblazer.primeMover;
+package com.hellblazer.primeMover.annotations;
 
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
@@ -28,18 +29,18 @@ import java.lang.annotation.Target;
  * 
  * Marks a class as a simulation Entity. A simulation entity's events are
  * defined by the interface classes that compose the Entity annotation's value.
- * If no interface classes are provided, then all public methods of the class,
- * including super class methods, excluding the methods from Object, are
- * considered to be simulation events.
+ * If no interface classes are provided, the default of all public methods of
+ * the class are considered to be simulation events.
  * 
  * @author <a href="mailto:hal.hildebrand@gmail.com">Hal Hildebrand</a>
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
+@Inherited
 public @interface Entity {
     /**
-     * The interface classes which determine which methods on the simulation
-     * entity represent simulation events.
+     * The interface classes which determine which methods on the simulation entity
+     * represent simulation events.
      * 
      * @return
      */

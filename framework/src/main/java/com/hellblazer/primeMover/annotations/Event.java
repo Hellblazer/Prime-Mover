@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010 Hal Hildebrand. All rights reserved.
+ * Copyright (C) 2008 Hal Hildebrand. All rights reserved.
  * 
  * This file is part of the Prime Mover Event Driven Simulation Framework.
  * 
@@ -17,14 +17,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.hellblazer.primeMover;
+package com.hellblazer.primeMover.annotations;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * An internal class which indicates that all public methods of a class - up to
- * Object - should be used as simulation events.
+ * Marks a method as a event
  * 
  * @author <a href="mailto:hal.hildebrand@gmail.com">Hal Hildebrand</a>
+ * 
  */
-public interface AllMethodsMarker {
-
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+@Inherited
+public @interface Event {
 }

@@ -26,11 +26,11 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
-import com.hellblazer.primeMover.AllMethodsMarker;
-import com.hellblazer.primeMover.Blocking;
-import com.hellblazer.primeMover.Entity;
 import com.hellblazer.primeMover.Event;
-import com.hellblazer.primeMover.NonEvent;
+import com.hellblazer.primeMover.annotations.AllMethodsMarker;
+import com.hellblazer.primeMover.annotations.Blocking;
+import com.hellblazer.primeMover.annotations.Entity;
+import com.hellblazer.primeMover.annotations.NonEvent;
 import com.hellblazer.primeMover.soot.util.OpenAddressingSet.OpenSet;
 
 /**

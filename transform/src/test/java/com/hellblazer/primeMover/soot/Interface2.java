@@ -1,8 +1,8 @@
 package com.hellblazer.primeMover.soot;
 
-import testClasses.Entity2;
+import com.hellblazer.primeMover.annotations.Blocking;
 
-import com.hellblazer.primeMover.Blocking;
+import testClasses.Entity2;
 
 public interface Interface2 {
 

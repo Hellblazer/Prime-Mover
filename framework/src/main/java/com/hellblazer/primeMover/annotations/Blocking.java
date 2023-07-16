@@ -17,30 +17,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package testClasses;
+package com.hellblazer.primeMover.annotations;
 
-import com.hellblazer.primeMover.Kronos;
-import com.hellblazer.primeMover.annotations.Entity;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
+ * Marks an event as a blocking event
  * 
  * @author <a href="mailto:hal.hildebrand@gmail.com">Hal Hildebrand</a>
  * 
  */
-
-@Entity({ Threaded.class })
-public class ThreadedImpl implements Threaded {
-    /*
-     * (non-Javadoc)
-     *
-     * @see testClasses.Threaded#process(int)
-     */
-    @Override
-    public void process(int id) {
-        for (int i = 1; i <= 5; i++) {
-            System.out.println("Sleeping at: " + Kronos.currentTime() + " thread=" + id + ", i=" + i);
-            Kronos.blockingSleep(1);
-            System.out.println("Resuming from sleep: " + Kronos.currentTime() + " thread=" + id + ", i=" + i);
-        }
-    }
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+@Inherited
+public @interface Blocking {
 }

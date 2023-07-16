@@ -19,7 +19,7 @@
 
 package testClasses;
 
-import com.hellblazer.primeMover.Blocking;
+import com.hellblazer.primeMover.annotations.Blocking;
 
 /**
  * 

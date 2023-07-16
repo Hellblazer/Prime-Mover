@@ -18,15 +18,9 @@
  */
 package com.hellblazer.primeMover.asm;
 
-import java.util.List;
-
 import org.junit.jupiter.api.Test;
 
-import io.github.classgraph.AnnotationInfo;
-import io.github.classgraph.AnnotationParameterValue;
 import io.github.classgraph.ClassGraph;
-import io.github.classgraph.ClassInfo;
-import io.github.classgraph.ScanResult;
 
 /**
  * @author hal.hildebrand
@@ -35,22 +29,8 @@ public class SimulationTransformTest {
 
     @Test
     public void smokin() throws Exception {
-        String pkg = "com.hellblazer.primeMover";
-        String routeAnnotation = pkg + ".Entity";
-        try (ScanResult scanResult = new ClassGraph().verbose() // Log to stderr
-                                                     .enableAllInfo() // Scan classes, methods, fields, annotations
-                                                     .acceptPackages() // Scan com.xyz and subpackages
-                                                                       // (omit to scan
-                                                     // all packages)
-                                                     .scan()) { // Start the scan
-            for (ClassInfo routeClassInfo : scanResult.getClassesWithAnnotation(routeAnnotation)) {
-                AnnotationInfo routeAnnotationInfo = routeClassInfo.getAnnotationInfo(routeAnnotation);
-                List<AnnotationParameterValue> routeParamVals = routeAnnotationInfo.getParameterValues();
-                // @com.xyz.Route has one required parameter
-                final var value = routeParamVals.get(0).getValue();
-                var iFaces = (Object[]) value;
-                System.out.println(routeClassInfo.getName() + " is annotated with " + iFaces[0]);
-            }
-        }
+        var transform = new SimulationTransform(new ClassGraph().verbose()
+                                                                .acceptPackages("testClasses", "com.hellblazer"));
+        transform.findAllEntities().forEach(ci -> System.out.println(ci.getSimpleName()));
     }
 }

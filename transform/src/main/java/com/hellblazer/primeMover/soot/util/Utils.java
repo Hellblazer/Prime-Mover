@@ -12,6 +12,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import com.hellblazer.primeMover.annotations.Blocking;
+import com.hellblazer.primeMover.annotations.Entity;
+import com.hellblazer.primeMover.annotations.NonEvent;
+import com.hellblazer.primeMover.annotations.Transformed;
+
 import soot.Scene;
 import soot.SootClass;
 import soot.SootMethod;
@@ -27,19 +32,21 @@ import soot.tagkit.Tag;
 import soot.tagkit.VisibilityAnnotationTag;
 
 public class Utils {
-    private static final String BLOCKING_CLASS_BINARY_NAME = "Lcom/hellblazer/primeMover/Blocking;";
+    private static final String BLOCKING_CLASS_BINARY_NAME = "L%s;".formatted(Blocking.class.getCanonicalName()
+                                                                                            .replace('.', '/'));
 
-    private static final String CONTINUABLE_CLASS_BINARY_NAME = "Lcom/hellblazer/primeMover/Continuable;";
-
-    private static final String ENTITY_CLASS_BINARY_NAME = "Lcom/hellblazer/primeMover/Entity;";
+    private static final String ENTITY_CLASS_BINARY_NAME = "L%s;".formatted(Entity.class.getCanonicalName()
+                                                                                        .replace('.', '/'));
 
     private static SimpleDateFormat ISO8601FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
 
     private static Logger log = Logger.getLogger(Utils.class.getCanonicalName());
 
-    private static final String NON_EVENT_CLASS_BINARY_NAME = "Lcom/hellblazer/primeMover/NonEvent;";
+    private static final String NON_EVENT_CLASS_BINARY_NAME = "L%s;".formatted(NonEvent.class.getCanonicalName()
+                                                                                             .replace('.', '/'));
 
-    private static final String TRANSFORMED_CLASS_BINARY_NAME = "Lcom/hellblazer/primeMover/Transformed;";
+    private static final String TRANSFORMED_CLASS_BINARY_NAME = "L%s;".formatted(Transformed.class.getCanonicalName()
+                                                                                                  .replace('.', '/'));
 
     public static Collection<SootMethod> gatherImplementationsOf(SootMethod method, SootClass base) {
         ArrayList<SootMethod> implementations = new ArrayList<SootMethod>();
@@ -97,22 +104,6 @@ public class Utils {
         return false;
     }
 
-    public static boolean isMarkedContinuable(SootMethod method) {
-        for (Tag tag : method.getTags()) {
-            if (tag instanceof VisibilityAnnotationTag) {
-                VisibilityAnnotationTag vTag = (VisibilityAnnotationTag) tag;
-                if (vTag.getVisibility() == AnnotationConstants.RUNTIME_VISIBLE) {
-                    for (AnnotationTag aTag : vTag.getAnnotations()) {
-                        if (aTag.getType().equals(CONTINUABLE_CLASS_BINARY_NAME)) {
-                            return true;
-                        }
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
     public static boolean isMarkedNonEvent(SootMethod method) {
         for (Tag tag : method.getTags()) {
             if (tag instanceof VisibilityAnnotationTag) {
@@ -133,13 +124,6 @@ public class Utils {
     public static void markBlocking(SootMethod method) {
         AnnotationGenerator.v()
                            .annotate(method, BLOCKING_CLASS_BINARY_NAME, AnnotationConstants.RUNTIME_VISIBLE,
-                                     Collections.EMPTY_LIST);
-    }
-
-    @SuppressWarnings("unchecked")
-    public static void markContinuable(SootMethod method) {
-        AnnotationGenerator.v()
-                           .annotate(method, CONTINUABLE_CLASS_BINARY_NAME, AnnotationConstants.RUNTIME_VISIBLE,
                                      Collections.EMPTY_LIST);
     }
 
@@ -167,23 +151,6 @@ public class Utils {
                                                                                                    's', "date")));
         AnnotationGenerator.v()
                            .annotate(host, TRANSFORMED_CLASS_BINARY_NAME, AnnotationConstants.RUNTIME_VISIBLE, elems);
-    }
-
-    public static boolean willContinue(SootMethod method) {
-        for (Tag tag : method.getTags()) {
-            if (tag instanceof VisibilityAnnotationTag) {
-                VisibilityAnnotationTag vTag = (VisibilityAnnotationTag) tag;
-                if (vTag.getVisibility() == AnnotationConstants.RUNTIME_VISIBLE) {
-                    for (AnnotationTag aTag : vTag.getAnnotations()) {
-                        String type = aTag.getType();
-                        if (type.equals(CONTINUABLE_CLASS_BINARY_NAME) || type.equals(BLOCKING_CLASS_BINARY_NAME)) {
-                            return true;
-                        }
-                    }
-                }
-            }
-        }
-        return false;
     }
 
     static boolean inferEntity(SootClass base) {

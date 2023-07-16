@@ -1,10 +1,10 @@
 /**
- * Copyright (C) 2008 Hal Hildebrand. All rights reserved.
+ * Copyright (C) 2023 Hal Hildebrand. All rights reserved.
  * 
  * This file is part of the Prime Mover Event Driven Simulation Framework.
  * 
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as 
+ * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  * 
@@ -16,21 +16,16 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+package com.hellblazer.primeMover.soot;
 
-package com.hellblazer.primeMover;
+import java.util.Map;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import com.hellblazer.primeMover.annotations.Entity;
 
 /**
- * Marks an event as a blocking event
- * 
- * @author <a href="mailto:hal.hildebrand@gmail.com">Hal Hildebrand</a>
- * 
+ * @author hal.hildebrand
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
-public @interface Blocking {
+@Entity(Map.class)
+public class OverridingEntity extends EntityThroughSuperclass {
+
 }

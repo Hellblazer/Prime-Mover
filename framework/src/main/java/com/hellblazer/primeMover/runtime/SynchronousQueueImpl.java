@@ -25,9 +25,9 @@ import java.util.Deque;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import com.hellblazer.primeMover.Blocking;
-import com.hellblazer.primeMover.Entity;
 import com.hellblazer.primeMover.SynchronousQueue;
+import com.hellblazer.primeMover.annotations.Blocking;
+import com.hellblazer.primeMover.annotations.Entity;
 
 /**
  * The implementation of the CSP channel.

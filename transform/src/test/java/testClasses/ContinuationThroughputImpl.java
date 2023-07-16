@@ -22,8 +22,8 @@ package testClasses;
 import static com.hellblazer.primeMover.Kronos.currentTime;
 import static com.hellblazer.primeMover.Kronos.sleep;
 
-import com.hellblazer.primeMover.Blocking;
-import com.hellblazer.primeMover.Entity;
+import com.hellblazer.primeMover.annotations.Blocking;
+import com.hellblazer.primeMover.annotations.Entity;
 
 /**
  * 

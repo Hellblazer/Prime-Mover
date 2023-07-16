@@ -24,9 +24,9 @@ import java.util.UUID;
 import testClasses.Entity2;
 import testClasses.Entity2Impl;
 
-import com.hellblazer.primeMover.Blocking;
-import com.hellblazer.primeMover.Entity;
-import com.hellblazer.primeMover.runtime.Transformed;
+import com.hellblazer.primeMover.annotations.Blocking;
+import com.hellblazer.primeMover.annotations.Entity;
+import com.hellblazer.primeMover.annotations.Transformed;
 
 /**
  * A prototypical simulation Entity to exercise the transformation framework.

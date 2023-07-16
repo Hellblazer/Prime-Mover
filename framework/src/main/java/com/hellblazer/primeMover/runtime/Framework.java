@@ -19,7 +19,7 @@
 
 package com.hellblazer.primeMover.runtime;
 
-import com.hellblazer.primeMover.Blocking;
+import com.hellblazer.primeMover.annotations.Blocking;
 
 /**
  * Static core utilities representing the simulation framework. The framework
