@@ -1,8 +1,8 @@
 /**
- * Copyright (C) 2010 Hal Hildebrand. All rights reserved. 
+ * Copyright (C) 2010 Hal Hildebrand. All rights reserved.
  * 
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as 
+ * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  * 
@@ -26,13 +26,34 @@ import java.util.NoSuchElementException;
  * 
  */
 public abstract class OpenAddressingSet<T> extends AbstractSet<T> {
+    public static class OpenSet<T> extends OpenAddressingSet<T> {
 
-    private static final Object DELETED = new Object();
-    private static final int PRIME = -1640531527;
-    private static final float THRESHOLD = 0.75f;
-    int load;
-    int size = 0;
-    Object table[];
+        public OpenSet() {
+            super();
+        }
+
+        public OpenSet(int initialCapacity) {
+            super(initialCapacity);
+        }
+
+        @Override
+        protected boolean equals(Object key, Object ob) {
+            return key.equals(ob);
+        }
+
+        @Override
+        protected int getHash(Object key) {
+            return key.hashCode();
+        }
+
+    }
+
+    private static final Object DELETED   = new Object();
+    private static final int    PRIME     = -1640531527;
+    private static final float  THRESHOLD = 0.75f;
+    int                         load;
+    int                         size      = 0;
+    Object                      table[];
 
     public OpenAddressingSet() {
         this(4);
@@ -119,7 +140,7 @@ public abstract class OpenAddressingSet<T> extends AbstractSet<T> {
             }
 
             @SuppressWarnings("unchecked")
-			@Override
+            @Override
             public T next() {
                 while (next < table.length) {
                     if (table[next] != null && table[next] != DELETED) {
@@ -132,8 +153,7 @@ public abstract class OpenAddressingSet<T> extends AbstractSet<T> {
 
             @Override
             public void remove() {
-                throw new UnsupportedOperationException(
-                                                        "Remove is not supported");
+                throw new UnsupportedOperationException("Remove is not supported");
             }
         };
     }
@@ -165,6 +185,24 @@ public abstract class OpenAddressingSet<T> extends AbstractSet<T> {
     @Override
     public final int size() {
         return size;
+    }
+
+    abstract protected boolean equals(Object key, Object ob);
+
+    abstract protected int getHash(Object key);
+
+    protected void init(int initialCapacity) {
+        if (initialCapacity < 4) {
+            initialCapacity = 4;
+        }
+        int cap = 4;
+        load = 2;
+        while (cap < initialCapacity) {
+            load += 1;
+            cap += cap;
+        }
+        table = new Object[cap];
+        load = 32 - load;
     }
 
     private boolean insert(Object key) {
@@ -199,24 +237,6 @@ public abstract class OpenAddressingSet<T> extends AbstractSet<T> {
                 insert(ob);
             }
         }
-    }
-
-    abstract protected boolean equals(Object key, Object ob);
-
-    abstract protected int getHash(Object key);
-
-    protected void init(int initialCapacity) {
-        if (initialCapacity < 4) {
-            initialCapacity = 4;
-        }
-        int cap = 4;
-        load = 2;
-        while (cap < initialCapacity) {
-            load += 1;
-            cap += cap;
-        }
-        table = new Object[cap];
-        load = 32 - load;
     }
 
 }
