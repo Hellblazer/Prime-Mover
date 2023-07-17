@@ -35,6 +35,7 @@ public class SimulationTransformTest {
             System.out.println();
             System.out.println();
             transform.generate();
+            transform.toString();
         }
     }
 }
