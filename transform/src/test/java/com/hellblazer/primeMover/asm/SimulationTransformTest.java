@@ -29,8 +29,12 @@ public class SimulationTransformTest {
 
     @Test
     public void smokin() throws Exception {
-        var transform = new SimulationTransform(new ClassGraph().verbose()
-                                                                .acceptPackages("testClasses", "com.hellblazer"));
-        transform.findAllEntities().forEach(ci -> System.out.println(ci.getSimpleName()));
+        try (var transform = new SimulationTransform(new ClassGraph().verbose()
+                                                                     .acceptPackages("testClasses",
+                                                                                     "com.hellblazer"))) {
+            System.out.println();
+            System.out.println();
+            transform.generate();
+        }
     }
 }

@@ -28,6 +28,8 @@ import java.util.NoSuchElementException;
 import com.hellblazer.primeMover.SynchronousQueue;
 import com.hellblazer.primeMover.annotations.Blocking;
 import com.hellblazer.primeMover.annotations.Entity;
+import com.hellblazer.primeMover.annotations.NonEvent;
+import com.hellblazer.primeMover.annotations.Transformed;
 
 /**
  * The implementation of the CSP channel.
@@ -37,6 +39,7 @@ import com.hellblazer.primeMover.annotations.Entity;
  * @param <E> - the type of the contents
  */
 @Entity
+@Transformed(comment = "Hand written", date = "yesterday", value = "Hand")
 public class SynchronousQueueImpl<E> implements SynchronousQueue<E> {
 
     /**
@@ -45,6 +48,7 @@ public class SynchronousQueueImpl<E> implements SynchronousQueue<E> {
      * @author <a href="mailto:hal.hildebrand@gmail.com">Hal Hildebrand</a>
      * 
      */
+    @Transformed(comment = "Hand written", date = "yesterday", value = "Hand")
     public static class entity<E> extends SynchronousQueueImpl<E> implements EntityReference {
         private final static int OFFER_TIMEOUT = 0;
         private final static int POLL_TIMEOUT  = 1;
@@ -83,6 +87,7 @@ public class SynchronousQueueImpl<E> implements SynchronousQueue<E> {
         }
 
         @Override
+        @NonEvent
         public String __signatureFor(int event) {
             switch (event) {
             case OFFER_TIMEOUT:
