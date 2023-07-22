@@ -21,8 +21,6 @@ package com.hellblazer.primeMover.asm;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -33,7 +31,6 @@ import com.hellblazer.primeMover.annotations.Entity;
 import com.hellblazer.primeMover.annotations.Event;
 import com.hellblazer.primeMover.annotations.NonEvent;
 import com.hellblazer.primeMover.annotations.Transformed;
-import com.hellblazer.primeMover.runtime.Devi;
 import com.hellblazer.primeMover.runtime.Kairos;
 import com.hellblazer.primeMover.soot.util.OpenAddressingSet.OpenSet;
 
@@ -43,18 +40,11 @@ import io.github.classgraph.ClassInfo;
 import io.github.classgraph.ClassInfoList;
 import io.github.classgraph.ClassInfoList.ClassInfoFilter;
 import io.github.classgraph.ScanResult;
-import net.bytebuddy.ByteBuddy;
-import net.bytebuddy.description.modifier.Visibility;
-import net.bytebuddy.dynamic.ClassFileLocator;
-import net.bytebuddy.dynamic.DynamicType;
-import net.bytebuddy.dynamic.DynamicType.Unloaded;
-import net.bytebuddy.pool.TypePool;
 
 /**
  * @author hal.hildebrand
  */
 public class SimulationTransform implements Closeable {
-    private static final String CONTROLLER = "__controller";
 
     public static Set<ClassInfo> getEntityInterfaces(ClassInfo ci) {
         Set<ClassInfo> returned = Arrays.stream((Object[]) ci.getAnnotationInfo(Entity.class)
@@ -74,19 +64,16 @@ public class SimulationTransform implements Closeable {
         return returned;
     }
 
-    private final ClassInfo                allMethodsMarker;
-    private final ClassInfo                blockingAnnotation;
-    private final ClassInfoList            entities;
-    private final ClassInfo                entityAnnotation;
-    private final ClassInfo                eventAnnotation;
-    private final Map<String, Unloaded<?>> generated = new HashMap<>();
-    private final ClassInfo                kairos;
-    private final ClassInfo                kronos;
-    private final ClassInfo                nonEventAnnotation;
-    private final ScanResult               scan;
-    private final ClassInfo                transformedAnnotation;
-
-    private final TypePool typePool;
+    private final ClassInfo     allMethodsMarker;
+    private final ClassInfo     blockingAnnotation;
+    private final ClassInfoList entities;
+    private final ClassInfo     entityAnnotation;
+    private final ClassInfo     eventAnnotation;
+    private final ClassInfo     kairos;
+    private final ClassInfo     kronos;
+    private final ClassInfo     nonEventAnnotation;
+    private final ScanResult    scan;
+    private final ClassInfo     transformedAnnotation;
 
     public SimulationTransform(ClassGraph graph) {
         graph.enableAllInfo().enableInterClassDependencies().enableExternalClasses().ignoreMethodVisibility();
@@ -108,7 +95,6 @@ public class SimulationTransform implements Closeable {
         transformedAnnotation = scan.getClassInfo(Transformed.class.getCanonicalName());
         assert transformedAnnotation != null : "cannot find " + Transformed.class;
         entities = scan.getClassesWithAnnotation(Entity.class.getCanonicalName());
-        typePool = TypePool.Default.ofSystemLoader();
 
     }
 
@@ -188,12 +174,8 @@ public class SimulationTransform implements Closeable {
         System.out.println(entIFaces);
         System.out.println(events.stream().map(mi -> '\n' + mi.toString()).toList());
         System.out.println();
-        // TODO Auto-generated method stub
-
-        DynamicType.Builder<?> builder = new ByteBuddy().rebase(typePool.describe(ci.getName()).resolve(),
-                                                                ClassFileLocator.ForClassLoader.ofSystemLoader())
-                                                        .defineField(CONTROLLER, Devi.class, Visibility.PRIVATE);
-        generated.put(ci.getName(), builder.make(typePool));
+        var generator = new EntityGenerator(ci, events);
+        generator.renames(null);
     }
 
 }
