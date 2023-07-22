@@ -44,7 +44,9 @@ import io.github.classgraph.ClassInfoList;
 import io.github.classgraph.ClassInfoList.ClassInfoFilter;
 import io.github.classgraph.ScanResult;
 import net.bytebuddy.ByteBuddy;
+import net.bytebuddy.description.modifier.Visibility;
 import net.bytebuddy.dynamic.ClassFileLocator;
+import net.bytebuddy.dynamic.DynamicType;
 import net.bytebuddy.dynamic.DynamicType.Unloaded;
 import net.bytebuddy.pool.TypePool;
 
@@ -52,6 +54,8 @@ import net.bytebuddy.pool.TypePool;
  * @author hal.hildebrand
  */
 public class SimulationTransform implements Closeable {
+    private static final String CONTROLLER = "__controller";
+
     public static Set<ClassInfo> getEntityInterfaces(ClassInfo ci) {
         Set<ClassInfo> returned = Arrays.stream((Object[]) ci.getAnnotationInfo(Entity.class)
                                                              .getParameterValues(true)
@@ -81,7 +85,8 @@ public class SimulationTransform implements Closeable {
     private final ClassInfo                nonEventAnnotation;
     private final ScanResult               scan;
     private final ClassInfo                transformedAnnotation;
-    private final TypePool                 typePool;
+
+    private final TypePool typePool;
 
     public SimulationTransform(ClassGraph graph) {
         graph.enableAllInfo().enableInterClassDependencies().enableExternalClasses().ignoreMethodVisibility();
@@ -185,11 +190,10 @@ public class SimulationTransform implements Closeable {
         System.out.println();
         // TODO Auto-generated method stub
 
-        var builder = new ByteBuddy().redefine(typePool.describe(ci.getName()).resolve(),
-                                               ClassFileLocator.ForClassLoader.ofSystemLoader())
-                                     .defineField("controller", Devi.class);
-        events.forEach(event -> {
-        });
-        generated.put(ci.getName(), builder.make());
+        DynamicType.Builder<?> builder = new ByteBuddy().rebase(typePool.describe(ci.getName()).resolve(),
+                                                                ClassFileLocator.ForClassLoader.ofSystemLoader())
+                                                        .defineField(CONTROLLER, Devi.class, Visibility.PRIVATE);
+        generated.put(ci.getName(), builder.make(typePool));
     }
+
 }
