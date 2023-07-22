@@ -16,17 +16,18 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.hellblazer.primeMover.asm;
+package com.hellblazer.primeMover.asm.testClasses;
 
 import com.hellblazer.primeMover.annotations.Blocking;
+import com.hellblazer.primeMover.annotations.Entity;
 import com.hellblazer.primeMover.runtime.Devi;
 import com.hellblazer.primeMover.runtime.EntityReference;
 
 /**
  * @author hal.hildebrand
  */
-public class MyTest implements Foo, EntityReference {
-    private static final String[] __signatures = new String[] { "bar", "myMy", "someArgs" };
+@Entity(Foo.class)
+public class Template implements Foo, EntityReference {
 
     private Devi __controller;
 
@@ -55,7 +56,19 @@ public class MyTest implements Foo, EntityReference {
 
     @Override
     public String __signatureFor(int event) {
-        return __signatures[event];
+        switch (event) {
+        case 0: {
+            return "A";
+        }
+        case 1: {
+            return "B";
+        }
+        case 2: {
+            return "C";
+        }
+        default:
+            throw new IllegalArgumentException("Unknown event: " + event);
+        }
     }
 
     @Override

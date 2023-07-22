@@ -16,15 +16,30 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.hellblazer.primeMover.asm;
+package com.hellblazer.primeMover.asm.testClasses;
+
+import com.hellblazer.primeMover.annotations.Blocking;
+import com.hellblazer.primeMover.annotations.Entity;
 
 /**
  * @author hal.hildebrand
  */
-public interface Foo {
-    void bar();
+@Entity(Foo.class)
+public class MyTest implements Foo {
 
-    String myMy();
+    @Override
+    public void bar() {
+        System.out.println("Hello");
+    }
 
-    String[] someArgs(String arg1, Object arg2) throws RuntimeException;
+    @Override
+    @Blocking
+    public String myMy() {
+        return "bar";
+    }
+
+    @Override
+    public String[] someArgs(String arg1, Object arg2) throws RuntimeException {
+        return new String[] { "hello", "world" };
+    }
 }

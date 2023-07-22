@@ -21,6 +21,7 @@ package com.hellblazer.primeMover.asm;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -76,7 +77,13 @@ public class SimulationTransform implements Closeable {
     private final ClassInfo     transformedAnnotation;
 
     public SimulationTransform(ClassGraph graph) {
-        graph.enableAllInfo().enableInterClassDependencies().enableExternalClasses().ignoreMethodVisibility();
+        graph.acceptPackages(Entity.class.getPackageName())
+             .acceptPackages(Kairos.class.getPackageName())
+             .acceptPackages(Kronos.class.getPackageName())
+             .enableAllInfo()
+             .enableInterClassDependencies()
+             .enableExternalClasses()
+             .ignoreMethodVisibility();
         scan = graph.scan();
         entityAnnotation = scan.getClassInfo(Entity.class.getCanonicalName());
         assert entityAnnotation != null : "cannot find " + Entity.class;
@@ -105,14 +112,21 @@ public class SimulationTransform implements Closeable {
         }
     }
 
-    public void generate() {
-        entities.filter(new ClassInfoFilter() {
+    public EntityGenerator generatorOf(String classname) {
+        var entity = entities.get(classname);
+        if (entity == null) {
+            return null;
+        }
+        return generateEntity(entity);
+    }
 
+    public Map<ClassInfo, EntityGenerator> generators() {
+        return entities.filter(new ClassInfoFilter() {
             @Override
             public boolean accept(ClassInfo classInfo) {
                 return !classInfo.hasAnnotation(Transformed.class);
             }
-        }).forEach(ci -> generateEntity(ci));
+        }).stream().collect(Collectors.toMap(ci -> ci, ci -> generateEntity(ci)));
     }
 
     public ClassInfo getBlockingAnnotation() {
@@ -139,7 +153,7 @@ public class SimulationTransform implements Closeable {
         return nonEventAnnotation;
     }
 
-    private void generateEntity(ClassInfo ci) {
+    private EntityGenerator generateEntity(ClassInfo ci) {
         var entIFaces = getEntityInterfaces(ci);
         var allPublic = entIFaces.contains(allMethodsMarker);
         var interfaces = ci.getInterfaces();
@@ -174,8 +188,6 @@ public class SimulationTransform implements Closeable {
         System.out.println(entIFaces);
         System.out.println(events.stream().map(mi -> '\n' + mi.toString()).toList());
         System.out.println();
-        var generator = new EntityGenerator(ci, events);
-        generator.renames(null);
+        return new EntityGenerator(ci, events);
     }
-
 }

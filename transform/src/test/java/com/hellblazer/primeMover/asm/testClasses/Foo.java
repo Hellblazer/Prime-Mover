@@ -16,25 +16,15 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.hellblazer.primeMover.asm;
-
-import org.junit.jupiter.api.Test;
-
-import io.github.classgraph.ClassGraph;
+package com.hellblazer.primeMover.asm.testClasses;
 
 /**
  * @author hal.hildebrand
  */
-public class SimulationTransformTest {
+public interface Foo {
+    void bar();
 
-    @Test
-    public void smokin() throws Exception {
-        try (var transform = new SimulationTransform(new ClassGraph().verbose()
-                                                                     .acceptPackages("testClasses",
-                                                                                     "com.hellblazer"))) {
-            System.out.println();
-            System.out.println();
-            transform.generators();
-        }
-    }
+    String myMy();
+
+    String[] someArgs(String arg1, Object arg2) throws RuntimeException;
 }
