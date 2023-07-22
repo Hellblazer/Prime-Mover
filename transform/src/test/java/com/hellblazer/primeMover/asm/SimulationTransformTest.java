@@ -18,9 +18,15 @@
  */
 package com.hellblazer.primeMover.asm;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import java.util.Map;
+
 import org.junit.jupiter.api.Test;
 
 import io.github.classgraph.ClassGraph;
+import io.github.classgraph.ClassInfo;
 
 /**
  * @author hal.hildebrand
@@ -29,12 +35,13 @@ public class SimulationTransformTest {
 
     @Test
     public void smokin() throws Exception {
-        try (var transform = new SimulationTransform(new ClassGraph().verbose()
-                                                                     .acceptPackages("testClasses",
+        Map<ClassInfo, EntityGenerator> generators;
+        try (var transform = new SimulationTransform(new ClassGraph().acceptPackages("testClasses",
                                                                                      "com.hellblazer"))) {
-            System.out.println();
-            System.out.println();
-            transform.generators();
+            generators = transform.generators();
+
         }
+        assertNotNull(generators);
+        assertEquals(11, generators.size());
     }
 }

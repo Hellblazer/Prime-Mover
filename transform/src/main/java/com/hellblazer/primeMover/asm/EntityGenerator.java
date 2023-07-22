@@ -37,6 +37,7 @@ import org.objectweb.asm.commons.Method;
 import org.objectweb.asm.commons.SimpleRemapper;
 import org.objectweb.asm.commons.TableSwitchGenerator;
 
+import com.hellblazer.primeMover.runtime.Devi;
 import com.hellblazer.primeMover.runtime.EntityReference;
 import com.hellblazer.primeMover.soot.util.OpenAddressingSet.OpenSet;
 
@@ -47,17 +48,23 @@ import io.github.classgraph.MethodInfo;
  * @author hal.hildebrand
  */
 public class EntityGenerator {
+    private static final String BIND_TO                   = "__bindTo";
+    private static final String CONTROLLER                = "$controller";
     private static final String INVOKE                    = "__invoke";
     private static final String METHOD_REMAP_KEY_TEMPLATE = "%s.%s%s";
     private static final String REMAPPED_TEMPLATE         = "gen$%s";
     private static final String SIGNATURE_FOR             = "__signatureFor";
 
     private final ClassInfo                clazz;
+    private final String                   internalName;
     private final Map<Integer, MethodInfo> mapped;
     private final Set<MethodInfo>          remapped;
+    private final Type                     type;
 
     public EntityGenerator(ClassInfo clazz, Set<MethodInfo> events) {
         this.clazz = clazz;
+        type = Type.getObjectType(clazz.getName().replace('.', '/'));
+        internalName = clazz.getName().replace('.', '/');
         mapped = new HashMap<Integer, MethodInfo>();
         remapped = new OpenSet<MethodInfo>();
         var key = 0;
@@ -80,15 +87,19 @@ public class EntityGenerator {
             ClassWriter cw = new ClassWriter(classReader, 0);
             var renamer = renames(cw);
             classReader.accept(renamer, ClassReader.EXPAND_FRAMES);
-            renamer.visit(clazz.getClassfileMajorVersion(), clazz.getModifiers(), clazz.getName().replace('.', '/'),
+            renamer.visit(clazz.getClassfileMajorVersion(), clazz.getModifiers(), internalName,
                           clazz.getTypeSignatureStr(),
-                          clazz.getSuperclass() == null ? Object.class.getCanonicalName().replace('.', '/')
+                          clazz.getSuperclass() == null ? Type.getInternalName(Object.class)
                                                         : clazz.getSuperclass().getName().replace('.', '/'),
                           clazz.getInterfaces()
                                .stream()
                                .map(ci -> ci.getName().replace('.', '/'))
                                .toList()
                                .toArray(new String[0]));
+            var fieldVisitor = renamer.visitField(Opcodes.ACC_PRIVATE, CONTROLLER,
+                                                  Type.getType(Devi.class).getDescriptor(), null, null);
+            fieldVisitor.visitEnd();
+            generateBindTo(renamer);
             generateInvoke(renamer);
             generateSignatureFor(renamer);
             return cw;
@@ -97,6 +108,7 @@ public class EntityGenerator {
 
     private TableSwitchGenerator eventSwitch(GeneratorAdapter adapter) {
         return new TableSwitchGenerator() {
+
             @Override
             public void generateCase(int key, Label end) {
                 var mi = mapped.get(key);
@@ -112,9 +124,8 @@ public class EntityGenerator {
                     adapter.checkCast(Type.getObjectType(pi.getTypeDescriptor().toString().replace('.', '/')));
                 }
                 if (remapped.contains(mi)) {
-                    adapter.invokeVirtual(Type.getObjectType(clazz.getName().replace('.', '/')),
-                                          new Method(REMAPPED_TEMPLATE.formatted(mi.getName()),
-                                                     mi.getTypeDescriptorStr()));
+                    adapter.invokeVirtual(type, new Method(REMAPPED_TEMPLATE.formatted(mi.getName()),
+                                                           mi.getTypeDescriptorStr()));
                 } else {
                     adapter.invokeVirtual(Type.getType(clazz.getSuperclass().getName().replace('.', '/')),
                                           Method.getMethod(mi.toStringWithSimpleNames()));
@@ -130,6 +141,32 @@ public class EntityGenerator {
                 adapter.throwException(Type.getType(IllegalArgumentException.class), "unknown event key");
             }
         };
+    }
+
+    private void generateBindTo(ClassVisitor cv) {
+        Method m;
+        java.lang.reflect.Method method;
+        try {
+            method = EntityReference.class.getMethod(BIND_TO, Devi.class);
+        } catch (NoSuchMethodException | SecurityException e) {
+            throw new IllegalStateException("Cannot get '%s' method".formatted(BIND_TO), e);
+        }
+        try {
+            m = Method.getMethod(method);
+        } catch (SecurityException e) {
+            throw new IllegalStateException("Cannot get '%s' method".formatted(BIND_TO), e);
+        }
+        GeneratorAdapter mg = new GeneratorAdapter(Opcodes.ACC_PUBLIC, m, m.getDescriptor(),
+                                                   Arrays.stream(method.getExceptionTypes())
+                                                         .map(t -> Type.getType(t))
+                                                         .toList()
+                                                         .toArray(new Type[0]),
+                                                   cv);
+        mg.loadThis();
+        mg.loadArg(0);
+        mg.putField(type, CONTROLLER, Type.getType(Devi.class));
+        mg.returnValue();
+        mg.endMethod();
     }
 
     private void generateInvoke(ClassVisitor cv) {

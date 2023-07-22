@@ -36,8 +36,7 @@ public class EntityGeneratorTest {
 
     @Test
     public void smokin() throws Exception {
-        var transform = new SimulationTransform(new ClassGraph().verbose()
-                                                                .acceptPackages("com.hellblazer.primeMover.asm.testClasses"));
+        var transform = new SimulationTransform(new ClassGraph().acceptPackages("com.hellblazer.primeMover.asm.testClasses"));
 
         final var name = "com.hellblazer.primeMover.asm.testClasses.MyTest";
         EntityGenerator generator = transform.generatorOf(name);

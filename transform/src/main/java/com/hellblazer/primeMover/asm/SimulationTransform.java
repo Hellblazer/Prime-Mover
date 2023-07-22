@@ -184,10 +184,6 @@ public class SimulationTransform implements Closeable {
           .filter(m -> !m.hasAnnotation(NonEvent.class))
           .filter(m -> allPublic ? m.isPublic() : m.hasAnnotation(Blocking.class) || m.hasAnnotation(Event.class))
           .forEach(mi -> events.add(mi));
-        System.out.println(ci.getName());
-        System.out.println(entIFaces);
-        System.out.println(events.stream().map(mi -> '\n' + mi.toString()).toList());
-        System.out.println();
         return new EntityGenerator(ci, events);
     }
 }
