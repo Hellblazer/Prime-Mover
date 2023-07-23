@@ -22,6 +22,7 @@ import com.hellblazer.primeMover.annotations.Blocking;
 import com.hellblazer.primeMover.annotations.Entity;
 import com.hellblazer.primeMover.runtime.Devi;
 import com.hellblazer.primeMover.runtime.EntityReference;
+import com.hellblazer.primeMover.runtime.Framework;
 
 /**
  * @author hal.hildebrand
@@ -29,11 +30,15 @@ import com.hellblazer.primeMover.runtime.EntityReference;
 @Entity(Foo.class)
 public class Template implements Foo, EntityReference {
 
-    private Devi __controller;
+    private final Devi __controller = Framework.getController();
+
+    public Template(String foo) {
+        super();
+    }
 
     @Override
     public void __bindTo(Devi controller) {
-        this.__controller = controller;
+
     }
 
     @Override

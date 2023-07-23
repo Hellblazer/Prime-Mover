@@ -21,6 +21,7 @@ package com.hellblazer.primeMover.asm;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.PrintWriter;
+import java.nio.ByteBuffer;
 
 import org.junit.jupiter.api.Test;
 import org.objectweb.asm.ClassReader;
@@ -50,5 +51,12 @@ public class EntityGeneratorTest {
         ClassReader reader = new ClassReader(bytes);
         reader.accept(visitor, 0);
         reader.accept(checkAdapter, 0);
+        new ClassLoader(getClass().getClassLoader()) {
+            {
+                {
+                    defineClass(name, ByteBuffer.wrap(bytes), null);
+                }
+            }
+        };
     }
 }

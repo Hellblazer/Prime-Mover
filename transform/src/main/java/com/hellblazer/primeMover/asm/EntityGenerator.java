@@ -20,10 +20,12 @@ package com.hellblazer.primeMover.asm;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
@@ -38,20 +40,56 @@ import org.objectweb.asm.commons.MethodRemapper;
 import org.objectweb.asm.commons.SimpleRemapper;
 import org.objectweb.asm.commons.TableSwitchGenerator;
 
+import com.hellblazer.primeMover.annotations.Transformed;
 import com.hellblazer.primeMover.runtime.Devi;
 import com.hellblazer.primeMover.runtime.EntityReference;
+import com.hellblazer.primeMover.runtime.Framework;
 import com.hellblazer.primeMover.soot.util.OpenAddressingSet.OpenSet;
 
 import io.github.classgraph.ClassInfo;
 import io.github.classgraph.MethodInfo;
 
 /**
+ * Transforms Entity classes into PrimeMove entities.
+ *
  * @author hal.hildebrand
  */
 public class EntityGenerator {
+    private class InitTransformer extends ClassVisitor {
+
+        private static final String INIT = "<init>";
+
+        private InitTransformer(ClassVisitor cv) {
+            super(Opcodes.ASM9, cv);
+        }
+
+        @Override
+        public MethodVisitor visitMethod(int access, String name, String descriptor, String signature,
+                                         String[] exceptions) {
+            final var mv = super.visitMethod(access, name, descriptor, signature, exceptions);
+            if (name.equals(INIT)) {
+                return new MethodVisitor(Opcodes.ASM9, mv) {
+
+                    @Override
+                    public void visitCode() {
+                        visitVarInsn(Opcodes.ALOAD, 0);
+                        visitMethodInsn(Opcodes.INVOKESTATIC, Type.getType(Framework.class).getInternalName(),
+                                        GET_CONTROLLER, GET_CONTROLLER_METHOD.getDescriptor(), false);
+                        visitFieldInsn(Opcodes.PUTFIELD, internalName, CONTROLLER,
+                                       Type.getType(Devi.class).getDescriptor());
+                        super.visitCode();
+                    }
+                };
+            }
+            return mv;
+        }
+    }
+
     private static final String BIND_TO                   = "__bindTo";
     private static final Method BIND_TO_METHOD;
     private static final String CONTROLLER                = "$controller";
+    private static final String GET_CONTROLLER            = "getController";
+    private static final Method GET_CONTROLLER_METHOD;
     private static final String INVOKE                    = "__invoke";
     private static final String METHOD_REMAP_KEY_TEMPLATE = "%s.%s%s";
     private static final String POST_CONTINUING_EVENT     = "postContinuingEvent";
@@ -59,8 +97,8 @@ public class EntityGenerator {
     private static final String POST_EVENT                = "postEvent";
     private static final Method POST_EVENT_METHOD;
     private static final String REMAPPED_TEMPLATE         = "gen$%s";
-    private static final String SIGNATURE_FOR             = "__signatureFor";
 
+    private static final String SIGNATURE_FOR = "__signatureFor";
     static {
         java.lang.reflect.Method method;
         try {
@@ -93,6 +131,16 @@ public class EntityGenerator {
         } catch (SecurityException e) {
             throw new IllegalStateException("Cannot get '%s' method".formatted(POST_EVENT), e);
         }
+        try {
+            method = Framework.class.getMethod(GET_CONTROLLER);
+        } catch (NoSuchMethodException | SecurityException e) {
+            throw new IllegalStateException("Cannot get '%s' method".formatted(GET_CONTROLLER), e);
+        }
+        try {
+            GET_CONTROLLER_METHOD = Method.getMethod(method);
+        } catch (SecurityException e) {
+            throw new IllegalStateException("Cannot get '%s' method".formatted(GET_CONTROLLER), e);
+        }
     }
     private final ClassInfo                clazz;
     private final Set<Method>              events;
@@ -100,7 +148,8 @@ public class EntityGenerator {
     private final Map<Method, Integer>     inverse;
     private final Map<Integer, MethodInfo> mapped;
     private final Set<MethodInfo>          remapped;
-    private final Type                     type;
+
+    private final Type type;
 
     public EntityGenerator(ClassInfo clazz, Set<MethodInfo> events) {
         this.clazz = clazz;
@@ -130,19 +179,25 @@ public class EntityGenerator {
     public ClassWriter generate() throws MalformedURLException, IOException {
         try (var is = clazz.getResource().open()) {
             final var classReader = new ClassReader(is);
-            ClassWriter cw = new ClassWriter(classReader, 0);
+            ClassWriter cw = new ClassWriter(classReader, ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
             var transform = eventTransform(cw);
             classReader.accept(transform, ClassReader.EXPAND_FRAMES);
+            final var interfaces = clazz.getInterfaces()
+                                        .stream()
+                                        .map(ci -> ci.getName().replace('.', '/'))
+                                        .collect(Collectors.toList());
+            interfaces.add(Type.getType(EntityReference.class).getInternalName());
             transform.visit(clazz.getClassfileMajorVersion(), clazz.getModifiers(), internalName,
                             clazz.getTypeSignatureStr(),
                             clazz.getSuperclass() == null ? Type.getInternalName(Object.class)
                                                           : clazz.getSuperclass().getName().replace('.', '/'),
-                            clazz.getInterfaces()
-                                 .stream()
-                                 .map(ci -> ci.getName().replace('.', '/'))
-                                 .toList()
-                                 .toArray(new String[0]));
-            var fieldVisitor = transform.visitField(Opcodes.ACC_PRIVATE, CONTROLLER,
+                            interfaces.toArray(new String[0]));
+            var av = transform.visitAnnotation(Type.getType(Transformed.class).getDescriptor(), true);
+            av.visit("comment", "PrimeMover ASM Event Transform");
+            av.visit("date", Instant.now().toString());
+            av.visit("value", "PrimeMover ASM");
+            av.visitEnd();
+            var fieldVisitor = transform.visitField(Opcodes.ACC_PRIVATE | Opcodes.ACC_FINAL, CONTROLLER,
                                                     Type.getType(Devi.class).getDescriptor(), null, null);
             fieldVisitor.visitEnd();
             generateBindTo(transform);
@@ -174,7 +229,7 @@ public class EntityGenerator {
                                                            mi.getTypeDescriptorStr()));
                 } else {
                     adapter.invokeVirtual(Type.getType(clazz.getSuperclass().getName().replace('.', '/')),
-                                          Method.getMethod(mi.toStringWithSimpleNames()));
+                                          Method.getMethod(mi.toString()));
                 }
                 if (mi.getTypeSignature() == null) {
                     adapter.push((String) null);
@@ -189,7 +244,7 @@ public class EntityGenerator {
         };
     }
 
-    private ClassVisitor eventTransform(ClassVisitor cv) {
+    private InitTransformer eventTransform(ClassVisitor cv) {
         var mappings = new HashMap<String, String>();
         for (var mi : remapped) {
             mappings.put(METHOD_REMAP_KEY_TEMPLATE.formatted(clazz.getName().replace('.', '/'), mi.getName(),
@@ -197,7 +252,7 @@ public class EntityGenerator {
                          REMAPPED_TEMPLATE.formatted(mi.getName()));
         }
         var remapper = new SimpleRemapper(mappings);
-        return new ClassVisitor(Opcodes.ASM9, cv) {
+        return new InitTransformer(cv) {
 
             @Override
             public MethodVisitor visitMethod(int access, String name, String descriptor, String signature,
