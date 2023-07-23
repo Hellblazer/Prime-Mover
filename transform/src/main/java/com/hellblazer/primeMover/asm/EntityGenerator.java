@@ -18,6 +18,8 @@
  */
 package com.hellblazer.primeMover.asm;
 
+import static org.objectweb.asm.Opcodes.V1_1;
+
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.time.Instant;
@@ -56,7 +58,6 @@ import io.github.classgraph.MethodInfo;
  * @author hal.hildebrand
  */
 public class EntityGenerator {
-
     private class InitVisitor extends AdviceAdapter {
 
         protected InitVisitor(int api, MethodVisitor methodVisitor, int access, String name, String descriptor) {
@@ -79,15 +80,33 @@ public class EntityGenerator {
 
     }
 
+    private static class MergeGuard extends ClassVisitor {
+
+        public MergeGuard(int api) {
+            super(api);
+        }
+
+        public MergeGuard(int api, ClassVisitor classVisitor) {
+            super(api, classVisitor);
+        }
+
+        @Override
+        public void visit(int version, int access, String name, String signature, String superName,
+                          String[] interfaces) {
+        }
+
+    }
+
     private static final String BIND_TO                   = "__bindTo";
     private static final Method BIND_TO_METHOD;
-    private static final String CONTROLLER                = "__controller";
+    private static final String CONTROLLER                = "$controller";
     private static final String GET_CONTROLLER            = "getController";
     private static final Method GET_CONTROLLER_METHOD;
     private static final Object INIT                      = "<init>";
     private static final String INVOKE                    = "__invoke";
     private static final Method INVOKE_METHOD;
     private static final String METHOD_REMAP_KEY_TEMPLATE = "%s.%s%s";
+    private static final Type   OBJECT_TYPE               = Type.getType(Object.class);
     private static final String POST_CONTINUING_EVENT     = "postContinuingEvent";
     private static final Method POST_CONTINUING_EVENT_METHOD;
     private static final String POST_EVENT                = "postEvent";
@@ -95,6 +114,7 @@ public class EntityGenerator {
     private static final String REMAPPED_TEMPLATE         = "gen$%s";
     private static final String SIGNATURE_FOR             = "__signatureFor";
     private static final Method SIGNATURE_FOR_METHOD;
+
     static {
         java.lang.reflect.Method method;
         try {
@@ -158,14 +178,14 @@ public class EntityGenerator {
             throw new IllegalStateException("Cannot get '%s' method".formatted(INVOKE), e);
         }
     }
+
     private final ClassInfo                clazz;
     private final Set<Method>              events;
     private final String                   internalName;
     private final Map<Method, Integer>     inverse;
     private final Map<Integer, MethodInfo> mapped;
     private final Set<MethodInfo>          remapped;
-
-    private final Type type;
+    private final Type                     type;
 
     public EntityGenerator(ClassInfo clazz, Set<MethodInfo> events) {
         this.clazz = clazz;
@@ -193,9 +213,29 @@ public class EntityGenerator {
     }
 
     public ClassWriter generate() throws MalformedURLException, IOException {
+        final var transformed = transformed();
+        return transformed;
+    }
+
+    protected ClassWriter generated() throws IOException {
+
+        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
+        cw.visit(V1_1, clazz.getModifiers(), internalName, clazz.getTypeSignatureStr(),
+                 clazz.getSuperclass() == null ? Type.getInternalName(Object.class)
+                                               : clazz.getSuperclass().getName().replace('.', '/'),
+                 null);
+//        generateBindTo(cw);
+        generateInvoke(cw);
+//        generateSignatureFor(cw);
+        cw.visitEnd();
+        return cw;
+
+    }
+
+    protected ClassWriter transformed() throws IOException {
         try (var is = clazz.getResource().open()) {
             final var classReader = new ClassReader(is);
-            ClassWriter cw = new ClassWriter(classReader, ClassWriter.COMPUTE_MAXS);
+            ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
             var transform = eventTransform(cw);
             classReader.accept(transform, ClassReader.EXPAND_FRAMES);
             final var interfaces = clazz.getInterfaces()
@@ -216,10 +256,7 @@ public class EntityGenerator {
             var fieldVisitor = transform.visitField(Opcodes.ACC_PRIVATE | Opcodes.ACC_FINAL, CONTROLLER,
                                                     Type.getType(Devi.class).getDescriptor(), null, null);
             fieldVisitor.visitEnd();
-            generateBindTo(transform);
-            generateInvoke(transform);
-            generateSignatureFor(transform);
-            transform.visitEnd();
+            cw.visitEnd();
             return cw;
         }
     }
@@ -237,8 +274,8 @@ public class EntityGenerator {
                 int i = 0;
                 for (var pi : mi.getParameterInfo()) {
                     adapter.loadArg(1);
-                    adapter.push(i);
-                    adapter.arrayLoad(Type.getType(Object.class));
+                    adapter.push(i++);
+                    adapter.arrayLoad(OBJECT_TYPE);
                     adapter.checkCast(Type.getObjectType(pi.getTypeDescriptor().toString().replace('.', '/')));
                 }
                 if (remapped.contains(mi)) {
@@ -301,10 +338,7 @@ public class EntityGenerator {
 
     private void generateBindTo(ClassVisitor cv) {
         var mg = new GeneratorAdapter(Opcodes.ACC_PUBLIC, BIND_TO_METHOD, null, null, cv);
-        mg.loadThis();
-        mg.loadArg(0);
-        mg.putField(type, CONTROLLER, Type.getType(Devi.class));
-        mg.returnValue();
+        mg.visitMaxs(0, 0);
         mg.endMethod();
     }
 
@@ -321,7 +355,7 @@ public class EntityGenerator {
         mg.getField(type, CONTROLLER, Type.getType(Devi.class));
         mg.loadThis();
         mg.push(inverse.get(m));
-        var objectType = Type.getType(Object.class);
+        var objectType = OBJECT_TYPE;
         mg.push(m.getArgumentTypes().length);
         mg.newArray(objectType);
         for (int i = 0; i < m.getArgumentTypes().length; i++) {
@@ -368,6 +402,7 @@ public class EntityGenerator {
                 if (mi == null) {
                     throw new IllegalArgumentException("no key: " + key + " in mapped");
                 }
+                adapter.visitFrame(Opcodes.F_NEW, 0, null, 0, null);
                 adapter.push(mi.toStringWithSimpleNames());
                 adapter.returnValue();
             }
