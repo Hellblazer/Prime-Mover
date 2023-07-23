@@ -29,11 +29,12 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
+import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-import org.objectweb.asm.commons.ClassRemapper;
 import org.objectweb.asm.commons.GeneratorAdapter;
 import org.objectweb.asm.commons.Method;
+import org.objectweb.asm.commons.MethodRemapper;
 import org.objectweb.asm.commons.SimpleRemapper;
 import org.objectweb.asm.commons.TableSwitchGenerator;
 
@@ -49,14 +50,54 @@ import io.github.classgraph.MethodInfo;
  */
 public class EntityGenerator {
     private static final String BIND_TO                   = "__bindTo";
+    private static final Method BIND_TO_METHOD;
     private static final String CONTROLLER                = "$controller";
     private static final String INVOKE                    = "__invoke";
     private static final String METHOD_REMAP_KEY_TEMPLATE = "%s.%s%s";
+    private static final String POST_CONTINUING_EVENT     = "postContinuingEvent";
+    private static final Method POST_CONTINUING_EVENT_METHOD;
+    private static final String POST_EVENT                = "postEvent";
+    private static final Method POST_EVENT_METHOD;
     private static final String REMAPPED_TEMPLATE         = "gen$%s";
     private static final String SIGNATURE_FOR             = "__signatureFor";
 
+    static {
+        java.lang.reflect.Method method;
+        try {
+            method = EntityReference.class.getMethod(BIND_TO, Devi.class);
+        } catch (NoSuchMethodException | SecurityException e) {
+            throw new IllegalStateException("Cannot get '%s' method".formatted(BIND_TO), e);
+        }
+        try {
+            BIND_TO_METHOD = Method.getMethod(method);
+        } catch (SecurityException e) {
+            throw new IllegalStateException("Cannot get '%s' method".formatted(BIND_TO), e);
+        }
+        try {
+            method = Devi.class.getMethod(POST_CONTINUING_EVENT, EntityReference.class, int.class, Object[].class);
+        } catch (NoSuchMethodException | SecurityException e) {
+            throw new IllegalStateException("Cannot get '%s' method".formatted(POST_CONTINUING_EVENT), e);
+        }
+        try {
+            POST_CONTINUING_EVENT_METHOD = Method.getMethod(method);
+        } catch (SecurityException e) {
+            throw new IllegalStateException("Cannot get '%s' method".formatted(POST_CONTINUING_EVENT), e);
+        }
+        try {
+            method = Devi.class.getMethod(POST_EVENT, EntityReference.class, int.class, Object[].class);
+        } catch (NoSuchMethodException | SecurityException e) {
+            throw new IllegalStateException("Cannot get '%s' method".formatted(POST_EVENT), e);
+        }
+        try {
+            POST_EVENT_METHOD = Method.getMethod(method);
+        } catch (SecurityException e) {
+            throw new IllegalStateException("Cannot get '%s' method".formatted(POST_EVENT), e);
+        }
+    }
     private final ClassInfo                clazz;
+    private final Set<Method>              events;
     private final String                   internalName;
+    private final Map<Method, Integer>     inverse;
     private final Map<Integer, MethodInfo> mapped;
     private final Set<MethodInfo>          remapped;
     private final Type                     type;
@@ -65,11 +106,16 @@ public class EntityGenerator {
         this.clazz = clazz;
         type = Type.getObjectType(clazz.getName().replace('.', '/'));
         internalName = clazz.getName().replace('.', '/');
-        mapped = new HashMap<Integer, MethodInfo>();
-        remapped = new OpenSet<MethodInfo>();
+        mapped = new HashMap<>();
+        remapped = new OpenSet<>();
+        inverse = new HashMap<>();
+        this.events = new OpenSet<>();
         var key = 0;
         for (var mi : events.stream().sorted().toList()) {
-            mapped.put(key++, mi);
+            mapped.put(key, mi);
+            final var event = new Method(mi.getName(), mi.getTypeDescriptorStr());
+            inverse.put(event, key++);
+            this.events.add(event);
             final boolean declared = clazz.getDeclaredMethodInfo(mi.getName())
                                           .stream()
                                           .filter(m -> mi.equals(m))
@@ -85,23 +131,23 @@ public class EntityGenerator {
         try (var is = clazz.getResource().open()) {
             final var classReader = new ClassReader(is);
             ClassWriter cw = new ClassWriter(classReader, 0);
-            var renamer = renames(cw);
-            classReader.accept(renamer, ClassReader.EXPAND_FRAMES);
-            renamer.visit(clazz.getClassfileMajorVersion(), clazz.getModifiers(), internalName,
-                          clazz.getTypeSignatureStr(),
-                          clazz.getSuperclass() == null ? Type.getInternalName(Object.class)
-                                                        : clazz.getSuperclass().getName().replace('.', '/'),
-                          clazz.getInterfaces()
-                               .stream()
-                               .map(ci -> ci.getName().replace('.', '/'))
-                               .toList()
-                               .toArray(new String[0]));
-            var fieldVisitor = renamer.visitField(Opcodes.ACC_PRIVATE, CONTROLLER,
-                                                  Type.getType(Devi.class).getDescriptor(), null, null);
+            var transform = eventTransform(cw);
+            classReader.accept(transform, ClassReader.EXPAND_FRAMES);
+            transform.visit(clazz.getClassfileMajorVersion(), clazz.getModifiers(), internalName,
+                            clazz.getTypeSignatureStr(),
+                            clazz.getSuperclass() == null ? Type.getInternalName(Object.class)
+                                                          : clazz.getSuperclass().getName().replace('.', '/'),
+                            clazz.getInterfaces()
+                                 .stream()
+                                 .map(ci -> ci.getName().replace('.', '/'))
+                                 .toList()
+                                 .toArray(new String[0]));
+            var fieldVisitor = transform.visitField(Opcodes.ACC_PRIVATE, CONTROLLER,
+                                                    Type.getType(Devi.class).getDescriptor(), null, null);
             fieldVisitor.visitEnd();
-            generateBindTo(renamer);
-            generateInvoke(renamer);
-            generateSignatureFor(renamer);
+            generateBindTo(transform);
+            generateInvoke(transform);
+            generateSignatureFor(transform);
             return cw;
         }
     }
@@ -143,30 +189,77 @@ public class EntityGenerator {
         };
     }
 
+    private ClassVisitor eventTransform(ClassVisitor cv) {
+        var mappings = new HashMap<String, String>();
+        for (var mi : remapped) {
+            mappings.put(METHOD_REMAP_KEY_TEMPLATE.formatted(clazz.getName().replace('.', '/'), mi.getName(),
+                                                             mi.getTypeDescriptorStr()),
+                         REMAPPED_TEMPLATE.formatted(mi.getName()));
+        }
+        var remapper = new SimpleRemapper(mappings);
+        return new ClassVisitor(Opcodes.ASM9, cv) {
+
+            @Override
+            public MethodVisitor visitMethod(int access, String name, String descriptor, String signature,
+                                             String[] exceptions) {
+                var m = new Method(name, descriptor);
+                if (events.contains(m)) {
+                    generateEvent(m, access, name, descriptor, exceptions, cv);
+                }
+                return remapMethod(access, name, descriptor, signature, exceptions);
+            }
+
+            private MethodVisitor remapMethod(int access, String name, String descriptor, String signature,
+                                              String[] exceptions) {
+                final var renamed = remapper.mapMethodName(type.getInternalName(), name, descriptor);
+                if (!renamed.equals(name)) {
+                    access = Opcodes.ACC_PRIVATE;
+                }
+                var methodVisitor = super.visitMethod(access, renamed, descriptor, signature,
+                                                      exceptions == null ? null : exceptions);
+                return methodVisitor == null ? null : new MethodRemapper(methodVisitor, remapper);
+            }
+        };
+    }
+
     private void generateBindTo(ClassVisitor cv) {
-        Method m;
-        java.lang.reflect.Method method;
-        try {
-            method = EntityReference.class.getMethod(BIND_TO, Devi.class);
-        } catch (NoSuchMethodException | SecurityException e) {
-            throw new IllegalStateException("Cannot get '%s' method".formatted(BIND_TO), e);
-        }
-        try {
-            m = Method.getMethod(method);
-        } catch (SecurityException e) {
-            throw new IllegalStateException("Cannot get '%s' method".formatted(BIND_TO), e);
-        }
-        GeneratorAdapter mg = new GeneratorAdapter(Opcodes.ACC_PUBLIC, m, m.getDescriptor(),
-                                                   Arrays.stream(method.getExceptionTypes())
-                                                         .map(t -> Type.getType(t))
-                                                         .toList()
-                                                         .toArray(new Type[0]),
-                                                   cv);
+        var mg = new GeneratorAdapter(Opcodes.ACC_PUBLIC, BIND_TO_METHOD, BIND_TO_METHOD.getDescriptor(), null, cv);
         mg.loadThis();
         mg.loadArg(0);
         mg.putField(type, CONTROLLER, Type.getType(Devi.class));
         mg.returnValue();
         mg.endMethod();
+    }
+
+    private void generateEvent(Method m, int access, String name, String descriptor, String[] exceptions,
+                               ClassVisitor cv) {
+        var mg = new GeneratorAdapter(access, m, descriptor,
+                                      exceptions == null ? null
+                                                         : Arrays.stream(exceptions)
+                                                                 .map(t -> Type.getObjectType(t))
+                                                                 .toList()
+                                                                 .toArray(new Type[0]),
+                                      cv);
+        mg.loadThis();
+        mg.getField(type, CONTROLLER, Type.getType(Devi.class));
+        mg.loadThis();
+        mg.push(inverse.get(m));
+        var objectType = Type.getType(Object.class);
+        mg.push(m.getArgumentTypes().length);
+        mg.newArray(objectType);
+        for (int i = 0; i < m.getArgumentTypes().length; i++) {
+            mg.dup();
+            mg.push(i);
+            mg.loadArg(i);
+            mg.arrayStore(objectType);
+        }
+
+        if (Type.VOID_TYPE.equals(m.getReturnType())) {
+            mg.invokeVirtual(Type.getType(Devi.class), POST_EVENT_METHOD);
+        } else {
+            mg.invokeVirtual(Type.getType(Devi.class), POST_CONTINUING_EVENT_METHOD);
+        }
+        mg.returnValue();
     }
 
     private void generateInvoke(ClassVisitor cv) {
@@ -182,12 +275,12 @@ public class EntityGenerator {
         } catch (SecurityException e) {
             throw new IllegalStateException("Cannot get '%s' method".formatted(INVOKE), e);
         }
-        GeneratorAdapter mg = new GeneratorAdapter(Opcodes.ACC_PUBLIC, m, m.getDescriptor(),
-                                                   Arrays.stream(method.getExceptionTypes())
-                                                         .map(t -> Type.getType(t))
-                                                         .toList()
-                                                         .toArray(new Type[0]),
-                                                   cv);
+        var mg = new GeneratorAdapter(Opcodes.ACC_PUBLIC, m, m.getDescriptor(),
+                                      Arrays.stream(method.getExceptionTypes())
+                                            .map(t -> Type.getType(t))
+                                            .toList()
+                                            .toArray(new Type[0]),
+                                      cv);
         mg.loadArg(0);
         var keys = mapped.keySet().stream().mapToInt(i -> (int) i).sorted().toArray();
         mg.tableSwitch(keys, eventSwitch(mg));
@@ -207,27 +300,17 @@ public class EntityGenerator {
         } catch (NoSuchMethodException | SecurityException e) {
             throw new IllegalStateException("Cannot get '%s' method".formatted(SIGNATURE_FOR), e);
         }
-        GeneratorAdapter mg = new GeneratorAdapter(Opcodes.ACC_PUBLIC, m, m.getDescriptor(),
-                                                   Arrays.stream(method.getExceptionTypes())
-                                                         .map(t -> Type.getType(t))
-                                                         .toList()
-                                                         .toArray(new Type[0]),
-                                                   cv);
+        var mg = new GeneratorAdapter(Opcodes.ACC_PUBLIC, m, m.getDescriptor(),
+                                      Arrays.stream(method.getExceptionTypes())
+                                            .map(t -> Type.getType(t))
+                                            .toList()
+                                            .toArray(new Type[0]),
+                                      cv);
         var keys = mapped.keySet().stream().mapToInt(i -> (int) i).sorted().toArray();
         mg.loadArg(0);
         mg.tableSwitch(keys, signatureSwitch(mg));
         mg.loadThis();
         mg.endMethod();
-    }
-
-    private ClassVisitor renames(ClassVisitor cv) {
-        var mappings = new HashMap<String, String>();
-        for (var mi : remapped) {
-            mappings.put(METHOD_REMAP_KEY_TEMPLATE.formatted(clazz.getName().replace('.', '/'), mi.getName(),
-                                                             mi.getTypeDescriptorStr()),
-                         REMAPPED_TEMPLATE.formatted(mi.getName()));
-        }
-        return new ClassRemapper(cv, new SimpleRemapper(mappings));
     }
 
     private TableSwitchGenerator signatureSwitch(GeneratorAdapter adapter) {
