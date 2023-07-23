@@ -32,10 +32,6 @@ public class Template implements Foo, EntityReference {
 
     private final Devi __controller = Framework.getController();
 
-    public Template(String foo) {
-        super();
-    }
-
     @Override
     public void __bindTo(Devi controller) {
 
@@ -72,7 +68,7 @@ public class Template implements Foo, EntityReference {
             return "C";
         }
         default:
-            throw new IllegalArgumentException("Unknown event: " + event);
+            throw new IllegalArgumentException("unknown event key");
         }
     }
 

@@ -25,7 +25,6 @@ import java.nio.ByteBuffer;
 
 import org.junit.jupiter.api.Test;
 import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.util.CheckClassAdapter;
 import org.objectweb.asm.util.TraceClassVisitor;
 
 import io.github.classgraph.ClassGraph;
@@ -46,17 +45,20 @@ public class EntityGeneratorTest {
         assertNotNull(cw);
         final var bytes = cw.toByteArray();
         assertNotNull(bytes);
+
         TraceClassVisitor visitor = new TraceClassVisitor(null, new PrintWriter(System.out, true));
-        CheckClassAdapter checkAdapter = new CheckClassAdapter(null);
         ClassReader reader = new ClassReader(bytes);
-        reader.accept(visitor, 0);
-        reader.accept(checkAdapter, 0);
-        new ClassLoader(getClass().getClassLoader()) {
+        reader.accept(visitor, ClassReader.SKIP_FRAMES);
+
+        var loader = new ClassLoader(getClass().getClassLoader()) {
             {
                 {
                     defineClass(name, ByteBuffer.wrap(bytes), null);
                 }
             }
         };
+        var clazz = loader.loadClass(name);
+        assertNotNull(clazz);
+        clazz.getConstructor().newInstance();
     }
 }

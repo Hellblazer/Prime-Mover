@@ -34,6 +34,7 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import org.objectweb.asm.commons.AdviceAdapter;
 import org.objectweb.asm.commons.GeneratorAdapter;
 import org.objectweb.asm.commons.Method;
 import org.objectweb.asm.commons.MethodRemapper;
@@ -55,50 +56,45 @@ import io.github.classgraph.MethodInfo;
  * @author hal.hildebrand
  */
 public class EntityGenerator {
-    private class InitTransformer extends ClassVisitor {
 
-        private static final String INIT = "<init>";
+    private class InitVisitor extends AdviceAdapter {
 
-        private InitTransformer(ClassVisitor cv) {
-            super(Opcodes.ASM9, cv);
+        protected InitVisitor(int api, MethodVisitor methodVisitor, int access, String name, String descriptor) {
+            super(api, methodVisitor, access, name, descriptor);
         }
 
         @Override
-        public MethodVisitor visitMethod(int access, String name, String descriptor, String signature,
-                                         String[] exceptions) {
-            final var mv = super.visitMethod(access, name, descriptor, signature, exceptions);
-            if (name.equals(INIT)) {
-                return new MethodVisitor(Opcodes.ASM9, mv) {
-
-                    @Override
-                    public void visitCode() {
-                        visitVarInsn(Opcodes.ALOAD, 0);
-                        visitMethodInsn(Opcodes.INVOKESTATIC, Type.getType(Framework.class).getInternalName(),
-                                        GET_CONTROLLER, GET_CONTROLLER_METHOD.getDescriptor(), false);
-                        visitFieldInsn(Opcodes.PUTFIELD, internalName, CONTROLLER,
-                                       Type.getType(Devi.class).getDescriptor());
-                        super.visitCode();
-                    }
-                };
-            }
-            return mv;
+        protected void onMethodEnter() {
+            super.onMethodEnter();
+            loadThis();
+            invokeStatic(Type.getType(Framework.class), GET_CONTROLLER_METHOD);
+            putField(type, CONTROLLER, Type.getType(Devi.class));
         }
+
+        @Override
+        protected void onMethodExit(int opcode) {
+            visitMaxs(0, 0);
+            super.onMethodExit(opcode);
+        }
+
     }
 
     private static final String BIND_TO                   = "__bindTo";
     private static final Method BIND_TO_METHOD;
-    private static final String CONTROLLER                = "$controller";
+    private static final String CONTROLLER                = "__controller";
     private static final String GET_CONTROLLER            = "getController";
     private static final Method GET_CONTROLLER_METHOD;
+    private static final Object INIT                      = "<init>";
     private static final String INVOKE                    = "__invoke";
+    private static final Method INVOKE_METHOD;
     private static final String METHOD_REMAP_KEY_TEMPLATE = "%s.%s%s";
     private static final String POST_CONTINUING_EVENT     = "postContinuingEvent";
     private static final Method POST_CONTINUING_EVENT_METHOD;
     private static final String POST_EVENT                = "postEvent";
     private static final Method POST_EVENT_METHOD;
     private static final String REMAPPED_TEMPLATE         = "gen$%s";
-
-    private static final String SIGNATURE_FOR = "__signatureFor";
+    private static final String SIGNATURE_FOR             = "__signatureFor";
+    private static final Method SIGNATURE_FOR_METHOD;
     static {
         java.lang.reflect.Method method;
         try {
@@ -141,6 +137,26 @@ public class EntityGenerator {
         } catch (SecurityException e) {
             throw new IllegalStateException("Cannot get '%s' method".formatted(GET_CONTROLLER), e);
         }
+        try {
+            method = EntityReference.class.getMethod(SIGNATURE_FOR, int.class);
+        } catch (NoSuchMethodException | SecurityException e) {
+            throw new IllegalStateException("Cannot get '%s' method".formatted(SIGNATURE_FOR), e);
+        }
+        try {
+            SIGNATURE_FOR_METHOD = Method.getMethod(method);
+        } catch (SecurityException e) {
+            throw new IllegalStateException("Cannot get '%s' method".formatted(SIGNATURE_FOR), e);
+        }
+        try {
+            method = EntityReference.class.getMethod(INVOKE, int.class, Object[].class);
+        } catch (NoSuchMethodException | SecurityException e) {
+            throw new IllegalStateException("Cannot get '%s' method".formatted(INVOKE), e);
+        }
+        try {
+            INVOKE_METHOD = Method.getMethod(method);
+        } catch (SecurityException e) {
+            throw new IllegalStateException("Cannot get '%s' method".formatted(INVOKE), e);
+        }
     }
     private final ClassInfo                clazz;
     private final Set<Method>              events;
@@ -179,7 +195,7 @@ public class EntityGenerator {
     public ClassWriter generate() throws MalformedURLException, IOException {
         try (var is = clazz.getResource().open()) {
             final var classReader = new ClassReader(is);
-            ClassWriter cw = new ClassWriter(classReader, ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
+            ClassWriter cw = new ClassWriter(classReader, ClassWriter.COMPUTE_MAXS);
             var transform = eventTransform(cw);
             classReader.accept(transform, ClassReader.EXPAND_FRAMES);
             final var interfaces = clazz.getInterfaces()
@@ -203,6 +219,7 @@ public class EntityGenerator {
             generateBindTo(transform);
             generateInvoke(transform);
             generateSignatureFor(transform);
+            transform.visitEnd();
             return cw;
         }
     }
@@ -231,8 +248,8 @@ public class EntityGenerator {
                     adapter.invokeVirtual(Type.getType(clazz.getSuperclass().getName().replace('.', '/')),
                                           Method.getMethod(mi.toString()));
                 }
-                if (mi.getTypeSignature() == null) {
-                    adapter.push((String) null);
+                if (mi.getTypeDescriptor().getResultType().toStringWithSimpleNames().equals("void")) {
+                    adapter.visitInsn(Opcodes.ACONST_NULL);
                 }
                 adapter.returnValue();
             }
@@ -244,7 +261,7 @@ public class EntityGenerator {
         };
     }
 
-    private InitTransformer eventTransform(ClassVisitor cv) {
+    private ClassVisitor eventTransform(ClassVisitor cv) {
         var mappings = new HashMap<String, String>();
         for (var mi : remapped) {
             mappings.put(METHOD_REMAP_KEY_TEMPLATE.formatted(clazz.getName().replace('.', '/'), mi.getName(),
@@ -252,11 +269,16 @@ public class EntityGenerator {
                          REMAPPED_TEMPLATE.formatted(mi.getName()));
         }
         var remapper = new SimpleRemapper(mappings);
-        return new InitTransformer(cv) {
+        return new ClassVisitor(Opcodes.ASM9, cv) {
 
             @Override
             public MethodVisitor visitMethod(int access, String name, String descriptor, String signature,
                                              String[] exceptions) {
+                if (name.equals(INIT)) {
+                    return new InitVisitor(Opcodes.ASM9,
+                                           super.visitMethod(access, name, descriptor, signature, exceptions), access,
+                                           name, descriptor);
+                }
                 var m = new Method(name, descriptor);
                 if (events.contains(m)) {
                     generateEvent(m, access, name, descriptor, exceptions, cv);
@@ -278,7 +300,7 @@ public class EntityGenerator {
     }
 
     private void generateBindTo(ClassVisitor cv) {
-        var mg = new GeneratorAdapter(Opcodes.ACC_PUBLIC, BIND_TO_METHOD, BIND_TO_METHOD.getDescriptor(), null, cv);
+        var mg = new GeneratorAdapter(Opcodes.ACC_PUBLIC, BIND_TO_METHOD, null, null, cv);
         mg.loadThis();
         mg.loadArg(0);
         mg.putField(type, CONTROLLER, Type.getType(Devi.class));
@@ -313,58 +335,28 @@ public class EntityGenerator {
             mg.invokeVirtual(Type.getType(Devi.class), POST_EVENT_METHOD);
         } else {
             mg.invokeVirtual(Type.getType(Devi.class), POST_CONTINUING_EVENT_METHOD);
+            mg.checkCast(m.getReturnType());
         }
+        mg.visitMaxs(0, 0);
         mg.returnValue();
     }
 
     private void generateInvoke(ClassVisitor cv) {
-        Method m;
-        java.lang.reflect.Method method;
-        try {
-            method = EntityReference.class.getMethod(INVOKE, int.class, Object[].class);
-        } catch (NoSuchMethodException | SecurityException e) {
-            throw new IllegalStateException("Cannot get '%s' method".formatted(INVOKE), e);
-        }
-        try {
-            m = Method.getMethod(method);
-        } catch (SecurityException e) {
-            throw new IllegalStateException("Cannot get '%s' method".formatted(INVOKE), e);
-        }
-        var mg = new GeneratorAdapter(Opcodes.ACC_PUBLIC, m, m.getDescriptor(),
-                                      Arrays.stream(method.getExceptionTypes())
-                                            .map(t -> Type.getType(t))
-                                            .toList()
-                                            .toArray(new Type[0]),
-                                      cv);
-        mg.loadArg(0);
+        var mg = new GeneratorAdapter(Opcodes.ACC_PUBLIC, INVOKE_METHOD, null,
+                                      new Type[] { Type.getType(Throwable.class) }, cv);
         var keys = mapped.keySet().stream().mapToInt(i -> (int) i).sorted().toArray();
+        mg.loadArg(0);
         mg.tableSwitch(keys, eventSwitch(mg));
+        mg.visitMaxs(0, 0);
         mg.endMethod();
     }
 
     private void generateSignatureFor(ClassVisitor cv) {
-        Method m;
-        java.lang.reflect.Method method;
-        try {
-            method = EntityReference.class.getMethod(SIGNATURE_FOR, int.class);
-        } catch (NoSuchMethodException | SecurityException e) {
-            throw new IllegalStateException("Cannot get '%s' method".formatted(SIGNATURE_FOR), e);
-        }
-        try {
-            m = Method.getMethod(EntityReference.class.getMethod(SIGNATURE_FOR, int.class));
-        } catch (NoSuchMethodException | SecurityException e) {
-            throw new IllegalStateException("Cannot get '%s' method".formatted(SIGNATURE_FOR), e);
-        }
-        var mg = new GeneratorAdapter(Opcodes.ACC_PUBLIC, m, m.getDescriptor(),
-                                      Arrays.stream(method.getExceptionTypes())
-                                            .map(t -> Type.getType(t))
-                                            .toList()
-                                            .toArray(new Type[0]),
-                                      cv);
+        var mg = new GeneratorAdapter(Opcodes.ACC_PUBLIC, SIGNATURE_FOR_METHOD, null, null, cv);
         var keys = mapped.keySet().stream().mapToInt(i -> (int) i).sorted().toArray();
         mg.loadArg(0);
         mg.tableSwitch(keys, signatureSwitch(mg));
-        mg.loadThis();
+        mg.visitMaxs(0, 0);
         mg.endMethod();
     }
 
