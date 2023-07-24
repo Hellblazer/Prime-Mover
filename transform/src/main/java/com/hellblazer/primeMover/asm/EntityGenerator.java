@@ -78,23 +78,6 @@ public class EntityGenerator {
 
     }
 
-    private static class MergeGuard extends ClassVisitor {
-
-        public MergeGuard(int api) {
-            super(api);
-        }
-
-        public MergeGuard(int api, ClassVisitor classVisitor) {
-            super(api, classVisitor);
-        }
-
-        @Override
-        public void visit(int version, int access, String name, String signature, String superName,
-                          String[] interfaces) {
-        }
-
-    }
-
     private static final String BIND_TO                   = "__bindTo";
     private static final Method BIND_TO_METHOD;
     private static final String CONTROLLER                = "$controller";
@@ -211,38 +194,17 @@ public class EntityGenerator {
     }
 
     public ClassWriter generate() throws MalformedURLException, IOException {
-        final var transformed = transformed();
-        return transformed;
-    }
-
-    protected ClassWriter generated() throws IOException {
-
-        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
-        cw.visit(clazz.getClassfileMajorVersion(), clazz.getModifiers(), internalName, clazz.getTypeSignatureStr(),
-                 clazz.getSuperclass() == null ? Type.getInternalName(Object.class)
-                                               : clazz.getSuperclass().getName().replace('.', '/'),
-                 null);
-//        generateBindTo(cw);
-        generateInvoke(cw);
-//        generateSignatureFor(cw);
-        cw.visitEnd();
-        return cw;
-
-    }
-
-    protected ClassWriter transformed() throws IOException {
         try (var is = clazz.getResource().open()) {
             final var classReader = new ClassReader(is);
             ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
             var transform = eventTransform(cw);
-            classReader.accept(transform, ClassReader.EXPAND_FRAMES);
+            classReader.accept(transform, ClassReader.SKIP_FRAMES);
             final var interfaces = clazz.getInterfaces()
                                         .stream()
                                         .map(ci -> ci.getName().replace('.', '/'))
                                         .collect(Collectors.toList());
             interfaces.add(Type.getType(EntityReference.class).getInternalName());
-            transform.visit(clazz.getClassfileMajorVersion(), clazz.getModifiers(), internalName,
-                            clazz.getTypeSignatureStr(),
+            transform.visit(Opcodes.V1_6, clazz.getModifiers(), internalName, clazz.getTypeSignatureStr(),
                             clazz.getSuperclass() == null ? Type.getInternalName(Object.class)
                                                           : clazz.getSuperclass().getName().replace('.', '/'),
                             interfaces.toArray(new String[0]));
@@ -257,6 +219,7 @@ public class EntityGenerator {
             generateInvoke(cw);
             generateSignatureFor(cw);
             generateBindTo(cw);
+
             cw.visitEnd();
             return cw;
         }
@@ -271,6 +234,7 @@ public class EntityGenerator {
                 if (mi == null) {
                     throw new IllegalArgumentException("no key: " + key + " in mapped");
                 }
+                adapter.visitFrame(Opcodes.F_NEW, 0, null, 0, null);
                 adapter.loadThis();
                 int i = 0;
                 for (var pi : mi.getParameterInfo()) {
@@ -287,14 +251,15 @@ public class EntityGenerator {
                                           Method.getMethod(mi.toString()));
                 }
                 if (mi.getTypeDescriptor().getResultType().toStringWithSimpleNames().equals("void")) {
-                    adapter.visitInsn(Opcodes.ACONST_NULL);
+                    adapter.loadThis();
                 }
                 adapter.returnValue();
             }
 
             @Override
             public void generateDefault() {
-                adapter.throwException(Type.getType(IllegalArgumentException.class), "unknown event key");
+                adapter.visitFrame(Opcodes.F_NEW, 0, null, 0, null);
+                adapter.throwException(Type.getType(IllegalStateException.class), "Unknown event type");
             }
         };
     }
@@ -382,13 +347,9 @@ public class EntityGenerator {
         var mg = new GeneratorAdapter(Opcodes.ACC_PUBLIC, INVOKE_METHOD, null,
                                       new Type[] { Type.getType(Throwable.class) }, cv);
         var keys = mapped.keySet().stream().mapToInt(i -> (int) i).sorted().toArray();
-        var l0 = mg.newLabel();
-        var lEnd = mg.newLabel();
 
-        mg.visitLabel(l0);
         mg.loadArg(0);
         mg.tableSwitch(keys, eventSwitch(mg));
-        mg.visitLabel(lEnd);
         mg.visitMaxs(0, 0);
         mg.endMethod();
     }
@@ -417,7 +378,8 @@ public class EntityGenerator {
 
             @Override
             public void generateDefault() {
-                adapter.throwException(Type.getType(IllegalArgumentException.class), "unknown event key");
+                adapter.visitFrame(Opcodes.F_NEW, 0, null, 0, null);
+                adapter.throwException(Type.getType(IllegalArgumentException.class), "Unknown event");
             }
         };
     }
