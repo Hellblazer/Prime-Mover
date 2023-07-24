@@ -51,7 +51,7 @@ public class Template implements Foo, EntityReference {
             return original_someArgs((String) arguments[0], arguments[1]);
         }
         default:
-            throw new IllegalArgumentException("Unknown event: " + event);
+            throw new IllegalArgumentException("Unknown event");
         }
     }
 

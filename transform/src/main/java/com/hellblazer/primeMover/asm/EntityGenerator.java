@@ -18,8 +18,6 @@
  */
 package com.hellblazer.primeMover.asm;
 
-import static org.objectweb.asm.Opcodes.V1_1;
-
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.time.Instant;
@@ -219,8 +217,8 @@ public class EntityGenerator {
 
     protected ClassWriter generated() throws IOException {
 
-        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
-        cw.visit(V1_1, clazz.getModifiers(), internalName, clazz.getTypeSignatureStr(),
+        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+        cw.visit(clazz.getClassfileMajorVersion(), clazz.getModifiers(), internalName, clazz.getTypeSignatureStr(),
                  clazz.getSuperclass() == null ? Type.getInternalName(Object.class)
                                                : clazz.getSuperclass().getName().replace('.', '/'),
                  null);
@@ -235,7 +233,7 @@ public class EntityGenerator {
     protected ClassWriter transformed() throws IOException {
         try (var is = clazz.getResource().open()) {
             final var classReader = new ClassReader(is);
-            ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
+            ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
             var transform = eventTransform(cw);
             classReader.accept(transform, ClassReader.EXPAND_FRAMES);
             final var interfaces = clazz.getInterfaces()
@@ -256,6 +254,9 @@ public class EntityGenerator {
             var fieldVisitor = transform.visitField(Opcodes.ACC_PRIVATE | Opcodes.ACC_FINAL, CONTROLLER,
                                                     Type.getType(Devi.class).getDescriptor(), null, null);
             fieldVisitor.visitEnd();
+            generateInvoke(cw);
+            generateSignatureFor(cw);
+            generateBindTo(cw);
             cw.visitEnd();
             return cw;
         }
@@ -338,6 +339,8 @@ public class EntityGenerator {
 
     private void generateBindTo(ClassVisitor cv) {
         var mg = new GeneratorAdapter(Opcodes.ACC_PUBLIC, BIND_TO_METHOD, null, null, cv);
+        mg.loadThis();
+        mg.returnValue();
         mg.visitMaxs(0, 0);
         mg.endMethod();
     }
@@ -379,8 +382,13 @@ public class EntityGenerator {
         var mg = new GeneratorAdapter(Opcodes.ACC_PUBLIC, INVOKE_METHOD, null,
                                       new Type[] { Type.getType(Throwable.class) }, cv);
         var keys = mapped.keySet().stream().mapToInt(i -> (int) i).sorted().toArray();
+        var l0 = mg.newLabel();
+        var lEnd = mg.newLabel();
+
+        mg.visitLabel(l0);
         mg.loadArg(0);
         mg.tableSwitch(keys, eventSwitch(mg));
+        mg.visitLabel(lEnd);
         mg.visitMaxs(0, 0);
         mg.endMethod();
     }

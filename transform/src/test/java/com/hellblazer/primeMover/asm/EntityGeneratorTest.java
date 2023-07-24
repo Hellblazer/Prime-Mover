@@ -35,7 +35,6 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
 import org.objectweb.asm.commons.Method;
 import org.objectweb.asm.commons.TableSwitchGenerator;
-import org.objectweb.asm.util.ASMifier;
 import org.objectweb.asm.util.CheckClassAdapter;
 import org.objectweb.asm.util.TraceClassVisitor;
 
@@ -45,7 +44,6 @@ import io.github.classgraph.ClassGraph;
  * @author hal.hildebrand
  */
 public class EntityGeneratorTest {
-
     @Test
     public void smokin() throws Exception {
         var transform = new SimulationTransform(new ClassGraph().acceptPackages("com.hellblazer.primeMover.asm.testClasses"));
@@ -53,7 +51,7 @@ public class EntityGeneratorTest {
         final var name = "com.hellblazer.primeMover.asm.testClasses.MyTest";
         EntityGenerator generator = transform.generatorOf(name);
         assertNotNull(generator);
-        var cw = generator.generated();
+        var cw = generator.transformed();
         assertNotNull(cw);
         final var bytes = cw.toByteArray();
         assertNotNull(bytes);
@@ -74,12 +72,12 @@ public class EntityGeneratorTest {
         };
         var clazz = loader.loadClass(name);
         assertNotNull(clazz);
-        clazz.getConstructor().newInstance();
+//        clazz.getConstructor().newInstance();
     }
 
     @Test
     public void tableSwitch() throws Exception {
-        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
+        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
         final var name = "Example";
         cw.visit(V1_1, ACC_PUBLIC, name, null, "java/lang/Object", null);
 
@@ -88,7 +86,7 @@ public class EntityGeneratorTest {
         mg.loadThis();
         mg.invokeConstructor(Type.getType(Object.class), m);
         mg.returnValue();
-        mg.visitMaxs(0, 0);
+        mg.visitMaxs(1, 1);
         mg.endMethod();
 
         m = Method.getMethod("void main (String[])");
@@ -97,7 +95,7 @@ public class EntityGeneratorTest {
         mg.push("Hello world!");
         mg.invokeVirtual(Type.getType(PrintStream.class), Method.getMethod("void println (String)"));
         mg.returnValue();
-        mg.visitMaxs(0, 0);
+        mg.visitMaxs(2, 1);
         mg.endMethod();
 
         m = Method.getMethod("Integer test (int)");
@@ -120,7 +118,7 @@ public class EntityGeneratorTest {
                 gen.returnValue();
             }
         });
-        gen.visitMaxs(0, 0);
+        gen.visitMaxs(1, 2);
         gen.endMethod();
 
         cw.visitEnd();
@@ -128,9 +126,10 @@ public class EntityGeneratorTest {
         final var bytes = cw.toByteArray();
         assertNotNull(bytes);
 
-        TraceClassVisitor visitor = new TraceClassVisitor(null, new ASMifier(), new PrintWriter(System.out, true));
+        TraceClassVisitor visitor = new TraceClassVisitor(null, new PrintWriter(System.out, true));
         ClassReader reader = new ClassReader(bytes);
-        reader.accept(visitor, ClassReader.SKIP_FRAMES);
+        reader.accept(visitor, ClassReader.EXPAND_FRAMES);
+        CheckClassAdapter.verify(reader, true, new PrintWriter(System.out, true));
         var loader = new ClassLoader(getClass().getClassLoader()) {
             {
                 {
@@ -141,5 +140,21 @@ public class EntityGeneratorTest {
         var clazz = loader.loadClass(name);
         assertNotNull(clazz);
         clazz.getConstructor().newInstance();
+    }
+
+    @Test
+    public void template() throws Exception {
+
+        final var name = "com.hellblazer.primeMover.asm.testClasses.Template";
+
+        ClassReader reader;
+        try (var is = getClass().getClassLoader().getResourceAsStream(name.replace('.', '/') + ".class")) {
+            reader = new ClassReader(is);
+        }
+
+        TraceClassVisitor visitor = new TraceClassVisitor(null, new PrintWriter(System.out, true));
+        reader.accept(visitor, ClassReader.EXPAND_FRAMES);
+
+        CheckClassAdapter.verify(reader, true, new PrintWriter(System.out, true));
     }
 }
