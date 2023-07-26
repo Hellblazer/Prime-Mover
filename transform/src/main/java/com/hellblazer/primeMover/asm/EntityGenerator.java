@@ -35,16 +35,19 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.AdviceAdapter;
+import org.objectweb.asm.commons.ClassRemapper;
 import org.objectweb.asm.commons.GeneratorAdapter;
 import org.objectweb.asm.commons.Method;
 import org.objectweb.asm.commons.MethodRemapper;
 import org.objectweb.asm.commons.SimpleRemapper;
 import org.objectweb.asm.commons.TableSwitchGenerator;
 
+import com.hellblazer.primeMover.Kronos;
 import com.hellblazer.primeMover.annotations.Transformed;
 import com.hellblazer.primeMover.runtime.Devi;
 import com.hellblazer.primeMover.runtime.EntityReference;
 import com.hellblazer.primeMover.runtime.Framework;
+import com.hellblazer.primeMover.runtime.Kairos;
 import com.hellblazer.primeMover.soot.util.OpenAddressingSet.OpenSet;
 
 import io.github.classgraph.ClassInfo;
@@ -275,8 +278,13 @@ public class EntityGenerator {
                                                              mi.getTypeDescriptorStr()),
                          REMAPPED_TEMPLATE.formatted(mi.getName()));
         }
-        var remapper = new SimpleRemapper(mappings);
-        return new ClassVisitor(Opcodes.ASM9, cv) {
+        var eventRemapper = new SimpleRemapper(mappings);
+
+        var map = new HashMap<String, String>();
+        map.put(Kronos.class.getCanonicalName().replace('.', '/'), Kairos.class.getCanonicalName().replace('.', '/'));
+        var apiRemapper = new SimpleRemapper(map);
+
+        return new ClassVisitor(Opcodes.ASM9, new ClassRemapper(cv, apiRemapper)) {
 
             @Override
             public MethodVisitor visitMethod(int access, String name, String descriptor, String signature,
@@ -295,13 +303,13 @@ public class EntityGenerator {
 
             private MethodVisitor remapMethod(int access, String name, String descriptor, String signature,
                                               String[] exceptions) {
-                final var renamed = remapper.mapMethodName(type.getInternalName(), name, descriptor);
+                final var renamed = eventRemapper.mapMethodName(type.getInternalName(), name, descriptor);
                 if (!renamed.equals(name)) {
                     access = Opcodes.ACC_PRIVATE;
                 }
                 var methodVisitor = super.visitMethod(access, renamed, descriptor, signature,
                                                       exceptions == null ? null : exceptions);
-                return methodVisitor == null ? null : new MethodRemapper(methodVisitor, remapper);
+                return methodVisitor == null ? null : new MethodRemapper(methodVisitor, eventRemapper);
             }
         };
     }

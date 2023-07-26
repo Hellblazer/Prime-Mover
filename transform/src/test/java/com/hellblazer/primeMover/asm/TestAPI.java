@@ -19,12 +19,8 @@
 
 package com.hellblazer.primeMover.asm;
 
-import static com.hellblazer.primeMover.soot.Util.OUTPUT_DIR;
-import static com.hellblazer.primeMover.soot.Util.PROCESSED_DIR;
-import static com.hellblazer.primeMover.soot.Util.SOURCE_DIR;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.Map;
@@ -37,8 +33,6 @@ import com.hellblazer.primeMover.runtime.Framework;
 import com.hellblazer.primeMover.soot.LocalLoader;
 
 import io.github.classgraph.ClassGraph;
-import testClasses.DriverImpl;
-import testClasses.UseChannelImpl;
 
 /**
  * 
@@ -47,20 +41,17 @@ import testClasses.UseChannelImpl;
  */
 
 public class TestAPI {
-    private static final String TEST_CLASSES = "testClasses";
-    File                        outputDir    = new File(OUTPUT_DIR, TEST_CLASSES);
-    File                        processedDir = new File(PROCESSED_DIR, TEST_CLASSES);
-    File                        sourceDir    = new File(SOURCE_DIR, TEST_CLASSES);
 
     @Test
     public void testApi() throws Exception {
-        ClassLoader loader = new LocalLoader(getTransformed());
+        var loader = new LocalLoader(getTransformed());
         testThreading(loader);
         testChannel(loader);
     }
 
     private Map<String, byte[]> getTransformed() throws Exception {
-        try (var transform = new SimulationTransform(new ClassGraph())) {
+        try (var transform = new SimulationTransform(new ClassGraph().acceptPackages("testClasses",
+                                                                                     "com.hellblazer.*"))) {
             return transform.generators()
                             .entrySet()
                             .stream()
@@ -78,9 +69,8 @@ public class TestAPI {
         TrackingController controller = new TrackingController();
         Framework.setController(controller);
         controller.setCurrentTime(0);
-        Class<?> useChannelImplClass = loader.loadClass(UseChannelImpl.class.getCanonicalName());
-        @SuppressWarnings("deprecation")
-        Object useChannel = useChannelImplClass.newInstance();
+        Class<?> useChannelImplClass = loader.loadClass("testClasses.UseChannelImpl");
+        Object useChannel = useChannelImplClass.getConstructor().newInstance();
         Method test = useChannelImplClass.getDeclaredMethod("test");
         test.invoke(useChannel);
 
@@ -124,13 +114,13 @@ public class TestAPI {
     }
 
     private void testThreading(ClassLoader loader) throws Exception {
-        TrackingController controller = new TrackingController();
+        var controller = new TrackingController();
         Framework.setController(controller);
         controller.setCurrentTime(0);
 
-        Class<?> driverImplClass = loader.loadClass(DriverImpl.class.getCanonicalName());
-        Object driverImpl = driverImplClass.getConstructor().newInstance();
-        Method runThreaded = driverImplClass.getDeclaredMethod("runThreaded");
+        var driverImplClass = loader.loadClass("testClasses.DriverImpl");
+        var driverImpl = driverImplClass.getConstructor().newInstance();
+        var runThreaded = driverImplClass.getDeclaredMethod("runThreaded");
         runThreaded.invoke(driverImpl);
 
         while (controller.send())

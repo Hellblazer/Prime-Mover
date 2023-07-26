@@ -60,7 +60,7 @@ public class LocalLoader extends ClassLoader {
         if (loaded != null) {
             return loaded;
         }
-        byte[] bits = classBits.get(name);
+        byte[] bits = classBits.get(name.replace('.', '/'));
         if (bits != null) {
             return defineClass(name, bits, 0, bits.length);
         } else {

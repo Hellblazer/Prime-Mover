@@ -22,9 +22,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.PrintWriter;
 import java.nio.ByteBuffer;
 
 import org.junit.jupiter.api.Test;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.util.CheckClassAdapter;
+import org.objectweb.asm.util.TraceClassVisitor;
 
 import com.hellblazer.primeMover.ControllerImpl;
 import com.hellblazer.primeMover.asm.testClasses.Foo;
@@ -48,10 +52,10 @@ public class EntityGeneratorTest {
         final var bytes = cw.toByteArray();
         assertNotNull(bytes);
 
-//        ClassReader reader = new ClassReader(bytes);
-//        TraceClassVisitor visitor = new TraceClassVisitor(null, new PrintWriter(System.out, true));
-//        reader.accept(visitor, ClassReader.EXPAND_FRAMES);
-//        CheckClassAdapter.verify(reader, true, new PrintWriter(System.out, true));
+        ClassReader reader = new ClassReader(bytes);
+        TraceClassVisitor visitor = new TraceClassVisitor(null, new PrintWriter(System.out, true));
+        reader.accept(visitor, ClassReader.EXPAND_FRAMES);
+        CheckClassAdapter.verify(reader, true, new PrintWriter(System.out, true));
 
         var loader = new ClassLoader(getClass().getClassLoader()) {
             {
