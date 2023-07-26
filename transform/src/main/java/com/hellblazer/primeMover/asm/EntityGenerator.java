@@ -225,6 +225,10 @@ public class EntityGenerator {
         }
     }
 
+    public ClassInfo getClazz() {
+        return clazz;
+    }
+
     private TableSwitchGenerator eventSwitch(GeneratorAdapter adapter) {
         return new TableSwitchGenerator() {
 
@@ -247,8 +251,7 @@ public class EntityGenerator {
                     adapter.invokeVirtual(type, new Method(REMAPPED_TEMPLATE.formatted(mi.getName()),
                                                            mi.getTypeDescriptorStr()));
                 } else {
-                    adapter.invokeVirtual(Type.getType(clazz.getSuperclass().getName().replace('.', '/')),
-                                          Method.getMethod(mi.toString()));
+                    adapter.invokeVirtual(type, Method.getMethod(mi.toString()));
                 }
                 if (mi.getTypeDescriptor().getResultType().toStringWithSimpleNames().equals("void")) {
                     adapter.loadThis();
