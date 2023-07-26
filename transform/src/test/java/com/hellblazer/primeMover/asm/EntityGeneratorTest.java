@@ -18,17 +18,16 @@
  */
 package com.hellblazer.primeMover.asm;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.PrintWriter;
 import java.nio.ByteBuffer;
 
 import org.junit.jupiter.api.Test;
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.util.CheckClassAdapter;
-import org.objectweb.asm.util.TraceClassVisitor;
 
-import com.hellblazer.primeMover.controllers.SimulationController;
+import com.hellblazer.primeMover.ControllerImpl;
+import com.hellblazer.primeMover.asm.testClasses.Foo;
 import com.hellblazer.primeMover.runtime.Framework;
 
 import io.github.classgraph.ClassGraph;
@@ -49,12 +48,10 @@ public class EntityGeneratorTest {
         final var bytes = cw.toByteArray();
         assertNotNull(bytes);
 
-        ClassReader reader = new ClassReader(bytes);
-
-        TraceClassVisitor visitor = new TraceClassVisitor(null, new PrintWriter(System.out, true));
-        reader.accept(visitor, ClassReader.EXPAND_FRAMES);
-
-        CheckClassAdapter.verify(reader, true, new PrintWriter(System.out, true));
+//        ClassReader reader = new ClassReader(bytes);
+//        TraceClassVisitor visitor = new TraceClassVisitor(null, new PrintWriter(System.out, true));
+//        reader.accept(visitor, ClassReader.EXPAND_FRAMES);
+//        CheckClassAdapter.verify(reader, true, new PrintWriter(System.out, true));
 
         var loader = new ClassLoader(getClass().getClassLoader()) {
             {
@@ -65,11 +62,18 @@ public class EntityGeneratorTest {
         };
         var clazz = loader.loadClass(name);
         assertNotNull(clazz);
-        Framework.setController(new SimulationController());
+        final var controller = new ControllerImpl();
+        Framework.setController(controller);
         final var constructor = clazz.getConstructor();
         assertNotNull(constructor);
         var entity = constructor.newInstance();
         assertNotNull(entity);
+        assertTrue(entity instanceof Foo);
+        var foo = (Foo) entity;
+        foo.bar();
+        assertEquals(1, controller.eventQueue.size());
+        while (controller.send())
+            ;
+        assertEquals(0, controller.eventQueue.size());
     }
-
 }

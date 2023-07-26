@@ -198,16 +198,12 @@ public class EntityGenerator {
             final var classReader = new ClassReader(is);
             ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
             var transform = eventTransform(cw);
-            classReader.accept(transform, ClassReader.SKIP_FRAMES);
+            classReader.accept(transform, ClassReader.EXPAND_FRAMES);
             final var interfaces = clazz.getInterfaces()
                                         .stream()
                                         .map(ci -> ci.getName().replace('.', '/'))
                                         .collect(Collectors.toList());
             interfaces.add(Type.getType(EntityReference.class).getInternalName());
-            transform.visit(Opcodes.V1_6, clazz.getModifiers(), internalName, clazz.getTypeSignatureStr(),
-                            clazz.getSuperclass() == null ? Type.getInternalName(Object.class)
-                                                          : clazz.getSuperclass().getName().replace('.', '/'),
-                            interfaces.toArray(new String[0]));
             var av = transform.visitAnnotation(Type.getType(Transformed.class).getDescriptor(), true);
             av.visit("comment", "PrimeMover ASM Event Transform");
             av.visit("date", Instant.now().toString());
@@ -219,6 +215,10 @@ public class EntityGenerator {
             generateInvoke(cw);
             generateSignatureFor(cw);
             generateBindTo(cw);
+            cw.visit(Opcodes.V1_6, clazz.getModifiers(), internalName, clazz.getTypeSignatureStr(),
+                     clazz.getSuperclass() == null ? Type.getInternalName(Object.class)
+                                                   : clazz.getSuperclass().getName().replace('.', '/'),
+                     interfaces.toArray(new String[0]));
 
             cw.visitEnd();
             return cw;
@@ -260,6 +260,7 @@ public class EntityGenerator {
             public void generateDefault() {
                 adapter.visitFrame(Opcodes.F_NEW, 0, null, 0, null);
                 adapter.throwException(Type.getType(IllegalStateException.class), "Unknown event type");
+                adapter.visitFrame(Opcodes.F_NEW, 0, null, 0, null);
             }
         };
     }
@@ -380,6 +381,7 @@ public class EntityGenerator {
             public void generateDefault() {
                 adapter.visitFrame(Opcodes.F_NEW, 0, null, 0, null);
                 adapter.throwException(Type.getType(IllegalArgumentException.class), "Unknown event");
+                adapter.visitFrame(Opcodes.F_NEW, 0, null, 0, null);
             }
         };
     }
