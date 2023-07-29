@@ -73,15 +73,8 @@ public class SimulationTransform implements Closeable {
     }
 
     private final ClassInfo     allMethodsMarker;
-    private final ClassInfo     blockingAnnotation;
     private final ClassInfoList entities;
-    private final ClassInfo     entityAnnotation;
-    private final ClassInfo     eventAnnotation;
-    private final ClassInfo     kairos;
-    private final ClassInfo     kronos;
-    private final ClassInfo     nonEventAnnotation;
     private final ScanResult    scan;
-    private final ClassInfo     transformedAnnotation;
 
     public SimulationTransform(ClassGraph graph) {
         graph.acceptPackages(Entity.class.getPackageName())
@@ -92,24 +85,8 @@ public class SimulationTransform implements Closeable {
              .enableExternalClasses()
              .ignoreMethodVisibility();
         scan = graph.scan();
-        entityAnnotation = scan.getClassInfo(Entity.class.getCanonicalName());
-        assert entityAnnotation != null : "cannot find " + Entity.class;
-        blockingAnnotation = scan.getClassInfo(Blocking.class.getCanonicalName());
-        assert blockingAnnotation != null : "cannot find " + Blocking.class;
-        eventAnnotation = scan.getClassInfo(Event.class.getCanonicalName());
-        assert eventAnnotation != null : "cannot find " + Event.class;
-        nonEventAnnotation = scan.getClassInfo(NonEvent.class.getCanonicalName());
-        assert nonEventAnnotation != null : "cannot find " + NonEvent.class;
-        kairos = scan.getClassInfo(Kairos.class.getCanonicalName());
-        assert kairos != null : "cannot find " + Kairos.class;
-        kronos = scan.getClassInfo(Kronos.class.getCanonicalName());
-        assert kronos != null : "cannot find " + Kronos.class;
-        allMethodsMarker = scan.getClassInfo(AllMethodsMarker.class.getCanonicalName());
-        assert allMethodsMarker != null : "cannot find " + AllMethodsMarker.class;
-        transformedAnnotation = scan.getClassInfo(Transformed.class.getCanonicalName());
-        assert transformedAnnotation != null : "cannot find " + Transformed.class;
         entities = scan.getClassesWithAnnotation(Entity.class.getCanonicalName());
-
+        allMethodsMarker = scan.getClassInfo(AllMethodsMarker.class.getCanonicalName());
     }
 
     @Override
@@ -134,30 +111,6 @@ public class SimulationTransform implements Closeable {
                 return !classInfo.hasAnnotation(Transformed.class);
             }
         }).stream().collect(Collectors.toMap(ci -> ci, ci -> generateEntity(ci)));
-    }
-
-    public ClassInfo getBlockingAnnotation() {
-        return blockingAnnotation;
-    }
-
-    public ClassInfo getEntityAnnotation() {
-        return entityAnnotation;
-    }
-
-    public ClassInfo getEventAnnotation() {
-        return eventAnnotation;
-    }
-
-    public ClassInfo getKairos() {
-        return kairos;
-    }
-
-    public ClassInfo getKronos() {
-        return kronos;
-    }
-
-    public ClassInfo getNonEventAnnotation() {
-        return nonEventAnnotation;
     }
 
     public Map<String, byte[]> transformed() {
