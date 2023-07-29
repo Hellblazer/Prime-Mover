@@ -19,6 +19,7 @@
 package com.hellblazer.primeMover.asm;
 
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.net.MalformedURLException;
 import java.time.Instant;
 import java.util.Arrays;
@@ -84,6 +85,9 @@ public class EntityGenerator {
 
     }
 
+    private static final String APPEND = "append";
+
+    private static final Method APPEND_METHOD;
     private static final String BIND_TO                   = "__bindTo";
     private static final Method BIND_TO_METHOD;
     private static final String BOOLEAN_VALUE             = "booleanValue";
@@ -125,6 +129,10 @@ public class EntityGenerator {
     private static final Method SHORT_VALUE_OF_METHOD;
     private static final String SIGNATURE_FOR             = "__signatureFor";
     private static final Method SIGNATURE_FOR_METHOD;
+    private static final Method STRING_BUILDER_CONSTRUCTOR;
+    private static final Type   STRING_BUILDER_TYPE       = Type.getType(StringBuilder.class);
+    private static final String TO_STRING                 = "toString";
+    private static final Method TO_STRING_METHOD;
     private static final String VALUE_OF                  = "valueOf";
 
     static {
@@ -350,6 +358,33 @@ public class EntityGenerator {
         } catch (SecurityException e) {
             throw new IllegalStateException("Cannot get '%s' method".formatted(SHORT_VALUE), e);
         }
+        try {
+            method = StringBuilder.class.getMethod(APPEND, String.class);
+        } catch (NoSuchMethodException | SecurityException e) {
+            throw new IllegalStateException("Cannot get '%s' method".formatted(APPEND), e);
+        }
+        try {
+            APPEND_METHOD = Method.getMethod(method);
+        } catch (SecurityException e) {
+            throw new IllegalStateException("Cannot get '%s' method".formatted(APPEND), e);
+        }
+        try {
+            method = StringBuilder.class.getMethod(TO_STRING);
+        } catch (NoSuchMethodException | SecurityException e) {
+            throw new IllegalStateException("Cannot get '%s' method".formatted(TO_STRING), e);
+        }
+        try {
+            TO_STRING_METHOD = Method.getMethod(method);
+        } catch (SecurityException e) {
+            throw new IllegalStateException("Cannot get '%s' method".formatted(TO_STRING), e);
+        }
+        Constructor<StringBuilder> constructor;
+        try {
+            constructor = StringBuilder.class.getConstructor();
+        } catch (NoSuchMethodException | SecurityException e) {
+            throw new IllegalStateException("Cannot get constructor", e);
+        }
+        STRING_BUILDER_CONSTRUCTOR = Method.getMethod(constructor);
     }
 
     private final ClassInfo                clazz;
@@ -383,6 +418,18 @@ public class EntityGenerator {
                 remapped.add(mi);
             }
         }
+    }
+
+    public void appendStrings(GeneratorAdapter mg, String... strings) {
+        mg.newInstance(STRING_BUILDER_TYPE);
+        mg.dup();
+        mg.invokeConstructor(STRING_BUILDER_TYPE, STRING_BUILDER_CONSTRUCTOR);
+        for (var s : strings) {
+            mg.push(s);
+            mg.invokeVirtual(STRING_BUILDER_TYPE, APPEND_METHOD);
+        }
+
+        mg.invokeVirtual(STRING_BUILDER_TYPE, TO_STRING_METHOD);
     }
 
     public ClassWriter generate() throws MalformedURLException, IOException {
@@ -605,6 +652,28 @@ public class EntityGenerator {
         mg.endMethod();
     }
 
+    private String signatureOf(MethodInfo mi) {
+        var b = new StringBuilder();
+        b.append('<');
+        b.append(type.getClassName());
+        b.append(": ");
+        b.append(mi.getTypeDescriptor().getResultType());
+        b.append(" ");
+        b.append(mi.getName());
+        b.append('(');
+        var frist = true;
+        for (var p : mi.getParameterInfo()) {
+            if (frist) {
+                frist = false;
+            } else {
+                b.append(", ");
+            }
+            b.append(p.getTypeDescriptor());
+        }
+        b.append(")>");
+        return b.toString();
+    }
+
     private TableSwitchGenerator signatureSwitch(GeneratorAdapter adapter) {
         return new TableSwitchGenerator() {
             @Override
@@ -614,7 +683,7 @@ public class EntityGenerator {
                 if (mi == null) {
                     throw new IllegalArgumentException("no key: " + key + " in mapped");
                 }
-                adapter.push(mi.toStringWithSimpleNames());
+                adapter.push(signatureOf(mi));
                 adapter.visitFrame(Opcodes.F_NEW, 2, new Object[] { internalName, Opcodes.INTEGER }, 1,
                                    new Object[] { Type.getType(String.class).getInternalName() });
                 adapter.returnValue();

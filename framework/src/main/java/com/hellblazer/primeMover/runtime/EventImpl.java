@@ -204,11 +204,6 @@ public class EventImpl implements Cloneable, Serializable, Comparable<EventImpl>
         return this;
     }
 
-    void setContinuation(Continuation continuation) {
-        assert this.continuation == null;
-        this.continuation = continuation;
-    }
-
     void setTime(long time) {
         this.time = time;
     }
