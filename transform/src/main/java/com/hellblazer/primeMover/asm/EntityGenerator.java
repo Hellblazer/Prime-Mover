@@ -25,7 +25,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.Stack;
 import java.util.stream.Collectors;
 
 import org.objectweb.asm.ClassReader;
@@ -246,27 +245,15 @@ public class EntityGenerator {
                 if (mi == null) {
                     throw new IllegalArgumentException("no key: " + key + " in mapped");
                 }
-                var stack = new Stack<Object>();
-                stack.push(internalName);
                 adapter.loadThis();
                 int i = 0;
 
                 for (var pi : mi.getParameterInfo()) {
                     adapter.loadArg(1);
-                    stack.push(Type.getType(Object[].class).getInternalName());
-
                     adapter.push(i++);
-                    stack.push(Opcodes.INTEGER);
                     adapter.arrayLoad(OBJECT_TYPE);
-
-                    stack.pop();
-                    stack.pop();
-
-                    stack.add(Type.getType(Object.class).getInternalName());
                     final var paramInternalName = pi.getTypeDescriptor().toString().replace('.', '/');
                     adapter.checkCast(Type.getObjectType(paramInternalName));
-                    stack.pop();
-                    stack.push(paramInternalName);
                 }
 
                 if (remapped.contains(mi)) {
