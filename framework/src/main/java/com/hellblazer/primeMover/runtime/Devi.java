@@ -67,7 +67,7 @@ abstract public class Devi implements Controller {
     public void advance(long duration) {
         final var current = currentTime;
         currentTime = current + duration;
-        logger.info("Advancing time from: %s to: %s".formatted(current, currentTime));
+        logger.finer("Advancing time from: %s to: %s".formatted(current, currentTime));
     }
 
     /**
@@ -147,7 +147,7 @@ abstract public class Devi implements Controller {
         final var continuing = current.clone(ct);
         continuingEvent = continuing;
         var blocking = blockingEvent = createEvent(ct, entity, event, arguments);
-        logger.info("Blocking: %s on: %s; continuation: %s".formatted(Thread.currentThread(), blocking, continuing));
+        logger.finer("Blocking: %s on: %s; continuation: %s".formatted(Thread.currentThread(), blocking, continuing));
         sailorMoon.complete(null);
 
         return continuing.park();
@@ -279,7 +279,7 @@ abstract public class Devi implements Controller {
     protected EventImpl swapCaller(EventImpl newCaller) {
         var tmp = caller;
         caller = newCaller;
-        logger.info("Swap caller: %s for: %s".formatted(tmp, newCaller));
+        logger.finer("Swap caller: %s for: %s".formatted(tmp, newCaller));
         return tmp;
     }
 
@@ -304,13 +304,13 @@ abstract public class Devi implements Controller {
     }
 
     private void evaluation(EventImpl next) throws SimulationException {
-        logger.info("evaluating: %s".formatted(next));
+        logger.finer("evaluating: %s".formatted(next));
         final var sailorMoon = futureSailor = new CompletableFuture<>();
         currentEvent = next;
         currentTime = next.getTime();
         caller = next.getCaller();
         if (next.getCaller() != null) {
-            logger.info("blocked caller: %s".formatted(next.getCaller()));
+            logger.finer("blocked caller: %s".formatted(next.getCaller()));
         }
         if (next.isContinuation()) {
             next.proceed();

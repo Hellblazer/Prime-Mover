@@ -21,9 +21,16 @@ package com.hellblazer.primeMover.asm;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.commons.ClassRemapper;
+import org.objectweb.asm.commons.SimpleRemapper;
 
 import com.hellblazer.primeMover.Kronos;
 import com.hellblazer.primeMover.annotations.AllMethodsMarker;
@@ -78,8 +85,8 @@ public class SimulationTransform implements Closeable {
 
     public SimulationTransform(ClassGraph graph) {
         graph.acceptPackages(Entity.class.getPackageName())
-             .acceptPackages(Kairos.class.getPackageName())
              .acceptPackages(Kronos.class.getPackageName())
+             .rejectPackages(Kairos.class.getPackageName())
              .enableAllInfo()
              .enableInterClassDependencies()
              .enableExternalClasses()
@@ -151,6 +158,49 @@ public class SimulationTransform implements Closeable {
 
     public ClassInfo getNonEventAnnotation() {
         return nonEventAnnotation;
+    }
+
+    public Map<String, byte[]> transformed() {
+        var transformed = new HashMap<String, byte[]>();
+        var map = new HashMap<String, String>();
+        map.put(Kronos.class.getCanonicalName().replace('.', '/'), Kairos.class.getCanonicalName().replace('.', '/'));
+        var apiRemapper = new SimpleRemapper(map);
+        scan.getAllClasses()
+            .filter(ci -> !entities.contains(ci))
+            .filter(ci -> !ci.getPackageName().equals(Kairos.class.getPackageName()))
+            .filter(ci -> !ci.getPackageName().equals(Kronos.class.getPackageName()))
+            .filter(ci -> !ci.getPackageName().equals(Entity.class.getPackageName()))
+            .filter(ci -> !ci.getPackageName().equals(EntityGenerator.class.getPackageName()))
+            .filter(ci -> !ci.getPackageName().startsWith(ClassVisitor.class.getPackageName()))
+            .filter(ci -> !ci.getPackageName().startsWith("org.junit"))
+            .filter(ci -> !ci.getPackageName().startsWith(ClassInfo.class.getPackageName()))
+            .forEach(ci -> {
+                if (ci.getResource() != null) {
+                    try (var is = ci.getResource().open()) {
+                        final var classReader = new ClassReader(is);
+                        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+                        classReader.accept(new ClassRemapper(cw, apiRemapper), ClassReader.EXPAND_FRAMES);
+                        final var written = cw.toByteArray();
+                        transformed.put(ci.getName().replace('.', '/'), written);
+                    } catch (IOException e) {
+                        throw new IllegalStateException("Unable to read class bytes: " + ci, e);
+                    }
+                }
+            });
+        generators().forEach((ci, generator) -> {
+            ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+            ClassReader classReader;
+            try {
+                classReader = new ClassReader(generator.generate().toByteArray());
+            } catch (IOException e) {
+                throw new IllegalStateException("unable to transform: " + ci, e);
+            }
+            classReader.accept(new ClassRemapper(cw, apiRemapper), ClassReader.EXPAND_FRAMES);
+            final var written = cw.toByteArray();
+            transformed.put(ci.getName().replace('.', '/'), written);
+        });
+
+        return transformed;
     }
 
     private EntityGenerator generateEntity(ClassInfo ci) {

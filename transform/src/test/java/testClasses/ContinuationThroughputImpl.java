@@ -4,7 +4,7 @@
  * This file is part of the Prime Mover Event Driven Simulation Framework.
  * 
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as 
+ * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  * 
@@ -33,45 +33,34 @@ import com.hellblazer.primeMover.annotations.Entity;
 
 @Entity({ ContinuationThroughput.class })
 public class ContinuationThroughputImpl implements ContinuationThroughput {
+    /** number of continuation events. */
+    protected final int    limit;
     /** benchmark type. */
     protected final String mode;
-    /** number of continuation events. */
-    protected final int nevents;
-    /** number of warm-up events. */
-    protected final int nwarm;
 
     /**
      * Create new continuation event benchmarking entity.
      * 
-     * @param mode
-     *            benchmark type
-     * @param nevents
-     *            number of continuation events
-     * @param nwarm
-     *            number of warm-up events
+     * @param mode  benchmark type
+     * @param limit number of continuation events
      */
-    public ContinuationThroughputImpl(String mode, int nevents, int nwarm) {
+    public ContinuationThroughputImpl(String mode, int limit) {
         this.mode = mode;
-        this.nevents = nevents;
-        this.nwarm = nwarm;
+        this.limit = limit;
         System.out.println("   type: " + mode);
-        System.out.println(" events: " + nevents);
-        System.out.println(" warmup: " + nwarm);
+        System.out.println(" events: " + limit);
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     *
      * @see testClasses.ContinuationThroughput#go()
      */
     @Override
     public void go() {
-        for (int i = 0; i < nwarm; i++) {
-            sleep(1);
-            call();
-        }
         System.out.println("benchmark BEGIN");
-        System.gc();
         long startTime = System.currentTimeMillis();
-        for (int i = 0; i < nevents; i++) {
+        for (int i = 0; i < limit; i++) {
             sleep(1);
             call();
         }
@@ -79,12 +68,13 @@ public class ContinuationThroughputImpl implements ContinuationThroughput {
         long endTime = System.currentTimeMillis();
         double duration = (endTime - startTime) / 1000.0;
         System.out.println("seconds: " + duration);
-        System.out.println(Math.round((nevents / duration)) + " " + mode
-                           + " continuation events/second");
+        System.out.println(Math.round((limit / duration)) + " " + mode + " continuation events/second");
         System.out.println();
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     *
      * @see testClasses.ContinuationThroughput#operation_array(byte[])
      */
     @Override
@@ -94,7 +84,9 @@ public class ContinuationThroughputImpl implements ContinuationThroughput {
         return b;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     *
      * @see testClasses.ContinuationThroughput#operation_double(double)
      */
     @Override
@@ -103,7 +95,9 @@ public class ContinuationThroughputImpl implements ContinuationThroughput {
         sleep(1);
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     *
      * @see testClasses.ContinuationThroughput#operation_int(int)
      */
     @Override
@@ -112,7 +106,9 @@ public class ContinuationThroughputImpl implements ContinuationThroughput {
         sleep(1);
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     *
      * @see testClasses.ContinuationThroughput#operation_null()
      */
     @Override
@@ -121,7 +117,9 @@ public class ContinuationThroughputImpl implements ContinuationThroughput {
         sleep(1);
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     *
      * @see testClasses.ContinuationThroughput#operation_show()
      */
     @Override
@@ -132,7 +130,9 @@ public class ContinuationThroughputImpl implements ContinuationThroughput {
         // throw new RuntimeException("hi");
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     *
      * @see testClasses.ContinuationThroughput#operation_string(java.lang.String)
      */
     @Override

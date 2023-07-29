@@ -4,7 +4,7 @@
  * This file is part of the Prime Mover Event Driven Simulation Framework.
  * 
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as 
+ * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  * 
@@ -33,28 +33,25 @@ import com.hellblazer.primeMover.annotations.Entity;
 @Entity({ EventThroughput.class })
 public class EventThroughputImpl implements EventThroughput {
     /** benchmark end time. */
-    private long endTime;
+    private long         endTime;
+    private final int    limit;
     /** benchmark type. */
     private final String mode;
     /** total number of events. */
-    /** number of warm-up events. */
-    private final int nevents;
+    private int          nEvents;
+
     /** benchmark start time. */
     private long startTime;
 
     /**
      * Create new event throughput benchmark entity.
      * 
-     * @param mode
-     *            benchmark type
-     * @param nevents
-     *            number of benchmark events
-     * @param nwarm
-     *            number of warm-up events
+     * @param mode  benchmark type
+     * @param limit number of benchmark events
      */
-    public EventThroughputImpl(String mode, int nevents, int nwarm) {
+    public EventThroughputImpl(String mode, int limit) {
         this.mode = mode;
-        this.nevents = nevents;
+        this.limit = limit;
 
         if ("NULL".equals(mode)) {
             nullOperation();
@@ -67,20 +64,27 @@ public class EventThroughputImpl implements EventThroughput {
         } else {
             throw new RuntimeException("unrecognized mode: " + mode);
         }
-        System.out.println(" events: " + nevents);
-        System.out.println(" warmup: " + nwarm);
+        System.out.println(" events: " + limit);
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     *
      * @see testClasses.EventThroughput#doubleOperation(double)
      */
     @Override
     public void doubleOperation(double d) {
+        nEvents++;
+        if (nEvents >= limit) {
+            return;
+        }
         sleep(1);
         doubleOperation(d);
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     *
      * @see testClasses.EventThroughput#finish()
      */
     @Override
@@ -89,45 +93,63 @@ public class EventThroughputImpl implements EventThroughput {
         endTime = System.currentTimeMillis();
         double duration = (endTime - startTime) / 1000.0;
         System.out.println("seconds: " + duration);
-        System.out.println(Math.round((nevents / duration)) + " " + mode
-                           + " events/second");
+        System.out.println(Math.round((nEvents / duration)) + " " + mode + " events/second");
         System.out.println();
         endSimulation();
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     *
      * @see testClasses.EventThroughput#intOperation(int)
      */
     @Override
     public void intOperation(int i) {
+        nEvents++;
+        if (nEvents >= limit) {
+            return;
+        }
         sleep(1);
         intOperation(i);
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     *
      * @see testClasses.EventThroughput#nullOperation()
      */
     @Override
     public void nullOperation() {
+        nEvents++;
+        if (nEvents >= limit) {
+            return;
+        }
         sleep(1);
         nullOperation();
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     *
      * @see testClasses.EventThroughput#start()
      */
     @Override
     public void start() {
         System.out.println("benchmark BEGIN");
-        System.gc();
         startTime = System.currentTimeMillis();
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     *
      * @see testClasses.EventThroughput#stringOperation(java.lang.String)
      */
     @Override
     public void stringOperation(String s) {
+        nEvents++;
+        if (nEvents >= limit) {
+            return;
+        }
         sleep(1);
         stringOperation(s);
     }

@@ -54,6 +54,10 @@ public class LocalLoader extends ClassLoader {
         this.classBits = classBits;
     }
 
+    public boolean transformed(String name) {
+        return classBits.containsKey(name.replace('.', '/'));
+    }
+
     @Override
     protected synchronized Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
         Class<?> loaded = findLoadedClass(name);
