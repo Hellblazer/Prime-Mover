@@ -22,11 +22,15 @@ package com.hellblazer.primeMover.asm;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.util.CheckClassAdapter;
+import org.objectweb.asm.util.TraceClassVisitor;
 
 import com.hellblazer.primeMover.TrackingController;
 import com.hellblazer.primeMover.runtime.Framework;
@@ -49,6 +53,13 @@ public class TestAPI {
         testChannel(loader);
     }
 
+    private void dump(byte[] bytes) {
+        ClassReader reader = new ClassReader(bytes);
+        TraceClassVisitor visitor = new TraceClassVisitor(null, new PrintWriter(System.out, true));
+        reader.accept(visitor, ClassReader.EXPAND_FRAMES);
+        CheckClassAdapter.verify(reader, true, new PrintWriter(System.out, true));
+    }
+
     private Map<String, byte[]> getTransformed() throws Exception {
         try (var transform = new SimulationTransform(new ClassGraph().acceptPackages("testClasses",
                                                                                      "com.hellblazer.*"))) {
@@ -57,7 +68,9 @@ public class TestAPI {
                             .stream()
                             .collect(Collectors.toMap(e -> e.getKey().getName().replace('.', '/'), e -> {
                                 try {
-                                    return e.getValue().generate().toByteArray();
+                                    final var bytes = e.getValue().generate().toByteArray();
+                                    dump(bytes);
+                                    return bytes;
                                 } catch (IOException e1) {
                                     throw new IllegalStateException(e1);
                                 }

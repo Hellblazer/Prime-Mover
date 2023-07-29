@@ -50,11 +50,14 @@ import com.hellblazer.primeMover.runtime.Framework;
 import com.hellblazer.primeMover.runtime.Kairos;
 import com.hellblazer.primeMover.soot.util.OpenAddressingSet.OpenSet;
 
+import io.github.classgraph.ArrayTypeSignature;
+import io.github.classgraph.BaseTypeSignature;
 import io.github.classgraph.ClassInfo;
 import io.github.classgraph.MethodInfo;
+import io.github.classgraph.MethodParameterInfo;
 
 /**
- * Transforms Entity classes into PrimeMove entities.
+ * Transforms Entity classes into PrimeMover entities.
  *
  * @author hal.hildebrand
  */
@@ -83,12 +86,33 @@ public class EntityGenerator {
 
     private static final String BIND_TO                   = "__bindTo";
     private static final Method BIND_TO_METHOD;
+    private static final String BOOLEAN_VALUE             = "booleanValue";
+    private static final Method BOOLEAN_VALUE_METHOD;
+    private static final Method BOOLEAN_VALUE_OF_METHOD;
+    private static final String BYTE_VALUE                = "byteValue";
+    private static final Method BYTE_VALUE_METHOD;
+    private static final Method BYTE_VALUE_OF_METHOD;
+    private static final String CHARACTER_VALUE           = "charValue";
+    private static final Method CHARACTER_VALUE_METHOD;
+    private static final Method CHARACTER_VALUE_OF_METHOD;
     private static final String CONTROLLER                = "$controller";
+    private static final String DOUBLE_VALUE              = "doubleValue";
+    private static final Method DOUBLE_VALUE_METHOD;
+    private static final Method DOUBLE_VALUE_OF_METHOD;
+    private static final String FLOAT_VALUE               = "floatValue";
+    private static final Method FLOAT_VALUE_METHOD;
+    private static final Method FLOAT_VALUE_OF_METHOD;
     private static final String GET_CONTROLLER            = "getController";
     private static final Method GET_CONTROLLER_METHOD;
     private static final Object INIT                      = "<init>";
+    private static final String INT_VALUE                 = "intValue";
+    private static final Method INT_VALUE_METHOD;
+    private static final Method INTEGER_VALUE_OF_METHOD;
     private static final String INVOKE                    = "__invoke";
     private static final Method INVOKE_METHOD;
+    private static final String LONG_VALUE                = "longValue";
+    private static final Method LONG_VALUE_METHOD;
+    private static final Method LONG_VALUE_OF_METHOD;
     private static final String METHOD_REMAP_KEY_TEMPLATE = "%s.%s%s";
     private static final Type   OBJECT_TYPE               = Type.getType(Object.class);
     private static final String POST_CONTINUING_EVENT     = "postContinuingEvent";
@@ -96,8 +120,12 @@ public class EntityGenerator {
     private static final String POST_EVENT                = "postEvent";
     private static final Method POST_EVENT_METHOD;
     private static final String REMAPPED_TEMPLATE         = "gen$%s";
+    private static final String SHORT_VALUE               = "shortValue";
+    private static final Method SHORT_VALUE_METHOD;
+    private static final Method SHORT_VALUE_OF_METHOD;
     private static final String SIGNATURE_FOR             = "__signatureFor";
     private static final Method SIGNATURE_FOR_METHOD;
+    private static final String VALUE_OF                  = "valueOf";
 
     static {
         java.lang.reflect.Method method;
@@ -160,6 +188,167 @@ public class EntityGenerator {
             INVOKE_METHOD = Method.getMethod(method);
         } catch (SecurityException e) {
             throw new IllegalStateException("Cannot get '%s' method".formatted(INVOKE), e);
+        }
+        try {
+            method = Boolean.class.getMethod(VALUE_OF, boolean.class);
+        } catch (NoSuchMethodException | SecurityException e) {
+            throw new IllegalStateException("Cannot get '%s' method".formatted(VALUE_OF), e);
+        }
+        try {
+            BOOLEAN_VALUE_OF_METHOD = Method.getMethod(method);
+        } catch (SecurityException e) {
+            throw new IllegalStateException("Cannot get '%s' method".formatted(VALUE_OF), e);
+        }
+        try {
+            method = Character.class.getMethod(VALUE_OF, char.class);
+        } catch (NoSuchMethodException | SecurityException e) {
+            throw new IllegalStateException("Cannot get '%s' method".formatted(VALUE_OF), e);
+        }
+        try {
+            CHARACTER_VALUE_OF_METHOD = Method.getMethod(method);
+        } catch (SecurityException e) {
+            throw new IllegalStateException("Cannot get '%s' method".formatted(VALUE_OF), e);
+        }
+        try {
+            method = Byte.class.getMethod(VALUE_OF, byte.class);
+        } catch (NoSuchMethodException | SecurityException e) {
+            throw new IllegalStateException("Cannot get '%s' method".formatted(VALUE_OF), e);
+        }
+        try {
+            BYTE_VALUE_OF_METHOD = Method.getMethod(method);
+        } catch (SecurityException e) {
+            throw new IllegalStateException("Cannot get '%s' method".formatted(VALUE_OF), e);
+        }
+        try {
+            method = Double.class.getMethod(VALUE_OF, double.class);
+        } catch (NoSuchMethodException | SecurityException e) {
+            throw new IllegalStateException("Cannot get '%s' method".formatted(VALUE_OF), e);
+        }
+        try {
+            DOUBLE_VALUE_OF_METHOD = Method.getMethod(method);
+        } catch (SecurityException e) {
+            throw new IllegalStateException("Cannot get '%s' method".formatted(VALUE_OF), e);
+        }
+        try {
+            method = Float.class.getMethod(VALUE_OF, float.class);
+        } catch (NoSuchMethodException | SecurityException e) {
+            throw new IllegalStateException("Cannot get '%s' method".formatted(VALUE_OF), e);
+        }
+        try {
+            FLOAT_VALUE_OF_METHOD = Method.getMethod(method);
+        } catch (SecurityException e) {
+            throw new IllegalStateException("Cannot get '%s' method".formatted(VALUE_OF), e);
+        }
+        try {
+            method = Integer.class.getMethod(VALUE_OF, int.class);
+        } catch (NoSuchMethodException | SecurityException e) {
+            throw new IllegalStateException("Cannot get '%s' method".formatted(VALUE_OF), e);
+        }
+        try {
+            INTEGER_VALUE_OF_METHOD = Method.getMethod(method);
+        } catch (SecurityException e) {
+            throw new IllegalStateException("Cannot get '%s' method".formatted(VALUE_OF), e);
+        }
+        try {
+            method = Long.class.getMethod(VALUE_OF, long.class);
+        } catch (NoSuchMethodException | SecurityException e) {
+            throw new IllegalStateException("Cannot get '%s' method".formatted(VALUE_OF), e);
+        }
+        try {
+            LONG_VALUE_OF_METHOD = Method.getMethod(method);
+        } catch (SecurityException e) {
+            throw new IllegalStateException("Cannot get '%s' method".formatted(VALUE_OF), e);
+        }
+        try {
+            method = Short.class.getMethod(VALUE_OF, short.class);
+        } catch (NoSuchMethodException | SecurityException e) {
+            throw new IllegalStateException("Cannot get '%s' method".formatted(VALUE_OF), e);
+        }
+        try {
+            SHORT_VALUE_OF_METHOD = Method.getMethod(method);
+        } catch (SecurityException e) {
+            throw new IllegalStateException("Cannot get '%s' method".formatted(VALUE_OF), e);
+        }
+
+        try {
+            method = Boolean.class.getMethod(BOOLEAN_VALUE);
+        } catch (NoSuchMethodException | SecurityException e) {
+            throw new IllegalStateException("Cannot get '%s' method".formatted(BOOLEAN_VALUE), e);
+        }
+        try {
+            BOOLEAN_VALUE_METHOD = Method.getMethod(method);
+        } catch (SecurityException e) {
+            throw new IllegalStateException("Cannot get '%s' method".formatted(BOOLEAN_VALUE), e);
+        }
+        try {
+            method = Character.class.getMethod(CHARACTER_VALUE);
+        } catch (NoSuchMethodException | SecurityException e) {
+            throw new IllegalStateException("Cannot get '%s' method".formatted(CHARACTER_VALUE), e);
+        }
+        try {
+            CHARACTER_VALUE_METHOD = Method.getMethod(method);
+        } catch (SecurityException e) {
+            throw new IllegalStateException("Cannot get '%s' method".formatted(CHARACTER_VALUE), e);
+        }
+        try {
+            method = Byte.class.getMethod(BYTE_VALUE);
+        } catch (NoSuchMethodException | SecurityException e) {
+            throw new IllegalStateException("Cannot get '%s' method".formatted(BYTE_VALUE), e);
+        }
+        try {
+            BYTE_VALUE_METHOD = Method.getMethod(method);
+        } catch (SecurityException e) {
+            throw new IllegalStateException("Cannot get '%s' method".formatted(BYTE_VALUE), e);
+        }
+        try {
+            method = Double.class.getMethod(DOUBLE_VALUE);
+        } catch (NoSuchMethodException | SecurityException e) {
+            throw new IllegalStateException("Cannot get '%s' method".formatted(DOUBLE_VALUE), e);
+        }
+        try {
+            DOUBLE_VALUE_METHOD = Method.getMethod(method);
+        } catch (SecurityException e) {
+            throw new IllegalStateException("Cannot get '%s' method".formatted(DOUBLE_VALUE), e);
+        }
+        try {
+            method = Float.class.getMethod(FLOAT_VALUE);
+        } catch (NoSuchMethodException | SecurityException e) {
+            throw new IllegalStateException("Cannot get '%s' method".formatted(FLOAT_VALUE), e);
+        }
+        try {
+            FLOAT_VALUE_METHOD = Method.getMethod(method);
+        } catch (SecurityException e) {
+            throw new IllegalStateException("Cannot get '%s' method".formatted(FLOAT_VALUE), e);
+        }
+        try {
+            method = Integer.class.getMethod(INT_VALUE);
+        } catch (NoSuchMethodException | SecurityException e) {
+            throw new IllegalStateException("Cannot get '%s' method".formatted(INT_VALUE), e);
+        }
+        try {
+            INT_VALUE_METHOD = Method.getMethod(method);
+        } catch (SecurityException e) {
+            throw new IllegalStateException("Cannot get '%s' method".formatted(INT_VALUE), e);
+        }
+        try {
+            method = Long.class.getMethod(LONG_VALUE);
+        } catch (NoSuchMethodException | SecurityException e) {
+            throw new IllegalStateException("Cannot get '%s' method".formatted(LONG_VALUE), e);
+        }
+        try {
+            LONG_VALUE_METHOD = Method.getMethod(method);
+        } catch (SecurityException e) {
+            throw new IllegalStateException("Cannot get '%s' method".formatted(LONG_VALUE), e);
+        }
+        try {
+            method = Short.class.getMethod(SHORT_VALUE);
+        } catch (NoSuchMethodException | SecurityException e) {
+            throw new IllegalStateException("Cannot get '%s' method".formatted(SHORT_VALUE), e);
+        }
+        try {
+            SHORT_VALUE_METHOD = Method.getMethod(method);
+        } catch (SecurityException e) {
+            throw new IllegalStateException("Cannot get '%s' method".formatted(SHORT_VALUE), e);
         }
     }
 
@@ -232,6 +421,41 @@ public class EntityGenerator {
         return clazz;
     }
 
+    private void boxIt(GeneratorAdapter adapter, Type type) {
+        switch (type.getSort()) {
+        case Type.BYTE:
+            adapter.invokeStatic(Type.getType(Byte.class), BYTE_VALUE_OF_METHOD);
+            break;
+        case Type.CHAR:
+            adapter.invokeStatic(Type.getType(Character.class), CHARACTER_VALUE_OF_METHOD);
+            break;
+        case Type.DOUBLE:
+            adapter.invokeStatic(Type.getType(Double.class), DOUBLE_VALUE_OF_METHOD);
+            break;
+        case Type.FLOAT:
+            adapter.invokeStatic(Type.getType(Float.class), FLOAT_VALUE_OF_METHOD);
+            break;
+        case Type.INT:
+            adapter.invokeStatic(Type.getType(Integer.class), INTEGER_VALUE_OF_METHOD);
+            break;
+        case Type.LONG:
+            adapter.invokeStatic(Type.getType(Long.class), LONG_VALUE_OF_METHOD);
+            break;
+        case Type.SHORT:
+            adapter.invokeStatic(Type.getType(Short.class), SHORT_VALUE_OF_METHOD);
+            break;
+        case Type.BOOLEAN:
+            adapter.invokeStatic(Type.getType(Boolean.class), BOOLEAN_VALUE_OF_METHOD);
+            break;
+        case Type.ARRAY:
+        case Type.OBJECT:
+            break;
+
+        default:
+            throw new IllegalArgumentException("Unknown parameter type: " + type);
+        }
+    }
+
     private TableSwitchGenerator eventSwitch(GeneratorAdapter adapter) {
         return new TableSwitchGenerator() {
             final Object[] locals = new Object[] { internalName, Opcodes.INTEGER,
@@ -252,8 +476,7 @@ public class EntityGenerator {
                     adapter.loadArg(1);
                     adapter.push(i++);
                     adapter.arrayLoad(OBJECT_TYPE);
-                    final var paramInternalName = pi.getTypeDescriptor().toString().replace('.', '/');
-                    adapter.checkCast(Type.getObjectType(paramInternalName));
+                    unboxIt(adapter, pi);
                 }
 
                 if (remapped.contains(mi)) {
@@ -343,10 +566,12 @@ public class EntityGenerator {
         var objectType = OBJECT_TYPE;
         mg.push(m.getArgumentTypes().length);
         mg.newArray(objectType);
-        for (int i = 0; i < m.getArgumentTypes().length; i++) {
+        int arg = 0;
+        for (var type : m.getArgumentTypes()) {
             mg.dup();
-            mg.push(i);
-            mg.loadArg(i);
+            mg.push(arg);
+            mg.loadArg(arg++);
+            boxIt(mg, type);
             mg.arrayStore(objectType);
         }
 
@@ -401,5 +626,51 @@ public class EntityGenerator {
                 adapter.throwException(Type.getType(IllegalArgumentException.class), "Unknown event");
             }
         };
+    }
+
+    private void unboxIt(GeneratorAdapter adapter, MethodParameterInfo pi) {
+        final var descriptor = pi.getTypeDescriptor();
+        if (descriptor instanceof ArrayTypeSignature ats) {
+            adapter.checkCast(Type.getObjectType(ats.getTypeSignatureStr()));
+        } else if (descriptor instanceof BaseTypeSignature bts) {
+            switch (bts.getTypeSignatureChar()) {
+            case 'B':
+                adapter.checkCast(Type.getType(Byte.class));
+                adapter.invokeVirtual(Type.getType(Byte.class), BYTE_VALUE_METHOD);
+                break;
+            case 'C':
+                adapter.checkCast(Type.getType(Character.class));
+                adapter.invokeVirtual(Type.getType(Character.class), CHARACTER_VALUE_METHOD);
+                break;
+            case 'D':
+                adapter.checkCast(Type.getType(Double.class));
+                adapter.invokeVirtual(Type.getType(Double.class), DOUBLE_VALUE_METHOD);
+                break;
+            case 'F':
+                adapter.checkCast(Type.getType(Float.class));
+                adapter.invokeVirtual(Type.getType(Float.class), FLOAT_VALUE_METHOD);
+                break;
+            case 'I':
+                adapter.checkCast(Type.getType(Integer.class));
+                adapter.invokeVirtual(Type.getType(Integer.class), INT_VALUE_METHOD);
+                break;
+            case 'J':
+                adapter.checkCast(Type.getType(Long.class));
+                adapter.invokeVirtual(Type.getType(Long.class), LONG_VALUE_METHOD);
+                break;
+            case 'S':
+                adapter.checkCast(Type.getType(Short.class));
+                adapter.invokeVirtual(Type.getType(Short.class), SHORT_VALUE_METHOD);
+                break;
+            case 'Z':
+                adapter.checkCast(Type.getType(Boolean.class));
+                adapter.invokeVirtual(Type.getType(Boolean.class), BOOLEAN_VALUE_METHOD);
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown parameter type: " + pi);
+            }
+        } else {
+            adapter.checkCast(Type.getObjectType(descriptor.toString().replace('.', '/')));
+        }
     }
 }
