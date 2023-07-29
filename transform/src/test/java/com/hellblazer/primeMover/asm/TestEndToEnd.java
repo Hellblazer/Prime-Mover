@@ -17,33 +17,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.hellblazer.primeMover.soot;
+package com.hellblazer.primeMover.asm;
 
-import static com.hellblazer.primeMover.soot.Util.OUTPUT_DIR;
-import static com.hellblazer.primeMover.soot.Util.PROCESSED_DIR;
-import static com.hellblazer.primeMover.soot.Util.SOURCE_DIR;
-import static com.hellblazer.utils.Utils.copyDirectory;
-import static com.hellblazer.utils.Utils.getBits;
-import static com.hellblazer.utils.Utils.initializeDirectory;
-import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 
 import com.hellblazer.primeMover.TrackingController;
 import com.hellblazer.primeMover.runtime.Framework;
+import com.hellblazer.primeMover.soot.LocalLoader;
 
-import soot.G;
-import soot.options.Options;
-import testClasses.Entity1Impl;
+import io.github.classgraph.ClassGraph;
 
 /**
  * Test the end to end behavior of simulation transform.
@@ -52,37 +41,18 @@ import testClasses.Entity1Impl;
  * 
  */
 public class TestEndToEnd {
-    private static final String TEST_CLASSES = "testClasses";
-    File                        outputDir    = new File(OUTPUT_DIR, TEST_CLASSES);
-    File                        processedDir = new File(PROCESSED_DIR, TEST_CLASSES);
-    File                        sourceDir    = new File(SOURCE_DIR, TEST_CLASSES);
 
-    @SuppressWarnings("deprecation")
     @Test
     public void testTransform() throws Exception {
-        G.reset();
-        initializeDirectory(processedDir);
-        initializeDirectory(outputDir);
-        copyDirectory(sourceDir, processedDir);
-        String[] argv = { "-w" };
-
-        Options.v().set_process_dir(asList(PROCESSED_DIR.getAbsolutePath()));
-        Options.v().set_output_dir(OUTPUT_DIR.getAbsolutePath());
-        // Options.v().setPhaseOption("cg", "verbose:true");
-        // Options.v().set_verbose(true);
-        SimulationTransform.setStandardClassPath();
-        SimulationTransform.main(argv);
-
         ClassLoader loader = new LocalLoader(getTransformed());
         TrackingController controller = new TrackingController();
-        controller.setDebugEvents(true);
-        controller.setEventLogger(Logger.getLogger("Event Logger"));
+        // controller.setDebugEvents(true);
+        // controller.setEventLogger(Logger.getLogger("Event Logger"));
         Framework.setController(controller);
-        Class<?> entity1Clazz = loader.loadClass(Entity1Impl.class.getCanonicalName()
-        + EntityGenerator.GENERATED_ENTITY_SUFFIX);
+        Class<?> entity1Clazz = loader.loadClass("testClasses.Entity1Impl");
 
         Object entity;
-        entity = entity1Clazz.newInstance();
+        entity = entity1Clazz.getConstructor().newInstance();
         Method event = entity1Clazz.getMethod("event1");
         controller.setCurrentTime(0);
         event.invoke(entity);
@@ -106,17 +76,21 @@ public class TestEndToEnd {
         assertEquals("<testClasses.Entity1Impl: void event1()>", controller.events.get(i++));
     }
 
-    private Map<String, byte[]> getTransformed() throws IOException {
-        HashMap<String, byte[]> classBits = new HashMap<String, byte[]>();
-        File[] listing = outputDir.listFiles();
-        assertNotNull(listing);
-        for (File classFile : listing) {
-            String name = classFile.getName();
-            if (name.endsWith(".class")) {
-                String className = TEST_CLASSES + '.' + name.substring(0, name.lastIndexOf('.'));
-                classBits.put(className, getBits(classFile));
-            }
+    private Map<String, byte[]> getTransformed() throws Exception {
+        try (var transform = new SimulationTransform(new ClassGraph().acceptPackages("testClasses",
+                                                                                     "com.hellblazer.*"))) {
+            return transform.generators()
+                            .entrySet()
+                            .stream()
+                            .collect(Collectors.toMap(e -> e.getKey().getName().replace('.', '/'), e -> {
+                                try {
+                                    final var bytes = e.getValue().generate().toByteArray();
+//                                    dump(bytes);
+                                    return bytes;
+                                } catch (IOException e1) {
+                                    throw new IllegalStateException(e1);
+                                }
+                            }));
         }
-        return classBits;
     }
 }

@@ -387,7 +387,7 @@ public class EntityGenerator {
         STRING_BUILDER_CONSTRUCTOR = Method.getMethod(constructor);
     }
 
-    private final Set<MethodInfo>          blocking;
+    private final Set<Method>              blocking;
     private final ClassInfo                clazz;
     private final Set<Method>              events;
     private final String                   internalName;
@@ -412,7 +412,7 @@ public class EntityGenerator {
             inverse.put(event, key++);
             this.events.add(event);
             if (!mi.getTypeDescriptor().getResultType().toString().equals("void") || mi.hasAnnotation(Blocking.class)) {
-                blocking.add(mi);
+                blocking.add(event);
             }
             final boolean declared = clazz.getDeclaredMethodInfo(mi.getName())
                                           .stream()
@@ -587,8 +587,7 @@ public class EntityGenerator {
                 if (!renamed.equals(name)) {
                     access = Opcodes.ACC_PRIVATE;
                 }
-                return super.visitMethod(access, renamed, descriptor, signature,
-                                         exceptions == null ? null : exceptions);
+                return super.visitMethod(access, renamed, descriptor, signature, exceptions);
             }
         };
     }
@@ -627,7 +626,8 @@ public class EntityGenerator {
         }
 
         if (Type.VOID_TYPE.equals(m.getReturnType())) {
-            mg.invokeVirtual(Type.getType(Devi.class), POST_EVENT_METHOD);
+            mg.invokeVirtual(Type.getType(Devi.class),
+                             blocking.contains(m) ? POST_CONTINUING_EVENT_METHOD : POST_EVENT_METHOD);
         } else {
             mg.invokeVirtual(Type.getType(Devi.class), POST_CONTINUING_EVENT_METHOD);
             mg.checkCast(m.getReturnType());
