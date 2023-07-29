@@ -39,11 +39,11 @@ import org.objectweb.asm.commons.AdviceAdapter;
 import org.objectweb.asm.commons.ClassRemapper;
 import org.objectweb.asm.commons.GeneratorAdapter;
 import org.objectweb.asm.commons.Method;
-import org.objectweb.asm.commons.MethodRemapper;
 import org.objectweb.asm.commons.SimpleRemapper;
 import org.objectweb.asm.commons.TableSwitchGenerator;
 
 import com.hellblazer.primeMover.Kronos;
+import com.hellblazer.primeMover.annotations.Blocking;
 import com.hellblazer.primeMover.annotations.Transformed;
 import com.hellblazer.primeMover.runtime.Devi;
 import com.hellblazer.primeMover.runtime.EntityReference;
@@ -387,6 +387,7 @@ public class EntityGenerator {
         STRING_BUILDER_CONSTRUCTOR = Method.getMethod(constructor);
     }
 
+    private final Set<MethodInfo>          blocking;
     private final ClassInfo                clazz;
     private final Set<Method>              events;
     private final String                   internalName;
@@ -401,6 +402,7 @@ public class EntityGenerator {
         internalName = clazz.getName().replace('.', '/');
         mapped = new HashMap<>();
         remapped = new OpenSet<>();
+        blocking = new OpenSet<>();
         inverse = new HashMap<>();
         this.events = new OpenSet<>();
         var key = 0;
@@ -409,6 +411,9 @@ public class EntityGenerator {
             final var event = new Method(mi.getName(), mi.getTypeDescriptorStr());
             inverse.put(event, key++);
             this.events.add(event);
+            if (!mi.getTypeDescriptor().getResultType().toString().equals("void") || mi.hasAnnotation(Blocking.class)) {
+                blocking.add(mi);
+            }
             final boolean declared = clazz.getDeclaredMethodInfo(mi.getName())
                                           .stream()
                                           .filter(m -> mi.equals(m))
@@ -582,9 +587,8 @@ public class EntityGenerator {
                 if (!renamed.equals(name)) {
                     access = Opcodes.ACC_PRIVATE;
                 }
-                var methodVisitor = super.visitMethod(access, renamed, descriptor, signature,
-                                                      exceptions == null ? null : exceptions);
-                return methodVisitor == null ? null : new MethodRemapper(methodVisitor, eventRemapper);
+                return super.visitMethod(access, renamed, descriptor, signature,
+                                         exceptions == null ? null : exceptions);
             }
         };
     }

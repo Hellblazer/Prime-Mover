@@ -4,7 +4,7 @@
  * This file is part of the Prime Mover Event Driven Simulation Framework.
  * 
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as 
+ * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  * 
@@ -33,29 +33,33 @@ import com.hellblazer.primeMover.annotations.Entity;
 public class UseChannelImpl implements UseChannel {
     protected final SynchronousQueue<String> channel = Kronos.createChannel(String.class);
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     *
      * @see testClasses.UseChannel#put()
      */
     @Override
     public void put(String element) {
-        System.out.println(Kronos.currentTime() + ": put called with: "
-                           + element);
+        System.out.println(Kronos.currentTime() + ": put called with: " + element);
         channel.put(element);
         System.out.println(Kronos.currentTime() + ": put continues");
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     *
      * @see testClasses.UseChannel#take()
      */
     @Override
     public void take() {
         System.out.println(Kronos.currentTime() + ": take called");
         String returned = channel.take();
-        System.out.println(Kronos.currentTime() + ": take continues with: "
-                           + returned);
+        System.out.println(Kronos.currentTime() + ": take continues with: " + returned);
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     *
      * @see testClasses.UseChannel#test()
      */
     @Override
