@@ -33,6 +33,7 @@ import com.hellblazer.primeMover.annotations.Entity;
 
 @Entity({ ContinuationThroughput.class })
 public class ContinuationThroughputImpl implements ContinuationThroughput {
+    private static final byte[] B = new byte[] {};
     /** number of continuation events. */
     protected final int    limit;
     /** benchmark type. */
@@ -154,7 +155,7 @@ public class ContinuationThroughputImpl implements ContinuationThroughput {
         } else if (mode.equals("STRING")) {
             operation_string("foo");
         } else if (mode.equals("ARRAY")) {
-            operation_array(new byte[] {});
+            operation_array(B);
         } else if (mode.equals("SHOW")) {
             try {
                 operation_show();
