@@ -1,10 +1,10 @@
 /**
- * Copyright (C) 2023 Hal Hildebrand. All rights reserved.
+ * Copyright (C) 2010 Hal Hildebrand. All rights reserved.
  * 
  * This file is part of the Prime Mover Event Driven Simulation Framework.
  * 
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
+ * it under the terms of the GNU Affero General Public License as 
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  * 
@@ -16,16 +16,26 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.hellblazer.primeMover.soot;
 
-import java.util.Map;
-
-import com.hellblazer.primeMover.annotations.Entity;
+package testClasses;
 
 /**
- * @author hal.hildebrand
+ * A class to test the transformation which substitutes creation of generated
+ * proxies instances for the creation of simulation entity instances.
+ * 
+ * @author <a href="mailto:hal.hildebrand@gmail.com">Hal Hildebrand</a>
+ * 
  */
-@Entity(Map.class)
-public class OverridingEntity extends EntityThroughSuperclass {
+public interface CreateEntity {
+
+    PrototypicalEntityImpl getENTITY_A();
+
+    PrototypicalEntityImpl getENTITY_B();
+
+    PrototypicalEntityImpl getEntityA();
+
+    PrototypicalEntityImpl getEntityB();
+
+    PrototypicalEntityImpl testMe();
 
 }

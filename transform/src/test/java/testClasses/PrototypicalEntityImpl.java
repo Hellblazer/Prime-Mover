@@ -17,12 +17,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.hellblazer.primeMover.soot;
+package testClasses;
 
 import java.util.UUID;
-
-import testClasses.Entity2;
-import testClasses.Entity2Impl;
 
 import com.hellblazer.primeMover.annotations.Blocking;
 import com.hellblazer.primeMover.annotations.Entity;

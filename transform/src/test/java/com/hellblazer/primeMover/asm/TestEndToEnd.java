@@ -30,9 +30,9 @@ import org.junit.jupiter.api.Test;
 
 import com.hellblazer.primeMover.TrackingController;
 import com.hellblazer.primeMover.runtime.Framework;
-import com.hellblazer.primeMover.soot.LocalLoader;
 
 import io.github.classgraph.ClassGraph;
+import testClasses.LocalLoader;
 
 /**
  * Test the end to end behavior of simulation transform.

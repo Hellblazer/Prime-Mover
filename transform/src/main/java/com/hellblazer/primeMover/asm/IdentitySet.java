@@ -1,7 +1,5 @@
 /**
- * Copyright (C) 2010 Hal Hildebrand. All rights reserved.
- * 
- * This file is part of the Prime Mover Event Driven Simulation Framework.
+ * Copyright (C) 2010 Hal Hildebrand. All rights reserved. 
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as 
@@ -17,19 +15,29 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.hellblazer.primeMover.soot;
-
-import java.io.File;
+package com.hellblazer.primeMover.asm;
 
 /**
- * A collection of utilities
- * 
  * @author <a href="mailto:hal.hildebrand@gmail.com">Hal Hildebrand</a>
  * 
  */
-public class Util {
+public class IdentitySet<T> extends OpenAddressingSet<T> {
 
-    public static final File OUTPUT_DIR = new File("test-output-classes");
-    public static final File PROCESSED_DIR = new File("test-classes");
-    public static final File SOURCE_DIR = new File("target/test-classes");
+    public IdentitySet() {
+        super(4);
+    }
+
+    public IdentitySet(int initialCapacity) {
+        super(initialCapacity);
+    }
+
+    @Override
+    protected boolean equals(Object key, Object ob) {
+        return ob == key;
+    }
+
+    @Override
+    protected int getHash(Object key) {
+        return System.identityHashCode(key);
+    }
 }

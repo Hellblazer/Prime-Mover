@@ -45,11 +45,11 @@ import org.objectweb.asm.commons.TableSwitchGenerator;
 import com.hellblazer.primeMover.Kronos;
 import com.hellblazer.primeMover.annotations.Blocking;
 import com.hellblazer.primeMover.annotations.Transformed;
+import com.hellblazer.primeMover.asm.OpenAddressingSet.OpenSet;
 import com.hellblazer.primeMover.runtime.Devi;
 import com.hellblazer.primeMover.runtime.EntityReference;
 import com.hellblazer.primeMover.runtime.Framework;
 import com.hellblazer.primeMover.runtime.Kairos;
-import com.hellblazer.primeMover.soot.util.OpenAddressingSet.OpenSet;
 
 import io.github.classgraph.ArrayTypeSignature;
 import io.github.classgraph.BaseTypeSignature;

@@ -39,8 +39,8 @@ import com.hellblazer.primeMover.annotations.Entity;
 import com.hellblazer.primeMover.annotations.Event;
 import com.hellblazer.primeMover.annotations.NonEvent;
 import com.hellblazer.primeMover.annotations.Transformed;
+import com.hellblazer.primeMover.asm.OpenAddressingSet.OpenSet;
 import com.hellblazer.primeMover.runtime.Kairos;
-import com.hellblazer.primeMover.soot.util.OpenAddressingSet.OpenSet;
 
 import io.github.classgraph.AnnotationClassRef;
 import io.github.classgraph.ClassGraph;

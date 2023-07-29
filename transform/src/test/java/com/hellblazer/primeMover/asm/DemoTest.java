@@ -13,9 +13,8 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
-import com.hellblazer.primeMover.soot.LocalLoader;
-
 import io.github.classgraph.ClassGraph;
+import testClasses.LocalLoader;
 
 public class DemoTest {
 

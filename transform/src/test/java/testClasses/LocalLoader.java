@@ -17,21 +17,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.hellblazer.primeMover.soot;
+package testClasses;
 
-import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
-
-import soot.SootClass;
-import soot.SootMethod;
-import soot.baf.Baf;
-import soot.baf.JasminClass;
-import soot.jimple.JimpleBody;
-import soot.util.JasminOutputStream;
 
 /**
  * A class loader to facilitate the loading of transformed classes.
@@ -42,13 +30,6 @@ import soot.util.JasminOutputStream;
 public class LocalLoader extends ClassLoader {
 
     public Map<String, byte[]> classBits;
-
-    public LocalLoader(Collection<SootClass> generated) {
-        classBits = new HashMap<String, byte[]>();
-        for (SootClass clazz : generated) {
-            classBits.put(clazz.getName(), generateClassBits(clazz));
-        }
-    }
 
     public LocalLoader(Map<String, byte[]> classBits) {
         this.classBits = classBits;
@@ -70,21 +51,5 @@ public class LocalLoader extends ClassLoader {
         } else {
             return super.loadClass(name, resolve);
         }
-    }
-
-    private byte[] generateClassBits(SootClass clazz) {
-        for (SootMethod method : clazz.getMethods()) {
-            method.setActiveBody(Baf.v().newBody((JimpleBody) method.getActiveBody()));
-        }
-
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        OutputStream classOut = new JasminOutputStream(baos);
-        PrintWriter classWriter = new PrintWriter(classOut);
-
-        JasminClass jClass = new JasminClass(clazz);
-        jClass.print(classWriter);
-        classWriter.flush();
-        classWriter.close();
-        return baos.toByteArray();
     }
 }

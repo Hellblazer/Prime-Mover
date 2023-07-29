@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.hellblazer.primeMover.soot;
+package testClasses;
 
 /**
  * A class to test the transformation which substitutes creation of generated

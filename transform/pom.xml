@@ -30,8 +30,16 @@
             <artifactId>runtime</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.soot-oss</groupId>
-            <artifactId>soot</artifactId>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm-commons</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm-util</artifactId>
         </dependency>
         <dependency>
             <groupId>io.github.classgraph</groupId>

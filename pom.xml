@@ -10,9 +10,7 @@
     <properties>
         <maven.compiler.source>20</maven.compiler.source>
         <maven.compiler.target>20</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <sootUp.version>1.0.0</sootUp.version>
-        <protobuf.version>3.22.2</protobuf.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>  
         <junit.version>5.9.1</junit.version>
         <logback.version>1.2.12</logback.version>
         <asm.version>9.5</asm.version>
@@ -34,12 +32,7 @@
                 <groupId>${project.groupId}</groupId>
                 <artifactId>transform</artifactId>
                 <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.soot-oss</groupId>
-                <artifactId>soot</artifactId>
-                <version>4.4.1</version>
-            </dependency>
+            </dependency> 
             <dependency>
                 <groupId>org.ow2.asm</groupId>
                 <artifactId>asm</artifactId>
@@ -69,12 +62,7 @@
                 <groupId>org.ow2.asm</groupId>
                 <artifactId>asm-test</artifactId>
                 <version>${asm.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.reflections</groupId>
-                <artifactId>reflections</artifactId>
-                <version>0.10.2</version>
-            </dependency>
+            </dependency> 
             <dependency>
                 <groupId>io.github.classgraph</groupId>
                 <artifactId>classgraph</artifactId>

@@ -17,25 +17,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.hellblazer.primeMover.soot;
+package testClasses;
+
+import java.io.File;
 
 /**
- * A class to test the transformation which substitutes creation of generated
- * proxies instances for the creation of simulation entity instances.
+ * A collection of utilities
  * 
  * @author <a href="mailto:hal.hildebrand@gmail.com">Hal Hildebrand</a>
  * 
  */
-public interface CreateEntity {
+public class Util {
 
-    PrototypicalEntityImpl getENTITY_A();
-
-    PrototypicalEntityImpl getENTITY_B();
-
-    PrototypicalEntityImpl getEntityA();
-
-    PrototypicalEntityImpl getEntityB();
-
-    PrototypicalEntityImpl testMe();
-
+    public static final File OUTPUT_DIR = new File("test-output-classes");
+    public static final File PROCESSED_DIR = new File("test-classes");
+    public static final File SOURCE_DIR = new File("target/test-classes");
 }

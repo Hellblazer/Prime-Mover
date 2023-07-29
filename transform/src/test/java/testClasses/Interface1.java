@@ -1,4 +1,4 @@
-package com.hellblazer.primeMover.soot;
+package testClasses;
 
 public interface Interface1 {
     void event1();
