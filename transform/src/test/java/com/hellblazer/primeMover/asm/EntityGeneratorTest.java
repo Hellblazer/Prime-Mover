@@ -21,12 +21,22 @@ package com.hellblazer.primeMover.asm;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
+import static org.objectweb.asm.Opcodes.ACC_STATIC;
 
+import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.nio.ByteBuffer;
 
 import org.junit.jupiter.api.Test;
 import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Label;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
+import org.objectweb.asm.commons.GeneratorAdapter;
+import org.objectweb.asm.commons.Method;
+import org.objectweb.asm.commons.TableSwitchGenerator;
 import org.objectweb.asm.util.CheckClassAdapter;
 import org.objectweb.asm.util.TraceClassVisitor;
 
@@ -79,5 +89,104 @@ public class EntityGeneratorTest {
         while (controller.send())
             ;
         assertEquals(0, controller.eventQueue.size());
+    }
+
+    @Test
+    public void tableSwitch() throws Exception {
+        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+        final var name = "Example";
+        cw.visit(Opcodes.V17, ACC_PUBLIC, name, null, "java/lang/Object", null);
+
+        Method m = Method.getMethod("void <init> ()");
+        GeneratorAdapter mg = new GeneratorAdapter(ACC_PUBLIC, m, null, null, cw);
+        mg.loadThis();
+        mg.invokeConstructor(Type.getType(Object.class), m);
+        mg.returnValue();
+        mg.visitMaxs(1, 1);
+        mg.endMethod();
+
+        m = Method.getMethod("void main (String[])");
+        mg = new GeneratorAdapter(ACC_PUBLIC + ACC_STATIC, m, null, null, cw);
+        mg.getStatic(Type.getType(System.class), "out", Type.getType(PrintStream.class));
+        mg.push("Hello world!");
+        mg.invokeVirtual(Type.getType(PrintStream.class), Method.getMethod("void println (String)"));
+        mg.returnValue();
+        mg.visitMaxs(0, 0);
+        mg.endMethod();
+
+        m = Method.getMethod("Integer test (int)");
+        final var gen = new GeneratorAdapter(ACC_PUBLIC, m, null, null, cw);
+
+        gen.loadArg(0);
+        gen.tableSwitch(new int[] { 0, 1, 2 }, new TableSwitchGenerator() {
+
+            @Override
+            public void generateCase(int key, Label end) {
+                gen.visitFrame(Opcodes.F_NEW, 2,
+                               new Object[] { Type.getObjectType("Example").getInternalName(), Opcodes.INTEGER }, 0,
+                               new Object[] {});
+                gen.push("foo");
+                gen.visitFrame(Opcodes.F_NEW, 2,
+                               new Object[] { Type.getObjectType("Example").getInternalName(), Opcodes.INTEGER }, 1,
+                               new Object[] { Type.getType(String.class).getInternalName() });
+                gen.push(key);
+                gen.visitFrame(Opcodes.F_NEW, 2,
+                               new Object[] { Type.getObjectType("Example").getInternalName(), Opcodes.INTEGER }, 2,
+                               new Object[] { Type.getType(String.class).getInternalName(), Opcodes.INTEGER });
+                gen.invokeStatic(Type.getType(Integer.class), Method.getMethod("Integer parseInt (String, int)"));
+                gen.returnValue();
+            }
+
+            @Override
+            public void generateDefault() {
+                gen.visitFrame(Opcodes.F_NEW, 2,
+                               new Object[] { Type.getObjectType("Example").getInternalName(), Opcodes.INTEGER }, 0,
+                               new Object[] {});
+                gen.push(0);
+                gen.visitFrame(Opcodes.F_NEW, 2,
+                               new Object[] { Type.getObjectType("Example").getInternalName(), Opcodes.INTEGER }, 1,
+                               new Object[] { Opcodes.INTEGER });
+                gen.invokeStatic(Type.getType(Integer.class), Method.getMethod("Integer valueOf (int)"));
+                gen.returnValue();
+            }
+        });
+        gen.visitMaxs(0, 0);
+        gen.endMethod();
+
+        cw.visitEnd();
+
+        final var bytes = cw.toByteArray();
+        assertNotNull(bytes);
+
+        TraceClassVisitor visitor = new TraceClassVisitor(null, new PrintWriter(System.out, true));
+        ClassReader reader = new ClassReader(bytes);
+        reader.accept(visitor, ClassReader.EXPAND_FRAMES);
+        CheckClassAdapter.verify(reader, true, new PrintWriter(System.out, true));
+        var loader = new ClassLoader(getClass().getClassLoader()) {
+            {
+                {
+                    defineClass(name, ByteBuffer.wrap(bytes), null);
+                }
+            }
+        };
+        var clazz = loader.loadClass(name);
+        assertNotNull(clazz);
+        clazz.getConstructor().newInstance();
+    }
+
+    @Test
+    public void template() throws Exception {
+
+        final var name = "com.hellblazer.primeMover.asm.testClasses.Template";
+
+        ClassReader reader;
+        try (var is = getClass().getClassLoader().getResourceAsStream(name.replace('.', '/') + ".class")) {
+            reader = new ClassReader(is);
+        }
+
+        TraceClassVisitor visitor = new TraceClassVisitor(null, new PrintWriter(System.out, true));
+        reader.accept(visitor, ClassReader.EXPAND_FRAMES);
+
+        CheckClassAdapter.verify(reader, true, new PrintWriter(System.out, true));
     }
 }

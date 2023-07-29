@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.Stack;
 import java.util.stream.Collectors;
 
 import org.objectweb.asm.ClassReader;
@@ -218,7 +219,7 @@ public class EntityGenerator {
             generateInvoke(cw);
             generateSignatureFor(cw);
             generateBindTo(cw);
-            cw.visit(Opcodes.V1_6, clazz.getModifiers(), internalName, clazz.getTypeSignatureStr(),
+            cw.visit(clazz.getClassfileMajorVersion(), clazz.getModifiers(), internalName, clazz.getTypeSignatureStr(),
                      clazz.getSuperclass() == null ? Type.getInternalName(Object.class)
                                                    : clazz.getSuperclass().getName().replace('.', '/'),
                      interfaces.toArray(new String[0]));
@@ -241,15 +242,41 @@ public class EntityGenerator {
                 if (mi == null) {
                     throw new IllegalArgumentException("no key: " + key + " in mapped");
                 }
-                adapter.visitFrame(Opcodes.F_NEW, 0, null, 0, null);
+                final var locals = new Object[] { internalName, Opcodes.INTEGER,
+                                                  Type.getType(Object[].class).getInternalName() };
+                var stack = new Stack<Object>();
+                stack.push(internalName);
+
+                adapter.visitFrame(Opcodes.F_NEW, 3, locals, 0, new Object[] {});
+
                 adapter.loadThis();
+                adapter.visitFrame(Opcodes.F_NEW, 3, locals, 1, stack.toArray(new Object[0]));
+
                 int i = 0;
+
                 for (var pi : mi.getParameterInfo()) {
                     adapter.loadArg(1);
+                    stack.push(Type.getType(Object[].class).getInternalName());
+                    adapter.visitFrame(Opcodes.F_NEW, 3, locals, stack.size(), stack.toArray(new Object[0]));
+
                     adapter.push(i++);
+                    stack.push(Opcodes.INTEGER);
+                    adapter.visitFrame(Opcodes.F_NEW, 3, locals, stack.size(), stack.toArray(new Object[0]));
+
                     adapter.arrayLoad(OBJECT_TYPE);
-                    adapter.checkCast(Type.getObjectType(pi.getTypeDescriptor().toString().replace('.', '/')));
+
+                    stack.pop();
+                    stack.pop();
+
+                    stack.add(Type.getType(Object.class).getInternalName());
+                    adapter.visitFrame(Opcodes.F_NEW, 3, locals, stack.size(), stack.toArray(new Object[0]));
+                    final var paramInternalName = pi.getTypeDescriptor().toString().replace('.', '/');
+                    adapter.checkCast(Type.getObjectType(paramInternalName));
+                    stack.pop();
+                    stack.push(paramInternalName);
+                    adapter.visitFrame(Opcodes.F_NEW, 3, locals, stack.size(), stack.toArray(new Object[0]));
                 }
+
                 if (remapped.contains(mi)) {
                     adapter.invokeVirtual(type, new Method(REMAPPED_TEMPLATE.formatted(mi.getName()),
                                                            mi.getTypeDescriptorStr()));
@@ -264,9 +291,10 @@ public class EntityGenerator {
 
             @Override
             public void generateDefault() {
-                adapter.visitFrame(Opcodes.F_NEW, 0, null, 0, null);
+                adapter.visitFrame(Opcodes.F_NEW, 3, new Object[] { internalName, Opcodes.INTEGER,
+                                                                    Type.getType(Object[].class).getInternalName() },
+                                   0, new Object[] {});
                 adapter.throwException(Type.getType(IllegalStateException.class), "Unknown event type");
-                adapter.visitFrame(Opcodes.F_NEW, 0, null, 0, null);
             }
         };
     }
@@ -379,20 +407,21 @@ public class EntityGenerator {
         return new TableSwitchGenerator() {
             @Override
             public void generateCase(int key, Label end) {
+                adapter.visitFrame(Opcodes.F_NEW, 2, new Object[] { internalName, Opcodes.INTEGER }, 0, new Object[0]);
                 var mi = mapped.get(key);
                 if (mi == null) {
                     throw new IllegalArgumentException("no key: " + key + " in mapped");
                 }
-                adapter.visitFrame(Opcodes.F_NEW, 0, null, 0, null);
                 adapter.push(mi.toStringWithSimpleNames());
+                adapter.visitFrame(Opcodes.F_NEW, 2, new Object[] { internalName, Opcodes.INTEGER }, 1,
+                                   new Object[] { Type.getType(String.class).getInternalName() });
                 adapter.returnValue();
             }
 
             @Override
             public void generateDefault() {
-                adapter.visitFrame(Opcodes.F_NEW, 0, null, 0, null);
+                adapter.visitFrame(Opcodes.F_NEW, 2, new Object[] { internalName, Opcodes.INTEGER }, 0, new Object[0]);
                 adapter.throwException(Type.getType(IllegalArgumentException.class), "Unknown event");
-                adapter.visitFrame(Opcodes.F_NEW, 0, null, 0, null);
             }
         };
     }
