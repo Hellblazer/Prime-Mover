@@ -19,7 +19,7 @@
 
 package testClasses;
 
-import com.hellblazer.primeMover.Entity;
+import com.hellblazer.primeMover.annotations.Entity;
 
 /**
  * 

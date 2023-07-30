@@ -19,9 +19,9 @@
 
 package testClasses;
 
-import com.hellblazer.primeMover.Entity;
 import com.hellblazer.primeMover.Kronos;
 import com.hellblazer.primeMover.SynchronousQueue;
+import com.hellblazer.primeMover.annotations.Entity;
 
 /**
  * 

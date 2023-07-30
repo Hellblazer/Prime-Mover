@@ -21,12 +21,12 @@ package demo;
 
 import java.util.Map;
 
-import testClasses.DriverImpl;
-import testClasses.UseChannelImpl;
-
 import com.hellblazer.primeMover.Kronos;
 import com.hellblazer.primeMover.SimulationException;
 import com.hellblazer.primeMover.controllers.SimulationController;
+
+import testClasses.DriverImpl;
+import testClasses.UseChannelImpl;
 
 /**
  * 

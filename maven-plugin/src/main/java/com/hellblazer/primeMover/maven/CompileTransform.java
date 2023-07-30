@@ -4,7 +4,7 @@
  * This file is part of the Prime Mover Event Driven Simulation Framework.
  * 
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as 
+ * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  * 
@@ -30,6 +30,8 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Transform the module's classes to event driven simulation code.
@@ -37,34 +39,32 @@ import org.apache.maven.project.MavenProject;
  */
 @Mojo(name = "transform", defaultPhase = LifecyclePhase.PROCESS_CLASSES, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME, threadSafe = false, executionStrategy = "once-per-session", instantiationStrategy = InstantiationStrategy.PER_LOOKUP, requiresDependencyCollection = ResolutionScope.COMPILE_PLUS_RUNTIME)
 public class CompileTransform extends AbstractTransform {
+    private static final Logger log = LoggerFactory.getLogger(CompileTransform.class);
 
     @Parameter(property = "project")
     protected MavenProject project;
 
     @Parameter(property = "project.build.outputDirectory", readonly = true)
-    File                   buildOutputDirectory;
+    File buildOutputDirectory;
 
     @Override
     protected String getCompileClasspath() throws MojoExecutionException {
-        getLog().info(String.format("Maven project: %s", project));
+        log.info(String.format("Maven project: %s", project));
         StringBuffer classpath = new StringBuffer();
         classpath.append(getBootClasspath());
         List<?> runtimeClasspathElements;
         try {
             runtimeClasspathElements = project.getRuntimeClasspathElements();
         } catch (DependencyResolutionRequiredException e) {
-            throw new MojoExecutionException(
-                                             "Unable to do dependency resolution",
-                                             e);
+            throw new MojoExecutionException("Unable to do dependency resolution", e);
         }
-        getLog().debug(String.format("Runtime classpath elements: %s",
-                                     runtimeClasspathElements));
+        log.debug(String.format("Runtime classpath elements: %s", runtimeClasspathElements));
         for (Object element : runtimeClasspathElements) {
             classpath.append(':');
             classpath.append(element);
         }
         String pathString = classpath.toString();
-        getLog().info(String.format("Compile transform classpath: %s", pathString));
+        log.info(String.format("Compile transform classpath: %s", pathString));
         return pathString;
     }
 

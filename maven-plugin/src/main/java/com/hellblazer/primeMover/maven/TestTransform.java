@@ -4,7 +4,7 @@
  * This file is part of the Prime Mover Event Driven Simulation Framework.
  * 
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as 
+ * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  * 
@@ -31,6 +31,8 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Transform the module's test classes to event driven simulation code.
@@ -39,15 +41,16 @@ import org.apache.maven.project.MavenProject;
 @Mojo(name = "transform-test", defaultPhase = LifecyclePhase.PROCESS_TEST_CLASSES, requiresDependencyResolution = ResolutionScope.TEST, threadSafe = false, executionStrategy = "once-per-session", instantiationStrategy = InstantiationStrategy.PER_LOOKUP, requiresDependencyCollection = ResolutionScope.COMPILE_PLUS_RUNTIME)
 @Execute(phase = LifecyclePhase.PROCESS_TEST_CLASSES)
 public class TestTransform extends AbstractTransform {
+    private static final Logger log = LoggerFactory.getLogger(TestTransform.class);
 
     @Parameter(property = "project.build.outputDirectory", readonly = true)
-    File         buildOutputDirectory;
-
-    @Parameter(property = "project.build.testOutputDirectory", readonly = true)
-    File         testOutputDirectory;
+    File buildOutputDirectory;
 
     @Parameter(property = "project")
     MavenProject project;
+
+    @Parameter(property = "project.build.testOutputDirectory", readonly = true)
+    File testOutputDirectory;
 
     @Override
     protected String getCompileClasspath() throws MojoExecutionException {
@@ -55,12 +58,9 @@ public class TestTransform extends AbstractTransform {
         try {
             testClasspathElements = project.getTestClasspathElements();
         } catch (DependencyResolutionRequiredException e) {
-            throw new MojoExecutionException(
-                                             "Unable to perform test dependency resolution",
-                                             e);
+            throw new MojoExecutionException("Unable to perform test dependency resolution", e);
         }
-        getLog().debug(String.format("Runtime classpath elements: %s",
-                                     testClasspathElements));
+        log.debug(String.format("Runtime classpath elements: %s", testClasspathElements));
         StringBuffer classpath = new StringBuffer();
         classpath.append(getBootClasspath());
         for (Object element : testClasspathElements) {
@@ -68,7 +68,7 @@ public class TestTransform extends AbstractTransform {
             classpath.append(element);
         }
         String pathString = classpath.toString();
-        getLog().info(String.format("Test transform classpath: %s", pathString));
+        log.info(String.format("Test transform classpath: %s", pathString));
         return pathString;
     }
 

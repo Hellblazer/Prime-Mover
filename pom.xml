@@ -10,7 +10,7 @@
     <properties>
         <maven.compiler.source>20</maven.compiler.source>
         <maven.compiler.target>20</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>  
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <junit.version>5.9.1</junit.version>
         <logback.version>1.2.12</logback.version>
         <asm.version>9.5</asm.version>
@@ -18,8 +18,9 @@
     <modules>
         <module>framework</module>
         <module>transform</module>
-        <!-- <module>maven-plugin</module> <module>maven-testing</module>
-        <module>demo</module> -->
+        <module>maven-plugin</module>
+        <module>maven-testing</module>
+        <module>demo</module>
     </modules>
     <dependencyManagement>
         <dependencies>
@@ -32,7 +33,12 @@
                 <groupId>${project.groupId}</groupId>
                 <artifactId>transform</artifactId>
                 <version>${project.version}</version>
-            </dependency> 
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>maven-plugin</artifactId>
+                <version>${project.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.ow2.asm</groupId>
                 <artifactId>asm</artifactId>
@@ -62,13 +68,13 @@
                 <groupId>org.ow2.asm</groupId>
                 <artifactId>asm-test</artifactId>
                 <version>${asm.version}</version>
-            </dependency> 
+            </dependency>
             <dependency>
                 <groupId>io.github.classgraph</groupId>
                 <artifactId>classgraph</artifactId>
                 <version>4.8.161</version>
-            </dependency> 
-            
+            </dependency>
+
             <!-- Test Only Dependencies Below This Line-->
             <dependency>
                 <groupId>org.junit.jupiter</groupId>

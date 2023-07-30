@@ -4,7 +4,7 @@
  * This file is part of the Prime Mover Event Driven Simulation Framework.
  * 
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as 
+ * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  * 
@@ -19,21 +19,18 @@
 
 package com.hellblazer.primeMover.maven;
 
-import static java.util.Arrays.asList;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Enumeration;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
-
-import soot.G;
-import soot.options.Options;
-
-import com.hellblazer.primeMover.soot.SimulationTransform;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class AbstractTransform extends AbstractMojo {
+
+    private static Logger logger = LoggerFactory.getLogger(AbstractTransform.class);
 
     public AbstractTransform() {
         super();
@@ -41,24 +38,26 @@ public abstract class AbstractTransform extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException {
-        G.reset();
+//        G.reset();
         String classpath = getCompileClasspath();
-        getLog().info(String.format("Using transform classpath: %s", classpath));
-        Options.v().set_soot_classpath(classpath);
-        Options.v().set_process_dir(asList(getProcessDirectory()));
-        Options.v().set_output_dir(getOutputDirectory());
-        SimulationTransform.main(null);
+        logger.info(String.format("Using transform classpath: %s", classpath));
+//        Options.v().set_soot_classpath(classpath);
+//        Options.v().set_process_dir(asList(getProcessDirectory()));
+//        Options.v().set_output_dir(getOutputDirectory());
+//        SimulationTransform.main(null);
     }
+
+    abstract protected String getCompileClasspath() throws MojoExecutionException;
 
     String getBootClasspath() throws MojoExecutionException {
         String cp = System.getProperty("sun.boot.class.path");
         if (cp != null) {
-            getLog().debug(String.format("Using[1] boot class path: %s", cp));
+            logger.debug(String.format("Using[1] boot class path: %s", cp));
             return cp;
         }
         cp = System.getProperty("java.boot.class.path");
         if (cp != null) {
-            getLog().debug(String.format("Using[2] boot class path: %s", cp));
+            logger.debug(String.format("Using[2] boot class path: %s", cp));
             return cp;
         }
         Enumeration<?> i = System.getProperties().propertyNames();
@@ -69,9 +68,8 @@ public abstract class AbstractTransform extends AbstractMojo {
                 if (name == null) {
                     name = temp;
                 } else {
-                    throw new MojoExecutionException(
-                                                     "Cannot auto-detect boot class path "
-                                                             + System.getProperty("java.version"));
+                    throw new MojoExecutionException("Cannot auto-detect boot class path "
+                    + System.getProperty("java.version"));
                 }
             }
         }
@@ -88,31 +86,22 @@ public abstract class AbstractTransform extends AbstractMojo {
                 } catch (IOException e) {
                     // ignore
                 }
-                cp = removeAll(cp,
-                               new File(".").getAbsolutePath()
-                                       + System.getProperty("file.separator"));
+                cp = removeAll(cp, new File(".").getAbsolutePath() + System.getProperty("file.separator"));
                 try {
-                    cp = removeAll(cp, new File(".").getCanonicalPath()
-                                       + System.getProperty("file.separator"));
+                    cp = removeAll(cp, new File(".").getCanonicalPath() + System.getProperty("file.separator"));
                 } catch (IOException e) {
                     // ignore
                 }
-                getLog().debug(String.format("Using[3] boot class path: %s", cp));
+                logger.debug(String.format("Using[3] boot class path: %s", cp));
                 return cp;
             }
-            getLog().error("Cannot auto-detect boot class path "
-                                   + System.getProperty("java.version") + " "
-                                   + System.getProperty("java.class.path"));
-            throw new MojoExecutionException(
-                                             "Cannot auto-detect boot class path ");
+            logger.error("Cannot auto-detect boot class path " + System.getProperty("java.version") + " "
+            + System.getProperty("java.class.path"));
+            throw new MojoExecutionException("Cannot auto-detect boot class path ");
         }
-        getLog().info(String.format("Using[4] boot class path: %s",
-                                    System.getProperty(name)));
+        logger.info(String.format("Using[4] boot class path: %s", System.getProperty(name)));
         return System.getProperty(name);
     }
-
-    abstract protected String getCompileClasspath()
-                                                   throws MojoExecutionException;
 
     abstract String getOutputDirectory();
 
@@ -129,13 +118,10 @@ public abstract class AbstractTransform extends AbstractMojo {
         }
         int j;
         while (-1 != (j = cp.indexOf(pathSeparator + prefix + pathSeparator))) {
-            cp = cp.substring(0, j)
-                 + cp.substring(j + prefix.length() + pathSeparator.length());
+            cp = cp.substring(0, j) + cp.substring(j + prefix.length() + pathSeparator.length());
         }
         if (cp.endsWith(pathSeparator + prefix)) {
-            cp = cp.substring(0,
-                              cp.length() - prefix.length()
-                                      + pathSeparator.length());
+            cp = cp.substring(0, cp.length() - prefix.length() + pathSeparator.length());
         }
         if (isWindows()) {
             // we might have the prefix or the classpath case differing
@@ -143,13 +129,10 @@ public abstract class AbstractTransform extends AbstractMojo {
                 cp = cp.substring(prefix.length() + pathSeparator.length());
             }
             while (-1 != (j = cp.toUpperCase().indexOf((pathSeparator + prefix + pathSeparator).toUpperCase()))) {
-                cp = cp.substring(0, j)
-                     + cp.substring(j + prefix.length()
-                                    + pathSeparator.length());
+                cp = cp.substring(0, j) + cp.substring(j + prefix.length() + pathSeparator.length());
             }
             if (cp.toUpperCase().endsWith((pathSeparator + prefix).toUpperCase())) {
-                cp = cp.substring(0, cp.length() - prefix.length()
-                                     + pathSeparator.length());
+                cp = cp.substring(0, cp.length() - prefix.length() + pathSeparator.length());
             }
         }
         return cp;
