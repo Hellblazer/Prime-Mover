@@ -37,11 +37,11 @@ public class SimulationTransformTest {
     public void smokin() throws Exception {
         Map<ClassInfo, EntityGenerator> generators;
         try (var transform = new SimulationTransform(new ClassGraph().acceptPackages("testClasses",
-                                                                                     "com.hellblazer"))) {
+                                                                                     "com.hellblazer.asm.testClasses"))) {
             generators = transform.generators();
 
         }
         assertNotNull(generators);
-        assertEquals(11, generators.size());
+        assertEquals(9, generators.size());
     }
 }

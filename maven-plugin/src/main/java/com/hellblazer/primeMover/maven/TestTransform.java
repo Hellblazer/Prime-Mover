@@ -20,9 +20,7 @@
 package com.hellblazer.primeMover.maven;
 
 import java.io.File;
-import java.util.List;
 
-import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Execute;
 import org.apache.maven.plugins.annotations.InstantiationStrategy;
@@ -31,8 +29,6 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Transform the module's test classes to event driven simulation code.
@@ -41,45 +37,21 @@ import org.slf4j.LoggerFactory;
 @Mojo(name = "transform-test", defaultPhase = LifecyclePhase.PROCESS_TEST_CLASSES, requiresDependencyResolution = ResolutionScope.TEST, threadSafe = false, executionStrategy = "once-per-session", instantiationStrategy = InstantiationStrategy.PER_LOOKUP, requiresDependencyCollection = ResolutionScope.COMPILE_PLUS_RUNTIME)
 @Execute(phase = LifecyclePhase.PROCESS_TEST_CLASSES)
 public class TestTransform extends AbstractTransform {
-    private static final Logger log = LoggerFactory.getLogger(TestTransform.class);
-
-    @Parameter(property = "project.build.outputDirectory", readonly = true)
-    File buildOutputDirectory;
 
     @Parameter(property = "project")
-    MavenProject project;
+    private MavenProject project;
 
     @Parameter(property = "project.build.testOutputDirectory", readonly = true)
-    File testOutputDirectory;
+    private File testOutputDirectory;
 
     @Override
     protected String getCompileClasspath() throws MojoExecutionException {
-        List<?> testClasspathElements;
-        try {
-            testClasspathElements = project.getTestClasspathElements();
-        } catch (DependencyResolutionRequiredException e) {
-            throw new MojoExecutionException("Unable to perform test dependency resolution", e);
-        }
-        log.debug(String.format("Runtime classpath elements: %s", testClasspathElements));
-        StringBuffer classpath = new StringBuffer();
-        classpath.append(getBootClasspath());
-        for (Object element : testClasspathElements) {
-            classpath.append(':');
-            classpath.append(element);
-        }
-        String pathString = classpath.toString();
-        log.info(String.format("Test transform classpath: %s", pathString));
-        return pathString;
+        return project.getBuild().getTestOutputDirectory();
     }
 
     @Override
-    String getOutputDirectory() {
-        return testOutputDirectory.getAbsolutePath();
-    }
-
-    @Override
-    String getProcessDirectory() {
-        return testOutputDirectory.getAbsolutePath();
+    File getOutputDirectory() {
+        return testOutputDirectory;
     }
 
 }

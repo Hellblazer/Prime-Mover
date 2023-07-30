@@ -12,10 +12,6 @@
     <name>Prime Mover Maven Plugin</name>
     <description>Event driven framework transform plugin for Maven</description>
     <packaging>maven-plugin</packaging>
-    
-    <properties> 
-            <maven.version>3.9.0</maven.version>
-    </properties>
 
     <licenses>
         <license>
@@ -34,18 +30,23 @@
         <dependency>
             <groupId>com.hellblazer.primeMover</groupId>
             <artifactId>transform</artifactId>
-        </dependency>  
+        </dependency>
         <dependency>
             <groupId>org.apache.maven.plugin-tools</groupId>
             <artifactId>maven-plugin-annotations</artifactId>
             <version>${maven.version}</version>
             <scope>provided</scope>
-        </dependency> 
+        </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-core</artifactId>
             <version>${maven.version}</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>1.1.1</version>
         </dependency>
     </dependencies>
 

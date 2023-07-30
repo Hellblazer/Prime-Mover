@@ -77,13 +77,7 @@ public class SimulationTransform implements Closeable {
     private final ScanResult    scan;
 
     public SimulationTransform(ClassGraph graph) {
-        graph.acceptPackages(Entity.class.getPackageName())
-             .acceptPackages(Kronos.class.getPackageName())
-             .rejectPackages(Kairos.class.getPackageName())
-             .enableAllInfo()
-             .enableInterClassDependencies()
-             .enableExternalClasses()
-             .ignoreMethodVisibility();
+        graph.enableAllInfo().enableInterClassDependencies().enableExternalClasses().ignoreMethodVisibility();
         scan = graph.scan();
         entities = scan.getClassesWithAnnotation(Entity.class.getCanonicalName());
         allMethodsMarker = scan.getClassInfo(AllMethodsMarker.class.getCanonicalName());
@@ -113,8 +107,9 @@ public class SimulationTransform implements Closeable {
         }).stream().collect(Collectors.toMap(ci -> ci, ci -> generateEntity(ci)));
     }
 
-    public Map<String, byte[]> transformed() {
-        var transformed = new HashMap<String, byte[]>();
+    @SuppressWarnings("deprecation")
+    public Map<ClassInfo, byte[]> transformed() {
+        var transformed = new HashMap<ClassInfo, byte[]>();
         var map = new HashMap<String, String>();
         map.put(Kronos.class.getCanonicalName().replace('.', '/'), Kairos.class.getCanonicalName().replace('.', '/'));
         var apiRemapper = new SimpleRemapper(map);
@@ -134,7 +129,8 @@ public class SimulationTransform implements Closeable {
                         ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
                         classReader.accept(new ClassRemapper(cw, apiRemapper), ClassReader.EXPAND_FRAMES);
                         final var written = cw.toByteArray();
-                        transformed.put(ci.getName().replace('.', '/'), written);
+                        if (!written.equals(classReader.b))
+                            transformed.put(ci, written);
                     } catch (IOException e) {
                         throw new IllegalStateException("Unable to read class bytes: " + ci, e);
                     }
@@ -150,7 +146,7 @@ public class SimulationTransform implements Closeable {
             }
             classReader.accept(new ClassRemapper(cw, apiRemapper), ClassReader.EXPAND_FRAMES);
             final var written = cw.toByteArray();
-            transformed.put(ci.getName().replace('.', '/'), written);
+            transformed.put(ci, written);
         });
 
         return transformed;
