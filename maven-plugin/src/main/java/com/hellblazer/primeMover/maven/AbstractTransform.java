@@ -52,11 +52,11 @@ public abstract class AbstractTransform extends AbstractMojo {
         var graph = new ClassGraph();
 //        graph.verbose();
         try {
-            graph.addClassLoader(new URLClassLoader(new URL[] { new File(classpath).toURI().toURL() }));
+            graph.overrideClassLoaders(new URLClassLoader(new URL[] { new File(classpath).toURI().toURL() }));
         } catch (MalformedURLException e) {
             throw new MojoExecutionException("Unable to transform", e);
         }
-        graph.acceptPaths(classpath);
+//        graph.acceptPaths(classpath);
         var failed = new ArrayList<String>();
         try (var txfm = new SimulationTransform(graph)) {
             var out = getOutputDirectory();

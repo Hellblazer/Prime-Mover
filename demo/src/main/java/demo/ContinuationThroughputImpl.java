@@ -4,7 +4,7 @@
  * This file is part of the Prime Mover Event Driven Simulation Framework.
  * 
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as 
+ * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  * 
@@ -22,8 +22,8 @@ package demo;
 import static com.hellblazer.primeMover.Kronos.currentTime;
 import static com.hellblazer.primeMover.Kronos.sleep;
 
-import com.hellblazer.primeMover.Blocking;
-import com.hellblazer.primeMover.Entity;
+import com.hellblazer.primeMover.annotations.Blocking;
+import com.hellblazer.primeMover.annotations.Entity;
 
 /**
  * 
@@ -43,12 +43,9 @@ public class ContinuationThroughputImpl implements ContinuationThroughput {
     /**
      * Create new continuation event benchmarking entity.
      * 
-     * @param mode
-     *            benchmark type
-     * @param nevents
-     *            number of continuation events
-     * @param nwarm
-     *            number of warm-up events
+     * @param mode    benchmark type
+     * @param nevents number of continuation events
+     * @param nwarm   number of warm-up events
      */
     public ContinuationThroughputImpl(String mode, int nevents, int nwarm) {
         this.mode = mode;
@@ -57,6 +54,101 @@ public class ContinuationThroughputImpl implements ContinuationThroughput {
         System.out.println("   type: " + mode);
         System.out.println(" events: " + nevents);
         System.out.println(" warmup: " + nwarm);
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see testClasses.ContinuationThroughput#go()
+     */
+    @Override
+    public void go() {
+        for (int i = 0; i < nwarm; i++) {
+            sleep(1);
+            call();
+        }
+        System.out.println("benchmark BEGIN");
+        System.gc();
+        long startTime = System.nanoTime();
+        for (int i = 0; i < nevents; i++) {
+            sleep(1);
+            call();
+        }
+        System.out.println("benchmark END");
+        long endTime = System.nanoTime();
+        double duration = (endTime - startTime) / 1000000000.0;
+        System.out.println("seconds: " + duration);
+        System.out.println(Math.round(nevents / duration) + " " + mode + " continuation events/second");
+        System.out.println();
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see testClasses.ContinuationThroughput#operation_array(byte[])
+     */
+    @Override
+    @Blocking
+    public byte[] operation_array(byte[] b) {
+        sleep(1);
+        return b;
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see testClasses.ContinuationThroughput#operation_double(double)
+     */
+    @Override
+    @Blocking
+    public void operation_double(double d) {
+        sleep(1);
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see testClasses.ContinuationThroughput#operation_int(int)
+     */
+    @Override
+    @Blocking
+    public void operation_int(int i) {
+        sleep(1);
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see testClasses.ContinuationThroughput#operation_null()
+     */
+    @Override
+    @Blocking
+    public void operation_null() {
+        sleep(1);
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see testClasses.ContinuationThroughput#operation_show()
+     */
+    @Override
+    @Blocking
+    public void operation_show() {
+        System.out.println("operation_show at t=" + currentTime());
+        sleep(1);
+        // throw new RuntimeException("hi");
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see testClasses.ContinuationThroughput#operation_string(java.lang.String)
+     */
+    @Override
+    @Blocking
+    public void operation_string(String s) {
+        sleep(1);
     }
 
     /**
@@ -83,88 +175,6 @@ public class ContinuationThroughputImpl implements ContinuationThroughput {
             throw new RuntimeException("unrecognized benchmark: " + mode);
         }
         return 1;
-    }
-
-    /* (non-Javadoc)
-     * @see testClasses.ContinuationThroughput#go()
-     */
-    @Override
-    public void go() {
-        for (int i = 0; i < nwarm; i++) {
-            sleep(1);
-            call();
-        }
-        System.out.println("benchmark BEGIN");
-        System.gc();
-        long startTime = System.nanoTime();
-        for (int i = 0; i < nevents; i++) {
-            sleep(1);
-            call();
-        }
-        System.out.println("benchmark END");
-        long endTime = System.nanoTime();
-        double duration = (endTime - startTime) / 1000000000.0;
-        System.out.println("seconds: " + duration);
-        System.out.println(Math.round(nevents / duration) + " " + mode
-                           + " continuation events/second");
-        System.out.println();
-    }
-
-    /* (non-Javadoc)
-     * @see testClasses.ContinuationThroughput#operation_array(byte[])
-     */
-    @Override
-    @Blocking
-    public byte[] operation_array(byte[] b) {
-        sleep(1);
-        return b;
-    }
-
-    /* (non-Javadoc)
-     * @see testClasses.ContinuationThroughput#operation_double(double)
-     */
-    @Override
-    @Blocking
-    public void operation_double(double d) {
-        sleep(1);
-    }
-
-    /* (non-Javadoc)
-     * @see testClasses.ContinuationThroughput#operation_int(int)
-     */
-    @Override
-    @Blocking
-    public void operation_int(int i) {
-        sleep(1);
-    }
-
-    /* (non-Javadoc)
-     * @see testClasses.ContinuationThroughput#operation_null()
-     */
-    @Override
-    @Blocking
-    public void operation_null() {
-        sleep(1);
-    }
-
-    /* (non-Javadoc)
-     * @see testClasses.ContinuationThroughput#operation_show()
-     */
-    @Override
-    @Blocking
-    public void operation_show() {
-        System.out.println("operation_show at t=" + currentTime());
-        sleep(1);
-        // throw new RuntimeException("hi");
-    }
-
-    /* (non-Javadoc)
-     * @see testClasses.ContinuationThroughput#operation_string(java.lang.String)
-     */
-    @Override
-    @Blocking
-    public void operation_string(String s) {
-        sleep(1);
     }
 
 }

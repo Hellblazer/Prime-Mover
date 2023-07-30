@@ -55,9 +55,11 @@ import io.github.classgraph.ScanResult;
 public class SimulationTransform implements Closeable {
 
     public static Set<ClassInfo> getEntityInterfaces(ClassInfo ci) {
-        Set<ClassInfo> returned = Arrays.stream((Object[]) ci.getAnnotationInfo(Entity.class)
-                                                             .getParameterValues(true)
-                                                             .getValue("value"))
+        var arr = (Object[]) ci.getAnnotationInfo(Entity.class).getParameterValues(true).getValue("value");
+        if (arr == null) {
+            arr = new Object[0];
+        }
+        Set<ClassInfo> returned = Arrays.stream(arr)
                                         .map(o -> (AnnotationClassRef) o)
                                         .map(acr -> acr.getClassInfo())
                                         .collect(Collectors.toCollection(() -> new OpenSet<ClassInfo>()));

@@ -55,25 +55,17 @@ public class TestAPI {
         assertEquals("<testClasses.UseChannelImpl: void put(java.lang.String)>", controller.events.get(3));
         assertEquals("<testClasses.UseChannelImpl: void take()>", controller.events.get(4));
 
-        assertEquals(8, controller.blockingEvents.size());
+        assertEquals(4, controller.blockingEvents.size());
         assertEquals("<com.hellblazer.primeMover.runtime.SynchronousQueueImpl: java.lang.Object take()>",
                      controller.blockingEvents.get(0));
         assertEquals("<com.hellblazer.primeMover.runtime.SynchronousQueueImpl: void put(java.lang.Object)>",
                      controller.blockingEvents.get(1));
-        assertEquals("<com.hellblazer.primeMover.runtime.SynchronousQueueImpl: java.lang.Object take()>",
+        assertEquals("<com.hellblazer.primeMover.runtime.SynchronousQueueImpl: void put(java.lang.Object)>",
                      controller.blockingEvents.get(2));
-        assertEquals("<com.hellblazer.primeMover.runtime.SynchronousQueueImpl: void put(java.lang.Object)>",
+        assertEquals("<com.hellblazer.primeMover.runtime.SynchronousQueueImpl: java.lang.Object take()>",
                      controller.blockingEvents.get(3));
-        assertEquals("<com.hellblazer.primeMover.runtime.SynchronousQueueImpl: void put(java.lang.Object)>",
-                     controller.blockingEvents.get(4));
-        assertEquals("<com.hellblazer.primeMover.runtime.SynchronousQueueImpl: java.lang.Object take()>",
-                     controller.blockingEvents.get(5));
-        assertEquals("<com.hellblazer.primeMover.runtime.SynchronousQueueImpl: void put(java.lang.Object)>",
-                     controller.blockingEvents.get(6));
-        assertEquals("<com.hellblazer.primeMover.runtime.SynchronousQueueImpl: java.lang.Object take()>",
-                     controller.blockingEvents.get(7));
 
-        assertEquals(13, controller.references.size());
+        assertEquals(9, controller.references.size());
 
     }
 

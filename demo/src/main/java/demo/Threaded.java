@@ -19,8 +19,8 @@
 
 package demo;
 
-import com.hellblazer.primeMover.Entity;
 import com.hellblazer.primeMover.Kronos;
+import com.hellblazer.primeMover.annotations.Entity;
 
 /**
  * 
@@ -30,13 +30,14 @@ import com.hellblazer.primeMover.Kronos;
 
 @Entity()
 public class Threaded {
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     *
      * @see testClasses.Threaded#process(int)
      */
     public void process(int id) {
         for (int i = 1; i <= 5; i++) {
-            System.out.println(Kronos.currentTime() + ": thread=" + id + ", i="
-                               + i);
+            System.out.println(Kronos.currentTime() + ": thread=" + id + ", i=" + i);
             Kronos.blockingSleep(1);
         }
     }

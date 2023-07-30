@@ -4,7 +4,7 @@
  * This file is part of the Prime Mover Event Driven Simulation Framework.
  * 
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as 
+ * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  * 
@@ -22,7 +22,7 @@ package demo;
 import static com.hellblazer.primeMover.Kronos.endSimulation;
 import static com.hellblazer.primeMover.Kronos.sleep;
 
-import com.hellblazer.primeMover.Entity;
+import com.hellblazer.primeMover.annotations.Entity;
 
 /**
  * 
@@ -38,19 +38,16 @@ public class EventThroughput {
     private final String mode;
     /** total number of events. */
     /** number of warm-up events. */
-    private final int    nevents;
+    private final int nevents;
     /** benchmark start time. */
-    private long         startTime;
+    private long      startTime;
 
     /**
      * Create new event throughput benchmark entity.
      * 
-     * @param mode
-     *            benchmark type
-     * @param nevents
-     *            number of benchmark events
-     * @param nwarm
-     *            number of warm-up events
+     * @param mode    benchmark type
+     * @param nevents number of benchmark events
+     * @param nwarm   number of warm-up events
      */
     public EventThroughput(String mode, int nevents, int nwarm) {
         this.mode = mode;
@@ -71,7 +68,9 @@ public class EventThroughput {
         System.out.println(" warmup: " + nwarm);
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     *
      * @see testClasses.EventThroughput#doubleOperation(double)
      */
     public void doubleOperation(double d) {
@@ -79,7 +78,9 @@ public class EventThroughput {
         doubleOperation(d);
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     *
      * @see testClasses.EventThroughput#finish()
      */
     public void finish() {
@@ -87,13 +88,14 @@ public class EventThroughput {
         endTime = System.nanoTime();
         double duration = (endTime - startTime) / 1000000000.0;
         System.out.println("seconds: " + duration);
-        System.out.println(Math.round(nevents / duration) + " " + mode
-                           + " events/second");
+        System.out.println(Math.round(nevents / duration) + " " + mode + " events/second");
         System.out.println();
         endSimulation();
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     *
      * @see testClasses.EventThroughput#intOperation(int)
      */
     public void intOperation(int i) {
@@ -101,7 +103,9 @@ public class EventThroughput {
         intOperation(i);
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     *
      * @see testClasses.EventThroughput#nullOperation()
      */
     public void nullOperation() {
@@ -109,7 +113,9 @@ public class EventThroughput {
         nullOperation();
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     *
      * @see testClasses.EventThroughput#start()
      */
     public void start() {
@@ -118,7 +124,9 @@ public class EventThroughput {
         startTime = System.nanoTime();
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     *
      * @see testClasses.EventThroughput#stringOperation(java.lang.String)
      */
     public void stringOperation(String s) {
