@@ -923,6 +923,7 @@ public class Utils {
      */
     public static URL resolveResourceURL(Class<?> base, String resource) throws IOException {
         try {
+            @SuppressWarnings("deprecation")
             URL url = new URL(resource);
             return url;
         } catch (MalformedURLException e) {

@@ -19,9 +19,9 @@
 
 package hello;
 
-import com.hellblazer.primeMover.Entity;
 import com.hellblazer.primeMover.Kronos;
 import com.hellblazer.primeMover.SimulationException;
+import com.hellblazer.primeMover.annotations.Entity;
 import com.hellblazer.primeMover.controllers.SimulationController;
 
 /**

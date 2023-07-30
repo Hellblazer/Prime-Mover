@@ -19,11 +19,14 @@
 
 package demo;
 
-import junit.framework.TestCase;
-import testClasses.DriverImpl;
-import testClasses.UseChannelImpl;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
 
 import com.hellblazer.primeMover.Kronos;
+
+import testClasses.DriverImpl;
+import testClasses.UseChannelImpl;
 
 /**
  * 
@@ -31,8 +34,9 @@ import com.hellblazer.primeMover.Kronos;
  * 
  */
 
-public class TestAPI extends TestCase {
+public class TestAPI {
 
+    @Test
     public void testChannel() throws Exception {
         TrackingController controller = new TrackingController();
         Kronos.setController(controller);
@@ -41,40 +45,27 @@ public class TestAPI extends TestCase {
         new UseChannelImpl().test();
 
         while (controller.send()) {
-            ;
+
         }
 
         assertEquals(5, controller.events.size());
-        assertEquals("<testClasses.UseChannelImpl: void test()>",
-                     controller.events.get(0));
-        assertEquals("<testClasses.UseChannelImpl: void take()>",
-                     controller.events.get(1));
-        assertEquals("<testClasses.UseChannelImpl: void put(java.lang.String)>",
-                     controller.events.get(2));
-        assertEquals("<testClasses.UseChannelImpl: void put(java.lang.String)>",
-                     controller.events.get(3));
-        assertEquals("<testClasses.UseChannelImpl: void take()>",
-                     controller.events.get(4));
+        assertEquals("<testClasses.UseChannelImpl: void test()>", controller.events.get(0));
+        assertEquals("<testClasses.UseChannelImpl: void take()>", controller.events.get(1));
+        assertEquals("<testClasses.UseChannelImpl: void put(java.lang.String)>", controller.events.get(2));
+        assertEquals("<testClasses.UseChannelImpl: void put(java.lang.String)>", controller.events.get(3));
+        assertEquals("<testClasses.UseChannelImpl: void take()>", controller.events.get(4));
 
-        assertEquals(8, controller.blockingEvents.size());
+        assertEquals(4, controller.blockingEvents.size());
         assertEquals("<com.hellblazer.primeMover.runtime.SynchronousQueueImpl: java.lang.Object take()>",
                      controller.blockingEvents.get(0));
         assertEquals("<com.hellblazer.primeMover.runtime.SynchronousQueueImpl: void put(java.lang.Object)>",
                      controller.blockingEvents.get(1));
-        assertEquals("<com.hellblazer.primeMover.runtime.SynchronousQueueImpl: java.lang.Object take()>",
+        assertEquals("<com.hellblazer.primeMover.runtime.SynchronousQueueImpl: void put(java.lang.Object)>",
                      controller.blockingEvents.get(2));
-        assertEquals("<com.hellblazer.primeMover.runtime.SynchronousQueueImpl: void put(java.lang.Object)>",
+        assertEquals("<com.hellblazer.primeMover.runtime.SynchronousQueueImpl: java.lang.Object take()>",
                      controller.blockingEvents.get(3));
-        assertEquals("<com.hellblazer.primeMover.runtime.SynchronousQueueImpl: void put(java.lang.Object)>",
-                     controller.blockingEvents.get(4));
-        assertEquals("<com.hellblazer.primeMover.runtime.SynchronousQueueImpl: java.lang.Object take()>",
-                     controller.blockingEvents.get(5));
-        assertEquals("<com.hellblazer.primeMover.runtime.SynchronousQueueImpl: void put(java.lang.Object)>",
-                     controller.blockingEvents.get(6));
-        assertEquals("<com.hellblazer.primeMover.runtime.SynchronousQueueImpl: java.lang.Object take()>",
-                     controller.blockingEvents.get(7));
 
-        assertEquals(13, controller.references.size());
+        assertEquals(9, controller.references.size());
 
     }
 
@@ -94,18 +85,14 @@ public class TestAPI extends TestCase {
         new DriverImpl().runThreaded();
 
         while (controller.send()) {
-            ;
+
         }
 
         assertEquals(4, controller.events.size());
-        assertEquals("<testClasses.DriverImpl: void runThreaded()>",
-                     controller.events.get(0));
-        assertEquals("<testClasses.ThreadedImpl: void process(int)>",
-                     controller.events.get(1));
-        assertEquals("<testClasses.ThreadedImpl: void process(int)>",
-                     controller.events.get(2));
-        assertEquals("<testClasses.ThreadedImpl: void process(int)>",
-                     controller.events.get(3));
+        assertEquals("<testClasses.DriverImpl: void runThreaded()>", controller.events.get(0));
+        assertEquals("<testClasses.ThreadedImpl: void process(int)>", controller.events.get(1));
+        assertEquals("<testClasses.ThreadedImpl: void process(int)>", controller.events.get(2));
+        assertEquals("<testClasses.ThreadedImpl: void process(int)>", controller.events.get(3));
 
         assertEquals(30, controller.blockingEvents.size());
         for (String contEvent : controller.blockingEvents) {

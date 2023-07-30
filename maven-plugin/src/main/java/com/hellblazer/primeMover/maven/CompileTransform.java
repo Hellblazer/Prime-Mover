@@ -4,7 +4,7 @@
  * This file is part of the Prime Mover Event Driven Simulation Framework.
  * 
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as 
+ * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  * 
@@ -20,9 +20,7 @@
 package com.hellblazer.primeMover.maven;
 
 import java.io.File;
-import java.util.List;
 
-import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.InstantiationStrategy;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -38,43 +36,19 @@ import org.apache.maven.project.MavenProject;
 @Mojo(name = "transform", defaultPhase = LifecyclePhase.PROCESS_CLASSES, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME, threadSafe = false, executionStrategy = "once-per-session", instantiationStrategy = InstantiationStrategy.PER_LOOKUP, requiresDependencyCollection = ResolutionScope.COMPILE_PLUS_RUNTIME)
 public class CompileTransform extends AbstractTransform {
 
-    @Parameter(property = "project")
-    protected MavenProject project;
-
     @Parameter(property = "project.build.outputDirectory", readonly = true)
-    File                   buildOutputDirectory;
+    private File buildOutputDirectory;
+
+    @Parameter(property = "project")
+    private MavenProject project;
 
     @Override
     protected String getCompileClasspath() throws MojoExecutionException {
-        getLog().info(String.format("Maven project: %s", project));
-        StringBuffer classpath = new StringBuffer();
-        classpath.append(getBootClasspath());
-        List<?> runtimeClasspathElements;
-        try {
-            runtimeClasspathElements = project.getRuntimeClasspathElements();
-        } catch (DependencyResolutionRequiredException e) {
-            throw new MojoExecutionException(
-                                             "Unable to do dependency resolution",
-                                             e);
-        }
-        getLog().debug(String.format("Runtime classpath elements: %s",
-                                     runtimeClasspathElements));
-        for (Object element : runtimeClasspathElements) {
-            classpath.append(':');
-            classpath.append(element);
-        }
-        String pathString = classpath.toString();
-        getLog().info(String.format("Compile transform classpath: %s", pathString));
-        return pathString;
+        return project.getBuild().getOutputDirectory();
     }
 
     @Override
-    String getOutputDirectory() {
-        return buildOutputDirectory.getAbsolutePath();
-    }
-
-    @Override
-    String getProcessDirectory() {
-        return buildOutputDirectory.getAbsolutePath();
+    File getOutputDirectory() {
+        return buildOutputDirectory;
     }
 }

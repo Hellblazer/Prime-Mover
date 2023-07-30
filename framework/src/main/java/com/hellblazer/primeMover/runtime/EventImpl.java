@@ -21,6 +21,7 @@ package com.hellblazer.primeMover.runtime;
 
 import java.io.PrintStream;
 import java.io.Serializable;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
 
 import com.hellblazer.primeMover.Event;
@@ -32,29 +33,29 @@ import com.hellblazer.primeMover.Event;
  * 
  */
 public class EventImpl implements Cloneable, Serializable, Comparable<EventImpl>, Event {
-    private static final Logger       logger           = Logger.getLogger(EventImpl.class.getCanonicalName());
-    private static final long         serialVersionUID = -628833433139964756L;
+    private static final Logger                 logger           = Logger.getLogger(EventImpl.class.getCanonicalName());
+    private static final long                   serialVersionUID = -628833433139964756L;
     /**
      * The arguments for the event
      */
-    private Object[]                  arguments;
+    private Object[]                            arguments;
     /**
      * The caller of an event, if this is a blocking event
      */
-    private EventImpl                 caller;
+    private EventImpl                           caller;
     /**
      * The continuation state of the event
      */
-    private Continuation              continuation;
-    private final String              debugInfo;
+    private final AtomicReference<Continuation> continuation     = new AtomicReference<>();
+    private final String                        debugInfo;
     /**
      * The event
      */
-    private final int                 event;
+    private final int                           event;
     /**
      * The entity which is the target of the event
      */
-    private transient EntityReference reference;
+    private transient EntityReference           reference;
 
     /**
      * The event that was the source of this event
@@ -89,7 +90,7 @@ public class EventImpl implements Cloneable, Serializable, Comparable<EventImpl>
             throw new IllegalStateException("Clone not supported for Event!", e);
         }
 
-        clone.continuation = null;
+        clone.continuation.set(null);
         clone.time = time;
 
         return clone;
@@ -132,9 +133,11 @@ public class EventImpl implements Cloneable, Serializable, Comparable<EventImpl>
     }
 
     public Object park() throws Throwable {
-        continuation = new Continuation();
-        logger.info("Continuing: %s event: %s".formatted(Thread.currentThread(), this));
-        return continuation.park();
+        final var newCont = new Continuation();
+        continuation.set(newCont);
+        final var parked = newCont.park();
+        logger.finer("Continuing: %s event: %s".formatted(Thread.currentThread(), this));
+        return parked;
     }
 
     @Override
@@ -171,42 +174,41 @@ public class EventImpl implements Cloneable, Serializable, Comparable<EventImpl>
     }
 
     Continuation getContinuation() {
-        return continuation;
+        return continuation.get();
     }
 
     Object invoke() throws Throwable {
-        logger.info("Invoking " + this);
+        logger.finest("Invoking " + this);
         final var result = reference.__invoke(event, arguments);
-        logger.info("Finished invoking " + this);
+        logger.finest("Finished invoking " + this);
         return result;
     }
 
     boolean isContinuation() {
-        final var cont = continuation;
+        final var cont = continuation.get();
         return cont != null;
     }
 
     void proceed() {
-        final var cont = continuation;
-        assert (cont != null && cont.isParked());
-        continuation = null;
-        Logger.getLogger(EventImpl.class.getCanonicalName()).info("Continuing: %s".formatted(this));
+        final var cont = continuation.get();
+//        assert (cont != null &&
+//                cont.isParked()) : "continuation != null: %s parked: %s".formatted(cont != null,
+//                                                                                   cont == null ? false
+//                                                                                                : cont.isParked());
+        continuation.set(null);
+        Logger.getLogger(EventImpl.class.getCanonicalName()).finer("Continuing: %s".formatted(this));
         cont.resume();
     }
 
     EventImpl resume(long currentTime, Object result, Throwable exception) {
         time = currentTime;
         Logger.getLogger(EventImpl.class.getCanonicalName())
-              .info("Resume at: %s r: %s ex: %s".formatted(this, result, exception));
-        if (continuation != null) {
-            continuation.setReturnState(result, exception);
+              .finer("Resume at: %s r: %s ex: %s".formatted(this, result, exception));
+        final var current = continuation.get();
+        if (current != null) {
+            current.setReturnState(result, exception);
         }
         return this;
-    }
-
-    void setContinuation(Continuation continuation) {
-        assert this.continuation == null;
-        this.continuation = continuation;
     }
 
     void setTime(long time) {

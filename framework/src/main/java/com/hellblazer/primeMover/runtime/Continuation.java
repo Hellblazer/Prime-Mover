@@ -53,7 +53,7 @@ public class Continuation implements Serializable {
 
     public void resume() {
         if (thread != null && thread.isAlive()) {
-            logger.info("Resuming: %s".formatted(thread));
+            logger.finer("Resuming: %s".formatted(thread));
             LockSupport.unpark(thread);
         }
     }

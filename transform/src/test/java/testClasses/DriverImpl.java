@@ -21,8 +21,8 @@ package testClasses;
 
 import static com.hellblazer.primeMover.Kronos.sleep;
 
-import com.hellblazer.primeMover.Entity;
 import com.hellblazer.primeMover.Kronos;
+import com.hellblazer.primeMover.annotations.Entity;
 
 /*
  * A trampoline for tests which lives in the transformed class space of the
@@ -42,7 +42,7 @@ public class DriverImpl implements Driver {
      */
     @Override
     public void runContinuationBenchmark(String mode, Integer nevents, Integer nwarm) {
-        ContinuationThroughput benchmark = new ContinuationThroughputImpl(mode, nevents, nwarm);
+        ContinuationThroughput benchmark = new ContinuationThroughputImpl(mode, nevents);
         benchmark.go();
     }
 
@@ -54,7 +54,7 @@ public class DriverImpl implements Driver {
      */
     @Override
     public void runEventBenchmark(String mode, Integer nevents, Integer nwarm) {
-        EventThroughputImpl benchmark = new EventThroughputImpl(mode, nevents, nwarm);
+        EventThroughputImpl benchmark = new EventThroughputImpl(mode, nevents);
         sleep(nwarm);
         benchmark.start();
         sleep(nevents + 1);

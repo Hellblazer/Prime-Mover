@@ -19,17 +19,17 @@
 
 package com.hellblazer.primeMover.runtime;
 
-import com.hellblazer.primeMover.Blocking;
+import java.util.concurrent.atomic.AtomicReference;
+
+import com.hellblazer.primeMover.annotations.Blocking;
 
 /**
- * Static core utilities representing the simulation framework. The framework
- * stores the active controller for the framework in a thread local and most of
- * the methods are nothing more than trampolines to the active controller
+ * Static core utilities representing the simulation framework.
  * 
  * @author <a href="mailto:hal.hildebrand@gmail.com">Hal Hildebrand</a>
  */
 final public class Framework {
-    private final static InheritableThreadLocal<Devi> CONTROLLER = new InheritableThreadLocal<Devi>();
+    private final static AtomicReference<Devi> CONTROLLER = new AtomicReference<>();
 
     public static Devi getController() {
         Devi controller = CONTROLLER.get();

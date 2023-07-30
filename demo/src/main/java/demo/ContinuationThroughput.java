@@ -4,7 +4,7 @@
  * This file is part of the Prime Mover Event Driven Simulation Framework.
  * 
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as 
+ * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  * 
@@ -19,7 +19,7 @@
 
 package demo;
 
-import com.hellblazer.primeMover.Blocking;
+import com.hellblazer.primeMover.annotations.Blocking;
 
 /**
  * 
@@ -37,8 +37,7 @@ public interface ContinuationThroughput {
     /**
      * Blocking operation with array parameter.
      * 
-     * @param b
-     *            dummy array parameter
+     * @param b dummy array parameter
      * @return dummy return
      */
     @Blocking
@@ -47,8 +46,7 @@ public interface ContinuationThroughput {
     /**
      * Blocking operation with primitive double parameter.
      * 
-     * @param d
-     *            dummy double parameter
+     * @param d dummy double parameter
      */
     @Blocking
     void operation_double(double d);
@@ -56,8 +54,7 @@ public interface ContinuationThroughput {
     /**
      * Blocking operation with primitive integer parameter.
      * 
-     * @param i
-     *            dummy int parameter
+     * @param i dummy int parameter
      */
     @Blocking
     void operation_int(int i);
@@ -77,8 +74,7 @@ public interface ContinuationThroughput {
     /**
      * Blocking operation with String parameter.
      * 
-     * @param s
-     *            dummy string parameter
+     * @param s dummy string parameter
      */
     @Blocking
     void operation_string(String s);

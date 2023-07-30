@@ -22,7 +22,7 @@ package testClasses;
 import static com.hellblazer.primeMover.Kronos.endSimulation;
 import static com.hellblazer.primeMover.Kronos.sleep;
 
-import com.hellblazer.primeMover.Entity;
+import com.hellblazer.primeMover.annotations.Entity;
 
 /**
  * 

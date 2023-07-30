@@ -3,6 +3,8 @@ package com.hellblazer.primeMover;
 import java.util.Collection;
 import java.util.Queue;
 
+import com.hellblazer.primeMover.annotations.Blocking;
+
 /**
  * A {@linkplain Queue blocking queue} in which each insert operation must wait
  * for a corresponding remove operation by another thread, and vice versa. A

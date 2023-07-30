@@ -4,7 +4,7 @@
  * This file is part of the Prime Mover Event Driven Simulation Framework.
  * 
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as 
+ * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  * 
@@ -22,8 +22,8 @@ package testClasses;
 import static com.hellblazer.primeMover.Kronos.currentTime;
 import static com.hellblazer.primeMover.Kronos.sleep;
 
-import com.hellblazer.primeMover.Blocking;
-import com.hellblazer.primeMover.Entity;
+import com.hellblazer.primeMover.annotations.Blocking;
+import com.hellblazer.primeMover.annotations.Entity;
 
 /**
  * 
@@ -36,19 +36,16 @@ public class ContinuationThroughputImpl implements ContinuationThroughput {
     /** benchmark type. */
     protected final String mode;
     /** number of continuation events. */
-    protected final int nevents;
+    protected final int    nevents;
     /** number of warm-up events. */
-    protected final int nwarm;
+    protected final int    nwarm;
 
     /**
      * Create new continuation event benchmarking entity.
      * 
-     * @param mode
-     *            benchmark type
-     * @param nevents
-     *            number of continuation events
-     * @param nwarm
-     *            number of warm-up events
+     * @param mode    benchmark type
+     * @param nevents number of continuation events
+     * @param nwarm   number of warm-up events
      */
     public ContinuationThroughputImpl(String mode, int nevents, int nwarm) {
         this.mode = mode;
@@ -59,7 +56,9 @@ public class ContinuationThroughputImpl implements ContinuationThroughput {
         System.out.println(" warmup: " + nwarm);
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     *
      * @see testClasses.ContinuationThroughput#go()
      */
     @Override
@@ -79,12 +78,13 @@ public class ContinuationThroughputImpl implements ContinuationThroughput {
         long endTime = System.nanoTime();
         double duration = (endTime - startTime) / 1000000000.0;
         System.out.println("seconds: " + duration);
-        System.out.println(Math.round((nevents / duration)) + " " + mode
-                           + " continuation events/second");
+        System.out.println(Math.round((nevents / duration)) + " " + mode + " continuation events/second");
         System.out.println();
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     *
      * @see testClasses.ContinuationThroughput#operation_array(byte[])
      */
     @Override
@@ -94,7 +94,9 @@ public class ContinuationThroughputImpl implements ContinuationThroughput {
         return b;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     *
      * @see testClasses.ContinuationThroughput#operation_double(double)
      */
     @Override
@@ -103,7 +105,9 @@ public class ContinuationThroughputImpl implements ContinuationThroughput {
         sleep(1);
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     *
      * @see testClasses.ContinuationThroughput#operation_int(int)
      */
     @Override
@@ -112,7 +116,9 @@ public class ContinuationThroughputImpl implements ContinuationThroughput {
         sleep(1);
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     *
      * @see testClasses.ContinuationThroughput#operation_null()
      */
     @Override
@@ -121,7 +127,9 @@ public class ContinuationThroughputImpl implements ContinuationThroughput {
         sleep(1);
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     *
      * @see testClasses.ContinuationThroughput#operation_show()
      */
     @Override
@@ -132,7 +140,9 @@ public class ContinuationThroughputImpl implements ContinuationThroughput {
         // throw new RuntimeException("hi");
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     *
      * @see testClasses.ContinuationThroughput#operation_string(java.lang.String)
      */
     @Override
