@@ -135,11 +135,12 @@ abstract public class Devi implements Controller {
     public Object postContinuingEvent(EntityReference entity, int event, Object... arguments) throws Throwable {
         final var be = blockingEvent;
         final var ce = continuingEvent;
+        final var current = currentEvent;
+        final var sailorMoon = futureSailor;
+
         assert be == null : "uncleared: " + be;
         assert ce == null : "uncleared: " + ce;
-        final var current = currentEvent;
         assert current != null : "no current event";
-        final var sailorMoon = futureSailor;
         assert sailorMoon != null : "No future to signal";
         assert !sailorMoon.isDone() : "Future sailure is done";
 
@@ -148,9 +149,7 @@ abstract public class Devi implements Controller {
         continuingEvent = continuing;
         var blocking = blockingEvent = createEvent(ct, entity, event, arguments);
         logger.finer("Blocking: %s on: %s; continuation: %s".formatted(Thread.currentThread(), blocking, continuing));
-        sailorMoon.complete(null);
-
-        return continuing.park();
+        return continuing.park(sailorMoon);
     }
 
     /**
@@ -256,7 +255,6 @@ abstract public class Devi implements Controller {
             evaluation(next);
         } catch (InterruptedException e1) {
             Thread.currentThread().interrupt();
-            return;
         } finally {
             caller = null;
             serializer.release();
@@ -309,9 +307,6 @@ abstract public class Devi implements Controller {
         currentEvent = next;
         currentTime = next.getTime();
         caller = next.getCaller();
-        if (next.getCaller() != null) {
-            logger.finer("blocked caller: %s".formatted(next.getCaller()));
-        }
         if (next.isContinuation()) {
             next.proceed();
         } else {

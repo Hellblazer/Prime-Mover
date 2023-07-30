@@ -20,6 +20,7 @@
 package com.hellblazer.primeMover.runtime;
 
 import java.io.Serializable;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.locks.LockSupport;
 import java.util.logging.Logger;
 
@@ -33,17 +34,18 @@ public class Continuation implements Serializable {
     private static final Logger logger           = Logger.getLogger(Continuation.class.getCanonicalName());
     private static final long   serialVersionUID = -4307033871239385970L;
 
-    private Throwable exception;
-    private Object    returnValue;
-    private Thread    thread;
+    private volatile Throwable exception;
+    private volatile Object    returnValue;
+    private volatile Thread    thread;
 
     public boolean isParked() {
         return thread != null;
     }
 
-    public Object park() throws Throwable {
+    public Object park(CompletableFuture<Object> futureSailor) throws Throwable {
         assert thread == null;
         thread = Thread.currentThread();
+        futureSailor.complete(null);
         LockSupport.park();
         if (exception != null) {
             throw exception;

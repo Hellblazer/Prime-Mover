@@ -52,7 +52,7 @@ public class Demo {
         Kronos.setController(controller);
         controller.setCurrentTime(0);
 
-        new ContinuationThroughputImpl("STRING", 10_000).go();
+        new ContinuationThroughputImpl("STRING", 1_000_000).go();
         controller.eventLoop();
         System.out.println("Event spectrum:");
         for (Map.Entry<String, Integer> spectrumEntry : controller.getSpectrum().entrySet()) {
@@ -64,7 +64,7 @@ public class Demo {
         SimulationController controller = new SimulationController();
         Kronos.setController(controller);
         controller.setCurrentTime(0);
-        final var eventCount = 100_000;
+        final var eventCount = 1_000_000;
         EventThroughput benchmark = new EventThroughputImpl("STRING", eventCount);
         sleep(10);
         benchmark.start();
