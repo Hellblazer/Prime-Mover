@@ -1,9 +1,9 @@
 An Event Driven Simulation Framework for Java
-See user-manual.pdf in this directory for details.
+See [user-manual](./user-manual.pdf) in this directory for details.
 
 Licensed under AGPL V 3.0
 
-Requires Java 1.7 and Maven 3.x
+Requires Java 20 and Maven 3.83_
 
 To build:
 
@@ -17,7 +17,7 @@ The artifact required for simulation runtime
      <dependency>
          <groupId>com.hellblazer</groupId>
          <artifactId>primeMover</artifactId>
-         <version>0.0.5-SNAPSHOT</version>
+         <version>0.1.0-SNAPSHOT</version>
      </dependency>
 
 ### Prime Mover Maven Plugin
@@ -27,7 +27,7 @@ The plugin required to transform simulation code
      <plugin>
          <groupId>com.hellblazer.primeMover</groupId>
          <artifactId>maven.plugin</artifactId>
-         <version>0.0.5-SNAPSHOT</version>
+         <version>0.1.0-SNAPSHOT</version>
          <executions>
              <execution> 
                  <goals>
@@ -40,9 +40,7 @@ The plugin required to transform simulation code
      
 ### Integration Into Eclipse
 
-Because Prime Mover is a byte code rewriting framework, if you don't rewrite the bytecodes, you won't get the behavior that you're looking for.  When you're working in the IDE, such as Eclipse, it would be super cool if you didn't have to run all your tests and main() applications outside of Eclipse.  I have developed an Eclipse PlugIn for PrimeMover, but thanks to several updates since I wrote the original version, that plugin doesn't seem to work quite yet.
-
-Luckily, if you use Maven and in particular, the Maven integration into Eclipse (i.e. M2E) then it turns out that it's pretty simple to integrate the PrimeMover Maven plugin into the plugin management of your pom.xml.  To do so, simply add the following in the pom of your project:
+Because Prime Mover is a byte code rewriting framework, if you don't rewrite the bytecodes, you won't get the behavior that you're looking for.  When you're working in the IDE, such as Eclipse, it would be super cool if you didn't have to run all your tests and main() applications outside of Eclipse.   Luckily, if you use Maven and in particular, the Maven integration into Eclipse (i.e. M2E) then it turns out that it's pretty simple to integrate the PrimeMover Maven plugin into the plugin management of your pom.xml.  To do so, simply add the following in the pom of your project:
 
   <plugin>
     <groupId>org.eclipse.m2e</groupId>
@@ -55,7 +53,7 @@ Luckily, if you use Maven and in particular, the Maven integration into Eclipse 
             <pluginExecutionFilter>
               <groupId>com.hellblazer.primeMover</groupId>
               <artifactId>maven.plugin</artifactId>
-              <versionRange>[0.0.5-SNAPSHOT,)</versionRange>
+              <versionRange>[0.1.0-SNAPSHOT,)</versionRange>
               <goals>
                 <goal>transform</goal>
                 <goal>transform-test</goal>

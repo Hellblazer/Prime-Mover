@@ -140,8 +140,7 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
-            <!-- 
+            </plugin> 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
@@ -154,7 +153,7 @@
                         <configuration>
                             <rules>
                                 <requireMavenVersion>
-                                    <version>[3.8.1,)</version>
+                                    <version>[3.8.3,)</version>
                                 </requireMavenVersion>
                                 <dependencyConvergence />
                                 <requireJavaVersion>
@@ -164,7 +163,7 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>-->
+            </plugin>
         </plugins>
         <pluginManagement>
             <plugins>
