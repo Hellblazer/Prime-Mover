@@ -24,6 +24,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.locks.LockSupport;
 import java.util.logging.Logger;
 
+import com.hellblazer.primeMover.runtime.Devi.EvaluationResult;
+
 /**
  * Represents the blocking continuation of blocking simulated event processing
  * 
@@ -42,10 +44,10 @@ public class Continuation implements Serializable {
         return thread != null;
     }
 
-    public Object park(CompletableFuture<Object> futureSailor) throws Throwable {
+    public Object park(CompletableFuture<EvaluationResult> sailorMoon, EvaluationResult result) throws Throwable {
         assert thread == null;
         thread = Thread.currentThread();
-        futureSailor.complete(null);
+        sailorMoon.complete(result);
         LockSupport.park();
         if (exception != null) {
             throw exception;
