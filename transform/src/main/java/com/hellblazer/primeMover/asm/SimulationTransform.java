@@ -182,6 +182,7 @@ public class SimulationTransform implements Closeable {
                                 .collect(Collectors.toCollection(() -> new OpenSet<>()));
         ci.getDeclaredMethodInfo()
           .stream()
+          .filter(m -> !m.isStatic())
           .filter(m -> !m.hasAnnotation(NonEvent.class))
           .filter(m -> allPublic ? m.isPublic() : m.hasAnnotation(Blocking.class) || m.hasAnnotation(Event.class))
           .forEach(mi -> events.add(mi));
