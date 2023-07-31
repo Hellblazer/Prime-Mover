@@ -26,7 +26,7 @@ The plugin required to transform simulation code
 
      <plugin>
          <groupId>com.hellblazer.primeMover</groupId>
-         <artifactId>maven.plugin</artifactId>
+         <artifactId>maven-plugin</artifactId>
          <version>0.1.0-SNAPSHOT</version>
          <executions>
              <execution> 
@@ -52,7 +52,7 @@ Because Prime Mover is a byte code rewriting framework, if you don't rewrite the
           <pluginExecution>
             <pluginExecutionFilter>
               <groupId>com.hellblazer.primeMover</groupId>
-              <artifactId>maven.plugin</artifactId>
+              <artifactId>maven-plugin</artifactId>
               <versionRange>[0.1.0-SNAPSHOT,)</versionRange>
               <goals>
                 <goal>transform</goal>

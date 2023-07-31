@@ -64,10 +64,10 @@ public class EntityGeneratorTest {
         final var bytes = cw.toByteArray();
         assertNotNull(bytes);
 
-        ClassReader reader = new ClassReader(bytes);
-        TraceClassVisitor visitor = new TraceClassVisitor(null, new PrintWriter(System.out, true));
-        reader.accept(visitor, ClassReader.EXPAND_FRAMES);
-        CheckClassAdapter.verify(reader, true, new PrintWriter(System.out, true));
+//        ClassReader reader = new ClassReader(bytes);
+//        TraceClassVisitor visitor = new TraceClassVisitor(null, new PrintWriter(System.out, true));
+//        reader.accept(visitor, ClassReader.EXPAND_FRAMES);
+//        CheckClassAdapter.verify(reader, true, new PrintWriter(System.out, true));
 
         var loader = new ClassLoader(getClass().getClassLoader()) {
             {
