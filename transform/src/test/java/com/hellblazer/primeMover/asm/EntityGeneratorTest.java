@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
 
+import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.nio.ByteBuffer;
@@ -56,6 +57,7 @@ public class EntityGeneratorTest {
                                                                                 "testClasses"));
 
 //        final var name = "testClasses.ContinuationThroughputImpl";
+//        final var name = "testClasses.HelloWorld";
         final var name = "com.hellblazer.primeMover.asm.testClasses.MyTest";
         EntityGenerator generator = transform.generatorOf(name);
         assertNotNull(generator);
@@ -64,10 +66,12 @@ public class EntityGeneratorTest {
         final var bytes = cw.toByteArray();
         assertNotNull(bytes);
 
-//        ClassReader reader = new ClassReader(bytes);
-//        TraceClassVisitor visitor = new TraceClassVisitor(null, new PrintWriter(System.out, true));
-//        reader.accept(visitor, ClassReader.EXPAND_FRAMES);
-//        CheckClassAdapter.verify(reader, true, new PrintWriter(System.out, true));
+        ClassReader reader = new ClassReader(bytes);
+        final var out = new PrintStream(new ByteArrayOutputStream()); // System.out;
+        final PrintWriter printWriter = new PrintWriter(out, true);
+        TraceClassVisitor visitor = new TraceClassVisitor(null, printWriter);
+        reader.accept(visitor, ClassReader.EXPAND_FRAMES);
+        CheckClassAdapter.verify(reader, printWriter != null, printWriter);
 
         var loader = new ClassLoader(getClass().getClassLoader()) {
             {
@@ -160,10 +164,12 @@ public class EntityGeneratorTest {
         final var bytes = cw.toByteArray();
         assertNotNull(bytes);
 
-        TraceClassVisitor visitor = new TraceClassVisitor(null, new PrintWriter(System.out, true));
+        final var out = new PrintStream(new ByteArrayOutputStream()); // System.out;
+        final PrintWriter printWriter = new PrintWriter(out, true);
+        TraceClassVisitor visitor = new TraceClassVisitor(null, printWriter);
         ClassReader reader = new ClassReader(bytes);
         reader.accept(visitor, ClassReader.EXPAND_FRAMES);
-        CheckClassAdapter.verify(reader, true, new PrintWriter(System.out, true));
+        CheckClassAdapter.verify(reader, printWriter != null, printWriter);
         var loader = new ClassLoader(getClass().getClassLoader()) {
             {
                 {
@@ -186,9 +192,9 @@ public class EntityGeneratorTest {
             reader = new ClassReader(is);
         }
 
-        TraceClassVisitor visitor = new TraceClassVisitor(null, new PrintWriter(System.out, true));
+        TraceClassVisitor visitor = new TraceClassVisitor(null, null);
         reader.accept(visitor, ClassReader.EXPAND_FRAMES);
 
-        CheckClassAdapter.verify(reader, true, new PrintWriter(System.out, true));
+        CheckClassAdapter.verify(reader, false, new PrintWriter(System.out, true));
     }
 }

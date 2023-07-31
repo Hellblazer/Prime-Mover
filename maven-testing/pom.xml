@@ -58,7 +58,7 @@
 						</goals>
 					</execution>
 				</executions>
-			</plugin>
+			</plugin> 
 		</plugins>
 		<pluginManagement>
 			<plugins>
@@ -85,6 +85,25 @@
 										<goals>
 											<goal>transform-test</goal>
 											<goal>transform</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore></ignore>
+									</action>
+								</pluginExecution>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>
+											com.hellblazer.primeMover
+										</groupId>
+										<artifactId>
+											maven-plugin
+										</artifactId>
+										<versionRange>
+											[0.1.0-SNAPSHOT,)
+										</versionRange>
+										<goals>
+											<goal>transform-test</goal>
 										</goals>
 									</pluginExecutionFilter>
 									<action>
