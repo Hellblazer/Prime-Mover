@@ -37,20 +37,33 @@ import com.hellblazer.primeMover.SimulationException;
  * @author <a href="mailto:hal.hildebrand@gmail.com">Hal Hildebrand</a>
  */
 abstract public class Devi implements Controller {
+    record EvaluationResult(Throwable t, Object result, EventImpl blockingEvent, EventImpl continuingEvent) {
+
+        EvaluationResult(Object o) {
+            this(null, o, null, null);
+        }
+
+        public EvaluationResult(Throwable t) {
+            this(t, null, null, null);
+        }
+
+        EvaluationResult(EventImpl blocking, EventImpl continuing) {
+            this(null, null, blocking, continuing);
+        }
+    }
+
     private static final String $ENTITY$GEN = "$entity$gen";
     private static final Logger logger      = Logger.getLogger(Devi.class.getCanonicalName());
 
-    private volatile EventImpl                 blockingEvent;
-    private volatile EventImpl                 caller;
-    private volatile EventImpl                 continuingEvent;
-    private volatile EventImpl                 currentEvent;
-    private volatile long                      currentTime       = 0;
-    private boolean                            debugEvents       = false;
-    private Logger                             eventLog;
-    private volatile CompletableFuture<Object> futureSailor;
-    private final Semaphore                    serializer        = new Semaphore(1);
-    private final ThreadFactory                tf;
-    private boolean                            trackEventSources = false;
+    private volatile EventImpl                           caller;
+    private volatile EventImpl                           currentEvent;
+    private volatile long                                currentTime       = 0;
+    private boolean                                      debugEvents       = false;
+    private Logger                                       eventLog;
+    private volatile CompletableFuture<EvaluationResult> futureSailor;
+    private final Semaphore                              serializer        = new Semaphore(1);
+    private final ThreadFactory                          tf;
+    private boolean                                      trackEventSources = false;
 
     public Devi() {
         tf = Thread.ofVirtual().uncaughtExceptionHandler((thread, t) -> {
@@ -78,8 +91,6 @@ abstract public class Devi implements Controller {
         currentTime = 0;
         caller = null;
         currentEvent = null;
-        blockingEvent = null;
-        continuingEvent = null;
         futureSailor = null;
     }
 
@@ -133,23 +144,19 @@ abstract public class Devi implements Controller {
      */
     @Override
     public Object postContinuingEvent(EntityReference entity, int event, Object... arguments) throws Throwable {
-        final var be = blockingEvent;
-        final var ce = continuingEvent;
         final var current = currentEvent;
         final var sailorMoon = futureSailor;
 
-        assert be == null : "uncleared: " + be;
-        assert ce == null : "uncleared: " + ce;
         assert current != null : "no current event";
         assert sailorMoon != null : "No future to signal";
         assert !sailorMoon.isDone() : "Future sailure is done";
 
         final var ct = currentTime;
-        final var continuing = current.clone(ct);
-        continuingEvent = continuing;
-        var blocking = blockingEvent = createEvent(ct, entity, event, arguments);
-        logger.finer("Blocking: %s on: %s; continuation: %s".formatted(Thread.currentThread(), blocking, continuing));
-        return continuing.park(sailorMoon);
+        final var continuingEvent = current.clone(ct);
+        var blockingEvent = createEvent(ct, entity, event, arguments);
+        logger.finer("Blocking: %s on: %s; continuation: %s".formatted(Thread.currentThread(), blockingEvent,
+                                                                       continuingEvent));
+        return continuingEvent.park(sailorMoon, new EvaluationResult(blockingEvent, continuingEvent));
     }
 
     /**
@@ -291,12 +298,9 @@ abstract public class Devi implements Controller {
                 if (futureSailor.isDone()) {
                     logger.severe("Future sailor already done");
                 }
-                futureSailor.complete(result);
-            } catch (SimulationEnd e) {
-                futureSailor.completeExceptionally(e);
-                return;
+                futureSailor.complete(new EvaluationResult(result));
             } catch (Throwable e) {
-                futureSailor.completeExceptionally(e);
+                futureSailor.complete(new EvaluationResult(e));
             }
         };
     }
@@ -312,37 +316,29 @@ abstract public class Devi implements Controller {
         } else {
             tf.newThread(eval(next)).start();
         }
-        Object result = null;
-        Throwable exception = null;
+        EvaluationResult result = null;
         try {
             result = sailorMoon.get();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             return;
         } catch (ExecutionException e) {
-            final var cc = caller;
-            final var blocking = blockingEvent;
-            if (cc == null || blocking != null) {
-                throw new SimulationException(e.getCause());
-            }
-            exception = e.getCause();
+            throw new SimulationException(e.getCause());
         } finally {
             futureSailor = null;
             currentEvent = null;
         }
 
+        assert result != null;
+
         final var cc = caller;
-        final var blocking = blockingEvent;
-        if (blocking != null) {
-            final var continuing = continuingEvent;
-            continuing.setCaller(cc);
-            blocking.setCaller(continuing);
-            post(blocking);
-            blockingEvent = null;
-            continuingEvent = null;
+        if (result.blockingEvent != null) {
+            result.continuingEvent.setCaller(cc);
+            result.blockingEvent.setCaller(result.continuingEvent);
+            post(result.blockingEvent);
         } else if (cc != null) {
             final var ct = currentTime;
-            post(cc.resume(ct, result, exception));
+            post(cc.resume(ct, result, result.t));
         }
     }
 }

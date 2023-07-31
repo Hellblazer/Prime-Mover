@@ -25,6 +25,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.logging.Logger;
 
 import com.hellblazer.primeMover.Event;
+import com.hellblazer.primeMover.runtime.Devi.EvaluationResult;
 
 /**
  * Represents the simulated event
@@ -132,10 +133,10 @@ public class EventImpl implements Cloneable, Serializable, Comparable<EventImpl>
         return time;
     }
 
-    public Object park(CompletableFuture<Object> futureSailor) throws Throwable {
+    public Object park(CompletableFuture<EvaluationResult> sailorMoon, EvaluationResult result) throws Throwable {
         final var newCont = new Continuation();
         continuation = newCont;
-        final var parked = newCont.park(futureSailor);
+        final var parked = newCont.park(sailorMoon, result);
         logger.finer("Continuing: %s event: %s".formatted(Thread.currentThread(), this));
         return parked;
     }
