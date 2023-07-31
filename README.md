@@ -15,8 +15,18 @@ To build:
 The artifact required for simulation runtime
 
      <dependency>
-         <groupId>com.hellblazer</groupId>
-         <artifactId>primeMover</artifactId>
+         <groupId>com.hellblazer.primeMover</groupId>
+         <artifactId>runtime</artifactId>
+         <version>0.1.0-SNAPSHOT</version>
+     </dependency>
+
+### Prime Mover Transform
+
+The artifact required for simulation transform
+
+     <dependency>
+         <groupId>com.hellblazer.primeMover</groupId>
+         <artifactId>transform</artifactId>
          <version>0.1.0-SNAPSHOT</version>
      </dependency>
 
