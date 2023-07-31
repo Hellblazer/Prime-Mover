@@ -42,33 +42,33 @@ The plugin required to transform simulation code
 
 Because Prime Mover is a byte code rewriting framework, if you don't rewrite the bytecodes, you won't get the behavior that you're looking for.  When you're working in the IDE, such as Eclipse, it would be super cool if you didn't have to run all your tests and main() applications outside of Eclipse.   Luckily, if you use Maven and in particular, the Maven integration into Eclipse (i.e. M2E) then it turns out that it's pretty simple to integrate the PrimeMover Maven plugin into the plugin management of your pom.xml.  To do so, simply add the following in the pom of your project:
 
-  <plugin>
-    <groupId>org.eclipse.m2e</groupId>
-    <artifactId>lifecycle-mapping</artifactId>
-    <version>1.0.0</version>
-    <configuration>
-      <lifecycleMappingMetadata>
-        <pluginExecutions>
-          <pluginExecution>
-            <pluginExecutionFilter>
-              <groupId>com.hellblazer.primeMover</groupId>
-              <artifactId>maven-plugin</artifactId>
-              <versionRange>[0.1.0-SNAPSHOT,)</versionRange>
-              <goals>
-                <goal>transform</goal>
-                <goal>transform-test</goal>
-              </goals>
-            </pluginExecutionFilter>
-            <action>
-              <execute>
-                <runOnIncremental>true</runOnIncremental>
-              </execute>
-            </action>
-          </pluginExecution>
-        </pluginExecutions>
-      </lifecycleMappingMetadata>
-    </configuration>
-  </plugin>
+      <plugin>
+        <groupId>org.eclipse.m2e</groupId>
+        <artifactId>lifecycle-mapping</artifactId>
+        <version>1.0.0</version>
+        <configuration>
+          <lifecycleMappingMetadata>
+            <pluginExecutions>
+              <pluginExecution>
+                <pluginExecutionFilter>
+                  <groupId>com.hellblazer.primeMover</groupId>
+                  <artifactId>maven-plugin</artifactId>
+                  <versionRange>[0.1.0-SNAPSHOT,)</versionRange>
+                  <goals>
+                    <goal>transform</goal>
+                    <goal>transform-test</goal>
+                  </goals>
+                </pluginExecutionFilter>
+                <action>
+                  <execute>
+                    <runOnIncremental>true</runOnIncremental>
+                  </execute>
+                </action>
+              </pluginExecution>
+            </pluginExecutions>
+          </lifecycleMappingMetadata>
+        </configuration>
+      </plugin>
 
 Note that it is important to have the PrimeMover plugin run incrementally.  Further, it needs to be hooked into both the transform and transform-test phases of the maven lifecycle.
 
