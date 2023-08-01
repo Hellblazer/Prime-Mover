@@ -22,6 +22,7 @@
         <module>maven-plugin</module>
         <module>maven-testing</module>
         <module>demo</module>
+        <module>desmoj-ish</module>
     </modules>
     <dependencyManagement>
         <dependencies>
