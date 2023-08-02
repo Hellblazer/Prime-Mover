@@ -1,6 +1,6 @@
 package desmoj.core.simulator;
 
-import co.paralleluniverse.fibers.SuspendExecution;
+
 import co.paralleluniverse.strands.SuspendableRunnable;
 import desmoj.core.exception.DESMOJException;
 import desmoj.core.exception.InterruptException;
@@ -55,7 +55,7 @@ public class SimThread implements SuspendableRunnable {
 	 * <code>activate(TimeInstant time)</code>.
 	 */
 	@Override
-    public void run() throws SuspendExecution {
+    public void run()  {
 
 		// let all other threads, esp. the main thread get into the block
 		// yield();

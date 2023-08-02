@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import desmoj.core.simulator.EventList;
 import desmoj.core.simulator.Experiment;
@@ -68,6 +69,7 @@ public class SchedulerInteractionTest {
     /**
      * This Tests checks the Eventlist.
      */
+    @Test
     public void testEventList() {
         assertEquals(scheduler.evList, EventList);
     }
@@ -75,6 +77,7 @@ public class SchedulerInteractionTest {
     /**
      * This Test checks if the test scheduler is connected to the right experiment.
      */
+    @Test
     public void testExperiment() {
         assertEquals(experiment, scheduler.myExperiment);
     }
@@ -82,6 +85,7 @@ public class SchedulerInteractionTest {
     /**
      * This Tests checks if the current Event is external or not.
      */
+    @Test
     public void testExternalEvent() {
         scheduler.schedule(null, event1, new TimeInstant(4));
         experiment.start();
@@ -91,6 +95,7 @@ public class SchedulerInteractionTest {
     /**
      * This Test checks different ways to set the present simulation time.
      */
+    @Test
     public void testPresentTime() {
         experiment.stop(new TimeInstant(6));
         experiment.start();
@@ -111,6 +116,7 @@ public class SchedulerInteractionTest {
     /**
      * This Tests check the randominzingCurrentEvents functionality.
      */
+    @Test
     public void testRandom() {
         scheduler.setRandomizingConcurrentEvents(false);
         assertFalse(scheduler.isRandomizingConcurrentEvents());
@@ -123,6 +129,7 @@ public class SchedulerInteractionTest {
      * Therefore, they are scheduled with TimeSpans, activated with TimeInstants or
      * after one another.
      */
+    @Test
     public void testScheduleEntity() {
         // experiment.stop(new TimeInstant(3));
         System.out.println(scheduler.getCurrentSimProcess());
@@ -141,6 +148,7 @@ public class SchedulerInteractionTest {
     /**
      * First of all it is tested, if the scheduler is connected or not.
      */
+    @Test
     public void testSchedulerConnected() {
         assertNotNull(scheduler);
     }
@@ -148,6 +156,7 @@ public class SchedulerInteractionTest {
     /**
      * This Tests checks the current activate Process.
      */
+    @Test
     public void testSchedulerProcess() {
         scheduler.scheduleWithPreempt(process1);
         process1.activatePremempt();
@@ -159,6 +168,7 @@ public class SchedulerInteractionTest {
     /**
      * This Tests checks if a SImClock is connected and set or not.
      */
+    @Test
     public void testSimClock() {
         assertNotNull(scheduler.getSimClock());
     }
@@ -166,6 +176,7 @@ public class SchedulerInteractionTest {
     /**
      * This Test checks the ExecutionSpeedRate
      */
+    @Test
     public void testSpeed() {
         scheduler.setExecutionSpeedRate(10);
         assertTrue(10 == scheduler.getExecutionSpeedRate());

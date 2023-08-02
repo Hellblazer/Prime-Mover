@@ -5,7 +5,7 @@ package desmoj.core.advancedModellingFeatures;
 import java.util.Enumeration;
 import java.util.Vector;
 
-import co.paralleluniverse.fibers.SuspendExecution;
+
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.QueueBased;
 import desmoj.core.simulator.QueueList;
@@ -733,7 +733,7 @@ public class Res extends desmoj.core.simulator.QueueBased {
 	 * provide()</code>
 	 *            to the SimProcess.
 	 */
-	public boolean provide(int n) throws SuspendExecution {
+	public boolean provide(int n)  {
 		_where = " boolean provide (int n)";
 
 		SimProcess currentProcess = currentSimProcess();

@@ -10,7 +10,6 @@ import java.util.Enumeration;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
-import co.paralleluniverse.fibers.SuspendExecution;
 import desmoj.core.simulator.Experiment;
 import test.implementation.TestComplexSimProcess;
 import test.implementation.TestModel;
@@ -51,9 +50,9 @@ public abstract class ComplexSimProcessModulTest {
      * This Test checks the functionality to add, remove or check for components,
      * given to a ComplexSimProcess
      *
-     * @throws SuspendExecution
+     * @
      */
-    public void testComponents() throws SuspendExecution {
+    public void testComponents() {
         assertNotNull(complex.getComponents());
         assertFalse(complex.hasComponents());
         complex.addComponent(simProcess1);

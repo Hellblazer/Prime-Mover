@@ -1,6 +1,6 @@
 package desmoj.core.advancedModellingFeatures;
 
-import co.paralleluniverse.fibers.SuspendExecution;
+
 import desmoj.core.simulator.Condition;
 import desmoj.core.simulator.QueueBased;
 import desmoj.core.simulator.QueueList;
@@ -389,7 +389,7 @@ public class CondQueue<P extends SimProcess> extends desmoj.core.simulator.Queue
 	 * @see desmoj.core.simulator.Condition
 	 */
 	@SuppressWarnings("unchecked")
-    public boolean waitUntil(Condition<P> cond) throws SuspendExecution {
+    public boolean waitUntil(Condition<P> cond)  {
 		_where = "boolean waitUntil (desmoj.core.simulator.Condition cond)";
 
 		P currentProcess = (P) currentSimProcess();

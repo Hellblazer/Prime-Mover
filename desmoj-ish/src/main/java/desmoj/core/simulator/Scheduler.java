@@ -6,7 +6,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
-import co.paralleluniverse.fibers.SuspendExecution;
+
 
 /**
  * The scheduler is the main element controlling the run of a simulation. It
@@ -439,7 +439,7 @@ public class Scheduler extends NamedObject {
      *         correctly, <code>false</code> if not
      */
     @SuppressWarnings("unchecked")
-    protected boolean processNextEventNote() throws SuspendExecution {
+    protected boolean processNextEventNote()  {
         EventNote _currentNote;
 
         // check if there still are Event notes to be processed
@@ -985,7 +985,7 @@ public class Scheduler extends NamedObject {
      * 
      * @param who Entity : The Entity to be scheduled
      */
-    protected void reScheduleWithPreempt(Schedulable who) throws SuspendExecution {
+    protected void reScheduleWithPreempt(Schedulable who)  {
 
         if (who == null) {
             myExperiment.sendWarning("Can't reschedule Schedulable at given time! " + "Command ignored.",
@@ -2134,7 +2134,7 @@ public class Scheduler extends NamedObject {
      * Schedules the event to happen immediately.
      */
     protected void scheduleWithPreempt(Entity who1, Entity who2, Entity who3,
-                                       EventOf3Entities<?, ?, ?> what) throws SuspendExecution {
+                                       EventOf3Entities<?, ?, ?> what)  {
 
         if ((who1 == null) && (what == null)) {
             myExperiment.sendWarning("Can't schedule Entity and Event! " + "Command ignored.",
@@ -2211,7 +2211,7 @@ public class Scheduler extends NamedObject {
     /**
      * Schedules the event to happen immediately.
      */
-    protected void scheduleWithPreempt(Entity who1, Entity who2, EventOf2Entities<?, ?> what) throws SuspendExecution {
+    protected void scheduleWithPreempt(Entity who1, Entity who2, EventOf2Entities<?, ?> what)  {
 
         if ((who1 == null) && (what == null)) {
             myExperiment.sendWarning("Can't schedule Entity and Event! " + "Command ignored.",
@@ -2264,7 +2264,7 @@ public class Scheduler extends NamedObject {
     /**
      * Schedules the event to happen immediately.
      */
-    protected void scheduleWithPreempt(Entity who, EventAbstract what) throws SuspendExecution {
+    protected void scheduleWithPreempt(Entity who, EventAbstract what)  {
 
         if ((who == null) && (what == null)) {
             myExperiment.sendWarning("Can't schedule Entity and Event! " + "Command ignored.",
@@ -2380,7 +2380,7 @@ public class Scheduler extends NamedObject {
      * @param preemptNote EventNote - The event-note of the Schedulable preempting
      *                    the current SimProcess
      */
-    void preemptSimProcess(EventNote preemptNote) throws SuspendExecution {
+    void preemptSimProcess(EventNote preemptNote)  {
 
         if (_currentProcess == null) {
             myExperiment.sendWarning("Can't preempt current SimProcess! " + "Command ignored.",

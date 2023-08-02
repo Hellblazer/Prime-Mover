@@ -2,7 +2,6 @@ package test.implementation;
 
 import java.util.concurrent.TimeUnit;
 
-import co.paralleluniverse.fibers.SuspendExecution;
 import desmoj.core.simulator.Experiment;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
@@ -59,11 +58,7 @@ public class TestModel extends Model {
      */
     @Override
     public void doInitialSchedules() {
-        try {
-            process.activatePreempt();
-        } catch (SuspendExecution e) {
-            throw new IllegalStateException();
-        }
+        process.activatePreempt();
     }
 
     // define any additional methods if necessary,
