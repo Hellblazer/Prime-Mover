@@ -123,9 +123,10 @@ public class ContDistCustom extends ContDist {
             }
         };
 
-        var solver = new BisectionSolver(functiontosolve);
+//        var solver = new BisectionSolver(functiontosolve);
+        var solver = new BisectionSolver();
         try {
-            newSample = solver.solve(lowerBound, upperBound); // Finding zero
+            newSample = solver.solve(Integer.MAX_VALUE, functiontosolve, lowerBound, upperBound); // Finding zero
             // root
 
         } catch (Exception e) {

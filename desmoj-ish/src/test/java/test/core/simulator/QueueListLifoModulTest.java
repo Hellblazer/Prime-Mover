@@ -3,7 +3,6 @@ package test.core.simulator;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -54,17 +53,6 @@ public class QueueListLifoModulTest extends QueueListStandardModulTest {
         this.enty2 = new TestEntity(super.model, "enty2", false);
         this.enty3 = new TestEntity(super.model, "enty3", false);
         this.enty4 = new TestEntity(super.model, "enty4", false);
-    }
-
-    /**
-     * Set-Up for Testing
-     *
-     * @throws java.lang.Exception
-     */
-    @Override
-    @BeforeAll
-    public void setUpBeforeClass() throws Exception {
-
     }
 
     /**

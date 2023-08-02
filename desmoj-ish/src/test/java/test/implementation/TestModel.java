@@ -2,70 +2,77 @@ package test.implementation;
 
 import java.util.concurrent.TimeUnit;
 
+import co.paralleluniverse.fibers.SuspendExecution;
 import desmoj.core.simulator.Experiment;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 
 /**
- *  A simple testmodel to provide a reference for the modultest implementations
- * 	
+ * A simple testmodel to provide a reference for the modultest implementations
+ * 
  * @author Sascha Winde
  * 
- * @param owner model
- * @param name java.lang.String
+ * @param owner       model
+ * @param name        java.lang.String
  * @param showInTrace
  */
 public class TestModel extends Model {
 
+    /** runs the model */
+    public static void main(String[] args) {
 
-	   // define model components here
-		TestSimProcess process;
-	   
-	   public TestModel() {
-	      super(null, "<Test Model>", true, true);
-	   }
+        // create model and experiment
+        TestModel model = new TestModel();
+        Experiment exp = new Experiment("Test Experiment");
+        // and connect them
+        model.connectToExperiment(exp);
 
-	   /** initialise static components */
-	   public void init() {
-		   this.process = new TestSimProcess(this, "First Test SimProcess", false);
-	   }
+        // set experiment parameters
+        exp.setShowProgressBar(true);
+        TimeInstant stopTime = new TimeInstant(1440, TimeUnit.MINUTES);
+        exp.tracePeriod(new TimeInstant(0), stopTime);
+        exp.stop(stopTime);
 
-	   /** activate dynamic components */
-	   public void doInitialSchedules() {
-		   process.activatePreempt();
-	   }
+        // start experiment
+        exp.start();
 
-	   /** returns a description of this model to be used in the report */
-	   public String description() {
-	      return "<Test description>";
-	   }
+        // generate report and shut everything off
+        exp.report();
+        exp.finish();
+    }
 
-	   // define any additional methods if necessary,
-	   // e.g. access methods to model components
+    // define model components here
+    TestSimProcess process;
 
-	   /** runs the model */
-	   public static void main(String[] args) {
+    public TestModel() {
+        super(null, "<Test Model>", true, true);
+    }
 
-	      // create model and experiment
-	      TestModel model = new TestModel();
-	      Experiment exp = new Experiment("Test Experiment");
-	      // and connect them
-	      model.connectToExperiment(exp);
+    /** returns a description of this model to be used in the report */
+    @Override
+    public String description() {
+        return "<Test description>";
+    }
 
-	      // set experiment parameters
-	      exp.setShowProgressBar(true);
-	      TimeInstant stopTime = new TimeInstant(1440, TimeUnit.MINUTES);
-	      exp.tracePeriod(new TimeInstant(0), stopTime);
-	      exp.stop(stopTime);
+    /**
+     * activate dynamic components
+     */
+    @Override
+    public void doInitialSchedules() {
+        try {
+            process.activatePreempt();
+        } catch (SuspendExecution e) {
+            throw new IllegalStateException();
+        }
+    }
 
-	      // start experiment
-	      exp.start();
+    // define any additional methods if necessary,
+    // e.g. access methods to model components
 
-	      // generate report and shut everything off
-	      exp.report();
-	      exp.finish();
-	   }
+    /** initialise static components */
+    @Override
+    public void init() {
+        this.process = new TestSimProcess(this, "First Test SimProcess", false);
+    }
 
-	} 
-
-
+}
