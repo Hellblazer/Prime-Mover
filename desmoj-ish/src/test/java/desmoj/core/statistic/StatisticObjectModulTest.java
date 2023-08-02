@@ -14,13 +14,13 @@ import desmoj.implementation.TestStatisticObject;
  * of the other statistical classes, which collect data.
  * Since it is declared as abstract this test class is
  * abstract as well. It is implemented by StatisticObjectTest
- * 
+ *
  * @see core.statistic.StatisticObject
  * @author Sascha Winde, Clara Bluemm
  *
  */
 public abstract class StatisticObjectModulTest{
-    
+
     TestModel model;
     TestStatisticObject stats;
 
@@ -29,10 +29,10 @@ public abstract class StatisticObjectModulTest{
      */
     @BeforeEach
     public void setUp() throws Exception {
-        
+
         this.model = new TestModel();
         this.stats = new TestStatisticObject(model, "First Test Statistic Object", false, true);
-        
+
     }
 
     /**
@@ -44,7 +44,7 @@ public abstract class StatisticObjectModulTest{
         stats.traceOff();
         assertFalse(stats.traceIsOn());
     }
-    
+
     /**
      * Destroys the testfixture after every test.
      */

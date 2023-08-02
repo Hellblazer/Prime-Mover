@@ -9,11 +9,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import desmoj.core.simulator.EventList;
-import desmoj.core.simulator.Experiment;
-import desmoj.core.simulator.Scheduler;
-import desmoj.core.simulator.TimeInstant;
-import desmoj.core.simulator.TimeSpan;
 import desmoj.implementation.TestEntity;
 import desmoj.implementation.TestEventAbstract;
 import desmoj.implementation.TestExternalEvent;
@@ -24,7 +19,7 @@ import desmoj.implementation.TestSimProcess;
  * This class tests the functionality of the scheduler in interaction with
  * EventList, Model, Entity, Event, SimProcess, EventNote, TimeInstant, TimeSpan
  * and experiment.
- * 
+ *
  * @author Sascha Winde
  *
  */

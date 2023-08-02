@@ -8,17 +8,14 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import desmoj.core.simulator.QueueListFifo;
-import desmoj.core.simulator.QueueListLifo;
-import desmoj.core.simulator.QueueListStandard;
 import desmoj.implementation.TestEntity;
 
 /**
  * In this class we test the methods of QueueListStandard. It gets extended by
  * QueueListLifo or QueueListFifo.
- * 
+ *
  * @author Clara Bluemm, Sascha Winde
- * 
+ *
  * @see desmoj.core.simulator.QueueListStandard
  * @see desmoj.core.simulator.QueueListFifo
  * @see desmoj.core.simulator.QueueListLifo
@@ -32,7 +29,7 @@ public abstract class QueueListStandardModulTest extends QueueListModulTest {
 
     /**
      * Checks whether the method validates the sim-process correctly.
-     * 
+     *
      */
 
     public void CheckProcess() {

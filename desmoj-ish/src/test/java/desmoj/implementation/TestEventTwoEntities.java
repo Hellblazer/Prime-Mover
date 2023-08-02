@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package desmoj.implementation;
 
@@ -10,7 +10,7 @@ import desmoj.core.simulator.Model;
 /**
  * This class is implemented for testing the class EventNote.
  * It implements the super class EventTwoEntities
- * 
+ *
  * @author Clara Bluemm, Sascha Winde
  * @see TestFramework.core.simulator.EventNoteModulTest
  * @see test.core.simulator.EventTwoEntities
@@ -26,9 +26,9 @@ public class TestEventTwoEntities extends EventOf2Entities {
 		super(owner, name, showInTrace);
 	}
 
-	/** 
+	/**
 	 * The routine which changes the inner state of every
-	 * given entity. Here it adds 2 two the variable count 
+	 * given entity. Here it adds 2 two the variable count
 	 * of the entity.
 	 * @see desmoj.core.simulator.EventTwoEntities#eventRoutine(desmoj.core.simulator.Entity, desmoj.core.simulator.Entity)
 	 */

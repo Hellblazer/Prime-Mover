@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package desmoj.implementation;
 
@@ -11,7 +11,7 @@ import desmoj.core.simulator.QueueListStandard;
 /**
  * This class is used to be able to initiate an object
  * of typ QueueList for testing reasons.
- * 
+ *
  * @author Clara Bluemm
  *
  */
@@ -21,7 +21,8 @@ public class TestQueueList extends QueueListStandard
 	public TestQueueList() {
 	}
 
-	public void propertyChange(PropertyChangeEvent arg0) {
+	@Override
+    public void propertyChange(PropertyChangeEvent arg0) {
 	}
 
 	@Override
@@ -46,7 +47,7 @@ public class TestQueueList extends QueueListStandard
 
 	@Override
 	public void insert(Entity e) {
-		
+
 	}
 
 	@Override

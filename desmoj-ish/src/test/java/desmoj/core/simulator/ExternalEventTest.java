@@ -7,18 +7,20 @@ import org.junit.jupiter.api.BeforeEach;
 /**
  * As it is in the real implementation, this class
  * derived of ExternalEventModulTest can be instantiated.
- * 
+ *
  * @author Sascha Winde, Clara Bluemm
  *
  */
 public class ExternalEventTest extends ExternalEventModulTest {
 
-	@BeforeEach
+	@Override
+    @BeforeEach
 	public void setUp() throws Exception {
 		super.setUp();
 	}
 
-	@AfterEach
+	@Override
+    @AfterEach
 	public void tearDown() throws Exception {
 	}
 

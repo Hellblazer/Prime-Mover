@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import desmoj.core.dist.ContDistEmpirical;
 import desmoj.core.simulator.Experiment;
 import desmoj.core.simulator.Model;
 

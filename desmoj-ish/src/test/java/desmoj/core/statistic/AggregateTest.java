@@ -6,18 +6,17 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
-import desmoj.core.statistic.Aggregate;
 import desmoj.implementation.TestModel;
 
 /**
- * Tests the class Aggregate. It is supposed to 
- * 
+ * Tests the class Aggregate. It is supposed to
+ *
  * @see core.statistic.Aggregate
  * @author Sascha Winde, Clara Bluemm
  *
  */
 public class AggregateTest{
-    
+
     TestModel model;
     Aggregate agg;
 
@@ -28,9 +27,9 @@ public class AggregateTest{
     public void setUp() throws Exception {
         this.model = new TestModel();
         this.agg = new Aggregate(model, "Test Aggregate", false, false);
-        
+
     }
-    
+
     /**
      * Tests whether the value is updated the
      * right way.
@@ -42,7 +41,7 @@ public class AggregateTest{
         assertFalse(0 == agg.getValue());
         assertTrue(10 == agg.getValue());
     }
-    
+
     /**
      * Tests the method getMaximum, which is supposed
      * to return the highest value of the count object so far.
@@ -57,7 +56,7 @@ public class AggregateTest{
         assertFalse(10 == agg.getMaximum());
         assertTrue(15 == agg.getMaximum());
     }
-    
+
     /**
      * Tests the method getMinimum, which is supposed
      * to return the lowest value of the count object so far.
@@ -69,7 +68,7 @@ public class AggregateTest{
         assertFalse(10 == agg.getMinimum());
         assertTrue(0 == agg.getMinimum());
     }
-    
+
     /**
      * Destroys the testfixture after every test.
      */

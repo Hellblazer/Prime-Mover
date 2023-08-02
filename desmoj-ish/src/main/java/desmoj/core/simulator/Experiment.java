@@ -1252,11 +1252,11 @@ public class Experiment extends NamedObject {
         try {
             // main proceed code has to be executed in a strand because it can be suspended
             // (locks)
-            this._schedulerStrand = this.getStrandFactory().create("proceed", new SuspendableRunnable() {
+            this._schedulerStrand = this.getStrandFactory().create("proceed", new Runnable() {
                 private static final long serialVersionUID = -1079147860194926426L;
 
                 @Override
-                public void run() throws InterruptedException {
+                public void run() {
                     doProceed();
                 }
             });

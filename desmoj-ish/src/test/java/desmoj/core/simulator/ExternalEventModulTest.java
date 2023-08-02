@@ -7,14 +7,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
-import desmoj.core.simulator.Experiment;
 import desmoj.implementation.TestExternalEvent;
 import desmoj.implementation.TestModel;
 
 /**
  * This Class simply tests if an Event is external or not.
  * Further functionality is tested in the EventModulTest Class.
- * 
+ *
  * @author Sascha Winde, Clara Bluemm
  *
  */
@@ -24,7 +23,7 @@ public abstract class ExternalEventModulTest{
 	TestExternalEvent externalEvent;
 	@BeforeEach
 	public void setUp() throws Exception {
-		
+
 		this.model = new TestModel();
 		Experiment experiment = new Experiment("Test Experiment", java.util.concurrent.TimeUnit.SECONDS, java.util.concurrent.TimeUnit.HOURS, null);
 		model.connectToExperiment(experiment);
@@ -45,8 +44,8 @@ public abstract class ExternalEventModulTest{
 	{
 		assertEquals("First Test ExternalEvent#1", externalEvent.getName());
 	}
-	
-	
+
+
 	@AfterEach
 	public void tearDown() throws Exception {
 	}

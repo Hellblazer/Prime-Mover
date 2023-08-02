@@ -8,9 +8,9 @@ import desmoj.core.simulator.TimeInstant;
 
 /**
  * A simple testmodel to provide a reference for the modultest implementations
- * 
+ *
  * @author Sascha Winde
- * 
+ *
  * @param owner       model
  * @param name        java.lang.String
  * @param showInTrace

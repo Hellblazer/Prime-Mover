@@ -7,15 +7,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
-import desmoj.core.simulator.InterruptCode;
-
 /**
  * This class checks the InterruptCode functionality.
  * @author Sascha Winde, Clara Bluemm
  *
  */
 public class InterruptCodeTest{
-	
+
 	InterruptCode interrupt1;
 	InterruptCode interrupt2;
 
@@ -24,7 +22,7 @@ public class InterruptCodeTest{
 		this.interrupt1 = new InterruptCode("Test");
 		this.interrupt2 = new InterruptCode("Code");
 	}
-	
+
 	/**
 	 * This Test checks if two codes are equal or not
 	 */
@@ -33,7 +31,7 @@ public class InterruptCodeTest{
 		assertFalse(InterruptCode.equals(interrupt2, interrupt1));
 		assertTrue(InterruptCode.equals(interrupt2, interrupt2));
 	}
-	
+
 	/**
 	 * This Test checks the given interruptcode Numbers to be not equal.
 	 */

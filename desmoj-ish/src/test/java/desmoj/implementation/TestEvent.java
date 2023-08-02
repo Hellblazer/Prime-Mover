@@ -6,11 +6,11 @@ import desmoj.core.simulator.Model;
 
 /**
  * This class is derived from the abstract class Event.
- * It has to override only one method, which describes the 
+ * It has to override only one method, which describes the
  * Routine, which changes the inner state of the entity.
- * 
+ *
  * @author Clara Bluemm
- * 
+ *
  * @see desmoj.core.simulator.Event
  * @see desmoj.core.simulator.EventAbstract
  */
@@ -25,10 +25,10 @@ public class TestEvent extends Event {
 		super(owner, name, showInTrace);
 	}
 
-	/** 
+	/**
 	 * The Routine to change the inner state of the given Entity.
 	 * It adds 1 to the variable count.
-	 * 
+	 *
 	 * @param entity : the entity to be changed
 	 * @see desmoj.core.simulator.Event#eventRoutine(desmoj.core.simulator.Entity)
 	 */

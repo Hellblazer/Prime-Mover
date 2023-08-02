@@ -8,12 +8,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import desmoj.core.report.Reporter;
-import desmoj.core.simulator.Experiment;
-import desmoj.core.simulator.Queue;
-import desmoj.core.simulator.QueueBased;
-import desmoj.core.simulator.QueueListStandard;
-import desmoj.core.simulator.Scheduler;
-import desmoj.core.simulator.SimClock;
 import desmoj.implementation.TestModel;
 
 /**
@@ -85,7 +79,7 @@ public abstract class QueueBasedModulTest {
 
     /**
      * Returns the minimumn length of the underlying queue since the last reset.
-     * 
+     *
      * @return int : The minimum queue length since last reset
      */
     public void minLength() {
@@ -180,7 +174,7 @@ public abstract class QueueBasedModulTest {
     }
 
     /**
-     * 
+     *
      */
 
     public void testAverageWaitTime() {

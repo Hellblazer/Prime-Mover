@@ -8,14 +8,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
-import desmoj.core.simulator.Experiment;
-import desmoj.core.simulator.TimeInstant;
 import desmoj.implementation.TestModel;
 
 /**
  * This class tests the experiment Class on it's own. Especially the
  * functionality to set values to model relevant instances.
- * 
+ *
  * @author Sascha
  *
  */
@@ -107,15 +105,15 @@ public class ExperimentTest {
     /**
      * This Test checks the start and stop function of the experiment. Starttime has
      * to be 0 and stoptime is 100.
-     * 
+     *
      * @throws InterruptedException
      */
     public void testStartStopExperiment() throws InterruptedException {
-        assertTrue(0 == experiment.STARTED);
+        assertTrue(0 == Experiment.STARTED);
         experiment.stop(new TimeInstant(100));
         experiment.start();
         assertTrue(100 == experiment.getStopTime().getTimeAsDouble());
-        assertTrue(1 == experiment.STOPPED);
+        assertTrue(1 == Experiment.STOPPED);
     }
 
 }

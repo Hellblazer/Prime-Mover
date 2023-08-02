@@ -10,17 +10,16 @@ import java.util.Enumeration;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
-import desmoj.core.simulator.Experiment;
 import desmoj.implementation.TestComplexSimProcess;
 import desmoj.implementation.TestModel;
 import desmoj.implementation.TestSimProcess;
 
 /**
  * This class tests the functionality of the class ComplexSimProcess.
- * 
+ *
  * @author Sascuemm
  *
- * 
+ *
  */
 public abstract class ComplexSimProcessModulTest {
 

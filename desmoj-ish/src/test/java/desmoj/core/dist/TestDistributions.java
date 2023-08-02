@@ -3,12 +3,6 @@ package desmoj.core.dist;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import desmoj.core.dist.ContDistAggregate;
-import desmoj.core.dist.ContDistCustom;
-import desmoj.core.dist.ContDistNormal;
-import desmoj.core.dist.ContDistTriangular;
-import desmoj.core.dist.Function;
-import desmoj.core.dist.Operator;
 import desmoj.core.simulator.Experiment;
 import desmoj.core.simulator.Model;
 

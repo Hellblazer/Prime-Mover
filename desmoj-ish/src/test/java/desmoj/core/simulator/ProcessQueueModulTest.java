@@ -8,9 +8,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import desmoj.core.simulator.Experiment;
-import desmoj.core.simulator.ProcessQueue;
-import desmoj.core.simulator.QueueBased;
 import desmoj.implementation.TestModel;
 import desmoj.implementation.TestSimProcess;
 
@@ -21,9 +18,9 @@ import desmoj.implementation.TestSimProcess;
  * <p>
  * The methods of QueueBased are not tested here. Look at QueueBasedModulTest
  * for that.
- * 
+ *
  * @author Clara Bluemm, Sascha Winde
- * 
+ *
  * @see desmoj.core.simulator.ProcessQueue
  *      <P>
  * @see TestFramework.core.simulator.QueueModulTest
@@ -50,7 +47,7 @@ public class ProcessQueueModulTest {
         enty1 = new TestSimProcess(model, "enty1", false);
         enty2 = new TestSimProcess(model, "enty2", false);
         enty3 = new TestSimProcess(model, "enty3", false);
-        queue = new ProcessQueue<TestSimProcess>(model, "ProcessQueue", QueueBased.LIFO, 2, false, false);
+        queue = new ProcessQueue<>(model, "ProcessQueue", QueueBased.LIFO, 2, false, false);
     }
 
     @AfterEach

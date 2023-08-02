@@ -9,12 +9,11 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
 import desmoj.core.simulator.Experiment;
-import desmoj.core.statistic.Accumulate;
 import desmoj.implementation.TestModel;
 
 /**
  * Tests the class Accumulate
- * 
+ *
  * @see core.statistics.Accumulate
  * @author Sascha Winde, Clara Bluemm
  *
@@ -23,7 +22,7 @@ public class AccumulateTest{
 
     TestModel model;
     Accumulate testAcc;
-    
+
     /**
      * Sets up the testfixture before every test.
      */
@@ -32,9 +31,9 @@ public class AccumulateTest{
         this.model = new TestModel();
         Experiment experiment = new Experiment("Test Experiment", java.util.concurrent.TimeUnit.SECONDS, java.util.concurrent.TimeUnit.HOURS, null);
         model.connectToExperiment(experiment);
-        
+
         this.testAcc = new Accumulate(model, "First Test Accumulate", false, false);
-        
+
     }
 
     /**
@@ -44,7 +43,7 @@ public class AccumulateTest{
     {
         assertNotNull(testAcc.createDefaultReporter());
     }
-    
+
     /**
      * Tests whether the flag is set in the right way.
      */
@@ -55,9 +54,9 @@ public class AccumulateTest{
         testAcc.setRetainLastValueOnReset(true);
         assertTrue(testAcc.doesRetainLastValueOnReset());
     }
-    
+
     /**
-     * Tests whether the reporter can be turned on 
+     * Tests whether the reporter can be turned on
      * and off in the right way.
      */
     public void testReport()
@@ -68,7 +67,7 @@ public class AccumulateTest{
         testAcc.reportOff();
         assertFalse(testAcc.reportIsOn());
     }
-    
+
     /**
      * Destroys the testfixture after every test.
      */

@@ -6,23 +6,18 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import desmoj.core.simulator.QueueBased;
-import desmoj.core.simulator.QueueList;
-import desmoj.core.simulator.QueueListFifo;
-import desmoj.core.simulator.QueueListLifo;
-import desmoj.core.simulator.QueueListStandard;
 import desmoj.implementation.TestEntity;
 
 /**
  * In this class we test the class QueueListLifo. This class has just one
  * method. Mind the derived methods from the classes below. All these are part
  * of the package desmoj.core.simulator.
- * 
+ *
  * @see QueueBased
  * @see QueueList
  * @see QueueListStandard
  * @see QueueListFifo
- * 
+ *
  * @author Clara Bluemm, Sascha Winde
  *
  */
@@ -36,7 +31,7 @@ public class QueueListLifoModulTest extends QueueListStandardModulTest {
 
     /**
      * This method returns the queue to test
-     * 
+     *
      */
     @Override
     public QueueListStandard getTyp() {

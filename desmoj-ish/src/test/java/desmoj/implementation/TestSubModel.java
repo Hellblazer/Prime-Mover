@@ -8,9 +8,9 @@ import desmoj.core.simulator.TimeInstant;
 
 /**
  *  A simple testmodel to provide a reference for the modultest implementations
- * 	
+ *
  * @author Sascha Winde
- * 
+ *
  * @param owner model
  * @param name java.lang.String
  * @param showInTrace
@@ -18,21 +18,24 @@ import desmoj.core.simulator.TimeInstant;
 public class TestSubModel extends Model {
 
 
-	   
+
 	   public TestSubModel(Model owner) {
 	      super(owner, "<Test SubModel>", true, true);
 	   }
 
 	   /** initialise static components */
-	   public void init() {
+	   @Override
+    public void init() {
 	   }
 
 	   /** activate dynamic components */
-	   public void doInitialSchedules() {
+	   @Override
+    public void doInitialSchedules() {
 	   }
 
 	   /** returns a description of this model to be used in the report */
-	   public String description() {
+	   @Override
+    public String description() {
 	      return "<Test description>";
 	   }
 
@@ -62,4 +65,4 @@ public class TestSubModel extends Model {
 	      exp.finish();
 	   }
 
-	} 
+	}

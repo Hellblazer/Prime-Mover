@@ -6,20 +6,19 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
-import desmoj.core.statistic.Count;
 import desmoj.implementation.TestModel;
 
 /**
  * This class is the test of class count, which is used
  * to simple count something (e.g. some kind of objects)
  * during an experiment.
- * 
+ *
  * @see core.statistic.count
  * @author Sascha Winde, Clara Bluemm
  *
  */
 public class CounterTest{
-    
+
     Count count;
     TestModel model;
 
@@ -33,7 +32,7 @@ public class CounterTest{
     }
 
     /**
-     * Tests the method getValue. It is supposed to return the 
+     * Tests the method getValue. It is supposed to return the
      * actual value.
      */
     public void testValue()
@@ -43,7 +42,7 @@ public class CounterTest{
         assertFalse(0 == count.getValue());
         assertTrue(10 == count.getValue());
     }
-    
+
     /**
      * Tests the method getMaximum, which is supposed
      * to return the highest value of the count object so far.
@@ -58,7 +57,7 @@ public class CounterTest{
         assertFalse(10 == count.getMaximum());
         assertTrue(15 == count.getMaximum());
     }
-    
+
     /**
      * Tests the method getMinimum, which is supposed
      * to return the lowest value of the count object so far.
@@ -70,7 +69,7 @@ public class CounterTest{
         assertFalse(10 == count.getMinimum());
         assertTrue(0 == count.getMinimum());
     }
-    
+
     /**
      * Destroys the testfixture after every test.
      */

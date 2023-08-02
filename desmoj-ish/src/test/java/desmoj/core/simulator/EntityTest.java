@@ -7,24 +7,26 @@ import org.junit.jupiter.api.BeforeEach;
 /**
  * As it is in the real implementation, this class
  * derived of EntityModulTest can be instantiated.
- * 
+ *
  * @author Sascha Winde, Clara Bluemm
  *
  */
 public class EntityTest extends EntityModulTest{
 
 	/**
-	 * Sets up the test fixture by calling the 
+	 * Sets up the test fixture by calling the
 	 * super constructor.
 	 */
-	@BeforeEach
+	@Override
+    @BeforeEach
 	public void setUp() throws Exception {
 		super.setUp();
 	}
 
-	@AfterEach
+	@Override
+    @AfterEach
 	public void tearDown() throws Exception {
 	}
-	
+
 
 }

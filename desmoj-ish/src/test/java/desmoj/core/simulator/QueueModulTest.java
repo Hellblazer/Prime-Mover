@@ -8,8 +8,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import desmoj.core.simulator.Experiment;
-import desmoj.core.simulator.Queue;
 import desmoj.implementation.TestEntity;
 import desmoj.implementation.TestModel;
 
@@ -20,10 +18,10 @@ import desmoj.implementation.TestModel;
  * <p>
  * The methods of QueueBased are not tested here. Look at QueueBasedModulTest
  * for that.
- * 
- * 
+ *
+ *
  * @author Clara Bluemm, Sascha Winde
- * 
+ *
  * @see desmoj.core.simulator.Queue<E>
  * @see TestFramework.core.simultor.ProcessQueueModulTest
  * @see TestFramework.core.simulator.QueueBasedModulTest
@@ -40,7 +38,7 @@ public class QueueModulTest {
     protected Queue<TestEntity> queue;
 
     /**
-     * 
+     *
      * @throws java.lang.Exception
      */
     @BeforeEach
@@ -55,7 +53,7 @@ public class QueueModulTest {
         enty1 = new TestEntity(model, "enty1", false);
         enty2 = new TestEntity(model, "enty2", false);
         enty3 = new TestEntity(model, "enty3", false);
-        queue = new Queue<TestEntity>(model, "queue", false, false);
+        queue = new Queue<>(model, "queue", false, false);
     }
 
     /**

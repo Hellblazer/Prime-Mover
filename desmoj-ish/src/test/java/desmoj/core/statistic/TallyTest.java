@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Test;
 
 import desmoj.core.simulator.Experiment;
 import desmoj.core.simulator.Model;
-import desmoj.core.statistic.ConfidenceCalculator;
 
 public class TallyTest {
 

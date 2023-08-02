@@ -3,22 +3,17 @@ package desmoj.core.simulator;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
-import desmoj.core.simulator.QueueBased;
-import desmoj.core.simulator.QueueListFifo;
-import desmoj.core.simulator.QueueListLifo;
-import desmoj.core.simulator.QueueListStandard;
-
 /**
  * In this class we test the class QueueList. This class has just two methods
  * but declares many as abstract. These get implementd in QueueListStandard.
  * Mind the derived methods from the classes named below. All these are part of
  * the package desmoj.core.simulator.
- * 
+ *
  * @see QueueBased
  * @see QueueListStandard
  * @see QueueListLifo
  * @see QueueListFifo
- * 
+ *
  * @author Clara Bluemm, Sascha Winde
  *
  */

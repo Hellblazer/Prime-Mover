@@ -5,7 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 
 /**
  * This class extends ArrivalProcessModulTest and can be executed.
- * 
+ *
  * @author Sascha Winde, Clara Bluemm
  *
  */

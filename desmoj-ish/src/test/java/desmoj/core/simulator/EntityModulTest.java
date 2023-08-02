@@ -5,14 +5,12 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import desmoj.core.simulator.Entity;
-import desmoj.core.simulator.Experiment;
 import desmoj.implementation.TestEntity;
 import desmoj.implementation.TestModel;
 
 /**
  * This class tests the methods derived of the abstract class Entity.
- * 
+ *
  * @author Sascha Winde, Clara Bluemm
  *
  */

@@ -7,19 +7,15 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import desmoj.core.simulator.QueueBased;
-import desmoj.core.simulator.QueueList;
-import desmoj.core.simulator.QueueListFifo;
-import desmoj.core.simulator.QueueListStandard;
 import desmoj.implementation.TestEntity;
 
 /**
  * This Class tests the implementation of QueueListStandard with the Fifo (first
  * in first out) method. It contains only one test but derives many others from
  * the classes and the test classes of the classes named below.
- * 
+ *
  * @author Clara Bluemm, Sascha Winde
- * 
+ *
  * @see QueueListStandard
  * @see QueueList
  * @see QueueBased
