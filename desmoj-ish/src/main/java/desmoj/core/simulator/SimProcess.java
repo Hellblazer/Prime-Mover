@@ -1315,7 +1315,7 @@ public abstract class SimProcess extends Entity {
         }
 
         // wait and free the scheduler
-        Strand.parkAndUnpark(this.getModel().getExperiment().getSchedulerStrand());
+//        Strand.parkAndUnpark(this.getModel().getExperiment().getSchedulerStrand());
 
         // if simulation is not running, throw SimFinishedException to stop
         // thread
@@ -1882,10 +1882,10 @@ public abstract class SimProcess extends Entity {
      * Method to release the waiting scheduler when the SimThread finishes.
      */
     void freeThread() {
-        Strand s = this.getModel().getExperiment().getSchedulerStrand();
-        if (s != null) {
-            s.unpark();
-        }
+//        Strand s = this.getModel().getExperiment().getSchedulerStrand();
+//        if (s != null) {
+//            s.unpark();
+//        }
     }
 
     /**
@@ -1935,7 +1935,7 @@ public abstract class SimProcess extends Entity {
         // to be released
         // and go wait until the next notification by the SimThread
         // of this SimProcess
-        Strand.parkAndUnpark(_myStrand);
+//        Strand.parkAndUnpark(_myStrand);
     }
 
     /**
@@ -1983,17 +1983,17 @@ public abstract class SimProcess extends Entity {
     void start() {
 
         // set up simthread
-        _myStrand = this.getModel().getExperiment().getStrandFactory().create(this, new SimThread(this));
+//        _myStrand = this.getModel().getExperiment().getStrandFactory().create(this, new SimThread(this));
 
         // setting this flag shows that the simthread is now ready to take over
         // control from the scheduler's thread
         _isRunning = true;
 
         // start thread and let it run into the block
-        _myStrand.start();
+//        _myStrand.start();
 
         // put scheduler thread in to a wait for synchronization
-        Strand.park();
+//        Strand.park();
 
         // check if simulation has been stopped in between and throw SimFinished
         if (getModel().getExperiment().isAborted()) {
@@ -2002,7 +2002,7 @@ public abstract class SimProcess extends Entity {
     }
 
     void unpark() {
-        _myStrand.unpark();
+//        _myStrand.unpark();
     }
 
     private void sendAWarningThatTheCurrentSimProcessHasAlreadyBeenInterrupted(String location) {

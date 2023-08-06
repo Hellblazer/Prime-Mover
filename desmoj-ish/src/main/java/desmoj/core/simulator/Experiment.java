@@ -5,7 +5,6 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import javax.swing.JFrame;
@@ -882,7 +881,7 @@ public class Experiment extends NamedObject {
             f.close();
 
         // kill all SimThreads still active
-        this.getStrandFactory().cleanUp();
+//        this.getStrandFactory().cleanUp();
 
     }
 
@@ -1249,26 +1248,26 @@ public class Experiment extends NamedObject {
 
         _status = RUNNING; // now checked to run
 
-        try {
-            // main proceed code has to be executed in a strand because it can be suspended
-            // (locks)
-            this._schedulerStrand = this.getStrandFactory().create("proceed", new Runnable() {
-                private static final long serialVersionUID = -1079147860194926426L;
-
-                @Override
-                public void run() {
-                    doProceed();
-                }
-            });
-            this._schedulerStrand.start();
-            this._schedulerStrand.join();
-            this._schedulerStrand = null;
-        } catch (ExecutionException e) {
-            disasterRecovery(e);
-        } catch (InterruptedException e) {
-            disasterRecovery(e);
-            Thread.currentThread().interrupt();
-        }
+//        try {
+        // main proceed code has to be executed in a strand because it can be suspended
+        // (locks)
+//            this._schedulerStrand = this.getStrandFactory().create("proceed", new Runnable() {
+//                private static final long serialVersionUID = -1079147860194926426L;
+//
+//                @Override
+//                public void run() {
+//                    doProceed();
+//                }
+//            });
+//            this._schedulerStrand.start();
+//            this._schedulerStrand.join();
+//            this._schedulerStrand = null;
+//        } catch (ExecutionException e) {
+//            disasterRecovery(e);
+//        } catch (InterruptedException e) {
+//            disasterRecovery(e);
+//            Thread.currentThread().interrupt();
+//        }
 
         // print status message to user...
         if (!_silent) {
@@ -1877,7 +1876,6 @@ public class Experiment extends NamedObject {
      *                 check() methode returns true.
      */
     public void stop(ModelCondition stopCond) {
-
         if (stopCond == null) {
             sendWarning("Can not set stop-condition! Command ignored.",
                         "Experiment '" + getName() + "', Method 'stop(Condition stopCond)'",
@@ -1886,7 +1884,6 @@ public class Experiment extends NamedObject {
         } else {
             this._stopConditions.add(stopCond);
         }
-
     }
 
     /**
@@ -2191,10 +2188,6 @@ public class Experiment extends NamedObject {
         return _nameCatalog;
     }
 
-    SimStrandFactory getStrandFactory() {
-        return this._strandFactory;
-    }
-
     /**
      * Connects a model to this experiment. The given model must not be submodel of
      * other models and not already be connected to some other experiment. Otherwise
@@ -2358,13 +2351,11 @@ public class Experiment extends NamedObject {
                 }
 
                 // Sleep a while (modified by N. Knaak)
-                if (_status == RUNNING && _delayInMillis != 0)
-                    Strand.sleep(_delayInMillis);
+//                if (_status == RUNNING && _delayInMillis != 0)
+//                    Strand.sleep(_delayInMillis);
             }
         } catch (DESMOJException e) {
             _messMan.receive(e.getErrorMessage());
-            disasterRecovery(e);
-        } catch (java.lang.InterruptedException e) {
             disasterRecovery(e);
         }
 

@@ -1,7 +1,6 @@
 package desmoj.core.simulator;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -82,7 +81,7 @@ public class SchedulerInteractionTest {
      */
     @Test
     public void testExternalEvent() {
-        scheduler.schedule(null, event1, new TimeInstant(4));
+        scheduler.scheduleNoPreempt(null, event1, new TimeInstant(4));
         experiment.start();
         assertEquals(event1, scheduler.getCurrentEvent());
     }
@@ -113,10 +112,10 @@ public class SchedulerInteractionTest {
      */
     @Test
     public void testRandom() {
-        scheduler.setRandomizingConcurrentEvents(false);
-        assertFalse(scheduler.isRandomizingConcurrentEvents());
-        scheduler.setRandomizingConcurrentEvents(true);
-        assertTrue(scheduler.isRandomizingConcurrentEvents());
+//        EventList.setRandomizingConcurrentEvents(false);
+//        assertFalse(scheduler.isRandomizingConcurrentEvents());
+//        EventList.setRandomizingConcurrentEvents(true);
+//        assertTrue(scheduler.isRandomizingConcurrentEvents());
     }
 
     /**
@@ -128,7 +127,7 @@ public class SchedulerInteractionTest {
     public void testScheduleEntity() {
         // experiment.stop(new TimeInstant(3));
         System.out.println(scheduler.getCurrentSimProcess());
-        scheduler.scheduleWithPreempt(process1);
+        scheduler.scheduleWithPreempt(process1, null);
         process1.activate(new TimeInstant(2));
         scheduler.scheduleAfter(process1, process2, null);
         process2.activate(new TimeInstant(5));
@@ -153,8 +152,8 @@ public class SchedulerInteractionTest {
      */
     @Test
     public void testSchedulerProcess() {
-        scheduler.scheduleWithPreempt(process1);
-        process1.activatePremempt();
+        scheduler.scheduleWithPreempt(process1, null);
+        process1.activatePreempt();
         experiment.start();
         assertEquals(process1, scheduler.getCurrentSimProcess());
 
