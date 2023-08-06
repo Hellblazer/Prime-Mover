@@ -1,12 +1,12 @@
 package desmoj.core.statistic;
 
-
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import desmoj.core.simulator.Experiment;
 import desmoj.implementation.TestModel;
@@ -18,9 +18,9 @@ import desmoj.implementation.TestModel;
  * @author Sascha Winde, Clara Bluemm
  *
  */
-public class AccumulateTest{
+public class AccumulateTest {
 
-    TestModel model;
+    TestModel  model;
     Accumulate testAcc;
 
     /**
@@ -29,7 +29,8 @@ public class AccumulateTest{
     @BeforeEach
     public void setUp() throws Exception {
         this.model = new TestModel();
-        Experiment experiment = new Experiment("Test Experiment", java.util.concurrent.TimeUnit.SECONDS, java.util.concurrent.TimeUnit.HOURS, null);
+        Experiment experiment = new Experiment("Test Experiment", java.util.concurrent.TimeUnit.SECONDS,
+                                               java.util.concurrent.TimeUnit.HOURS, null);
         model.connectToExperiment(experiment);
 
         this.testAcc = new Accumulate(model, "First Test Accumulate", false, false);
@@ -37,30 +38,17 @@ public class AccumulateTest{
     }
 
     /**
-     * Tests whether a reporter can be created to the object.
+     * Destroys the testfixture after every test.
      */
-    public void testReporter()
-    {
-        assertNotNull(testAcc.createDefaultReporter());
+    @AfterEach
+    public void tearDown() throws Exception {
     }
 
     /**
-     * Tests whether the flag is set in the right way.
+     * Tests whether the reporter can be turned on and off in the right way.
      */
-    public void testRetainLastValueOnReset()
-    {
-        testAcc.setRetainLastValueOnReset(false);
-        assertFalse(testAcc.doesRetainLastValueOnReset());
-        testAcc.setRetainLastValueOnReset(true);
-        assertTrue(testAcc.doesRetainLastValueOnReset());
-    }
-
-    /**
-     * Tests whether the reporter can be turned on
-     * and off in the right way.
-     */
-    public void testReport()
-    {
+    @Test
+    public void testReport() {
         assertFalse(testAcc.reportIsOn());
         testAcc.reportOn();
         assertTrue(testAcc.reportIsOn());
@@ -69,10 +57,22 @@ public class AccumulateTest{
     }
 
     /**
-     * Destroys the testfixture after every test.
+     * Tests whether a reporter can be created to the object.
      */
-    @AfterEach
-    public void tearDown() throws Exception {
+    @Test
+    public void testReporter() {
+        assertNotNull(testAcc.createDefaultReporter());
+    }
+
+    /**
+     * Tests whether the flag is set in the right way.
+     */
+    @Test
+    public void testRetainLastValueOnReset() {
+        testAcc.setRetainLastValueOnReset(false);
+        assertFalse(testAcc.doesRetainLastValueOnReset());
+        testAcc.setRetainLastValueOnReset(true);
+        assertTrue(testAcc.doesRetainLastValueOnReset());
     }
 
 }

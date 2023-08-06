@@ -11,7 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
  * @author Sascha Winde, Clara Bluemm
  *
  */
-public class StatisticObjectTest extends StatisticObjectModulTest{
+public class StatisticObjectTest extends StatisticObjectModulTest {
 
     /**
      * Sets up the testfixture before every test.

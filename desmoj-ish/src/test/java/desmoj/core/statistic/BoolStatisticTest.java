@@ -6,21 +6,22 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import desmoj.implementation.TestModel;
 
 /**
- * Tests the class BoolStatistic, which is supposed
- * to make an statistic about boolean values.
+ * Tests the class BoolStatistic, which is supposed to make an statistic about
+ * boolean values.
  *
  * @see core.statistic.BoolStatistic
  * @author Sascha Winde, Clara Bluemm
  *
  */
-public class BoolStatisticTest{
+public class BoolStatisticTest {
 
-    TestModel model;
     BoolStatistic bool;
+    TestModel     model;
 
     /**
      * Sets up the testfixture before every test.
@@ -32,23 +33,17 @@ public class BoolStatisticTest{
     }
 
     /**
-     * Tests whether the variable for counting "true" works
-     * the right way.
+     * Destroys the testfixture after every test.
      */
-    public void testTrueValues()
-    {
-        bool.update(true);
-        assertNotNull(bool.getTrueObs());
-        assertNotNull(bool.getTrueRatio());
-        assertTrue(1 == bool.getTrueObs());
-        assertTrue(1 == bool.getTrueRatio());
+    @AfterEach
+    public void tearDown() throws Exception {
     }
 
     /**
      * Tests both observer together.
      */
-    public void testOberservations()
-    {
+    @Test
+    public void testOberservations() {
         assertTrue(0 == bool.getObservations());
         bool.update(true);
         bool.update(false);
@@ -59,8 +54,8 @@ public class BoolStatisticTest{
     /**
      * Tests whether the reset method is working right.
      */
-    public void testReset()
-    {
+    @Test
+    public void testReset() {
         bool.update(true);
         assertNotNull(bool.getTrueObs());
         assertNotNull(bool.getTrueRatio());
@@ -72,10 +67,15 @@ public class BoolStatisticTest{
     }
 
     /**
-     * Destroys the testfixture after every test.
+     * Tests whether the variable for counting "true" works the right way.
      */
-    @AfterEach
-    public void tearDown() throws Exception {
+    @Test
+    public void testTrueValues() {
+        bool.update(true);
+        assertNotNull(bool.getTrueObs());
+        assertNotNull(bool.getTrueRatio());
+        assertTrue(1 == bool.getTrueObs());
+        assertTrue(1 == bool.getTrueRatio());
     }
 
 }

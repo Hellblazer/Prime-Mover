@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import desmoj.implementation.TestModel;
 
@@ -15,10 +16,10 @@ import desmoj.implementation.TestModel;
  * @author Sascha Winde, Clara Bluemm
  *
  */
-public class AggregateTest{
+public class AggregateTest {
 
-    TestModel model;
     Aggregate agg;
+    TestModel model;
 
     /**
      * Sets up the testfixture before every test.
@@ -31,23 +32,18 @@ public class AggregateTest{
     }
 
     /**
-     * Tests whether the value is updated the
-     * right way.
+     * Destroys the testfixture after every test.
      */
-    public void testValue()
-    {
-        assertTrue(0 == agg.getValue());
-        agg.update(10);
-        assertFalse(0 == agg.getValue());
-        assertTrue(10 == agg.getValue());
+    @AfterEach
+    public void tearDown() throws Exception {
     }
 
     /**
-     * Tests the method getMaximum, which is supposed
-     * to return the highest value of the count object so far.
+     * Tests the method getMaximum, which is supposed to return the highest value of
+     * the count object so far.
      */
-    public void testMax()
-    {
+    @Test
+    public void testMax() {
         assertTrue(0 == agg.getMaximum());
         agg.update(10);
         assertFalse(0 == agg.getMaximum());
@@ -58,11 +54,11 @@ public class AggregateTest{
     }
 
     /**
-     * Tests the method getMinimum, which is supposed
-     * to return the lowest value of the count object so far.
+     * Tests the method getMinimum, which is supposed to return the lowest value of
+     * the count object so far.
      */
-    public void testMin()
-    {
+    @Test
+    public void testMin() {
         assertTrue(0 == agg.getMinimum());
         agg.update(10);
         assertFalse(10 == agg.getMinimum());
@@ -70,11 +66,14 @@ public class AggregateTest{
     }
 
     /**
-     * Destroys the testfixture after every test.
+     * Tests whether the value is updated the right way.
      */
-    @AfterEach
-    public void tearDown() throws Exception {
+    @Test
+    public void testValue() {
+        assertTrue(0 == agg.getValue());
+        agg.update(10);
+        assertFalse(0 == agg.getValue());
+        assertTrue(10 == agg.getValue());
     }
 
 }
-

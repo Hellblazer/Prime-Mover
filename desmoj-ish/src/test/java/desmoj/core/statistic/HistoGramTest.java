@@ -10,17 +10,17 @@ import org.junit.jupiter.api.Test;
 import desmoj.implementation.TestModel;
 
 /**
- * Tests the class Histogramm. It is supposed to make a statistic
- * about one value.
+ * Tests the class Histogramm. It is supposed to make a statistic about one
+ * value.
  *
  * @see core.statistic.Histogramm
  * @author Sascha Winde, Clara Bluemm
  *
  */
-public class HistoGramTest{
+public class HistoGramTest {
 
-    TestModel model;
     Histogram histo;
+    TestModel model;
 
     /**
      * Sets up the testfixture before every test.
@@ -32,11 +32,17 @@ public class HistoGramTest{
     }
 
     /**
-     * Tests whether the number of cells and the range can be
-     * changed.
+     * Destroys the testfixture after every test.
      */
-    public void testCell()
-    {
+    @AfterEach
+    public void tearDown() throws Exception {
+    }
+
+    /**
+     * Tests whether the number of cells and the range can be changed.
+     */
+    @Test
+    public void testCell() {
         assertTrue(20 == histo.getCells());
         histo.changeParameters(0, 100, 10);
         assertFalse(20 == histo.getCells());
@@ -54,8 +60,7 @@ public class HistoGramTest{
      * Should return the most frequented cell.
      */
     @Test
-    public void testMostFrequented()
-    {
+    public void testMostFrequented() {
         histo.changeParameters(0, 100, 10);
         histo.update(1);
         histo.update(1);
@@ -64,13 +69,6 @@ public class HistoGramTest{
         histo.update(49);
         histo.update(49);
         assertTrue(5 == histo.getMostFrequentedCell());
-    }
-
-    /**
-     * Destroys the testfixture after every test.
-     */
-    @AfterEach
-    public void tearDown() throws Exception {
     }
 
 }

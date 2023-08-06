@@ -5,21 +5,21 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import desmoj.implementation.TestModel;
 
 /**
- * This class is the test of class count, which is used
- * to simple count something (e.g. some kind of objects)
- * during an experiment.
+ * This class is the test of class count, which is used to simple count
+ * something (e.g. some kind of objects) during an experiment.
  *
  * @see core.statistic.count
  * @author Sascha Winde, Clara Bluemm
  *
  */
-public class CounterTest{
+public class CounterTest {
 
-    Count count;
+    Count     count;
     TestModel model;
 
     /**
@@ -32,23 +32,18 @@ public class CounterTest{
     }
 
     /**
-     * Tests the method getValue. It is supposed to return the
-     * actual value.
+     * Destroys the testfixture after every test.
      */
-    public void testValue()
-    {
-        assertTrue(0 == count.getValue());
-        count.update(10);
-        assertFalse(0 == count.getValue());
-        assertTrue(10 == count.getValue());
+    @AfterEach
+    public void tearDown() throws Exception {
     }
 
     /**
-     * Tests the method getMaximum, which is supposed
-     * to return the highest value of the count object so far.
+     * Tests the method getMaximum, which is supposed to return the highest value of
+     * the count object so far.
      */
-    public void testMax()
-    {
+    @Test
+    public void testMax() {
         assertTrue(0 == count.getMaximum());
         count.update(10);
         assertFalse(0 == count.getMaximum());
@@ -59,11 +54,11 @@ public class CounterTest{
     }
 
     /**
-     * Tests the method getMinimum, which is supposed
-     * to return the lowest value of the count object so far.
+     * Tests the method getMinimum, which is supposed to return the lowest value of
+     * the count object so far.
      */
-    public void testMin()
-    {
+    @Test
+    public void testMin() {
         assertTrue(0 == count.getMinimum());
         count.update(10);
         assertFalse(10 == count.getMinimum());
@@ -71,10 +66,14 @@ public class CounterTest{
     }
 
     /**
-     * Destroys the testfixture after every test.
+     * Tests the method getValue. It is supposed to return the actual value.
      */
-    @AfterEach
-    public void tearDown() throws Exception {
+    @Test
+    public void testValue() {
+        assertTrue(0 == count.getValue());
+        count.update(10);
+        assertFalse(0 == count.getValue());
+        assertTrue(10 == count.getValue());
     }
 
 }

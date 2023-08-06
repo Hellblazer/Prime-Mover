@@ -5,23 +5,23 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import desmoj.implementation.TestModel;
 import desmoj.implementation.TestStatisticObject;
 
 /**
- * Tests the class StatisticObject. It is the superclass
- * of the other statistical classes, which collect data.
- * Since it is declared as abstract this test class is
- * abstract as well. It is implemented by StatisticObjectTest
+ * Tests the class StatisticObject. It is the superclass of the other
+ * statistical classes, which collect data. Since it is declared as abstract
+ * this test class is abstract as well. It is implemented by StatisticObjectTest
  *
  * @see core.statistic.StatisticObject
  * @author Sascha Winde, Clara Bluemm
  *
  */
-public abstract class StatisticObjectModulTest{
+public abstract class StatisticObjectModulTest {
 
-    TestModel model;
+    TestModel           model;
     TestStatisticObject stats;
 
     /**
@@ -36,20 +36,20 @@ public abstract class StatisticObjectModulTest{
     }
 
     /**
-     * Tests whether the trace can be switched on.
-     */
-    public void testTrace()
-    {
-        assertTrue(stats.traceIsOn());
-        stats.traceOff();
-        assertFalse(stats.traceIsOn());
-    }
-
-    /**
      * Destroys the testfixture after every test.
      */
     @AfterEach
     public void tearDown() throws Exception {
+    }
+
+    /**
+     * Tests whether the trace can be switched on.
+     */
+    @Test
+    public void testTrace() {
+        assertTrue(stats.traceIsOn());
+        stats.traceOff();
+        assertFalse(stats.traceIsOn());
     }
 
 }
