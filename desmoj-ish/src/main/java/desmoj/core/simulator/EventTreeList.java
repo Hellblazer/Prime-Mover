@@ -11,12 +11,12 @@ import desmoj.core.report.ErrorMessage;
  * Alternative Implementation of the interface <code>EventList</code> using a
  * tree-based list as a container for the event-notes, yielding both access and
  * removal of event-list entries in O(log n) time.
- * 
+ *
  * Disadvantages compared to <code>EventVector</code> include
  * non-thread-safeness (however, discrete Event simulation should never attempt
  * concurrent modifications of the event-list) and the slightly higher memory
  * requirement.
- * 
+ *
  * The internal tree-based list is provided by the class
  * <code>org.apache.commons.collections.list.TreeList</code> from the Commons
  * Collections package from the Apache Jakarta Commons Project (see
@@ -25,14 +25,14 @@ import desmoj.core.report.ErrorMessage;
  * (http://www.apache.org/). For License see
  * http://www.apache.org/licenses/LICENSE-2.0 (of which a copy can be found in
  * the root directory of this distribtuon).
- * 
+ *
  * @see org.apache.commons.collections.list.TreeList
  * @see EventVectorList
  * @see EventNote
- * 
+ *
  * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  * @author Tim Lechler, Ruth Meyer, modified by Johannes Göbel
- * 
+ *
  *         Licensed under the Apache License, Version 2.0 (the "License"); you
  *         may not use this file except in compliance with the License. You may
  *         obtain a copy of the License at
@@ -64,7 +64,7 @@ public class EventTreeList extends EventList {
 
     /**
      * Returns if the event-list processes concurrent Events in random order or not.
-     * 
+     *
      * @return boolean: <code>false</code> since no randomization
      */
     @Override
@@ -100,7 +100,7 @@ public class EventTreeList extends EventList {
      * lowest (nearest) associated point of simulation time of all Event notes
      * contained in the evnet-list. Note that the event-note is not removed from the
      * event-list.
-     * 
+     *
      * @return EventNote : the event-note to be processed next in the order of time.
      *         Returns <code>null</code> if the event-list is empty.
      */
@@ -118,7 +118,7 @@ public class EventTreeList extends EventList {
      * Inserts the new event-note preserving the temporal order of the event-notes
      * contained in the event-list. It uses binary search to determine the position
      * where to insert the new event-note to increase performance.
-     * 
+     *
      * @param newNote EventNote : the new note to be inserted in the event-list
      *                keeping the temporal order
      */
@@ -218,7 +218,7 @@ public class EventTreeList extends EventList {
      * intended to be scheduled at. Thus the new event-note will not be inserted and
      * a <code>EventNotScheduledException</code> will be thrown, stopping the
      * simulation.
-     * 
+     *
      * @param where   EventNote : The event-note containing the event after which
      *                the new note is supposed to be inserted into the event-list.
      * @param newNote EventNote : The new event-note to be inserted after the
@@ -284,7 +284,7 @@ public class EventTreeList extends EventList {
      * processed by the scheduler (unless some other calls to this method are made
      * before). Note that for consistency the time of the new event-note is set to
      * the time of the next entry, if the time of the next entry is earlier.
-     * 
+     *
      * @param newNote EventNote : The event-note to be inserted at the first
      *                position in the event-list.
      */
@@ -329,7 +329,7 @@ public class EventTreeList extends EventList {
      * could disturb the temporal order of the event-list. So this method should
      * only be used carefully. Note also, that EventNote 'where' must be contained
      * in the event-list or otherwise an exception will be thrown.
-     * 
+     *
      * @param where   EventNote : The event-note containing the event before which
      *                the newNote is supposed to be inserted into the event-list.
      * @param newNote EventNote : The new event-note to be inserted before the
@@ -400,7 +400,7 @@ public class EventTreeList extends EventList {
      * Tests if there are any scheduled events contained in the event-list. If the
      * event-list happens to be empty during the run of a simulation, this is a
      * criterium to stop the simulation, since no further action is scheduled.
-     * 
+     *
      * @return boolean : True if there are no Event notes contained in the
      *         event-list, false otherwise.
      */
@@ -415,7 +415,7 @@ public class EventTreeList extends EventList {
     /**
      * Returns the last EventNote in the event-list. If the event-list is empty,
      * <code>null</code> will be returned.
-     * 
+     *
      * @return EventNote : the last EventNote in the event-list, null if the
      *         event-list is empty
      */
@@ -434,7 +434,7 @@ public class EventTreeList extends EventList {
      * Returns the next event-note in the event-list relative to the given
      * EventNote. If the given EventNote is not contained in the event-list or
      * happens to be the last EventNote in the event-list, null will be returned.
-     * 
+     *
      * @return EventNote : The event-note following the given EventNote or
      *         <ocde>null</code> if the given EventNote was last or not found
      * @param origin EventNote : The event-note whose successor is wanted
@@ -456,7 +456,7 @@ public class EventTreeList extends EventList {
      * Returns the previous EventNote in the event-list relative to the given
      * EventNote. If the given EventNote is not contained in the event-list or
      * happens to be the first event-note in the event-list, null will be returned.
-     * 
+     *
      * @return EventNote : The event-note following the given EventNote or
      *         <ocde>null</code> if the given EventNote was first or not found
      * @param origin EventNote : The event-note whose predecessor is wanted
@@ -476,13 +476,13 @@ public class EventTreeList extends EventList {
 
     /**
      * Removes the given EventNote from the event-list.
-     * 
+     *
      * Warning: Make sure to tell the entity of the event-note to delete the Note
      * from its List as well.
-     * 
+     *
      * Warning: Make sure to tell the entity of the event-note to delete the Note
      * from its List as well.
-     * 
+     *
      * @param note EventNote : The event-note to be removed from the event-list
      */
     @Override

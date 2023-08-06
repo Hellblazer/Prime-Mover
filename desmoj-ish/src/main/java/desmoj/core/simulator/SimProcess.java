@@ -19,10 +19,10 @@ import desmoj.core.exception.InterruptException;
  * transaction-oriented synchronization mechanisms requires significant changes
  * in this class, methods that have been implemented by Soenke Claassen have
  * been marked.
- * 
+ *
  * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  * @author Tim Lechler, Soenke Claassen
- * 
+ *
  *         Licensed under the Apache License, Version 2.0 (the "License"); you
  *         may not use this file except in compliance with the License. You may
  *         obtain a copy of the License at
@@ -33,7 +33,7 @@ import desmoj.core.exception.InterruptException;
  *         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
  *         implied. See the License for the specific language governing
  *         permissions and limitations under the License.
- * 
+ *
  */
 public abstract class SimProcess extends Entity {
 
@@ -72,7 +72,7 @@ public abstract class SimProcess extends Entity {
 
     /**
      * The <code>InterruptCode</code> with which this SimProcess is interrupted.
-     * 
+     *
      * @author Soenke Claassen
      */
 
@@ -81,7 +81,7 @@ public abstract class SimProcess extends Entity {
     /**
      * The <code>InterruptException</code> with which this SimProcess is
      * interrupted.
-     * 
+     *
      * @author Soenke Claassen
      */
     private InterruptException _irqException;
@@ -98,7 +98,7 @@ public abstract class SimProcess extends Entity {
      * a reference to its master here. Master is set in the <code>cooperate()</code>
      * -method, when the slave cooperates with his master and deleted every time the
      * slave process is activated.
-     * 
+     *
      * @author Soenke Claassen
      */
     private SimProcess _master;
@@ -118,7 +118,7 @@ public abstract class SimProcess extends Entity {
     /**
      * If this SimProcess is cooperating as a slave it has to wait in this waitQueue
      * until a master is cooperating with it.
-     * 
+     *
      * @author Soenke Claassen
      */
     private ProcessQueue<? extends SimProcess> _slaveWaitQueue;
@@ -127,7 +127,7 @@ public abstract class SimProcess extends Entity {
      * A reference to the container this SimProcess belongs to. Is <code>null</code>
      * as long as this SimProcess is not contained in any
      * <code>ComplexSimProcess</code>.
-     * 
+     *
      * @author Soenke Claassen
      */
     private ComplexSimProcess _supervisor;
@@ -135,7 +135,7 @@ public abstract class SimProcess extends Entity {
     /**
      * The <code>Vector</code> holding all the resources this SimProcess is using at
      * the moment.
-     * 
+     *
      * @author Soenke Claassen
      */
     private final Vector<Resource> _usedResources;
@@ -143,7 +143,7 @@ public abstract class SimProcess extends Entity {
     /**
      * Short-cut constructor of a SimProcess whose <code>lifeCycle()</code> is only
      * executed once.
-     * 
+     *
      * @param name        String : The name of the SimProcess
      * @param owner       Model : The model this SimProcess is associated to
      * @param showInTrace boolean : Flag for showing SimProcess in trace-files. Set
@@ -158,7 +158,7 @@ public abstract class SimProcess extends Entity {
 
     /**
      * The most general constructor of a SimProcess.
-     * 
+     *
      * @param name        String : The name of the SimProcess
      * @param owner       Model : The model this SimProcess is associated to
      * @param repeating   boolean : Flag to set the SimProcess' repeating behaviour:
@@ -187,7 +187,7 @@ public abstract class SimProcess extends Entity {
         _isRepeating = repeating;
 
         // set up the Vector holding the used Resources
-        _usedResources = new Vector<Resource>();
+        _usedResources = new Vector<>();
 
         // this SimProcess is not contained in any ComplexSimProcess yet
         _supervisor = null;
@@ -245,7 +245,7 @@ public abstract class SimProcess extends Entity {
      * control back to the Scheduler, e.g. by calling <code>hold(...)</code> or
      * <code>passivate()</code>. If process preemption is desired, please use method
      * <code>activatePreempt()</code>.
-     * 
+     *
      * @param when TimeInstant : The point in simulation time this process is to be
      *             activated.
      */
@@ -320,7 +320,7 @@ public abstract class SimProcess extends Entity {
      * <code>activatePreempt()</code>.<br/>
      * Note that for the frequent pattern <code>activate(new TimeSpan(0))</code>,
      * the shorm form <code>activate()</code> exists.
-     * 
+     *
      * @param dt TimeSpan : The offset to the current simulation time this process
      *           is to be activated
      */
@@ -382,7 +382,7 @@ public abstract class SimProcess extends Entity {
      * <code>lifeCycle()</code> method directly after the given Schedulable but the
      * simulation clock will not change. Please make sure that the Schedulable given
      * as parameter is actually scheduled.
-     * 
+     *
      * @param after Schedulable : The Schedulable this SimProcess should be
      *              scheduled after
      */
@@ -431,7 +431,7 @@ public abstract class SimProcess extends Entity {
      * <code>lifeCycle()</code> method directly before the given Schedulable but the
      * simulation clock will not change. Please make sure that the Schedulable given
      * as parameter is actually scheduled.
-     * 
+     *
      * @param before Schedulable : The Schedulable this SimProcess should be
      *               scheduled before
      */
@@ -525,13 +525,13 @@ public abstract class SimProcess extends Entity {
     }
 
     /**
-     * 
+     *
      * Clears the currently scheduled delayed interrupt so that it wont be
      * performed. This Method should be called to cancel a previously scheduled
      * delayed interrupt. This is typically the case if all steps to be covered by
      * the delayed interrupt have been performed in time (before the delayed
      * interrupt could be executed).
-     * 
+     *
      */
     public void cancelInterruptDelayed() {
 
@@ -552,7 +552,7 @@ public abstract class SimProcess extends Entity {
      * Returns <code>true</code> if this process can cooperate with another
      * SimProcess. If this process is already cooperating with a master
      * <code>false</code> is returned.
-     * 
+     *
      * @return boolean : Is this process ready to cooperate with another SimProcess?
      * @author Soenke Claassen
      */
@@ -566,7 +566,7 @@ public abstract class SimProcess extends Entity {
      * called every time the SimProcess has successfully dealt with the interrupt.
      * The internal <code>InterruptCode</code> of this SimProcess will be reset to
      * <code>null</code>.
-     * 
+     *
      * @author Soenke Claassen
      */
     public void clearInterruptCode() {
@@ -578,7 +578,7 @@ public abstract class SimProcess extends Entity {
      * <code>WaitQueue.cooperate()</code>) on the slave process to lead him through
      * the joint cooperation. After the joint cooperation is finished the master is
      * still active and after him the slave will be activated.
-     * 
+     *
      * @author Soenke Claassen
      */
     public void cooperate() {
@@ -654,7 +654,7 @@ public abstract class SimProcess extends Entity {
     /**
      * Returns the last <code>Schedulable</code> that did cause the last activation
      * (or interruption) of this SimProcess.
-     * 
+     *
      * @return Schedulable : The Schedulable (e.g. other SimProcess, Event...) that
      *         has caused the last activation of this SimProcess. As processes may
      *         activate themselves, e.g. though a <code>hold(TimeSpan t)</code> or
@@ -670,7 +670,7 @@ public abstract class SimProcess extends Entity {
     /**
      * Returns the InterruptCode from this SimProcess. If this SimProcess is not
      * interrupted, the InterruptCode is <code>null</code>.
-     * 
+     *
      * @return irqCode : The InterruptCode of this SimProcess.
      * @author Soenke Claassen
      */
@@ -685,7 +685,7 @@ public abstract class SimProcess extends Entity {
     /**
      * Returns the master when two SimProcesses are cooperating. If this method is
      * called on a SimProcess which is not a slave <code>null</code> is returned.
-     * 
+     *
      * @return SimProcess : The master process during the cooperation or
      *         <code>null</code> if this process is not a slave process.
      * @author Soenke Claassen
@@ -698,7 +698,7 @@ public abstract class SimProcess extends Entity {
      * Returns the realTime deadline for this SimProcess (in nanoseconds). In case
      * of a real-time execution (i. e. the execution speed rate is set to a positive
      * value) the Scheduler will produce a warning message if a deadline is missed.
-     * 
+     *
      * @return the realTimeConstraint in nanoseconds
      */
     public long getRealTimeConstraint() {
@@ -710,7 +710,7 @@ public abstract class SimProcess extends Entity {
      * determine which process to execute first if two or more processes are
      * activated at the same instant. The default priority is zero. Higher
      * priorities are positive, lower priorities negative.
-     * 
+     *
      * @return int : The process' priority
      */
     public int getSchedulingPriority() {
@@ -723,7 +723,7 @@ public abstract class SimProcess extends Entity {
      * Returns the waiting-queue in which this SimProcess is waiting as a slave to
      * cooperate with a master. If this method is called on a SimProcess which is
      * not a slave <code>null</code> is returned.
-     * 
+     *
      * @return ProcessQueue : The waiting-queue in which this SimProcess is waiting
      *         as a slave or <code>null</code> if this SimProcess is not waiting as
      *         a slave for cooperation.
@@ -736,7 +736,7 @@ public abstract class SimProcess extends Entity {
     /**
      * Returns the supervising <code>ComplexSimProcess</code> this SimProcess is
      * contained in.
-     * 
+     *
      * @return ComplexSimProcess : The supervising <code>ComplexSimProcess</code>
      *         this SimProcess is contained in. Is <code>null</code> if this
      *         SimProcess is not contained in any <code>ComplexSimProcess</code>.
@@ -753,7 +753,7 @@ public abstract class SimProcess extends Entity {
      * The SimThread of this SimProcess is put into a lock and the scheduler, resp.
      * the experiment's main thread is released from its block and continues with
      * the next EventNote to be processed.
-     * 
+     *
      * @param dist NumericalDist<?> : Numerical distribution to sample the duration
      *             of the SimProcess' passivation from
      */
@@ -816,10 +816,10 @@ public abstract class SimProcess extends Entity {
      * simthread of this SimProcess is put into a lock and the scheduler, resp. the
      * experiment's main thread is released from its block and continues with the
      * next event-note to be processed.
-     * 
+     *
      * @param until TimeInstant : The point in simulation time when the SimProcess'
      *              passivation ends.
-     * 
+     *
      */
     public void hold(TimeInstant until) throws DelayedInterruptException, InterruptException {
         if ((until == null)) {
@@ -883,7 +883,7 @@ public abstract class SimProcess extends Entity {
      * SimProcess is put into a lock and the scheduler, resp. the experiment's main
      * thread is released from its block and continues with the next EventNote to be
      * processed.
-     * 
+     *
      * @param dt TimeSpan : The duration of the SimProcess' passivation
      */
     public void hold(TimeSpan dt) throws DelayedInterruptException, InterruptException {
@@ -942,7 +942,7 @@ public abstract class SimProcess extends Entity {
      * not be interrupted. In this case a warning message will be produced and the
      * interrupt will be ignord. If the SimProcess is cooperating as a slave the
      * interrupt will be passed to the master.
-     * 
+     *
      * @param interruptReason desmoj.InterruptCode
      */
     public void interrupt(InterruptCode interruptReason) {
@@ -1020,7 +1020,7 @@ public abstract class SimProcess extends Entity {
      * SimProcesses can not be interrupted. In this case a warning message will be
      * produced and the interrupt will be ignord. If the SimProcess is cooperating
      * as a slave the interrupt will be passed to the master.
-     * 
+     *
      * @param interruptReason desmoj.InterruptException
      */
     public void interrupt(InterruptException interruptReason) {
@@ -1100,12 +1100,12 @@ public abstract class SimProcess extends Entity {
      * interrupt is scheduled after another delayed interrupt has already been
      * scheduled a warning message will be produced and the new delayed interrupt
      * will not be scheduled.
-     * 
+     *
      * A delayed Interrupt must be cleared manually by calling
      * clearInterruptDelayed() on the SimProcess if it wasn't performed.
-     * 
+     *
      * @param when The Point in time when the interrupt is to be performed.
-     * 
+     *
      * @return The event which will (at the given point in time) triger the
      *         interrupt of this process
      */
@@ -1160,12 +1160,12 @@ public abstract class SimProcess extends Entity {
      * scheduled after another delayed interrupt has already been scheduled a
      * warning message will be produced and the delayed interrupt will not be
      * scheduled.
-     * 
+     *
      * A delayed Interrupt must be cleared manually by calling
      * clearInterruptDelayed() on the SimProcess if it wasn't performed.
-     * 
+     *
      * @param delay The delay after which the interrupt is to be performed.
-     * 
+     *
      * @return The event which will (after the given delay) triger the interrupt of
      *         this process
      */
@@ -1181,7 +1181,7 @@ public abstract class SimProcess extends Entity {
      * Returns the current block-status of the SimProcess. If a SimProcess is
      * blocked, it is waiting inside a queue or synchronization block for it's
      * release.
-     * 
+     *
      * @return boolean : Is <code>true</code> if SimProcess is blocked,
      *         <code>false</code> otherwise
      */
@@ -1197,7 +1197,7 @@ public abstract class SimProcess extends Entity {
      * It exists only within the <code>ComplexSimProcess</code>; it's own lifeCycle
      * is stopped and will only be activated again when it is removed from the
      * <code>ComplexSimProcess</code>.
-     * 
+     *
      * @return boolean :<code>true</code> if and only if this SimProcess is a
      *         component (part of) a <code>ComplexSimProcess</code>;
      *         <code>false</code> otherwise.
@@ -1216,7 +1216,7 @@ public abstract class SimProcess extends Entity {
      * Returns the current interrupt-status of this SimProcess. If a SimProcess is
      * interrupted, it should deal with the interrupt and then call the
      * <code>clearInterruptCode()</code> -method.
-     * 
+     *
      * @return boolean : Is <code>true</code> if this SimProcess is interrupted,
      *         <code>false</code> otherwise.
      * @author Soenke Claassen
@@ -1228,7 +1228,7 @@ public abstract class SimProcess extends Entity {
     /**
      * Returns the current repeating-status of the SimProcess. If a SimProcess is
      * repeating, the lifeCycle will be executed again after finishing.
-     * 
+     *
      * @return boolean : Is <code>true</code> if the lifeCycle of the process will
      *         be repeated finishing, while <code>false</code> indicates the process
      *         will terminate after the lifeCycle is completed.
@@ -1244,7 +1244,7 @@ public abstract class SimProcess extends Entity {
      * it has already finished its <code>lifeCycle()</code> method and can not
      * further be used as a SimProcess. A terminated SimProcess can still be used
      * like any other Entity which it is derived from.
-     * 
+     *
      * @return boolean : Is <code>true</code> if the SimProcess is terminated,
      *         <code>false</code> otherwise
      * @see Entity
@@ -1266,9 +1266,9 @@ public abstract class SimProcess extends Entity {
     /**
      * Makes the SimProcess obtain an array of resources and store them for further
      * usage.
-     * 
+     *
      * @param obtainedResources Resource[] : The array of resources obtained.
-     * 
+     *
      * @author Soenke Claassen
      */
     public void obtainResources(Resource[] obtainedResources) {
@@ -1344,7 +1344,7 @@ public abstract class SimProcess extends Entity {
      * <code>TransportJunction.cooperate()</code>) on the slave process to make him
      * prepare for the transportation. After the transport is finished the master is
      * still active and after him the slave will be activated.
-     * 
+     *
      * @author Soenke Claassen
      */
     public void prepareTransport() {
@@ -1422,7 +1422,7 @@ public abstract class SimProcess extends Entity {
     /**
      * Re-schedules the activation of this process (which must be exaxctly one) by
      * setting it to the TimeInstant passed to this method. No preemption.
-     * 
+     *
      * @param when TimeInstant : The point in simulation time this process is to be
      *             reactivated.
      */
@@ -1506,7 +1506,7 @@ public abstract class SimProcess extends Entity {
     /**
      * Re-schedules all SimProcess activation by adding a TimeSpan to the current
      * activation times.
-     * 
+     *
      * @param dt TimeSpan : The offset to the current activation times to be added
      *           to all activation times.
      */
@@ -1562,8 +1562,8 @@ public abstract class SimProcess extends Entity {
     /**
      * Gets the InterruptCode from the master and resets the master to
      * <code>null</code>.
-     * 
-     * 
+     *
+     *
      * @author Soenke Claassen
      */
     public void resetMaster() {
@@ -1579,7 +1579,7 @@ public abstract class SimProcess extends Entity {
      * Makes the SimProcess return all resources it holds at the moment to all the
      * different Res pools it is holding resources from. This is useful in
      * situations the Simprocess is about to terminate.
-     * 
+     *
      * @author Soenke Claassen
      */
     public void returnAllResources() {
@@ -1668,7 +1668,7 @@ public abstract class SimProcess extends Entity {
     /**
      * Makes the SimProcess return a certain number of resources of the given
      * resource pool.
-     * 
+     *
      * @param resPool Res : The resource pool which resources will be returned.
      * @param n       int : The number of resources which will be returned.
      * @return Resource[] : the array containing the resources which will be
@@ -1765,7 +1765,7 @@ public abstract class SimProcess extends Entity {
      * Sets the SimProcess' blocked status to the boolean value given. This is
      * necessary for some operations in conjunction with some synchronization
      * classes.
-     * 
+     *
      * @param blockStatus boolean : The new value for the blocked status
      */
     public void setBlocked(boolean blockStatus) {
@@ -1778,7 +1778,7 @@ public abstract class SimProcess extends Entity {
      * Sets the realTime deadline for this SimProcess (in nanoseconds). In case of a
      * real-time execution (i. e. the execution speed rate is set to a positive
      * value) the Scheduler will produce a warning message if a deadline is missed.
-     * 
+     *
      * @param realTimeConstraint the realTimeConstraint in nanoseconds to set
      */
     public void setRealTimeConstraint(long realTimeConstraint) {
@@ -1791,7 +1791,7 @@ public abstract class SimProcess extends Entity {
      * (<code>false</code>) after the current cycle is completed. Note that setting
      * setting this property to <code>true</code> <i>after</i> the the process has
      * terinated has no effect.
-     * 
+     *
      * @param repeatingStatus boolean : The new value for the repeating status
      */
     public void setRepeating(boolean repeatingStatus) {
@@ -1805,7 +1805,7 @@ public abstract class SimProcess extends Entity {
      * priority (unless assigned otherwise) is zero. Negative priorities are lower,
      * positive priorities are higher. All values should be inside the range defined
      * by Java's integral <code>integer</code> data type [-2147483648, +2147483647].
-     * 
+     *
      * An process' scheduling priority it used to determine which process is
      * executed first if activated at the same time instant. Should the priority be
      * the same, order of event execution depends on the <code>EventList</code> in
@@ -1823,7 +1823,7 @@ public abstract class SimProcess extends Entity {
     /**
      * Sets the SimProcess' slaveWaitQueue variable to the ProcessQueue in which
      * this SimProcess is waiting as a slave to cooperate with a master.
-     * 
+     *
      * @param slvWaitQueue ProcessQueue : The waiting-queue in which this SimProcess
      *                     is waiting as a slave to cooperate with a master.
      * @author Soenke Claassen
@@ -1836,7 +1836,7 @@ public abstract class SimProcess extends Entity {
      * As there is no generally applicable means of cloning a SimProcess (which
      * would require cloning the execution state as well), this method returns a
      * <code>CloneNotSupportedException</code>.
-     * 
+     *
      * @return SimProcess : A copy of this process.
      */
     @Override
@@ -1847,7 +1847,7 @@ public abstract class SimProcess extends Entity {
     /**
      * Returns a clone of the internal <code>Vector</code> containing all the
      * <code>Resource</code> objects this SimProcess is using at the moment.
-     * 
+     *
      * @return java.util.Vector : the internal <code>Vector</code> containing all
      *         the <code>Resource</code> objects this SimProcess is using at the
      *         moment.
@@ -1867,7 +1867,7 @@ public abstract class SimProcess extends Entity {
      * Sets the supervising <code>ComplexSimProcess</code> this SimProcess is
      * contained in. Setting it to <code>null</code> indicates that this SimProcess
      * is not contained in any <code>ComplexSimProcess</code> (anymore).
-     * 
+     *
      * @param complexProcess desmoj.ComplexSimProcess : The
      *                       <code>ComplexSimProcess</code> which serves as a
      *                       container for this SimProcess.
@@ -1891,7 +1891,7 @@ public abstract class SimProcess extends Entity {
     /**
      * Returns the current repeating-status of the SimProcess. If a SimProcess is
      * repeating, the lifeCycle will be executed again after finishing.
-     * 
+     *
      * @return boolean : Is <code>true</code> if the lifeCycle of the process will
      *         be repeated finishing, while <code>false</code> indicates the process
      *         will terminate after the lifeCycle is completed.
@@ -1902,7 +1902,7 @@ public abstract class SimProcess extends Entity {
      * ready, it has already finished its <code>lifeCycle()</code> method and can
      * not further be used as a SimProcess. A terminated SimProcess can still be
      * used like any other Entity which it is derived from.
-     * 
+     *
      * @return boolean : Is <code>true</code> if the SimProcess is terminated,
      *         <code>false</code> otherwise
      * @see Entity
@@ -1941,7 +1941,7 @@ public abstract class SimProcess extends Entity {
     /**
      * Sets the last <code>Schedulable</code> which has (re)activated or interrupted
      * this SimProcess.
-     * 
+     *
      * @param by Schedulable : The Schedulable that has (re)activated or interrupted
      *           this SimProcess or <code>null</code> to un-set this information.
      */
@@ -1953,7 +1953,7 @@ public abstract class SimProcess extends Entity {
     /**
      * Sets the SimProcess' running status to the boolean value given. This is
      * necessary for some operations in conjunction with synchronization classes.
-     * 
+     *
      * @param runStatus boolean : The new value for the running status
      */
     void setRunning(boolean runStatus) {
@@ -1965,7 +1965,7 @@ public abstract class SimProcess extends Entity {
     /**
      * Sets the attribute indicating that this SimProcess' simthread has finished to
      * the given value. This method is used by class <code>SimThread<code> only.
-     * 
+     *
      * @param termValue boolean : The new value for the attribute indicating the
      *                  SimThread's end
      */

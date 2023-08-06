@@ -4,21 +4,21 @@ import desmoj.core.simulator.Model;
 
 /**
  * Distribution returning Beta distributed double values.
- * 
+ *
  * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  * @author Peter Wueppen
- * 
+ *
  *         Licensed under the Apache License, Version 2.0 (the "License"); you
  *         may not use this file except in compliance with the License. You may
  *         obtain a copy of the License at
  *         http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *         Unless required by applicable law or agreed to in writing, software
  *         distributed under the License is distributed on an "AS IS" BASIS,
  *         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
  *         implied. See the License for the specific language governing
  *         permissions and limitations under the License.
- * 
+ *
  */
 
 public class ContDistBeta extends ContDist {
@@ -36,7 +36,7 @@ public class ContDistBeta extends ContDist {
     /**
      * Creates a stream of pseudo random numbers following a Beta distribution. The
      * specific parameters alpha and beta have to be given here at creation time.
-     * 
+     *
      * @param owner        Model : The distribution's owner
      * @param name         java.lang.String : The distribution's name
      * @param alpha        double: Distribution specific parameter alpha
@@ -54,7 +54,7 @@ public class ContDistBeta extends ContDist {
 
     /**
      * Creates the default reporter for the BetaDist distribution.
-     * 
+     *
      * @return Reporter : The reporter for the BetaDist distribution
      * @see desmoj.core.report.ContDistBetaReporter
      */
@@ -66,7 +66,7 @@ public class ContDistBeta extends ContDist {
     }
 
     /**
-     * 
+     *
      * @return double : Distribution specific shape parameter alpha
      */
     public double getAlpha() {
@@ -75,7 +75,7 @@ public class ContDistBeta extends ContDist {
     }
 
     /**
-     * 
+     *
      * @return double : Distribution specific scale parameter beta
      */
     public double getBeta() {
@@ -88,9 +88,9 @@ public class ContDistBeta extends ContDist {
      * Method to map a double <code>p</code> from 0...1 to the distribution's domain
      * by determining the value x that satisfies <code>P(X &lt; x) = p</code>. Not
      * supported, i.e. throwing an <code>UnsupportedOperationException</code>.
-     * 
+     *
      * @param p double: A value between 0 and 1
-     * 
+     *
      * @return An <code>UnsupportedOperationException</code> exception
      */
     @Override
@@ -103,7 +103,7 @@ public class ContDistBeta extends ContDist {
      * Returns the next sample from this distribution. The value depends upon the
      * seed, the number of values taken from the stream by using this method before
      * and the alpha and beta parameters specified for this distribution.
-     * 
+     *
      * @return Double : The next Beta distributed sample from this distribution.
      */
     @Override

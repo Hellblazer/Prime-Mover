@@ -13,23 +13,23 @@ import desmoj.core.simulator.Model;
  * (approximately) identically and independently distributed. Observe that the
  * confidence interval estimations of this class are meaningless should this
  * assumption not hold!
- * 
+ *
  * @see Tally
  * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  * @author Soenke Claassen
  * @author based on DESMO-C from Thomas Schniewind, 1998
- * 
+ *
  *         Licensed under the Apache License, Version 2.0 (the "License"); you
  *         may not use this file except in compliance with the License. You may
  *         obtain a copy of the License at
  *         http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *         Unless required by applicable law or agreed to in writing, software
  *         distributed under the License is distributed on an "AS IS" BASIS,
  *         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
  *         implied. See the License for the specific language governing
  *         permissions and limitations under the License.
- * 
+ *
  */
 public class ConfidenceCalculator extends Tally {
 
@@ -41,7 +41,7 @@ public class ConfidenceCalculator extends Tally {
     /**
      * Constructor for a ConfidenceCalculator object that has no connection to a
      * <code>ValueSupplier</code>. The confidence level is set to 0.95.
-     * 
+     *
      * @param ownerModel   Model : The model this ConfidenceCalculator is associated
      *                     to
      * @param name         java.lang.String : The name of this ConfidenceCalculator
@@ -60,7 +60,7 @@ public class ConfidenceCalculator extends Tally {
     /**
      * Constructor for a ConfidenceCalculator object that is connected to a
      * <code>ValueSupplier</code>. The confidence level is set to 0.95.
-     * 
+     *
      * @param ownerModel   Model : The model this ConfidenceCalculator is associated
      *                     to
      * @param name         java.lang.String : The name of this ConfidenceCalculator
@@ -82,7 +82,7 @@ public class ConfidenceCalculator extends Tally {
 
     /**
      * Returns a Reporter to produce a report about this ConfidenceCalculator.
-     * 
+     *
      * @return desmoj.report.Reporter : The Reporter for this ConfidenceCalculator.
      */
     @Override
@@ -92,7 +92,7 @@ public class ConfidenceCalculator extends Tally {
 
     /**
      * Calculates the lower bound of the confidence interval of the mean.
-     * 
+     *
      * @return double : The lower bound of the confidence interval of the mean
      */
     public double getConfidenceIntervalOfMeanLowerBound() {
@@ -113,7 +113,7 @@ public class ConfidenceCalculator extends Tally {
 
     /**
      * Calculates the upper bound of the confidence interval of the mean.
-     * 
+     *
      * @return double : The upper bound of the confidence interval of the mean
      */
     public double getConfidenceIntervalOfMeanUpperBound() {
@@ -136,7 +136,7 @@ public class ConfidenceCalculator extends Tally {
     /**
      * Returns the confidence level.
      * <p>
-     * 
+     *
      * @return double : the confidence level
      */
     public double getConfidenceLevel() {
@@ -146,10 +146,10 @@ public class ConfidenceCalculator extends Tally {
     /**
      * Sets the confidence level; default value is 0.95.
      * <p>
-     * 
+     *
      * Note: The confidence interval computation assumes that the input values are
      * (approximately) identically and independently distributed.
-     * 
+     *
      * @param level double : the confidence level
      */
     public void setConfidenceLevel(double level) {
@@ -158,7 +158,7 @@ public class ConfidenceCalculator extends Tally {
 
     /**
      * Internal helper method to determine the confidence interval half width.
-     * 
+     *
      * @return double : The half width of the confidence interval
      */
     private double calcConfidenceIntervalHalfWidth() {

@@ -10,21 +10,21 @@ import java.util.concurrent.locks.ReentrantLock;
  * The scheduler is the main element controlling the run of a simulation. It
  * controls the event-list in which all scheduled events are stored, picks the
  * next event to be processed and advances the simulation clock accordingly.
- * 
+ *
  * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  * @author Tim Lechler, modified by Ruth Meyer, Justin Neumann
- * 
+ *
  *         Licensed under the Apache License, Version 2.0 (the "License"); you
  *         may not use this file except in compliance with the License. You may
  *         obtain a copy of the License at
  *         http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *         Unless required by applicable law or agreed to in writing, software
  *         distributed under the License is distributed on an "AS IS" BASIS,
  *         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
  *         implied. See the License for the specific language governing
  *         permissions and limitations under the License.
- * 
+ *
  */
 public class Scheduler extends NamedObject {
 
@@ -139,7 +139,7 @@ public class Scheduler extends NamedObject {
     /**
      * Constructs a scheduler with given name and the event-list (i.e. inheritor of
      * <code>desmoj.core.simulator.EventList</code>) to use.
-     * 
+     *
      * @param exp       Experiment : The experiment that uses this Scheduler
      * @param name      java.lang.String : The scheduler's name
      * @param eventList EventList : The event-list to store scheduled events
@@ -154,12 +154,12 @@ public class Scheduler extends NamedObject {
         simulationFinished = false; // set flag to "not yet finished",
         _lock = new ReentrantLock();
         _waitSynchCondition = _lock.newCondition();
-        _realTimeEventQueue = new LinkedBlockingQueue<RealTimeEventWrapper>();
+        _realTimeEventQueue = new LinkedBlockingQueue<>();
     }
 
     /**
      * Returns if the event-list processes concurrent Events in random order or not.
-     * 
+     *
      * @return boolean: <code>true</code> if concurrent Events are randomized,
      *         <code>false</code> otherwise
      * @author Ruth Meyer
@@ -173,7 +173,7 @@ public class Scheduler extends NamedObject {
      * string is built by concatenating all string representations of the contained
      * entities, events and TimeInstant objects calling their
      * <code>toString()</code> methods.
-     * 
+     *
      * @return java.lang.String : The string representation of the queuelist
      */
     @Override
@@ -274,7 +274,7 @@ public class Scheduler extends NamedObject {
      * of this method just sets the scheduler's clock to the new instant; note,
      * though, that extensions to DESMO-J may overwrite this method to conduct more
      * complex operations, e.g. extrapolate variables in continuous simulation.
-     * 
+     *
      * @param now  TimeInstant : The current point in simulation time
      * @param next TimeInstant : The next point in simulation time to advance the
      *             clock to (e.g. instant of the next event)
@@ -289,12 +289,12 @@ public class Scheduler extends NamedObject {
     /**
      * Returns the currently active entities. Returns an empty list if the current
      * Schedulable happens to be an external event or a SimProcess.
-     * 
+     *
      * @return List<Entity> : A list containing the currently active entities
      */
     protected List<Entity> getAllCurrentEntities() {
 
-        List<Entity> entities = new LinkedList<Entity>();
+        List<Entity> entities = new LinkedList<>();
         if (_currentEntity1 != null)
             entities.add(_currentEntity1);
         if (_currentEntity2 != null)
@@ -313,7 +313,7 @@ public class Scheduler extends NamedObject {
      * (<code>EventOfTwoEntities</code>, <code>EventOfThreeEntitties</code>), only
      * the first entity is returned; to obtain all such entities, use
      * <code>getAllCurrentEntities()</code> instead.
-     * 
+     *
      * @return Entity : The currently active Entity or <code>null</code> in case of
      *         an external event or a simprocess being the currently active
      *         Schedulable
@@ -330,7 +330,7 @@ public class Scheduler extends NamedObject {
      * it does not support scheduling together with an entity. Returns
      * <code>null</code> if the current Schedulable happens to be a Sim-process that
      * has been activated, thus no kind of Event is associated with it.
-     * 
+     *
      * @return Event : The currently active Event or external event or
      *         <code>null</code> if the current Schedulable happens to be an
      *         activated SimProcess
@@ -343,7 +343,7 @@ public class Scheduler extends NamedObject {
 
     /**
      * Returns the currently active model.
-     * 
+     *
      * @return Model : The currently active model or <code>null</code> in case of no
      *         model being connected so far.
      */
@@ -357,7 +357,7 @@ public class Scheduler extends NamedObject {
      * Returns the currently active Schedulable object. This can be any of its
      * subtypes Entity, SimProcess or external event in that order. For events
      * referring to multiple enities, the first entity is returned.
-     * 
+     *
      * @return Schedulable : The currently active Schedulable
      * @see Entity
      * @see SimProcess
@@ -373,7 +373,7 @@ public class Scheduler extends NamedObject {
      * Returns the current SimProcess. Note that this method can only return a
      * Sim-process. If the currently active Schedulable is not instance of
      * Sim-process or an external event, <code>null</code> is returned.
-     * 
+     *
      * @return SimProcess : The currently active SimProcess or <code>null</code>
      */
     protected SimProcess getCurrentSimProcess() {
@@ -385,7 +385,7 @@ public class Scheduler extends NamedObject {
     /**
      * Returns the Schedulable object that as created the current EventNode, thus
      * being responsible for what is going on at the moment
-     * 
+     *
      * @return Schedulable : The source of the currently active object(s).
      * @see Entity
      * @see SimProcess
@@ -399,7 +399,7 @@ public class Scheduler extends NamedObject {
 
     /**
      * Returns the current execution Speed Rate.
-     * 
+     *
      * @return double : The current execution speed rate.
      */
     protected double getExecutionSpeedRate() {
@@ -408,7 +408,7 @@ public class Scheduler extends NamedObject {
 
     /**
      * Returns the actual clock for this model.
-     * 
+     *
      * @return SimClock : The actual clock for simulation time
      */
     protected SimClock getSimClock() {
@@ -419,7 +419,7 @@ public class Scheduler extends NamedObject {
 
     /**
      * Returns the actual simulation time as displayed by the simulation clock.
-     * 
+     *
      * @return TimeInstant : The current point in simulation time
      */
     protected TimeInstant presentTime() {
@@ -432,7 +432,7 @@ public class Scheduler extends NamedObject {
      * Processes the next event-note on the event-list. Returns <code>true</code> if
      * that EventNote has been processed correctly, <code>false</code> if an error
      * occurred or the event-list is empty.
-     * 
+     *
      * @return boolean : Is <code>true</code> if the next event-note was processed
      *         correctly, <code>false</code> if not
      */
@@ -762,9 +762,9 @@ public class Scheduler extends NamedObject {
     /**
      * Schedules the external event to happen at the simulation time equivalent to
      * the current value of wall-clock time.
-     * 
+     *
      * @param what ExternalEvent : The external event to be scheduled
-     * 
+     *
      */
     protected void realTimeSchedule(RealTimeEventWrapper what) {
         if (!myExperiment.isRunning()) {
@@ -825,7 +825,7 @@ public class Scheduler extends NamedObject {
      * </TR>
      * </TABLE>
      * </DIV>
-     * 
+     *
      * @param who  Entity : The Entity to be scheduled
      * @param time TimeInstant : The point in simulation time for the event to
      *             happen
@@ -874,7 +874,7 @@ public class Scheduler extends NamedObject {
 
         // all parameters checked, now remove the Schedulable's EventNote
         // first...
-        List<EventNote> notes = new LinkedList<EventNote>(who.getEventNotes());
+        List<EventNote> notes = new LinkedList<>(who.getEventNotes());
         for (EventNote note : notes) {
             evList.remove(note);
             note.setTime(time);
@@ -910,7 +910,7 @@ public class Scheduler extends NamedObject {
      * </TR>
      * </TABLE>
      * </DIV>
-     * 
+     *
      * @param who Entity : The Entity to be scheduled
      * @param dt  TimeSpan : The point in simulation time for the event to happen as
      *            an offset to the current simulation time
@@ -980,7 +980,7 @@ public class Scheduler extends NamedObject {
      * </TR>
      * </TABLE>
      * </DIV>
-     * 
+     *
      * @param who Entity : The Entity to be scheduled
      */
     protected void reScheduleWithPreempt(Schedulable who) {
@@ -1050,15 +1050,15 @@ public class Scheduler extends NamedObject {
      * </TR>
      * </TABLE>
      * </DIV>
-     * 
+     *
      * @param after Schedulable : The Schedulable after which the new event-note is
      *              to be scheduled
      * @param who1  Entity : The first entity to be scheduled
-     * 
+     *
      * @param who2  Entity : The second entity to be scheduled
-     * 
+     *
      * @param who3  Entity : The third entity to be scheduled
-     * 
+     *
      * @param what  EventOf3Entities : The event to be scheduled
      */
     protected void scheduleAfter(Schedulable after, Entity who1, Entity who2, Entity who3,
@@ -1178,13 +1178,13 @@ public class Scheduler extends NamedObject {
      * </TR>
      * </TABLE>
      * </DIV>
-     * 
+     *
      * @param after Schedulable : The Schedulable after which the new event-note is
      *              to be scheduled
      * @param who1  Entity : The first entity to be scheduled
-     * 
+     *
      * @param who2  Entity : The second entity to be scheduled
-     * 
+     *
      * @param what  EventOf2Entities : The event to be scheduled
      */
     protected void scheduleAfter(Schedulable after, Entity who1, Entity who2, EventOf2Entities<?, ?> what) {
@@ -1279,7 +1279,7 @@ public class Scheduler extends NamedObject {
      * </TR>
      * </TABLE>
      * </DIV>
-     * 
+     *
      * @param after Schedulable : The Schedulable after which the new event-note is
      *              to be scheduled
      * @param who   Entity : The Entity to be scheduled
@@ -1386,15 +1386,15 @@ public class Scheduler extends NamedObject {
      * </TR>
      * </TABLE>
      * </DIV>
-     * 
+     *
      * @param before Schedulable : The Schedulable before which the new event-note
      *               is to be scheduled
      * @param who1   Entity : The first entity to be scheduled
-     * 
+     *
      * @param who2   Entity : The second entity to be scheduled
-     * 
+     *
      * @param who3   Entity : The third entity to be scheduled
-     * 
+     *
      * @param what   EventOf3Entities : The event to be scheduled
      */
     protected void scheduleBefore(Schedulable before, Entity who1, Entity who2, Entity who3,
@@ -1508,13 +1508,13 @@ public class Scheduler extends NamedObject {
      * </TR>
      * </TABLE>
      * </DIV>
-     * 
+     *
      * @param before Schedulable : The Schedulable before which the new event-note
      *               is to be scheduled
      * @param who1   Entity : The first entity to be scheduled
-     * 
+     *
      * @param who2   Entity : The second entity to be scheduled
-     * 
+     *
      * @param what   EventOf2Entities : The event to be scheduled
      */
     protected void scheduleBefore(Schedulable before, Entity who1, Entity who2, EventOf2Entities<?, ?> what) {
@@ -1606,7 +1606,7 @@ public class Scheduler extends NamedObject {
      * </TR>
      * </TABLE>
      * </DIV>
-     * 
+     *
      * @param before Schedulable : The Schedulable before which the new event-note
      *               is to be scheduled
      * @param who    Entity : The Entity to be scheduled
@@ -2320,7 +2320,7 @@ public class Scheduler extends NamedObject {
 
     /**
      * Sets the execution speed rate.
-     * 
+     *
      * @param executionSpeedRate double : the execution speed rate
      * @author Felix Klueckmann
      */
@@ -2334,7 +2334,7 @@ public class Scheduler extends NamedObject {
 
     /**
      * Signals that the experiment is stopped.
-     * 
+     *
      * @author Felix Klueckmann
      */
     protected void signalStop() {
@@ -2346,7 +2346,7 @@ public class Scheduler extends NamedObject {
 
     /**
      * Switches to a different event list.
-     * 
+     *
      * @param newEventList EventList : the new event list
      * @author Ruth Meyer
      */
@@ -2373,7 +2373,7 @@ public class Scheduler extends NamedObject {
      * Entity or SimProcess is scheduled explicitly preempting the current process:
      * The current SimProcess is interrupted and will be scheduled to continue its
      * lifecycle afterwards.
-     * 
+     *
      * @param preemptNote EventNote - The event-note of the Schedulable preempting
      *                    the current SimProcess
      */
@@ -2405,7 +2405,7 @@ public class Scheduler extends NamedObject {
      * lock to check wether it should continue its lifeCycle() method ot throw a
      * SimulationFinishedException, which seems to be the only legal way to break
      * out of the deep call hierarchies and stop the Process' lifeCycle.
-     * 
+     *
      * @return boolean : state of the simulation. False if still running, true if
      *         the simulation has already finished correctly
      */

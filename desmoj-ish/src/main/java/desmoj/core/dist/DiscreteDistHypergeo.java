@@ -12,22 +12,22 @@ import desmoj.core.simulator.Model;
  * Hypergeometrical distribution describes the probability of having a certain
  * amount of marked objects within a subset of a set of objects in which a
  * certain amount of them is marked.
- * 
- * 
+ *
+ *
  * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  * @author Peter Wueppen
- * 
+ *
  *         Licensed under the Apache License, Version 2.0 (the "License"); you
  *         may not use this file except in compliance with the License. You may
  *         obtain a copy of the License at
  *         http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *         Unless required by applicable law or agreed to in writing, software
  *         distributed under the License is distributed on an "AS IS" BASIS,
  *         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
  *         implied. See the License for the specific language governing
  *         permissions and limitations under the License.
- * 
+ *
  */
 
 public class DiscreteDistHypergeo extends DiscreteDist<Long> {
@@ -47,7 +47,7 @@ public class DiscreteDistHypergeo extends DiscreteDist<Long> {
         /**
          * Constructs a simple entry pair with the given value and cumulative
          * probability.
-         * 
+         *
          * @param val  long : The entry value
          * @param freq double : The cumulative frequency of this entry value
          */
@@ -82,7 +82,7 @@ public class DiscreteDistHypergeo extends DiscreteDist<Long> {
      * Creates a stream of pseudo random numbers following a Hypergeometrical
      * distribution. The specific parameters N (set size), n (marked amount) and k
      * (subset size) have to be given here at creation time.
-     * 
+     *
      * @param owner        Model : The distribution's owner
      * @param name         java.lang.String : The distribution's name
      * @param setSize      int : The size of the underlying set.
@@ -99,7 +99,7 @@ public class DiscreteDistHypergeo extends DiscreteDist<Long> {
         this.setSize = setSize;
         this.markedAmount = markedAmount;
         this.subsetSize = subsetSize;
-        valueList = new ArrayList<Entry>();
+        valueList = new ArrayList<>();
         Entry e;
 
         HypergeometricDistribution hgdist = new HypergeometricDistribution(setSize, markedAmount, subsetSize);
@@ -112,7 +112,7 @@ public class DiscreteDistHypergeo extends DiscreteDist<Long> {
 
     /**
      * Creates the default reporter for the DiscreteDistHypergeo distribution.
-     * 
+     *
      * @return Reporter : The reporter for the DiscreteDistHypergeo distribution
      */
     @Override
@@ -126,9 +126,9 @@ public class DiscreteDistHypergeo extends DiscreteDist<Long> {
      * Abstract method to map a double <code>p</code> from 0...1 to the
      * distribution's domain by determining the value x that satisfies
      * <code>P(X &lt; x) = p</code>.
-     * 
+     *
      * @param p double: A value between 0 and 1
-     * 
+     *
      * @return Long : The value x that satisfies <code>P(X &lt; x) = p</code>
      */
     @Override
@@ -143,7 +143,7 @@ public class DiscreteDistHypergeo extends DiscreteDist<Long> {
     }
 
     /**
-     * 
+     *
      * @return int : The amount of marked objects within the underlying set.
      */
     public int getMarkedAmount() {
@@ -153,7 +153,7 @@ public class DiscreteDistHypergeo extends DiscreteDist<Long> {
     }
 
     /**
-     * 
+     *
      * @return double : The size of the underlying set.
      */
     public int getSetSize() {
@@ -162,7 +162,7 @@ public class DiscreteDistHypergeo extends DiscreteDist<Long> {
     }
 
     /**
-     * 
+     *
      * @return int : The size of the (random) subset of the underlying set.
      */
     public int getSubsetSize() {
@@ -175,7 +175,7 @@ public class DiscreteDistHypergeo extends DiscreteDist<Long> {
      * Returns the next sample from this distribution. The value depends upon the
      * seed, the number of values taken from the stream by using this method before
      * and parameters specified for this distribution.
-     * 
+     *
      * @return Long : The next hypergeometrically distributed sample from this
      *         distribution.
      */

@@ -3,22 +3,22 @@ package desmoj.core.advancedModellingFeatures.report;
 /**
  * Captures all relevant information about the <code>WaitQueue</code>. That
  * means from the master and the slave queue.
- * 
+ *
  * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  * @author Soenke Claassen based on ideas from Tim Lechler
  * @author based on DESMO-C from Thomas Schniewind, 1998
  * @author edited by Lorna Slawski (added removed processes)
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License. You
- * may obtain a copy of the License at
- * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS"
- * BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ *         Licensed under the Apache License, Version 2.0 (the "License"); you
+ *         may not use this file except in compliance with the License. You may
+ *         obtain a copy of the License at
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *         Unless required by applicable law or agreed to in writing, software
+ *         distributed under the License is distributed on an "AS IS" BASIS,
+ *         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ *         implied. See the License for the specific language governing
+ *         permissions and limitations under the License.
  *
  */
 
@@ -27,14 +27,13 @@ public class WaitQueueReporter extends desmoj.core.report.Reporter {
     // ****** methods ******
 
     /**
-     * Constructor for a new WaitQueueReporter. Note that although any
-     * Reportable is accepted you should make sure that only subtypes of
-     * WaitQueue are passed to this constructor. Otherwise the number of column
-     * titles and their individual headings will differ from the actual content
-     * collected by this reporter.
-     * 
-     * @param informationSource
-     *            desmoj.core.simulator.Reportable : The WaitQueue to report about
+     * Constructor for a new WaitQueueReporter. Note that although any Reportable is
+     * accepted you should make sure that only subtypes of WaitQueue are passed to
+     * this constructor. Otherwise the number of column titles and their individual
+     * headings will differ from the actual content collected by this reporter.
+     *
+     * @param informationSource desmoj.core.simulator.Reportable : The WaitQueue to
+     *                          report about
      */
     public WaitQueueReporter(desmoj.core.simulator.Reportable informationSource) {
         super(informationSource); // make a Reporter
@@ -63,21 +62,22 @@ public class WaitQueueReporter extends desmoj.core.report.Reporter {
     }
 
     /**
-     * Returns an array of Strings each containing the data for the
-     * corresponding column in array <code>columns[]</code>. This method is
-     * fetching the data from the master and the slave WaitQueue. Implement this
-     * method in a way, that an array of the same length as the columntitles is
-     * produced containing the data at the point of time this method is called
-     * by someone else to produce up-to-date information.
-     * 
+     * Returns an array of Strings each containing the data for the corresponding
+     * column in array <code>columns[]</code>. This method is fetching the data from
+     * the master and the slave WaitQueue. Implement this method in a way, that an
+     * array of the same length as the columntitles is produced containing the data
+     * at the point of time this method is called by someone else to produce
+     * up-to-date information.
+     *
      * @return java.lang.String[] : Array containing the data for reporting
      */
+    @Override
     public String[] getEntries() {
-        
+
         if (source instanceof desmoj.core.advancedModellingFeatures.WaitQueue) {
             // the WaitQueue we report about (source = informationsource)
             desmoj.core.advancedModellingFeatures.WaitQueue wq = (desmoj.core.advancedModellingFeatures.WaitQueue) source;
-            
+
             // *** entries of the master queue
             // Title
             entries[0] = wq.getName();
@@ -106,7 +106,7 @@ public class WaitQueueReporter extends desmoj.core.report.Reporter {
             entries[10] = wq.mAverageCoopTime().toString();
             // refused
             entries[11] = Long.toString(wq.getMRefused());
-            // removed          
+            // removed
             entries[12] = Long.toString(wq.getMRemoved());
 
             // *** entries of the slave queue
@@ -137,8 +137,8 @@ public class WaitQueueReporter extends desmoj.core.report.Reporter {
             entries[23] = wq.mAverageCoopTime().toString();
             // refused
             entries[24] = Long.toString(wq.getSRefused());
-            // removed          
-            entries[25] = Long.toString(wq.getSRemoved());           
+            // removed
+            entries[25] = Long.toString(wq.getSRemoved());
 
         } else {
             for (int i = 0; i < numColumns * 2; i++) {
@@ -148,8 +148,9 @@ public class WaitQueueReporter extends desmoj.core.report.Reporter {
 
         return entries;
     }
-    
+
     /* @TODO: Comment */
+    @Override
     public boolean isTwoRowReporter() {
         return true;
     }

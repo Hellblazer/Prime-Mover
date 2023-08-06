@@ -13,28 +13,28 @@ import desmoj.core.statistic.StatisticObject;
  * distribution" in which different standard variance values are assumed on both
  * sides of the mode.
  * <p>
- * 
+ *
  * The algorithm used for random number sampling is derived from the Java API
  * class <code>java.util.Random</code> and modified to also produce antithetic
  * values if antithetic mode is switched on.
- * 
+ *
  * @see desmoj.core.dist.UniformRandomGenerator
  * @see java.util.Random
- * 
+ *
  * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  * @author Tim Lechler
- * 
+ *
  *         Licensed under the Apache License, Version 2.0 (the "License"); you
  *         may not use this file except in compliance with the License. You may
  *         obtain a copy of the License at
  *         http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  *         Unless required by applicable law or agreed to in writing, software
  *         distributed under the License is distributed on an "AS IS" BASIS,
  *         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
  *         implied. See the License for the specific language governing
  *         permissions and limitations under the License.
- * 
+ *
  */
 public class ContDistNormal extends ContDist {
 
@@ -86,7 +86,7 @@ public class ContDistNormal extends ContDist {
      * Creates a stream of pseudo random numbers following a symmetric normal (also
      * known as "Gaussian") distribution. The specific mean and standard deviation
      * values have to be given here at creation time.
-     * 
+     *
      * @param owner             Model : The distribution's owner
      * @param name              java.lang.String : The distribution's name
      * @param mean              double : The mean value of the normal distribution,
@@ -111,7 +111,7 @@ public class ContDistNormal extends ContDist {
      * right to the mode. Note that (different from the symmetric case) the mean of
      * this distribution is <i>not</i> equal to the mode; the mean of the asymmetric
      * distribution can be obtained by calling <code>getMean</code>.
-     * 
+     *
      * @param owner                  Model : The distribution's owner
      * @param name                   java.lang.String : The distribution's name
      * @param mode                   double : The mode value of the normal
@@ -134,7 +134,7 @@ public class ContDistNormal extends ContDist {
 
     /**
      * Creates the default reporter for the ContDistNormal distribution.
-     * 
+     *
      * @return Reporter : The reporter for the ContDistNormal distribution
      * @see desmoj.core.report.ContDistNormalReporter
      */
@@ -149,9 +149,9 @@ public class ContDistNormal extends ContDist {
      * Abstract method to map a double <code>p</code> from 0...1 to the
      * distribution's domain by determining the value x that satisfies
      * <code>P(X &lt; x) = p</code>.
-     * 
+     *
      * @param p double: A value between 0 and 1
-     * 
+     *
      * @return N : The value x that satisfies <code>P(X &lt; x) = p</code>
      */
     @Override
@@ -167,7 +167,7 @@ public class ContDistNormal extends ContDist {
      * Returns the mean value of this normal distribution. If this normal
      * distribution is symmetric, this value is equal to the mode as obtained by
      * <code>getMode()</code>.
-     * 
+     *
      * @return double : The mode value of this normal distribution.
      */
     public double getMean() {
@@ -182,7 +182,7 @@ public class ContDistNormal extends ContDist {
      * Returns the mode value of this normal distribution. If this normal
      * distribution is symmetric, this value is equal to the mean as obtained by
      * <code>getMean()</code>.
-     * 
+     *
      * @return double : The mode value of this normal distribution.
      */
     public double getMode() {
@@ -193,7 +193,7 @@ public class ContDistNormal extends ContDist {
     /**
      * Returns the standard deviation of this normal distribution. If this normal
      * distribution is asymmetric, the left standard deviation will be returned.
-     * 
+     *
      * @return double : The standard deviation of this normal distribution.
      */
     public double getStdDev() {
@@ -204,7 +204,7 @@ public class ContDistNormal extends ContDist {
      * Returns the left standard deviation of this normal distribution. If this
      * normal distribution is symmetric, this returns the same as
      * <code>getStdDevRight()</code>.
-     * 
+     *
      * @return double : The left standard deviation of this normal distribution.
      */
     public double getStdDevLeft() {
@@ -215,7 +215,7 @@ public class ContDistNormal extends ContDist {
      * Returns the right standard deviation of this normal distribution. If this
      * normal distribution is symmetric, this returns the same as
      * <code>getStdDevLeft()</code>.
-     * 
+     *
      * @return double : The right standard deviation of this normal distribution.
      */
     public double getStdDevRight() {
@@ -226,7 +226,7 @@ public class ContDistNormal extends ContDist {
      * Returns whether this distribution is symmetric, i.e. using the same standard
      * deviation values on each side of the mode (<code>true</code>) or not
      * (<code>false</code>).
-     * 
+     *
      * @return boolean : Indicator for this distibution's symmetry.
      */
     public boolean isSymmetric() {
@@ -240,7 +240,7 @@ public class ContDistNormal extends ContDist {
      * for this distribution. The basic algorithm has been taken from the Java API
      * <code>java.util.Random.nextGaussian()</code> with the feature of antithetic
      * random numbers added.
-     * 
+     *
      * @return Double : The next normally (also known as "Gaussian") distributed
      *         sample from this distribution.
      */

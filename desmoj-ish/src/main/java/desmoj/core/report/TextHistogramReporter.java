@@ -5,22 +5,22 @@ import desmoj.core.statistic.StatisticObject;
 
 /**
  * Captures all relevant information about the TextHistogram.
- * 
+ *
  * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  * @author Lorna Slawski based on the class HistogramReporter
  * @author Soenke Claassen based on ideas from Tim Lechler
  * @author based on DESMO-C from Thomas Schniewind, 1998
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License. You
- * may obtain a copy of the License at
- * http://www.apache.org/licenses/LICENSE-2.0
+ *         Licensed under the Apache License, Version 2.0 (the "License"); you
+ *         may not use this file except in compliance with the License. You may
+ *         obtain a copy of the License at
+ *         http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS"
- * BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ *         Unless required by applicable law or agreed to in writing, software
+ *         distributed under the License is distributed on an "AS IS" BASIS,
+ *         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ *         implied. See the License for the specific language governing
+ *         permissions and limitations under the License.
  */
 public class TextHistogramReporter extends desmoj.core.report.Reporter {
 
@@ -35,10 +35,9 @@ public class TextHistogramReporter extends desmoj.core.report.Reporter {
 
     /**
      * The data entries of the histogram part of this TextHistogramReporter. The
-     * first (leftmost) dimension of this array represents the number of
-     * objects which have been counted.
-     * The second dimension of this array represents each column
-     * entry of the specified object. So the second dimension entries should
+     * first (leftmost) dimension of this array represents the number of objects
+     * which have been counted. The second dimension of this array represents each
+     * column entry of the specified object. So the second dimension entries should
      * contain the data elements in the same order as defined in the
      * <codetextHistColumns[]</codearray.
      */
@@ -63,8 +62,8 @@ public class TextHistogramReporter extends desmoj.core.report.Reporter {
      * titles and their individual headings will differ from the actual content
      * collected by this reporter.
      *
-     * @param informationSource
-     *            desmoj.core.simulator.Reportable : The TextHistogram to report about.
+     * @param informationSource desmoj.core.simulator.Reportable : The TextHistogram
+     *                          to report about.
      */
 
     public TextHistogramReporter(desmoj.core.simulator.Reportable informationSource) {
@@ -102,32 +101,34 @@ public class TextHistogramReporter extends desmoj.core.report.Reporter {
     }
 
     /**
-	 * Returns the data for the TextHistogram chart.
-	 * @return
-	 */
-	public ChartDataHistogramLong getChartData() {		
-		// the Histogram we report about (source = informationSource)
-		desmoj.core.statistic.TextHistogram textHist = (desmoj.core.statistic.TextHistogram) source;
-		
-		String[] strings = textHist.getStringsObserved();
-		Long[] table = new Long[strings.length];
-		
-		for (int i = 0; i < table.length; i++) {
-			table[i] = textHist.getObservationsOfString(strings[i]);
-		}		
-		return new ChartDataHistogramLong(textHist.getModel(), strings, table);		
-	}
+     * Returns the data for the TextHistogram chart.
+     *
+     * @return
+     */
+    public ChartDataHistogramLong getChartData() {
+        // the Histogram we report about (source = informationSource)
+        desmoj.core.statistic.TextHistogram textHist = (desmoj.core.statistic.TextHistogram) source;
+
+        String[] strings = textHist.getStringsObserved();
+        Long[] table = new Long[strings.length];
+
+        for (int i = 0; i < table.length; i++) {
+            table[i] = textHist.getObservationsOfString(strings[i]);
+        }
+        return new ChartDataHistogramLong(textHist.getModel(), strings, table);
+    }
 
     /**
-     * Returns an array of Strings each containing the data for the
-     * corresponding column in array <codecolumns[]</code. Implement this
-     * method in a way, that an array of the same length as the columntitles is
-     * produced containing the data at the point of time this method is called
-     * by someone else to produce up-to-date information.
+     * Returns an array of Strings each containing the data for the corresponding
+     * column in array <codecolumns[]</code. Implement this method in a way, that an
+     * array of the same length as the columntitles is produced containing the data
+     * at the point of time this method is called by someone else to produce
+     * up-to-date information.
      *
      * @return java.lang.String[] : Array containing the data for reporting.
      */
-    public String[] getEntries(){
+    @Override
+    public String[] getEntries() {
         if (source instanceof desmoj.core.statistic.TextHistogram) {
             // the TextHistogram we report about (source = informationSource)
             desmoj.core.statistic.TextHistogram textHist = (desmoj.core.statistic.TextHistogram) source;
@@ -187,11 +188,11 @@ public class TextHistogramReporter extends desmoj.core.report.Reporter {
     }
 
     /**
-     * Returns an array of Strings each containing the title for the
-     * corresponding column of the histogram part (table).
+     * Returns an array of Strings each containing the title for the corresponding
+     * column of the histogram part (table).
      *
-     * @return java.lang.String[] : Array containing column titles of the
-     *         histogram part (table).
+     * @return java.lang.String[] : Array containing column titles of the histogram
+     *         part (table).
      */
     public String[] getTextHistColumnTitles() {
         return _textHistColumns.clone();
@@ -203,8 +204,8 @@ public class TextHistogramReporter extends desmoj.core.report.Reporter {
      * that the data is collected at the point of time this method is called by
      * someone else to produce up-to-date information.
      *
-     * @return java.lang.String[][] : Array containing the data for reporting
-     *         about the histogram part of this TextHistogramReporter.
+     * @return java.lang.String[][] : Array containing the data for reporting about
+     *         the histogram part of this TextHistogramReporter.
      */
     public String[][] getTextHistEntries() {
         // the Histogram we report about (source = informationSource)
@@ -220,21 +221,19 @@ public class TextHistogramReporter extends desmoj.core.report.Reporter {
         {
             if (source instanceof desmoj.core.statistic.TextHistogram) {
                 // Cell
-                _textHistEntries[j][0] = Integer.toString(j+1);
+                _textHistEntries[j][0] = Integer.toString(j + 1);
 
                 // Objectname
                 _textHistEntries[j][1] = _textHistObjects[j];
 
                 // n
-                _textHistEntries[j][2] = Long
-                        .toString(textHist.getObservationsOfString(_textHistObjects[j]));
+                _textHistEntries[j][2] = Long.toString(textHist.getObservationsOfString(_textHistObjects[j]));
 
                 // % rounded percentage
                 // calculate the percentage with 4 digits after the decimal
                 // point
-                double perc = StatisticObject.round(100.0 * textHist
-                        .getObservationsOfString(_textHistObjects[j]) / textHist
-                        .getObservations());
+                double perc = StatisticObject.round(100.0 * textHist.getObservationsOfString(_textHistObjects[j])
+                / textHist.getObservations());
 
                 cumPerc += perc; // update the accumulated percentage
                 // to display the perc. round it to 2 digits after the decimal
@@ -284,8 +283,8 @@ public class TextHistogramReporter extends desmoj.core.report.Reporter {
         } // end for
         return _textHistEntries;
     }
-    
-	/**
+
+    /**
      * Returns the number of columns of the histogram part (table) of this
      * TextHistogramReporter.
      *
@@ -296,7 +295,8 @@ public class TextHistogramReporter extends desmoj.core.report.Reporter {
         return _textHistNumColumns;
     }
 
-    /*@TODO: Comment */
+    /* @TODO: Comment */
+    @Override
     public boolean isContinuingReporter() {
         return true;
     }

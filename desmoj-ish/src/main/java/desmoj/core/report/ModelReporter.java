@@ -11,118 +11,116 @@ import desmoj.core.simulator.Reportable;
  * of the Model it reports about. This enables it to produce a vector containing
  * the reportable's reporters ordered by group-ID. It also takes care to
  * retrieve the submodel's reporters recursively.
- * 
+ *
  * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  * @author Tim Lechler
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License. You
- * may obtain a copy of the License at
- * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS"
- * BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ *         Licensed under the Apache License, Version 2.0 (the "License"); you
+ *         may not use this file except in compliance with the License. You may
+ *         obtain a copy of the License at
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *         Unless required by applicable law or agreed to in writing, software
+ *         distributed under the License is distributed on an "AS IS" BASIS,
+ *         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ *         implied. See the License for the specific language governing
+ *         permissions and limitations under the License.
  *
  */
 public class ModelReporter extends desmoj.core.report.Reporter {
 
-	/**
-	 * The list containing the reportable's reporters ordered by group-ID.
-	 */
-	private ArrayList<Reporter> _reporters;
+    /**
+     * The list containing the reportable's reporters ordered by group-ID.
+     */
+    private ArrayList<Reporter> _reporters;
 
-	/**
-	 * Creates a reporter for the given model. This special reporter retrieves
-	 * all other reporters associated to the reportable objects registered at
-	 * the model. These are collected in a vector, ordered by group-ID to be
-	 * sent to the report output when a report is required.
-	 * 
-	 * @param model
-	 *            Model : The model to report about.
-	 */
-	public ModelReporter(Model model) {
+    /**
+     * Creates a reporter for the given model. This special reporter retrieves all
+     * other reporters associated to the reportable objects registered at the model.
+     * These are collected in a vector, ordered by group-ID to be sent to the report
+     * output when a report is required.
+     *
+     * @param model Model : The model to report about.
+     */
+    public ModelReporter(Model model) {
 
-		super(model);
-		List<Reportable> reportables = model.getReportables();
+        super(model);
+        List<Reportable> reportables = model.getReportables();
 
-		_reporters = new ArrayList<Reporter>();
-		groupID = 2147483647; // highest groupID possible, so always first in
-		// order
-		groupHeading = "Model " + source.getName();
-		numColumns = 1;
-		columns = new String[numColumns];
-		columns[0] = "Description";
-		entries = new String[numColumns];
+        _reporters = new ArrayList<>();
+        groupID = 2147483647; // highest groupID possible, so always first in
+        // order
+        groupHeading = "Model " + source.getName();
+        numColumns = 1;
+        columns = new String[numColumns];
+        columns[0] = "Description";
+        entries = new String[numColumns];
 
-		if (reportables == null)
-			return; // nothing to insert
-		if (reportables.isEmpty())
-			return; // still nothing to insert
+        // nothing to insert
+        if ((reportables == null) || reportables.isEmpty())
+            return; // still nothing to insert
 
-		// insert all reportable's reporters in order of group-id
-		// buffer frequent used variables for faster access
-		Reporter repoBuff; // buffer variable for Reporter
+        // insert all reportable's reporters in order of group-id
+        // buffer frequent used variables for faster access
+        Reporter repoBuff; // buffer variable for Reporter
 
-		for (Reportable r : reportables) {
+        for (Reportable r : reportables) {
 
-			if (r != null) {
+            if (r != null) {
 
-				//repoBuff = r.createDefaultReporter();
-				repoBuff = r.getReporter();
-				
-				if (repoBuff != null) {
+                // repoBuff = r.createDefaultReporter();
+                repoBuff = r.getReporter();
 
-					// insert according to group-ID
-					if (_reporters.isEmpty()) {
-						_reporters.add(repoBuff);
-					} else { // now sort until pos. found
+                if (repoBuff != null) {
 
-						for (int k = 0; k < _reporters.size(); k++) {
+                    // insert according to group-ID
+                    if (_reporters.isEmpty()) {
+                        _reporters.add(repoBuff);
+                    } else { // now sort until pos. found
 
-							if (Reporter.isLarger(_reporters.get(k), repoBuff)) {
-								_reporters.add(k + 1, repoBuff);
-								break;
-							} // endif pos. found
+                        for (int k = 0; k < _reporters.size(); k++) {
 
-						} // endfor search position
+                            if (Reporter.isLarger(_reporters.get(k), repoBuff)) {
+                                _reporters.add(k + 1, repoBuff);
+                                break;
+                            } // endif pos. found
 
-					} // endelse special care for first reporter
+                        } // endfor search position
 
-				} // endif repoBuff == null
+                    } // endelse special care for first reporter
 
-			} // endif ableBuff == null
+                } // endif repoBuff == null
 
-		} // endfor
+            } // endif ableBuff == null
 
-	}
+        } // endfor
 
-	/**
-	 * The ModelReporter returns the description of the model.
-	 * 
-	 * @return java.lang.String[] : Array containing the data for reporting
-	 */
-	public String[] getEntries() {
-	    
-	    Model m = (Model) source;
-		entries[0] = m.description();  
+    }
 
-		return entries;
+    /**
+     * The ModelReporter returns the description of the model.
+     *
+     * @return java.lang.String[] : Array containing the data for reporting
+     */
+    @Override
+    public String[] getEntries() {
 
-	}
+        Model m = (Model) source;
+        entries[0] = m.description();
 
-	/**
-	 * Returns a list of view of all reportable's reporters ordered by
-	 * group-ID.
-	 * 
-	 * @return java.util.List<Reporter> : The vector containing the reporters associated
-	 *         to the modelreporter
-	 */
-	public List<Reporter> getReporters() {
+        return entries;
 
-		return new ArrayList<Reporter>(_reporters);
+    }
 
-	}
+    /**
+     * Returns a list of view of all reportable's reporters ordered by group-ID.
+     *
+     * @return java.util.List<Reporter> : The vector containing the reporters
+     *         associated to the modelreporter
+     */
+    public List<Reporter> getReporters() {
+
+        return new ArrayList<>(_reporters);
+
+    }
 }

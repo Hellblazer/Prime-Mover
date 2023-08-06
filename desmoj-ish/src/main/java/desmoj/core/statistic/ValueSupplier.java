@@ -26,118 +26,114 @@ package desmoj.core.statistic;
  * observers during runtime. These options are not available when using the
  * simpler version above.</li>
  * </ol>
- * 
+ *
  * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  * @author Tim Lechler
  * @author modifications as the method:
  *         <code>notifyStatistics(Object arg)</code> by Soenke Claassen
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License. You
- * may obtain a copy of the License at
- * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS"
- * BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing
- * permissions and limitations under the License.
+ *         Licensed under the Apache License, Version 2.0 (the "License"); you
+ *         may not use this file except in compliance with the License. You may
+ *         obtain a copy of the License at
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *         Unless required by applicable law or agreed to in writing, software
+ *         distributed under the License is distributed on an "AS IS" BASIS,
+ *         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ *         implied. See the License for the specific language governing
+ *         permissions and limitations under the License.
  *
  */
 public abstract class ValueSupplier extends java.util.Observable {
 
-	/*
-	 * The name of the valuesupplier as a string.
-	 */
-	private String _myName;
+    /*
+     * The name of the valuesupplier as a string.
+     */
+    private String _myName;
 
-	/**
-	 * Constructs a simple valuesupplier by giving it a name.
-	 */
-	public ValueSupplier(String name) {
-		// call the constructor of java.util.Observable
-		super();
+    /**
+     * Constructs a simple valuesupplier by giving it a name.
+     */
+    public ValueSupplier(String name) {
+        // call the constructor of java.util.Observable
+        super();
 
-		// get hold of the name of this ValueSupplier
-		this._myName = name;
-	}
+        // get hold of the name of this ValueSupplier
+        this._myName = name;
+    }
 
-	/**
-	 * Returns the name of the named object. This is the same name displayed in
-	 * reports and trace files when this named object is shown in those reports
-	 * or trace files.
-	 * 
-	 * @return java.lang.String : The name of the named object
-	 */
-	public String getName() {
+    /**
+     * Returns the name of the named object. This is the same name displayed in
+     * reports and trace files when this named object is shown in those reports or
+     * trace files.
+     *
+     * @return java.lang.String : The name of the named object
+     */
+    public String getName() {
 
-		return _myName;
+        return _myName;
 
-	}
+    }
 
-	/**
-	 * Returns the quoted name of the named object. This is the name displayed
-	 * in reports and trace files when this named object is shown.
-	 * 
-	 * @return java.lang.String : The quoted name of the named object
-	 */
-	public String getQuotedName() {
+    /**
+     * Returns the quoted name of the named object. This is the name displayed in
+     * reports and trace files when this named object is shown.
+     *
+     * @return java.lang.String : The quoted name of the named object
+     */
+    public String getQuotedName() {
 
-		return "'" + _myName + "'";
+        return "'" + _myName + "'";
 
-	}
+    }
 
-	/**
-	 * Indicates that this ValueSupplier (as an Observable) has changed and
-	 * notifies all its observers of this change providing the modified value as
-	 * parameter. This is the "Push-model", thus pushing the value (in the
-	 * parameter <code>arg</code>) to the Observer (thus the
-	 * <code>StatisticObject</code>).
-	 * 
-	 * @param arg
-	 *            Object : The Object wrapping the value with which the
-	 *            observers will be updated
-	 */
-	public void notifyStatistics(Object arg) {
-		setChanged(); // call the method from the Observable
+    /**
+     * Indicates that this ValueSupplier (as an Observable) has changed and notifies
+     * all its observers of this change providing the modified value as parameter.
+     * This is the "Push-model", thus pushing the value (in the parameter
+     * <code>arg</code>) to the Observer (thus the <code>StatisticObject</code>).
+     *
+     * @param arg Object : The Object wrapping the value with which the observers
+     *            will be updated
+     */
+    public void notifyStatistics(Object arg) {
+        setChanged(); // call the method from the Observable
 
-		notifyObservers(arg); // call the method from the Observable
-	}
+        notifyObservers(arg); // call the method from the Observable
+    }
 
-	/**
-	 * Changes the name of the named object. This might be necessary for
-	 * automatically created named object of a user defined model, but should
-	 * not be used for elements of the framework or basic objects of the user
-	 * model. Changing names of objects while runtime will confuse any trace
-	 * output and generally make traces more difficult if not impossible to
-	 * follow.
-	 * 
-	 * @param newName
-	 *            java.lang.String : The new name for the named object
-	 */
-	public void rename(String newName) {
+    /**
+     * Changes the name of the named object. This might be necessary for
+     * automatically created named object of a user defined model, but should not be
+     * used for elements of the framework or basic objects of the user model.
+     * Changing names of objects while runtime will confuse any trace output and
+     * generally make traces more difficult if not impossible to follow.
+     *
+     * @param newName java.lang.String : The new name for the named object
+     */
+    public void rename(String newName) {
 
-		_myName = newName;
+        _myName = newName;
 
-	}
+    }
 
-	/**
-	 * Overrides the java.lang.Object's toString method to return the named
-	 * object's name when given as parameter to a method that expects a string
-	 * to be passed.
-	 * 
-	 * @return java.lang.String : The named object's name
-	 */
-	public String toString() {
-		return _myName;
-	}
+    /**
+     * Overrides the java.lang.Object's toString method to return the named object's
+     * name when given as parameter to a method that expects a string to be passed.
+     *
+     * @return java.lang.String : The named object's name
+     */
+    @Override
+    public String toString() {
+        return _myName;
+    }
 
-	/**
-	 * When using the Pull-Model or the automatic update function this method
-	 * must be overridden by the user in a way that it provides the value (as a
-	 * <code>double</code>) desired.
-	 * 
-	 * @return double : The value calculated within this method.
-	 */
-	public abstract double value();
+    /**
+     * When using the Pull-Model or the automatic update function this method must
+     * be overridden by the user in a way that it provides the value (as a
+     * <code>double</code>) desired.
+     *
+     * @return double : The value calculated within this method.
+     */
+    public abstract double value();
 } // end class

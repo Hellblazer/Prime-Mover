@@ -71,7 +71,7 @@ public class TextHistogram extends desmoj.core.simulator.Reportable implements j
         this._textSuppl = null;
 
         // make a new table
-        this._map = new TreeMap<String, Long>();
+        this._map = new TreeMap<>();
     }
 
     /**
@@ -110,7 +110,7 @@ public class TextHistogram extends desmoj.core.simulator.Reportable implements j
         this._textSuppl.addObserver(this);
 
         // make a new table
-        this._map = new TreeMap<String, Long>();
+        this._map = new TreeMap<>();
     }
 
     /**

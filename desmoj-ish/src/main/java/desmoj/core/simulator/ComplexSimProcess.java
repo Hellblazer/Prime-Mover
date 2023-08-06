@@ -10,10 +10,10 @@ import java.util.concurrent.locks.ReentrantLock;
  * <code>ComplexSimProcess</code> has its own lifecycle. As long as this
  * <code>ComplexSimProcess</code> is active all its contained Simprocesses are
  * passive. That means they are blocked and can not proceed in their lifeCycles.
- * 
+ *
  * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  * @author Soenke Claassen
- * 
+ *
  *         Licensed under the Apache License, Version 2.0 (the "License"); you
  *         may not use this file except in compliance with the License. You may
  *         obtain a copy of the License at
@@ -41,7 +41,7 @@ public abstract class ComplexSimProcess extends SimProcess {
 
     /**
      * Constructs a ComplexSimProcess.
-     * 
+     *
      * @param owner       desmoj.Model : The model this ComplexSimProcess is
      *                    associated to.
      * @param name        java.lang.String : The name of this ComplexSimProcess.
@@ -56,7 +56,7 @@ public abstract class ComplexSimProcess extends SimProcess {
         super(owner, name, showInTrace); // make a SimProcess
 
         // make a new Vector to store all the components in
-        _components = new Vector<SimProcess>();
+        _components = new Vector<>();
 
         // this ComplexSimProcess is not contained in any other
         // ComplexSimProcess yet
@@ -68,7 +68,7 @@ public abstract class ComplexSimProcess extends SimProcess {
      * being added to the ComplexSimProcess will be passivated and blocked. Use
      * method <code>removeComponent()</code> to remove the Sim-process from the
      * ComplexSimProcess again.
-     * 
+     *
      * @param compnt desmoj.SimProcess : The SimProcess to be added as a component
      *               to this ComplexSimProcess.
      */
@@ -167,7 +167,7 @@ public abstract class ComplexSimProcess extends SimProcess {
     /**
      * Checks if the given SimProcess is contained in this ComplexSimProcess
      * already.
-     * 
+     *
      * @return boolean :<code>true</code> if and only if the specified SimProcess is
      *         the same as a component in this ComplexSimProcess, as determined by
      *         the <code>equals()</code> method; <code>false</code> otherwise.
@@ -189,7 +189,7 @@ public abstract class ComplexSimProcess extends SimProcess {
     /**
      * Returns all the components of this ComplexSimProcess as an
      * <code>java.util.Enumeration</code>.
-     * 
+     *
      * @return java.util.Enumeration : All the components of this ComplexSimProcess.
      * @see java.util.Enumeration
      */
@@ -205,7 +205,7 @@ public abstract class ComplexSimProcess extends SimProcess {
 
     /**
      * Checks if this ComplexSimProcess has components or not.
-     * 
+     *
      * @return boolean :<code>true</code> if and only if this ComplexSimProcess has
      *         components; <code>false</code> otherwise.
      */
@@ -224,7 +224,7 @@ public abstract class ComplexSimProcess extends SimProcess {
      * proceed in their lifeCycles.
      */
     @Override
-    public abstract void lifeCycle() ;
+    public abstract void lifeCycle();
 
     /**
      * Removes all elements (SimProcesses and ComplexSimProcesses) from this
@@ -285,7 +285,7 @@ public abstract class ComplexSimProcess extends SimProcess {
      * Removes a SimProcess from the elements of this ComplexSimProcess. The
      * Sim-process being removed from the ComplexSimProcess will be activated after
      * the current SimProcess so it can follow its own lifeCycle again.
-     * 
+     *
      * @param elem desmoj.SimProcess : The SimProcess to be removed from the
      *             elements of this ComplexSimProcess. Be careful, it might also be
      *             a <code>ComplexSimProcess</code>.
@@ -352,7 +352,7 @@ public abstract class ComplexSimProcess extends SimProcess {
      * Returns a <code>String</code> representation of this ComplexSimProcess,
      * containing the <code>String</code> representation of each
      * <code>SimProcess</code> component.
-     * 
+     *
      * @return java.lang.String : A <code>String</code> representation of this
      *         ComplexSimProcess.
      */

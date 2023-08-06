@@ -9,10 +9,10 @@ import desmoj.core.report.ErrorMessage;
 /**
  * SimThreads are used to mimic coroutine behaviour with the help of native Java
  * threads. SimThreads are attributes of SimProcesses only.
- * 
+ *
  * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  * @author Tim Lechler
- * 
+ *
  *         Licensed under the Apache License, Version 2.0 (the "License"); you
  *         may not use this file except in compliance with the License. You may
  *         obtain a copy of the License at
@@ -123,7 +123,7 @@ public class SimThread implements Runnable {
      * this simthread is still alive while <code>false</code> indicates that the
      * simthread is not in a blocking situation any more since it has exited its
      * <code>run()</code> method.
-     * 
+     *
      * @return boolean : Is <code>true</code> if the simthread is still alive,
      *         <code>false</code> if the simthread has exited its <code>run()</code>
      *         method

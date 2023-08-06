@@ -31,12 +31,12 @@ import desmoj.core.report.TraceNote;
  * desired model have to be created. To link both instances, call the
  * <code>connectToExperiment(Experiment e)</code> method of the model instance
  * and pass the new experiment as a parameter.
- * 
+ *
  * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  * @author Tim Lechler
  * @author modified by Soenke Claassen, Ruth Meyer, Nicolas Knaak, Gunnar
  *         Kiesel,Felix Klueckmann
- * 
+ *
  *         Licensed under the Apache License, Version 2.0 (the "License"); you
  *         may not use this file except in compliance with the License. You may
  *         obtain a copy of the License at
@@ -142,9 +142,9 @@ public class Experiment extends NamedObject {
 
     /**
      * Returns the DESMO-J license
-     * 
+     *
      * @param html boolean: Include link (HTML, true) or not (plain text, false)
-     * 
+     *
      * @return The string "Apache License, Version 2.0", embedded in a HTML link tag
      *         (currently http://www.apache.org/licenses/LICENSE-2.0) if
      *         <code>html</code> is set true.
@@ -156,7 +156,7 @@ public class Experiment extends NamedObject {
 
     /**
      * Returns the current DESMO-J version
-     * 
+     *
      * @return The string "2.5.1d".
      */
     public static String getDesmoJVersion() {
@@ -170,7 +170,7 @@ public class Experiment extends NamedObject {
      * existing <code>TimeSpan</code> and <code>TimeInstant</code> objects will
      * point to wrong spans/durations. Default is
      * <code>TimeUnit.MICROSECONDS</code>.
-     * 
+     *
      * @param epsilon TimeUnit : The granularity of simulation time, i.e. the
      *                smallest distinguishable span of simulation time.
      */
@@ -192,9 +192,9 @@ public class Experiment extends NamedObject {
      * Sets the reference time unit specifying what is meant by the simulation time
      * step of 1 in statements without an explicit declaration of a time unit like
      * in <code>new TimeSpan(5)</code>. Default is <code>TimeUnit.SECONDS</code>.
-     * 
+     *
      * @param referenceUnit TimeUnit : the reference time unit
-     * 
+     *
      */
     public static void setReferenceUnit(TimeUnit referenceUnit) {
         TimeOperations.setReferenceUnitX(referenceUnit);
@@ -206,7 +206,7 @@ public class Experiment extends NamedObject {
      * <code>Experiment</code> object, a non-null <code>TimeFormatter</code> passed
      * to the <code>Experiment</code>'s constructor will overwrite the setting of
      * this method-
-     * 
+     *
      * @param format TimeFormatter : the formatter to be used for formatting time
      *               Strings.
      */
@@ -357,7 +357,7 @@ public class Experiment extends NamedObject {
      * Constructs a new Experiment with a given name. Data channel output (report,
      * error, debug, trace) will either be written to HTML files in the current
      * directory.
-     * 
+     *
      * @param name String : The name of the experiment determining the outputfile's
      *             names, too. So please avoid characters that your local filesystem
      *             does not support in filenames.
@@ -370,7 +370,7 @@ public class Experiment extends NamedObject {
      * Constructs a new Experiment with the given parameters. Experiment name can be
      * specified. Data channel output (report, error, debug, trace) will either be
      * suppressed or written to HTML files in the current directory.
-     * 
+     *
      * @param name   String : The name of the experiment determining the
      *               outputfile's names, too. So please avoid characters that your
      *               local filesystem does not support in filenames.
@@ -390,7 +390,7 @@ public class Experiment extends NamedObject {
      * trace) will either be written to HTML files, epsilon (granularity of
      * simulation) defaults to a microsecond, reference time (default time unit) to
      * a second.
-     * 
+     *
      * @param name     String : The name of the experiment determining the
      *                 outputfile's names, too. So please avoid characters that your
      *                 local filesystem does not support in filenames.
@@ -409,7 +409,7 @@ public class Experiment extends NamedObject {
      * output path and a multiple file type per output channel can be specified.
      * Epsilon (granularity of simulation) defaults to a microsecond, reference time
      * (default time unit) to a second.
-     * 
+     *
      * @param name       String : The name of the experiment determining the
      *                   outputfile's names, too. So please avoid characters that
      *                   your local filesystem does not support in filenames.
@@ -423,7 +423,7 @@ public class Experiment extends NamedObject {
     /**
      * Constructs a new Experiment with the given parameters. Experiment name,
      * output path and a single file type per output channel can be specified.
-     * 
+     *
      * @param name             String : The name of the experiment determining the
      *                         outputfile's names, too. So please avoid characters
      *                         that your local filesystem does not support in
@@ -444,14 +444,14 @@ public class Experiment extends NamedObject {
      * flexible constructor. Experiment name, output path, epsilon, reference time
      * unit, time format, and multiple file types per output channel can be
      * specified.
-     * 
+     *
      * @param name       String : The name of the experiment determining the
      *                   outputfile's names, too. So please avoid characters that
      *                   your local filesystem does not support in filenames.
      * @param outputPath java.lang.String : The output path for report files
      * @param formatter  desmoj.core.simulator.TimeFormatter: Defines how time
      *                   values will be formatted in the output files.
-     * 
+     *
      * @see java.util.concurrent.TimeUnit
      */
     public Experiment(String name, String outputPath, TimeFormatter formatter, ArrayList<String> reportOutputs,
@@ -467,7 +467,7 @@ public class Experiment extends NamedObject {
      * output path, time format, can be specified. Same holds for file output
      * channels, though this constructor assumes a single file type per output
      * channel.
-     * 
+     *
      * @param name      String : The name of the experiment determining the
      *                  outputfile's names, too. So please avoid characters that
      *                  your local filesystem does not support in filenames.
@@ -479,16 +479,16 @@ public class Experiment extends NamedObject {
                       String traceOutputType, String errorOutputType, String debugOutputType) {
         super(name); // create a NamedObject with an attitude ;-)
 
-        ArrayList<String> reportOutputs = new ArrayList<String>();
+        ArrayList<String> reportOutputs = new ArrayList<>();
         if (reportOutputType != null)
             reportOutputs.add(reportOutputType);
-        ArrayList<String> traceOutputs = new ArrayList<String>();
+        ArrayList<String> traceOutputs = new ArrayList<>();
         if (traceOutputType != null)
             traceOutputs.add(traceOutputType);
-        ArrayList<String> errorOutputs = new ArrayList<String>();
+        ArrayList<String> errorOutputs = new ArrayList<>();
         if (errorOutputType != null)
             errorOutputs.add(errorOutputType);
-        ArrayList<String> debugOutputs = new ArrayList<String>();
+        ArrayList<String> debugOutputs = new ArrayList<>();
         if (debugOutputType != null)
             debugOutputs.add(debugOutputType);
 
@@ -499,13 +499,13 @@ public class Experiment extends NamedObject {
      * Constructs a new Experiment with the given parameters. This is a shortcut
      * constructor. A parameter for the name and a time formatter are needed. All
      * other possible settings are set to default values.
-     * 
+     *
      * @param name      String : The name of the experiment determining the
      *                  outputfile's names, too. So please avoid characters that
      *                  your local filesystem does not support in filenames.
      * @param formatter desmoj.core.simulator.TimeFormatter: Defines how time values
      *                  will be formatted in the output files.
-     * 
+     *
      * @see java.util.concurrent.TimeUnit
      */
     public Experiment(String name, TimeFormatter formatter) {
@@ -552,7 +552,7 @@ public class Experiment extends NamedObject {
      * produces a message of that type, it will also be sent to the given
      * messagereceiver for further processing. Note that the given receiver must be
      * capable of handling debugnotes.
-     * 
+     *
      * @param trcRec desmoj.report.MessageReceiver : The new messagereceiver for the
      *               given type of messages
      */
@@ -576,7 +576,7 @@ public class Experiment extends NamedObject {
      * produces a message of that type, it will also be sent to the given
      * messagereceiver for further processing. Note that the given receiver must be
      * capable of handling messagereceiver.
-     * 
+     *
      * @param trcRec desmoj.report.MessageReceiver : The new messagereceiver for the
      *               given type of messages
      */
@@ -599,7 +599,7 @@ public class Experiment extends NamedObject {
      * Adds a messagereceiver for the given subtype of message to the experiment.
      * Whenever a model produces a message of that type, it will also be sent to the
      * given messagereceiver for further processing.
-     * 
+     *
      * @param trcRec      desmoj.report.MessageReceiver : The new messagereceiver
      *                    for the given type of messages
      * @param messageType Class : The type of message to be sent to the given
@@ -634,7 +634,7 @@ public class Experiment extends NamedObject {
      * produces a message of that type, it will also be sent to the given
      * messagereceiver for further processing. Note that the given Receiver must be
      * capable of handling tracenotes.
-     * 
+     *
      * @param trcRec desmoj.report.MessageReceiver : The new messagereceiver for the
      *               given type of messages
      */
@@ -658,7 +658,7 @@ public class Experiment extends NamedObject {
      * ouput or not. Debug ouput can be switched on and off using the methods
      * <code>debugOn(TimeInstant startTime)</code> or
      * <code>debugOff(TimeInstant stopTime)</code>
-     * 
+     *
      * @return boolean
      */
     public boolean debugIsOn() {
@@ -669,7 +669,7 @@ public class Experiment extends NamedObject {
 
     /**
      * Switches the debug output off at the given point of simulation time.
-     * 
+     *
      * @param stopTime TimeInstant : The point in simulation time to switch off
      *                 debug
      */
@@ -702,7 +702,7 @@ public class Experiment extends NamedObject {
 
     /**
      * Switches the debug output on at the given point of simulation time.
-     * 
+     *
      * @param startTime TimeInstant : The point in simulation time to switch on
      *                  debug
      */
@@ -745,7 +745,7 @@ public class Experiment extends NamedObject {
      * second parameter (off) is "sooner" then the first parameter (on), they will
      * be swapped automatically. Same parameters will result in no debug output at
      * all!
-     * 
+     *
      * @param startTime TimeInstant : The point in simulation time to switch debug
      *                  on
      * @param stopTime  TimeInstant : The point in simulation time to switch debug
@@ -812,7 +812,7 @@ public class Experiment extends NamedObject {
      * De-registers a file at the experiment. Registered files will be flushed and
      * closed after the experiment has finished. If the file is manually closed by
      * the user and has been registered at the Experiment, deRegister it
-     * 
+     *
      * @param file desmoj.report.FileOutput : The file to be closed with the end of
      *             an Experiment
      */
@@ -887,10 +887,10 @@ public class Experiment extends NamedObject {
 
     /**
      * Returns the delay between each step of the scheduler
-     * 
+     *
      * @return A long value representing the delay time in milliseconds
      * @author Nicolas Knaak
-     * 
+     *
      */
     public long getDelayInMillis() {
         return _delayInMillis;
@@ -900,7 +900,7 @@ public class Experiment extends NamedObject {
      * Returns the distributionmanager for this experiment. Distributions need
      * access to the distributionmanager for handling antithetic modes, resetting
      * and their initial seeds.
-     * 
+     *
      * @return desmoj.dist.DistributionManager : The distributionmanager for this
      *         experiment
      */
@@ -914,7 +914,7 @@ public class Experiment extends NamedObject {
      * Returns the epsilon value representing the granularity of simulation time for
      * this experiment. So far, Hour, Minute, Second and Millisecond are supported.
      * Default (unless set explicitly) is TimeUnit.MICROSECONDS.
-     * 
+     *
      * @return TimeUnit : The Granularity of the simulation time
      */
     public TimeUnit getEpsilonUnit() {
@@ -924,7 +924,7 @@ public class Experiment extends NamedObject {
 
     /**
      * Returns the current execution Speed Rate.
-     * 
+     *
      * @return double : The current execution speed rate.
      */
     public double getExecutionSpeedRate() {
@@ -935,7 +935,7 @@ public class Experiment extends NamedObject {
      * Returns the messagemanager for this experiment. Messages need access to the
      * MessageManager for distributing the messages to one or more specified output
      * streams.
-     * 
+     *
      * @return desmoj.dist.MessageManager : The messagemanager for this experiment
      */
     public MessageDistributor getMessageManager() {
@@ -947,7 +947,7 @@ public class Experiment extends NamedObject {
     /**
      * Returns the model that is connected to this experiment or <code>null</code>
      * if no model is connected so far.
-     * 
+     *
      * @return Model : The model that this experiment is connected to or
      *         <code>null</code> if no connection is established.
      */
@@ -959,27 +959,27 @@ public class Experiment extends NamedObject {
 
     public List<List<String>> getOutputAppendixes() {
 
-        List<List<String>> appendixes = new ArrayList<List<String>>();
+        List<List<String>> appendixes = new ArrayList<>();
 
-        ArrayList<String> debugAppendixes = new ArrayList<String>();
+        ArrayList<String> debugAppendixes = new ArrayList<>();
         for (OutputType o : this._debugOutput) {
             debugAppendixes.add(o.getAppendix());
         }
         appendixes.add(debugAppendixes);
 
-        ArrayList<String> traceAppendixes = new ArrayList<String>();
+        ArrayList<String> traceAppendixes = new ArrayList<>();
         for (OutputType o : this._debugOutput) {
             traceAppendixes.add(o.getAppendix());
         }
         appendixes.add(traceAppendixes);
 
-        ArrayList<String> errorAppendixes = new ArrayList<String>();
+        ArrayList<String> errorAppendixes = new ArrayList<>();
         for (OutputType o : this._debugOutput) {
             errorAppendixes.add(o.getAppendix());
         }
         appendixes.add(errorAppendixes);
 
-        ArrayList<String> reportAppendixes = new ArrayList<String>();
+        ArrayList<String> reportAppendixes = new ArrayList<>();
         for (OutputType o : this._debugOutput) {
             reportAppendixes.add(o.getAppendix());
         }
@@ -991,7 +991,7 @@ public class Experiment extends NamedObject {
     /**
      * Returns the name of the path the experiment's report-, trace-, debug- and
      * error-files are written to.
-     * 
+     *
      * @return String the experiment's output path
      */
     public String getOutputPath() {
@@ -1007,7 +1007,7 @@ public class Experiment extends NamedObject {
      * to a time step of 1.0 in simulation time. So far, Hour, Minute, Second and
      * Millisecond are supported. Default (unless set explicitly) is
      * TimeUnit.SECONDS.
-     * 
+     *
      * @return TimeUnit : The reference unit.
      */
     public TimeUnit getReferenceUnit() {
@@ -1018,7 +1018,7 @@ public class Experiment extends NamedObject {
      * Returns the resource database for this experiment. The <code>Res</code>
      * objects need access to the resource database to note their resource
      * allocations and requests and for deadlock detection.
-     * 
+     *
      * @return desmoj.ResourceDB : the resource database storing all resource
      *         allocations and requests.
      * @author Soenke Claassen
@@ -1033,7 +1033,7 @@ public class Experiment extends NamedObject {
      * scheduler for identifying the current active entity or process and to
      * schedule themselves or other schedulables to activate at a given time in the
      * future.
-     * 
+     *
      * @return Scheduler : The scheduler for this experiment
      */
     public Scheduler getScheduler() {
@@ -1045,7 +1045,7 @@ public class Experiment extends NamedObject {
     /**
      * Returns the simclock for this experiment. ModelComponents need access to the
      * simclock for retrieveing the current simulation time.
-     * 
+     *
      * @return SimCLock : The simclock for this experiment
      */
     public SimClock getSimClock() {
@@ -1063,12 +1063,12 @@ public class Experiment extends NamedObject {
      */
     public List<ModelCondition> getStopConditions() {
 
-        return new java.util.ArrayList<ModelCondition>(this._stopConditions);
+        return new java.util.ArrayList<>(this._stopConditions);
     }
 
     /**
      * Returns the TimeInstant when the experiment is expected to stop running.
-     * 
+     *
      * @return TimeInstant : The time at which the experiment is expected to stop
      *         running.
      */
@@ -1080,7 +1080,7 @@ public class Experiment extends NamedObject {
     /**
      * Determines whether or not an error or warning has yet occurred during this
      * experiment.
-     * 
+     *
      * @return boolean : <code>True</code> if at least one error has occurred in the
      *         model connected to this experiment or one of its submodels,
      *         <code>false</code> otherwise
@@ -1095,7 +1095,7 @@ public class Experiment extends NamedObject {
      * Displays the current state of the simulation run. If an experiment is
      * aborted, it can not be proceeded. All SimThreads still active are stopped,
      * the main routine can finish.
-     * 
+     *
      * @return boolean : Is <code>true</code> if the simulation is aborted,
      *         <code>false</code> if it has not started yet or is still running
      */
@@ -1107,7 +1107,7 @@ public class Experiment extends NamedObject {
 
     /**
      * Shows if this experiment has already been connected to a model.
-     * 
+     *
      * @return boolean : Is <code>true</code>, if experiment is connected to a
      *         model, <code>false</code> otherwise
      */
@@ -1119,7 +1119,7 @@ public class Experiment extends NamedObject {
 
     /**
      * Shows if this experiment has not run yet.
-     * 
+     *
      * @return boolean : Is <code>true</code>, if experiment is not running yet,
      *         <code>false</code> otherwise
      */
@@ -1132,7 +1132,7 @@ public class Experiment extends NamedObject {
     /**
      * Returns if the event-list processes concurrent Events in random order or not.
      * Default is not.
-     * 
+     *
      * @return boolean: <code>true</code> if concurrent Events are randomized,
      *         <code>false</code> otherwise
      * @author Ruth Meyer
@@ -1143,7 +1143,7 @@ public class Experiment extends NamedObject {
 
     /**
      * Displays the current state of the simulation run.
-     * 
+     *
      * @return boolean : Is <code>true</code> if the simulation is running,
      *         <code>false</code> if it has not started yet or has already finished
      */
@@ -1155,7 +1155,7 @@ public class Experiment extends NamedObject {
 
     /**
      * Returns if a progress bar should be displayed for this experiment or not.
-     * 
+     *
      * @return boolean :<code>true</code> if a progress bar should be displayed for
      *         this experiment, <code>false</code> otherwise.
      */
@@ -1169,7 +1169,7 @@ public class Experiment extends NamedObject {
      * experiment or not. Note that the result of this method is meaningless if
      * displaying the progress bar has been suppessed by invoking
      * <code>setShowProgressBar(false)</code>.
-     * 
+     *
      * @return boolean :<code>true</code> if a progress bar should be automatically
      *         closed after this experiment, while <code>false</code> (default)
      *         indicates that the progress bar window persists after the experiment
@@ -1183,7 +1183,7 @@ public class Experiment extends NamedObject {
     /**
      * Displays the current state of the simulation run. If an experient is stopped,
      * it can be proceeded by calling proceed().
-     * 
+     *
      * @return boolean : Is <code>true</code>, if experiment is stopped,
      *         <code>false</code> otherwise
      */
@@ -1285,7 +1285,7 @@ public class Experiment extends NamedObject {
 
     /**
      * Switches event-list processes concurrent Events in random order or not.
-     * 
+     *
      * @param randomizing boolean :<code>true</code> forces random order,
      *                    <code>false</code> forces "linear" order
      * @author Ruth Meyer
@@ -1303,7 +1303,7 @@ public class Experiment extends NamedObject {
      * and closed after the experiment has finished. This is handy for modellers
      * producing their own output who want their files to be closed at the end of
      * the experiment.
-     * 
+     *
      * @param file desmoj.report.FileOutput : The file to be closed with the end of
      *             an experiment
      */
@@ -1329,7 +1329,7 @@ public class Experiment extends NamedObject {
      * data to a file. Registered files will be flushed and closed after the
      * experiment has finished. This is handy for modellers producing their own
      * output who want their files to be closed at the end of the experiment.
-     * 
+     *
      * @param file desmoj.report.FileOutput : The file to be closed with the end of
      *             an experiment
      */
@@ -1358,7 +1358,7 @@ public class Experiment extends NamedObject {
      * not be affected. Use method
      * <code>removeReceiverAll(MessageReceiver msgRec)</code> to remove a
      * messagereceiver from all types of messages.
-     * 
+     *
      * @param msgRec desmoj.report.MessageReceiver : The new messagereceiver to be
      *               removed from the messagedistributor's list for the given
      *               messagetype
@@ -1386,7 +1386,7 @@ public class Experiment extends NamedObject {
      * not be affected. Use method
      * <code>removeReceiverAll(MessageReceiver msgRec)</code> to remove a
      * messagereceiver from all types of messages.
-     * 
+     *
      * @param msgRec desmoj.report.MessageReceiver : The new messagereceiver to be
      *               removed from the vessagedistributor's list for the given
      *               messagetype
@@ -1412,7 +1412,7 @@ public class Experiment extends NamedObject {
      * <code>removeReceiver(MessageReceiver msgRec, Class
      * messageType)</code> to remove the messagereceiver from one type of messages
      * only.
-     * 
+     *
      * @param msgRec desmoj.report.MessageReceiver : The new messagereceiver to be
      *               removed from the messagedistributor's list for the given
      *               messagetype
@@ -1440,7 +1440,7 @@ public class Experiment extends NamedObject {
      * will not be affected. Use method
      * <code>removeReceiverAll(MessageReceiver msgRec)</code> to remove a
      * messagereceiver from all types of messages.
-     * 
+     *
      * @param msgRec      desmoj.report.MessageReceiver : The new messagereceiver to
      *                    be removed from the messagedistributor's list for the
      *                    given messagetype
@@ -1449,16 +1449,7 @@ public class Experiment extends NamedObject {
      */
     public void removeReceiver(MessageReceiver msgRec, Class<?> messageType) {
 
-        if (msgRec == null) {
-            sendWarning("Can not remove receiver to experiment! Command ignored.",
-                        "Experiment '" + getName() + "', Method 'void removeReceiver(MessageReceiver "
-                        + "msgRec, Class messageType)'", "The parameter 'msgRec' passed was a null reference.",
-                        "Make sure to give a valid MessageReciever reference before removing it "
-                        + "from the experiment's messaging system.");
-            return; // do nothing
-        }
-
-        if (messageType == null) {
+        if ((msgRec == null) || (messageType == null)) {
             sendWarning("Can not remove receiver to experiment! Command ignored.",
                         "Experiment '" + getName() + "', Method 'void removeReceiver(MessageReceiver "
                         + "msgRec, Class messageType)'", "The parameter 'msgRec' passed was a null reference.",
@@ -1487,7 +1478,7 @@ public class Experiment extends NamedObject {
      * not be affected. Use method
      * <code>removeReceiverAll(MessageReceiver msgRec)</code> to remove a
      * messagereceiver from all types of messages.
-     * 
+     *
      * @param msgRec desmoj.report.MessageReceiver : The new messagereceiver to be
      *               removed from the messagedistributor's list for the given
      *               messagetype
@@ -1513,7 +1504,7 @@ public class Experiment extends NamedObject {
      * Renaming is not allowed with experiments, since it would not allow the user
      * to identify the reports produced by an experiment. The method simply returns
      * without changing the experiment's name, ignoring the given parameter.
-     * 
+     *
      * @param newName java.lang.String : The parameter given is not taken as the new
      *                name, method simply returns
      */
@@ -1599,7 +1590,7 @@ public class Experiment extends NamedObject {
 
     /**
      * Sets the delay between each step of the scheduler.
-     * 
+     *
      * @param delay : Delay time in milliseconds as a long value
      * @author Nicolas Knaak
      */
@@ -1610,11 +1601,11 @@ public class Experiment extends NamedObject {
     /**
      * Sets the underlying event list to be used be the experiment. Entries already
      * present in the current event list (if any) will be copied across.
-     * 
+     *
      * @see desmoj.core.simulator.EventTreeList, FIFO order
      * @see desmoj.core.simulator.SortedMapEventList, FIFO order
      * @see desmoj.core.simulator.RandominzingEventTreeList, random order
-     * 
+     *
      * @param eventList Class : The event list class to be used
      */
     public void setEventList(Class<? extends desmoj.core.simulator.EventList> eventList) {
@@ -1659,7 +1650,7 @@ public class Experiment extends NamedObject {
      * applies for speed rates >0 : rate*simulation time = wallclock-time. If the
      * speed rate is 0 or less the simulation will be executed as fast as possible.
      * Default is 0 (as-fast-as-possible).
-     * 
+     *
      * @param rate double : The execution speed rate
      */
     public void setExecutionSpeedRate(double rate) {
@@ -1671,10 +1662,10 @@ public class Experiment extends NamedObject {
      * distributions created from now on. The default generator is
      * LinearCongruentialRandomGenerator; any other generator to be used must
      * implement the interface UniformRandomGenerator.
-     * 
+     *
      * @see desmoj.core.dist.LinearCongruentialRandomGenerator
      * @see desmoj.core.dist.UniformRandomGenerator
-     * 
+     *
      * @param randomNumberGenerator Class : The random number generator class to be
      *                              used
      */
@@ -1721,7 +1712,7 @@ public class Experiment extends NamedObject {
      * Sets the seed of the SeedGenerator to the given value. If the seed is not set
      * here, its default is 979, unless specified different in the
      * ExperimentOptions.
-     * 
+     *
      * @param seed long : The seed for the SeedGenerator
      */
     public void setSeedGenerator(long seed) {
@@ -1733,7 +1724,7 @@ public class Experiment extends NamedObject {
     /**
      * Sets the new value for showing the progress bar for this experiment or not.
      * Must be called before the experiment is started.
-     * 
+     *
      * @param newShowProgressBar boolean : set it to <code>true</code> if a progress
      *                           bar should be displayed; for not showing the
      *                           progress bar of this experiment set it to
@@ -1751,7 +1742,7 @@ public class Experiment extends NamedObject {
      * Not that a call to this method has no impact if the progress bar is suppessed
      * by invoking <code>setShowProgressBar(false)</code>. Must be called before the
      * experiment is started.
-     * 
+     *
      * @param autoclose boolean : if set to <code>true</code>, the progress bar will
      *                  be automaticalled closed one the experiment terminates. If
      *                  set to <code>false</code> (default), the progress bar window
@@ -1767,7 +1758,7 @@ public class Experiment extends NamedObject {
      * Sets the new value for displaying basic experiment notifications like
      * 'experiment started', 'experiment stopped' oder 'experiment resumed' at the
      * system output.
-     * 
+     *
      * @param silent boolean : set it to <code>true</code> to suppress notifications
      *               or <code>false</code> to print them.
      */
@@ -1804,7 +1795,7 @@ public class Experiment extends NamedObject {
      * before. Note that in order to stop the simulation at some point of time, the
      * <code>stop</code> method has to be called first. <code>StopCondition</code> s
      * can be given alternatively.
-     * 
+     *
      * @param initTime TimeInstant : The starting time instant
      */
     public void start(TimeInstant initTime) {
@@ -1871,7 +1862,7 @@ public class Experiment extends NamedObject {
      * endlessly if none of the conditions are met; thus it is recommended to
      * additionally always use a time limit if none of the conditions in question
      * can be proven to be met during the run of the simulation!
-     * 
+     *
      * @param stopCond ModelCondition : A condition to stop the simulation once it's
      *                 check() methode returns true.
      */
@@ -1891,7 +1882,7 @@ public class Experiment extends NamedObject {
      * simulation time is given, the default is 0 which would not let the simulation
      * run past that time. Repeatedly calling this method will override stop times
      * specified before.
-     * 
+     *
      * @param stopTime desmoj.TimeInstant : The point of simulation time to stop the
      *                 simulation
      */
@@ -1921,7 +1912,7 @@ public class Experiment extends NamedObject {
      * ouput or not. Trace ouput can be switched on and off using the methods
      * <code>traceOn(TimeInstant startTime)</code> and
      * <code>traceOff(TimeInstant stopTime)</code>
-     * 
+     *
      * @return boolean : Is <code>true</code>
      */
     public boolean traceIsOn() {
@@ -1932,7 +1923,7 @@ public class Experiment extends NamedObject {
 
     /**
      * Switches the trace output off at the given point of simulation time.
-     * 
+     *
      * @param stopTime TimeInstant : The point in simulation time to switch trace
      *                 off
      */
@@ -1965,7 +1956,7 @@ public class Experiment extends NamedObject {
 
     /**
      * Switches the trace output on at the given point of simulation time.
-     * 
+     *
      * @param startTime TimeInstant : The point in simulation time to switch trace
      *                  on
      */
@@ -2010,7 +2001,7 @@ public class Experiment extends NamedObject {
      * second parameter (off) is "sooner" then the first parameter (on), they will
      * be swapped automatically. Same parameters will result in no trace output at
      * all.
-     * 
+     *
      * @param startTime TimeInstant : The point in simulation time to switch trace
      *                  on
      * @param stopTime  TimeInstant : The point in simulation time to switch trace
@@ -2078,7 +2069,7 @@ public class Experiment extends NamedObject {
      * The string given will be added as a suffix to the report filename to help
      * identify teh report when more than one report is produced by one Experiment
      * at differnet points of simulation time.
-     * 
+     *
      * @param m      desmoj.Model
      * @param suffix java.lang.String : Suffix for report filename if multiple
      *               reports are drawn
@@ -2114,7 +2105,7 @@ public class Experiment extends NamedObject {
      * at the experiment's messagemanager. The string given will be added as a
      * suffix to the report filename to help identification when more than one
      * report is produced by one Experiment at differnet points of simulation time.
-     * 
+     *
      * @param suffix java.lang.String : Suffix for report filename if multiple
      *               reports are drawn
      */
@@ -2155,7 +2146,7 @@ public class Experiment extends NamedObject {
     /**
      * Interrupts experiment execution in case a fatal problem prevents the
      * experiment from being continued.
-     * 
+     *
      * @param e DESMOJException : The exception that caused the interrupt
      */
     protected void interrupt(DESMOJException e) {
@@ -2231,7 +2222,7 @@ public class Experiment extends NamedObject {
      * is not necessary the location it was produced in. The information about the
      * simulation time is extracted from the Experiment and must not be given as a
      * parameter.
-     * 
+     *
      * @param description java.lang.String : The description of the error that
      *                    occured
      */
@@ -2246,7 +2237,7 @@ public class Experiment extends NamedObject {
     /**
      * Sends a message to the messagedistributor. Note that there are other
      * shorthands for sending the standard DESMO-J messages.
-     * 
+     *
      * @param m Message : The Message to be transmitted
      * @see ModelComponent#sendTraceNote
      * @see ModelComponent#sendDebugNote
@@ -2275,7 +2266,7 @@ public class Experiment extends NamedObject {
      * becomes apparent is not necessary the location it was produced in. The
      * information about the simulation time is extracted from the experiment and
      * must not be given as a parameter.
-     * 
+     *
      * @param description java.lang.String : The description of the error that
      *                    occured
      * @param location    java.lang.String : The class and method the error occured
@@ -2296,7 +2287,7 @@ public class Experiment extends NamedObject {
     /**
      * Sets the experiment's status to the given integer value. The value must be in
      * the legal range of [-1,5], otherwise a warning is issued.
-     * 
+     *
      * @param newStatus int : The integer value of the experiments' new status
      */
     void setStatus(int newStatus) {
@@ -2336,7 +2327,7 @@ public class Experiment extends NamedObject {
                     throw _interruptingException;
 
                 // out of events?
-                if (gotEvent == false) {
+                if (!gotEvent) {
                     _status = STOPPED;
                 }
 
@@ -2360,7 +2351,7 @@ public class Experiment extends NamedObject {
         }
 
         // give warning if reason for stopping was empty EventList
-        if (gotEvent == false) {
+        if (!gotEvent) {
             sendWarning("No more events scheduled! Experiment is stopped.",
                         "Experiment '" + getName() + "' method void proceed().",
                         "The scheduler has run out of events to handle.",
@@ -2372,36 +2363,36 @@ public class Experiment extends NamedObject {
     /**
      * Private helper method to initialize the experiment; should be called from all
      * constructors.
-     * 
+     *
      * @param name       String : The name of the experiment determining the
      *                   outputfile's names, too. So please avoid characters that
      *                   your local filesystem does not support in filenames.
      * @param outputPath java.lang.String : The output path for report files
      * @param formatter  desmoj.core.simulator.TimeFormatter: Defines how time
      *                   values will be formatted in the output files.
-     * 
+     *
      * @see java.util.concurrent.TimeUnit
      */
     private void setupExperiment(String name, String outputPath, TimeFormatter formatter,
                                  ArrayList<String> reportOutputs, ArrayList<String> traceOutputs,
                                  ArrayList<String> errorOutputs, ArrayList<String> debugOutputs) {
         // initialize variables
-        _traceOutput = new ArrayList<OutputType>();
-        _debugOutput = new ArrayList<OutputType>();
-        _errorOutput = new ArrayList<OutputType>();
-        _reportOutput = new ArrayList<OutputType>();
+        _traceOutput = new ArrayList<>();
+        _debugOutput = new ArrayList<>();
+        _errorOutput = new ArrayList<>();
+        _reportOutput = new ArrayList<>();
         _status = NOT_INITIALIZED;
-        _stopConditions = new ArrayList<ModelCondition>(); // empty, i.e. no Stopper
-                                                           // can be set at
-                                                           // instantiation time
+        _stopConditions = new ArrayList<>(); // empty, i.e. no Stopper
+                                             // can be set at
+                                             // instantiation time
 
         System.getProperties().setProperty("co.paralleluniverse.fibers.disableAgentWarning", Boolean.TRUE.toString()); // suppress
                                                                                                                        // non-running
                                                                                                                        // agent
                                                                                                                        // warning
 
-        _registryFileOutput = new ArrayList<FileOutput>();
-        _registryOutputType = new ArrayList<OutputType>();
+        _registryFileOutput = new ArrayList<>();
+        _registryOutputType = new ArrayList<>();
         lastSuffix = 0; // no batches have run so far ;-)
         _showProgressBar = true; // display a progress bar for this experiment
         _showProgressBarAutoclose = false; // do not autoclose progress bar for this experiment

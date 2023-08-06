@@ -30,10 +30,10 @@ import desmoj.core.report.Reporter;
  * using method <code>connectToExperiment(Experiment exp)</code> which
  * implicitly calls the <code>init()</code> method after receiving the valid
  * reference to an experiment.
- * 
+ *
  * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  * @author Tim Lechler
- * 
+ *
  *         Licensed under the Apache License, Version 2.0 (the "License"); you
  *         may not use this file except in compliance with the License. You may
  *         obtain a copy of the License at
@@ -87,7 +87,7 @@ public abstract class Model extends Reportable {
     /**
      * Constructs a model, with the given name and parameters for report and trace
      * files.
-     * 
+     *
      * @param name        java.lang.String : The name of this model
      * @param owner       Model : The main model this model is associated to
      * @param showInTrace boolean : Flag for showing this model in trace-files. Set
@@ -99,8 +99,8 @@ public abstract class Model extends Reportable {
         super(owner, name, showInReport, showInTrace); // create a reportable
 
         // init data structures
-        _subModels = new ArrayList<Model>(); // create empty Vector for subModels
-        _reportables = new ArrayList<Reportable>(); // create empty Vector for reportables
+        _subModels = new ArrayList<>(); // create empty Vector for subModels
+        _reportables = new ArrayList<>(); // create empty Vector for reportables
 
         if (owner != null) { // check if this is a submodel
             this.isMainModel = false;
@@ -188,7 +188,7 @@ public abstract class Model extends Reportable {
      * reset. If the user's model offers more information, create a special class
      * derived from class <code>desmoj.report.ModelReporter</code> to extract and
      * present that extra information.
-     * 
+     *
      * @return Reportable : The reporter associated with this model
      */
     @Override
@@ -204,7 +204,7 @@ public abstract class Model extends Reportable {
      * the model's intent, creator, date and all other information that needs to be
      * published about this model in a report. Please use it generously, other
      * people interested in your model will thank you.
-     * 
+     *
      * @return java.lang.String : The description of the model as a text String
      */
     public abstract String description();
@@ -222,15 +222,15 @@ public abstract class Model extends Reportable {
     /**
      * Returns a list of this model's entities. The order of the list is
      * unspecified.
-     * 
+     *
      * @param includeSubmodels boolean : Do include (true) or exclude (false)
      *                         submodels' entities in the list.
-     * 
+     *
      * @return List<Entity> : The class will return a list of all existing objects
      *         of <code>Entity</code>.
      */
     public List<Entity> getEntities(boolean includeSubmodels) {
-        List<Entity> list = new LinkedList<Entity>();
+        List<Entity> list = new LinkedList<>();
         list.addAll(_entityMap.values());
 
         if (includeSubmodels) {
@@ -255,7 +255,7 @@ public abstract class Model extends Reportable {
     /**
      * Returns the experiment that is connected to this model or <code>null</code>
      * if the model is not yet connected to an experiment.
-     * 
+     *
      * @return Experiment : The experiment that this model is connected to or
      *         <code>null</code> if no connection is established
      */
@@ -274,7 +274,7 @@ public abstract class Model extends Reportable {
 
     /**
      * Returns the Model's viewpoint of the ParameterManager
-     * 
+     *
      * @return ModelParameterManager : The ParameterManager
      */
     public ModelParameterManager getParameterManager() {
@@ -284,17 +284,17 @@ public abstract class Model extends Reportable {
     /**
      * Returns a copy of the dynamic list containing all reportable components of
      * this model.
-     * 
+     *
      * @return reportables : A list containing all reportable components of this
      *         model.
      */
     public List<Reportable> getReportables() {
-        return new ArrayList<Reportable>(this._reportables);
+        return new ArrayList<>(this._reportables);
     }
 
     /**
      * Shows, if there are submodels registered with this model.
-     * 
+     *
      * @return boolean : True, if there is at least one submodel registered at this
      *         Model, flase if there are no submodels
      */
@@ -333,7 +333,7 @@ public abstract class Model extends Reportable {
      * Implement the ModelOptions to set the parameters for your model. Make sure to
      * react properly on the ModelOptions given. Note that specifiying ModelOptions
      * is up to the user.
-     * 
+     *
      * @param options ModelOptions : The parameter settings for this model
      */
     public void init(ModelOptions options) {
@@ -346,7 +346,7 @@ public abstract class Model extends Reportable {
 
     /**
      * Shows if this model has already been connected to an experiment.
-     * 
+     *
      * @return boolean : Is <code>true</code>, if model is connected to an
      *         experiment, <code>false</code> otherwise
      */
@@ -358,7 +358,7 @@ public abstract class Model extends Reportable {
 
     /**
      * Shows if this model is a main model and thus is not submodel of other models.
-     * 
+     *
      * @return boolean : Returns <code>true</code> if the model is a main model,
      *         <code>false</code> if it is a submodel of other models
      */
@@ -371,7 +371,7 @@ public abstract class Model extends Reportable {
     /**
      * Shows if this model is submodel to another model and thus is not the main
      * models.
-     * 
+     *
      * @return boolean : Returns <code>true</code> if the model is a submodel of
      *         other models, <code>false</code> if it is a main model
      */
@@ -383,7 +383,7 @@ public abstract class Model extends Reportable {
     /**
      * Registers a reportable at this model. Reports can only be drawn, if the
      * reportbale is registered at his model.
-     * 
+     *
      * @param r desmoj.core.simulator.Reportable : The reportable to be registered
      */
     public void register(Reportable r) {
@@ -438,7 +438,7 @@ public abstract class Model extends Reportable {
      * belongs to <code>this</code> model. For use with multiple models, the user
      * has to specify which other models are compatible to this model by overloading
      * this method.
-     * 
+     *
      * @return boolean : Returns <code>true</code> if the given modelcomponent is
      *         compatible to this model, <code>false</code> otherwise.
      * @param other ModelComponent : The modelcomponent that needs to be checked for
@@ -490,10 +490,10 @@ public abstract class Model extends Reportable {
 
     /**
      * Links an entity with an unique identification number.
-     * 
+     *
      * @param e Entity : The new Entity to link with an unique identification
      *          number.
-     * 
+     *
      * @return long : Unique identification number.
      */
     long linkWithIdentNumber(Entity e) {
@@ -504,7 +504,7 @@ public abstract class Model extends Reportable {
 
     /**
      * Registers another model as submodel of this model.
-     * 
+     *
      * @param subModel Model : The model to be registerd as a submodel
      */
     void registerSubModel(Model subModel) {
@@ -530,7 +530,7 @@ public abstract class Model extends Reportable {
      * reporters are inserted according to the order they were attached to this
      * model. Each submodel's section is sorted using the criteria above. Thus all
      * reporters a re separated by model to prevent confusion.
-     * 
+     *
      * @return Enumeration : The Enumeration carrying all reporters available from
      *         this model
      */
@@ -571,7 +571,7 @@ public abstract class Model extends Reportable {
     /**
      * Connects submodels to the experiment given. This method is called by the main
      * model, when submodels register themselves at the main model.
-     * 
+     *
      * @param e desmoj.Experiment : The experiment to connect this model to
      */
     void setConnectedExperiment(Experiment e) {
