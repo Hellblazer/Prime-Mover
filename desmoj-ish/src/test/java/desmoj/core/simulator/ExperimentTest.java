@@ -29,6 +29,7 @@ public class ExperimentTest {
         this.model = new TestModel();
         this.experiment = new Experiment("Test Experiment", java.util.concurrent.TimeUnit.SECONDS,
                                          java.util.concurrent.TimeUnit.HOURS, null);
+        experiment.setShowProgressBar(false);
         model.connectToExperiment(experiment);
     }
 
