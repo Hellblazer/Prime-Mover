@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import co.paralleluniverse.fibers.SuspendExecution;
+
 
 /**
  * Represents the superclass for all entities of a model. Entities are supposed
@@ -1469,7 +1469,7 @@ public <E extends Entity, F extends Entity> void schedule(E who2, F who3, EventO
      *            EventOf2Entities : The event to be scheduled
      * @see SimClock
      */
-    public <E extends Entity> void schedulePreempt(E who2, EventOf2Entities<?, E> what) throws SuspendExecution {
+    public <E extends Entity> void schedulePreempt(E who2, EventOf2Entities<?, E> what) {
         
         if ((who2 == null)) {
             sendWarning(
@@ -1527,7 +1527,7 @@ public <E extends Entity, F extends Entity> void schedule(E who2, F who3, EventO
      *            EventOf3Entities : The event to be scheduled
      * @see SimClock
      */
-    public <E extends Entity, F extends Entity> void schedulePreempt(E who2, F who3, EventOf3Entities<?, E, F> what) throws SuspendExecution {
+    public <E extends Entity, F extends Entity> void schedulePreempt(E who2, F who3, EventOf3Entities<?, E, F> what) {
         
         if ((who2 == null)) {
             sendWarning("Can't schedule Entity! Command ignored.", "Entity : "
@@ -1587,7 +1587,7 @@ public <E extends Entity, F extends Entity> void schedule(E who2, F who3, EventO
      *            Event : The Event that manipulates this Entity
      * @see SimClock
      */
-    public void schedulePreempt(Event<?> what) throws SuspendExecution {
+    public void schedulePreempt(Event<?> what) {
 
         if ((what == null)) {
             sendWarning("Can't schedule Entity! Command ignored.", "Entity : "

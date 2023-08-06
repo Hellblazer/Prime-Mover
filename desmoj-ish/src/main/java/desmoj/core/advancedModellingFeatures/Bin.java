@@ -1,6 +1,6 @@
 package desmoj.core.advancedModellingFeatures;
 
-import co.paralleluniverse.fibers.SuspendExecution;
+
 import desmoj.core.simulator.QueueBased;
 import desmoj.core.simulator.QueueList;
 import desmoj.core.simulator.QueueListFifo;
@@ -427,7 +427,7 @@ public class Bin extends desmoj.core.simulator.QueueBased {
 	 *            long : The number of products the Bin is delivering to the
 	 *            consumer.
 	 */
-	public boolean retrieve(long n) throws SuspendExecution {
+	public boolean retrieve(long n) {
 		_where = "boolean retrieve (long n)";
 
 		SimProcess currentProcess = currentSimProcess();

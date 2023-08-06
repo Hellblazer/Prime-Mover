@@ -1,6 +1,6 @@
 package desmoj.core.simulator;
 
-import co.paralleluniverse.fibers.SuspendExecution;
+
 import desmoj.core.dist.NumericalDist;
 
 /**
@@ -99,7 +99,7 @@ public abstract class ArrivalProcess<S extends SimProcess> extends SimProcess
 	 * <code>null</code> the life cycle of this <code>ArrivalProcess</code>
 	 * will stop.
 	 */
-	public void lifeCycle() throws SuspendExecution {
+	public void lifeCycle() {
 
 		// make a new SimProcess
 		SimProcess arrivingProcess = createSuccessor();

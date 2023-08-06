@@ -3,7 +3,7 @@ package desmoj.core.advancedModellingFeatures;
 import java.util.HashSet;
 import java.util.Set;
 
-import co.paralleluniverse.fibers.SuspendExecution;
+
 import desmoj.core.simulator.Condition;
 import desmoj.core.simulator.ProcessQueue;
 import desmoj.core.simulator.QueueBased;
@@ -440,7 +440,7 @@ public class WaitQueue<M extends SimProcess, S extends SimProcess> extends desmo
 	 *            <code>cooperation()</code>.
 	 */
 	@SuppressWarnings("unchecked")
-    public boolean cooperate(ProcessCoop<M, S> coop) throws SuspendExecution {
+    public boolean cooperate(ProcessCoop<M, S> coop) {
 		where = "boolean cooperate(ProcessCoop coop)";
 
 		// check the ProcessCoop
@@ -590,7 +590,7 @@ public class WaitQueue<M extends SimProcess, S extends SimProcess> extends desmo
 	 *            <code>Condition</code> in the method: <code>check()</code>.
 	 */
 	@SuppressWarnings("unchecked")
-    public boolean cooperate(ProcessCoop<M, S> coop, Condition<S> cond) throws SuspendExecution {
+    public boolean cooperate(ProcessCoop<M, S> coop, Condition<S> cond) {
 		where = "boolean cooperate(ProcessCoop coop, Condition cond)";
 
 		// check the ProcessCoop
@@ -1205,7 +1205,7 @@ public class WaitQueue<M extends SimProcess, S extends SimProcess> extends desmo
 	 */
 	@SuppressWarnings("unchecked")
     public boolean waitOnCoop() // wait() is a final method in java.lang.Object
-                    throws SuspendExecution {
+                    {
 		where = "boolean waitOnCoop ()";
 
 		// the current process calling the waitOnCoop()-method is the slave

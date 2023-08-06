@@ -3,8 +3,8 @@ package desmoj.core.simulator;
 import java.util.Enumeration;
 import java.util.Vector;
 
-import co.paralleluniverse.fibers.SuspendExecution;
-import co.paralleluniverse.strands.Strand;
+
+
 import desmoj.core.advancedModellingFeatures.Res;
 import desmoj.core.dist.NumericalDist;
 import desmoj.core.exception.DelayedInterruptException;
@@ -553,7 +553,7 @@ public abstract class SimProcess extends Entity {
 	 * simulation time, implicitly stalling the current process until the activated process withdraws
      * program control, referred to as <b>process preemption</b>. 
 	 */
-	public void activatePreempt() throws SuspendExecution {
+	public void activatePreempt() {
 	    
 		if (isBlocked()) {
 			sendWarning(
@@ -854,7 +854,7 @@ public abstract class SimProcess extends Entity {
      *            duration of the SimProcess' passivation from
      */
     public void hold(NumericalDist<?> dist) throws DelayedInterruptException,
-            InterruptException, SuspendExecution {
+            InterruptException {
         
         if ((dist == null)) {
             sendWarning("Can't schedule SimProcess! Command ignored.",
@@ -927,7 +927,7 @@ public abstract class SimProcess extends Entity {
 	 * 
 	 */
 	public void hold(TimeInstant until) throws DelayedInterruptException,
-			InterruptException, SuspendExecution {
+			InterruptException {
 		if ((until == null)) {
 			sendWarning("Can't schedule SimProcess! Command ignored.",
 					"SimProcess : " + getName()
@@ -1004,7 +1004,7 @@ public abstract class SimProcess extends Entity {
 	 *            TimeSpan : The duration of the SimProcess' passivation
 	 */
 	public void hold(TimeSpan dt) throws DelayedInterruptException,
-			InterruptException, SuspendExecution {
+			InterruptException {
 		if ((dt == null)) {
 			sendWarning("Can't schedule SimProcess! Command ignored.",
 					"SimProcess : " + getName()
@@ -1417,7 +1417,7 @@ public abstract class SimProcess extends Entity {
 	 * has been created and activated. Note that this method will be executed once 
 	 * or repeatedly, depending on the repeating status of the SimProcess.  
 	 */
-	public abstract void lifeCycle() throws SuspendExecution;
+	public abstract void lifeCycle();
 
 	/**
 	 * Makes the SimProcess obtain an array of resources and store them for
@@ -1464,7 +1464,7 @@ public abstract class SimProcess extends Entity {
 	 * reactivated by another SimProcess or Entity.
 	 */
 	public void passivate() throws DelayedInterruptException,
-			InterruptException, SuspendExecution {
+			InterruptException {
 
 		if (currentlySendTraceNotes()) {
 			if (this == currentSimProcess()) {
@@ -2116,7 +2116,7 @@ public abstract class SimProcess extends Entity {
     /**
 	 * Method to release the waiting scheduler when the SimThread finishes.
 	 */
-	void freeThread() throws SuspendExecution {
+	void freeThread() {
 	    Strand s = this.getModel().getExperiment().getSchedulerStrand();
 	    if (s != null) {
 	        s.unpark();
@@ -2154,7 +2154,7 @@ public abstract class SimProcess extends Entity {
 	 * experiment's main thread in order to prevent multiple SimProcess' threads
 	 * running in parallel which has to be avoided.
 	 */
-	void resume() throws SuspendExecution {
+	void resume() {
 
 		// check that the SimThread has not finished yet
 		if (_isTerminated) {
@@ -2222,7 +2222,7 @@ public abstract class SimProcess extends Entity {
 	 * be called the first time a SimProcess is supposed to start processing
 	 * its <code>lifeCycle()</code> method.
 	 */
-	void start() throws SuspendExecution {
+	void start() {
 	    
         // set up simthread
         _myStrand = this.getModel().getExperiment().getStrandFactory().create(this, new SimThread(this));
@@ -2244,7 +2244,7 @@ public abstract class SimProcess extends Entity {
 		}
 	}
 
-    void unpark() throws SuspendExecution {
+    void unpark() {
         _myStrand.unpark();
     }
     

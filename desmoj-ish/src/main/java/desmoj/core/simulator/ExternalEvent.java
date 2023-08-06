@@ -1,6 +1,6 @@
 package desmoj.core.simulator;
 
-import co.paralleluniverse.fibers.SuspendExecution;
+
 import desmoj.core.dist.NumericalDist;
 
 /**
@@ -66,7 +66,7 @@ public abstract class ExternalEvent extends EventAbstract
 	 * <code>eventRoutine(Entity who)</code> of class <code>Event</code>).
 	 * Override this method to implement this Externalevent's behaviour.
 	 */
-	public abstract void eventRoutine() throws SuspendExecution;
+	public abstract void eventRoutine();
 	
 	/**
      * Schedules this external event to make the desired changes to the
@@ -311,7 +311,7 @@ public abstract class ExternalEvent extends EventAbstract
      * process lifecycle executed at the moment.
      * @throws SuspendExecution 
      */
-    public void schedulePreempt() throws SuspendExecution {
+    public void schedulePreempt() {
         
         if (getModel().getExperiment().getScheduler().getCurrentSimProcess() == null) {
             sendWarning("Can't preempt current SimProcess! "

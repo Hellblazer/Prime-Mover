@@ -1,7 +1,7 @@
 package desmoj.core.simulator;
 
-import co.paralleluniverse.strands.Strand;
-import co.paralleluniverse.strands.SuspendableRunnable;
+
+
 
 /**
  * An abstract factory for "Strands". Strands are quasar's abstraction of threads and fibers. 

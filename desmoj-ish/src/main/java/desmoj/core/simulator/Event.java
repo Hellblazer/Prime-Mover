@@ -1,6 +1,6 @@
 package desmoj.core.simulator;
 
-import co.paralleluniverse.fibers.SuspendExecution;
+
 import desmoj.core.dist.NumericalDist;
 
 /**
@@ -107,7 +107,7 @@ public abstract class Event<E extends Entity> extends EventAbstract {
 	 *            Entity : The Entity associated to this event.
 	 * @throws SuspendExecution Marker exception for Quasar.
 	 */
-	public abstract void eventRoutine(E who) throws SuspendExecution;
+	public abstract void eventRoutine(E who);
 
 	/**
      * Schedules this event to act on the given Entity now. Preemption 
@@ -495,7 +495,7 @@ public abstract class Event<E extends Entity> extends EventAbstract {
      *            E : The Entity this event happens to
      * @throws SuspendExecution 
      */
-    public void schedulePreempt(E who) throws SuspendExecution {
+    public void schedulePreempt(E who) {
         
         if (getModel().getExperiment().getScheduler().getCurrentSimProcess() == null) {
             sendWarning("Can't preempt current SimProcess! "

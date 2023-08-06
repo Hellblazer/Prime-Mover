@@ -1,6 +1,6 @@
 package desmoj.core.simulator;
 
-import co.paralleluniverse.fibers.SuspendExecution;
+
 import desmoj.core.dist.NumericalDist;
 
 /**
@@ -700,7 +700,7 @@ public abstract class EventOf3Entities<E extends Entity, F extends Entity, G ext
      *            G : The third entity this event happens to
      * @see SimClock
      */
-    public void schedulePreempt(E who1, F who2, G who3) throws SuspendExecution {
+    public void schedulePreempt(E who1, F who2, G who3) {
         
         if (getModel().getExperiment().getScheduler().getCurrentSimProcess() == null) {
             sendWarning("Can't preempt current SimProcess! "

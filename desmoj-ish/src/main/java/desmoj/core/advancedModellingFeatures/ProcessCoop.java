@@ -1,6 +1,6 @@
 package desmoj.core.advancedModellingFeatures;
 
-import co.paralleluniverse.fibers.SuspendExecution;
+
 import desmoj.core.simulator.Schedulable;
 import desmoj.core.simulator.SimProcess;
 import desmoj.core.simulator.TimeSpan;
@@ -67,7 +67,7 @@ public abstract class ProcessCoop<M extends SimProcess, S extends SimProcess> ex
 	 *            TimeSpan : The offset to the time now, when the current
 	 *            process is to be activated.
 	 */
-	protected void activate(TimeSpan dt) throws SuspendExecution {
+	protected void activate(TimeSpan dt) {
 		// get the current process
 		SimProcess currentProcess = currentSimProcess();
 
@@ -151,7 +151,7 @@ public abstract class ProcessCoop<M extends SimProcess, S extends SimProcess> ex
 	 *            cooperation by the master.
 	 * @throws SuspendExecution Marker exception for Quasar.
 	 */
-	protected abstract void cooperation(M master, S slave) throws SuspendExecution;
+	protected abstract void cooperation(M master, S slave);
 
 	// the user has to implement the cooperation action here...
 
@@ -193,7 +193,7 @@ public abstract class ProcessCoop<M extends SimProcess, S extends SimProcess> ex
 	 *            desmoj.TimeSpan : The current SimProcess will be passivated
 	 *            during this time period.
 	 */
-	protected void hold(TimeSpan dt) throws SuspendExecution {
+	protected void hold(TimeSpan dt) {
 		// get the current process
 		SimProcess currentProcess = currentSimProcess();
 
@@ -215,7 +215,7 @@ public abstract class ProcessCoop<M extends SimProcess, S extends SimProcess> ex
 	 * Entities). This method is passed through to the currently running master
 	 * process.
 	 */
-	protected void passivate() throws SuspendExecution {
+	protected void passivate() {
 		// get the current process
 		SimProcess currentProcess = currentSimProcess();
 
@@ -240,7 +240,7 @@ public abstract class ProcessCoop<M extends SimProcess, S extends SimProcess> ex
 	 *            TimeSpan : The offset to the time now, when the current
 	 *            process is to be reactivated.
 	 */
-	protected void reActivate(TimeSpan dt) throws SuspendExecution {
+	protected void reActivate(TimeSpan dt) {
 		// get the current process
 		SimProcess currentProcess = currentSimProcess();
 
