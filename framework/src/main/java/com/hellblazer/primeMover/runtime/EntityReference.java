@@ -4,7 +4,7 @@
  * This file is part of the Prime Mover Event Driven Simulation Framework.
  * 
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as 
+ * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  * 
@@ -26,12 +26,6 @@ package com.hellblazer.primeMover.runtime;
  * 
  */
 public interface EntityReference {
-    /**
-     * Bind the entity reference to a unique controller
-     * 
-     * @param controller
-     */
-    void __bindTo(Devi controller);
 
     /**
      * Invoke the event on the entity
@@ -45,8 +39,7 @@ public interface EntityReference {
     /**
      * Answer the signature matching the event ordinal
      * 
-     * @param event
-     *            - the ordinal of the event > 0
+     * @param event - the ordinal of the event > 0
      * @return the string signature of the event, or null for none
      */
     String __signatureFor(int event);

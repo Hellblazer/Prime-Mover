@@ -17,35 +17,26 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.hellblazer.primeMover.runtime;
+package hello;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import com.hellblazer.primeMover.Kronos;
+import com.hellblazer.primeMover.annotations.Entity;
 
 /**
- * The implementation of an event which is implemented by a static method call.
+ * 
+ * A minimal example of an event driven simulation using the Prime Mover
+ * framework.
  * 
  * @author <a href="mailto:hal.hildebrand@gmail.com">Hal Hildebrand</a>
  * 
  */
-public final class StaticEntityReference implements EntityReference {
-    private final Method method;
 
-    public StaticEntityReference(Method method) {
-        this.method = method;
-    }
+@Entity
+public class HelloWorld {
 
-    @Override
-    public Object __invoke(int event, Object[] arguments) throws Throwable {
-        try {
-            return method.invoke(null, arguments);
-        } catch (InvocationTargetException e) {
-            throw e.getTargetException();
-        }
-    }
-
-    @Override
-    public String __signatureFor(int event) {
-        return method.toString();
+    public void event1() {
+        Kronos.sleep(1);
+        event1();
+        System.out.println("Hello World @ time= " + Kronos.currentTime());
     }
 }

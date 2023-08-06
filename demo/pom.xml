@@ -12,13 +12,6 @@
     <description>A simple introduction to the Prime Mover discrete event driven
         framework</description>
 
-    <properties>
-        <project.build.sourceEncoding>UTF-8
-        </project.build.sourceEncoding>
-        <thirdspace.external.repository>
-            /Users/hhildebrand/Projects/3Space/maven-repository</thirdspace.external.repository>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>com.hellblazer.primeMover</groupId>
@@ -51,14 +44,6 @@
         </license>
     </licenses>
 
-    <distributionManagement>
-        <repository>
-            <id>Hellbound Simulations</id>
-            <name>Karios Repository</name>
-            <url>file://${thirdspace.external.repository}</url>
-        </repository>
-    </distributionManagement>
-
     <build>
         <plugins>
             <plugin>
@@ -73,16 +58,6 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <release>20</release>
-                    <compilerArgs>
-                        <compilerArg>--enable-preview</compilerArg>
-                    </compilerArgs>
-                </configuration>
             </plugin>
         </plugins>
         <pluginManagement>

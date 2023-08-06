@@ -33,11 +33,6 @@ public class Template implements Foo, EntityReference {
     private final Devi __controller = Framework.getController();
 
     @Override
-    public void __bindTo(Devi controller) {
-
-    }
-
-    @Override
     public Object __invoke(int event, Object[] arguments) throws Throwable {
         switch (event) {
         case 0: {
@@ -49,6 +44,17 @@ public class Template implements Foo, EntityReference {
         }
         case 2: {
             return original_someArgs((String) arguments[0], arguments[1]);
+        }
+        default:
+            throw new IllegalArgumentException("Unknown event");
+        }
+    }
+
+    public Object __invoke2(int event, Object[] arguments) throws Throwable {
+        switch (event) {
+        case 0: {
+            original_bar();
+            return null;
         }
         default:
             throw new IllegalArgumentException("Unknown event");

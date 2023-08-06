@@ -52,7 +52,9 @@ public abstract class AbstractTransform extends AbstractMojo {
         var graph = new ClassGraph();
 //        graph.verbose();
         try {
-            graph.overrideClassLoaders(new URLClassLoader(new URL[] { new File(classpath).toURI().toURL() }));
+            final var compiledCP = new URLClassLoader(new URL[] { new File(classpath).toURI().toURL() });
+            graph.addClassLoader(compiledCP);
+//            graph.overrideClassLoaders(compiledCP);
         } catch (MalformedURLException e) {
             throw new MojoExecutionException("Unable to transform", e);
         }
@@ -69,6 +71,12 @@ public abstract class AbstractTransform extends AbstractMojo {
                     failed.add(file.getAbsolutePath());
                 }
                 logger.info(String.format("Transformed: %s, written: %s", ci.getName(), file.getAbsoluteFile()));
+
+//                ClassReader reader = new ClassReader(bytes);
+//                final PrintWriter printWriter = new PrintWriter(System.out, true);
+//                TraceClassVisitor visitor = new TraceClassVisitor(null, printWriter);
+//                reader.accept(visitor, ClassReader.EXPAND_FRAMES);
+//                CheckClassAdapter.verify(reader, true, printWriter);
             });
         } catch (IOException e) {
             throw new MojoExecutionException("Unable to transform", e);

@@ -59,11 +59,6 @@ public class SynchronousQueueImpl<E> implements SynchronousQueue<E> {
             this.controller = controller;
         }
 
-        @Override
-        public void __bindTo(Devi controller) {
-            this.controller = controller;
-        }
-
         @SuppressWarnings("unchecked")
         @Override
         public Object __invoke(int event, Object[] arguments) throws Throwable {

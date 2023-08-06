@@ -28,12 +28,7 @@ package com.hellblazer.primeMover.runtime;
 class BlockingSleep implements EntityReference {
     final static BlockingSleep BLOCKING_SLEEP_INSTANCE = new BlockingSleep();
 
-    final static int           SLEEP_EVENT             = 0;
-
-    @Override
-    public void __bindTo(Devi controller) {
-        // no op
-    }
+    final static int SLEEP_EVENT = 0;
 
     @Override
     public Object __invoke(int event, Object[] arguments) throws Throwable {
