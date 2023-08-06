@@ -12,7 +12,7 @@ Licensed under AGPL V 3.0
 Prime Mover now requires the [Virtual Thread preview feature from Project Loom](https://openjdk.org/jeps/425).  Unfortunately, this means that the Maven plugin for Prime Mover ultimately
 requires  __--enable-preview__  to be used to run this plugin.  As the Prime Mover plugin is run during normal build processing
 to test the plugin, this poses a problem of how to configure this correctly in Maven.  The answer is, of course, you  **cannot**  - lol.  The plugin, under test, will run
-with the options from the invoking JVM!  Consequently, you  __must__  have  __"--enable-preview"__  in your [_MAVEN_OPTS_](https://maven.apache.org/configure.html).
+with the options from the invoking JVM!  Consequently, you  __must__  have  __"--enable-preview"__  in your [MAVEN_OPTS](https://maven.apache.org/configure.html).
 
 Much apologies for this inconvienence.  This requirement will be eliminated soon with Java 21, as Project Loom is no longer preview, but a released feature of Java 21.  This is 
 scheduled for September 2023.
