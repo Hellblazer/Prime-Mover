@@ -1,14 +1,22 @@
-An Event Driven Simulation Framework for Java
+# An Event Driven Simulation Framework for Java
+
 See [user-manual](./user-manual.pdf) in this directory for details.
 
+## License
 Licensed under AGPL V 3.0
 
-Requires Java 20 and Maven 3.83_
+## Building
+Requires Java 20 and Maven 3.83+
 
 To build:
 
      cd <top level directory>
      mvn clean install
+     
+## Status
+Prime Mover is now Soot Free.  The framework now uses the JVM Virtual Threads from Project Loom to provide the blocking 
+thread continuation mechanism required for blocking events.  The Prime Mover event transform is now implemented by an ASM based tranform.  Maven artifacts are not currently 
+published, so you'll have to build them until I get that sorted.
 
 ### Prime Mover Runtime
 
@@ -22,7 +30,8 @@ The artifact required for simulation runtime
 
 ### Prime Mover Transform
 
-The artifact required for simulation transform
+The artifact required for simulation transform.  This module contains the ASM based event transformer framework.  The transformer uses ClassGraph to
+provide the scanning mechanism to obtain the classes to transform.S
 
      <dependency>
          <groupId>com.hellblazer.primeMover</groupId>
@@ -32,7 +41,8 @@ The artifact required for simulation transform
 
 ### Prime Mover Maven Plugin
 
-The plugin required to transform simulation code
+The plugin required to transform simulation code.  This plugin runs after compilation for either main or test classes and will perform the simulation
+transform on classes in the target output directory, overwriting these class files with the transformed class.
 
      <plugin>
          <groupId>com.hellblazer.primeMover</groupId>
