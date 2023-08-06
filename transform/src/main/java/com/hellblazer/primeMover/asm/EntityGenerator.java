@@ -85,11 +85,8 @@ public class EntityGenerator {
 
     }
 
-    private static final String APPEND = "append";
-
+    private static final String APPEND                    = "append";
     private static final Method APPEND_METHOD;
-    private static final String BIND_TO                   = "__bindTo";
-    private static final Method BIND_TO_METHOD;
     private static final String BOOLEAN_VALUE             = "booleanValue";
     private static final Method BOOLEAN_VALUE_METHOD;
     private static final Method BOOLEAN_VALUE_OF_METHOD;
@@ -137,16 +134,6 @@ public class EntityGenerator {
 
     static {
         java.lang.reflect.Method method;
-        try {
-            method = EntityReference.class.getMethod(BIND_TO, Devi.class);
-        } catch (NoSuchMethodException | SecurityException e) {
-            throw new IllegalStateException("Cannot get '%s' method".formatted(BIND_TO), e);
-        }
-        try {
-            BIND_TO_METHOD = Method.getMethod(method);
-        } catch (SecurityException e) {
-            throw new IllegalStateException("Cannot get '%s' method".formatted(BIND_TO), e);
-        }
         try {
             method = Devi.class.getMethod(POST_CONTINUING_EVENT, EntityReference.class, int.class, Object[].class);
         } catch (NoSuchMethodException | SecurityException e) {
@@ -458,7 +445,6 @@ public class EntityGenerator {
             fieldVisitor.visitEnd();
             generateInvoke(cw);
             generateSignatureFor(cw);
-            generateBindTo(cw);
             cw.visit(clazz.getClassfileMajorVersion(), clazz.getModifiers(), internalName, clazz.getTypeSignatureStr(),
                      clazz.getSuperclass() == null ? Type.getInternalName(Object.class)
                                                    : clazz.getSuperclass().getName().replace('.', '/'),
@@ -592,14 +578,6 @@ public class EntityGenerator {
         };
     }
 
-    private void generateBindTo(ClassVisitor cv) {
-        var mg = new GeneratorAdapter(Opcodes.ACC_PUBLIC, BIND_TO_METHOD, null, null, cv);
-        mg.loadThis();
-        mg.returnValue();
-        mg.visitMaxs(0, 0);
-        mg.endMethod();
-    }
-
     private void generateEvent(Method m, int access, String name, String descriptor, String[] exceptions,
                                ClassVisitor cv) {
         var mg = new GeneratorAdapter(access, m, descriptor,
@@ -640,9 +618,12 @@ public class EntityGenerator {
         var mg = new GeneratorAdapter(Opcodes.ACC_PUBLIC, INVOKE_METHOD, null,
                                       new Type[] { Type.getType(Throwable.class) }, cv);
         var keys = mapped.keySet().stream().mapToInt(i -> (int) i).sorted().toArray();
-
-        mg.loadArg(0);
-        mg.tableSwitch(keys, eventSwitch(mg));
+        if (keys.length > 0) {
+            mg.loadArg(0);
+            mg.tableSwitch(keys, eventSwitch(mg));
+        } else {
+            mg.throwException(Type.getType(IllegalStateException.class), "No events");
+        }
         mg.visitMaxs(0, 0);
         mg.endMethod();
     }
@@ -650,8 +631,12 @@ public class EntityGenerator {
     private void generateSignatureFor(ClassVisitor cv) {
         var mg = new GeneratorAdapter(Opcodes.ACC_PUBLIC, SIGNATURE_FOR_METHOD, null, null, cv);
         var keys = mapped.keySet().stream().mapToInt(i -> (int) i).sorted().toArray();
-        mg.loadArg(0);
-        mg.tableSwitch(keys, signatureSwitch(mg));
+        if (keys.length > 0) {
+            mg.loadArg(0);
+            mg.tableSwitch(keys, signatureSwitch(mg));
+        } else {
+            mg.throwException(Type.getType(IllegalStateException.class), "No events");
+        }
         mg.visitMaxs(0, 0);
         mg.endMethod();
     }

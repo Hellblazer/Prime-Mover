@@ -54,6 +54,8 @@ import io.github.classgraph.ScanResult;
  */
 public class SimulationTransform implements Closeable {
 
+    private static final String ALL_METHODS_MARKER = AllMethodsMarker.class.getCanonicalName();
+
     public static Set<ClassInfo> getEntityInterfaces(ClassInfo ci) {
         var arr = (Object[]) ci.getAnnotationInfo(Entity.class).getParameterValues(true).getValue("value");
         if (arr == null) {
@@ -74,15 +76,18 @@ public class SimulationTransform implements Closeable {
         return returned;
     }
 
-    private final ClassInfo     allMethodsMarker;
-    private final ClassInfoList entities;
-    private final ScanResult    scan;
+    private final ScanResult scan;
 
     public SimulationTransform(ClassGraph graph) {
-        graph.enableAllInfo().enableInterClassDependencies().enableExternalClasses().ignoreMethodVisibility();
-        scan = graph.scan();
-        entities = scan.getClassesWithAnnotation(Entity.class.getCanonicalName());
-        allMethodsMarker = scan.getClassInfo(AllMethodsMarker.class.getCanonicalName());
+        this(graph.enableAllInfo()
+                  .enableInterClassDependencies()
+                  .enableExternalClasses()
+                  .ignoreMethodVisibility()
+                  .scan());
+    }
+
+    public SimulationTransform(ScanResult scan) {
+        this.scan = scan;
     }
 
     @Override
@@ -93,6 +98,18 @@ public class SimulationTransform implements Closeable {
     }
 
     public EntityGenerator generatorOf(String classname) {
+        return generatorOf(classname, new ClassInfoFilter() {
+
+            @Override
+            public boolean accept(ClassInfo classInfo) {
+                return true;
+            }
+
+        });
+    }
+
+    public EntityGenerator generatorOf(String classname, ClassInfoFilter selector) {
+        var entities = scan.getClassesWithAnnotation(Entity.class.getCanonicalName()).filter(selector);
         var entity = entities.get(classname);
         if (entity == null) {
             return null;
@@ -101,6 +118,20 @@ public class SimulationTransform implements Closeable {
     }
 
     public Map<ClassInfo, EntityGenerator> generators() {
+        return generators(new ClassInfoFilter() {
+
+            @Override
+            public boolean accept(ClassInfo classInfo) {
+                return true;
+            }
+        });
+    }
+
+    public Map<ClassInfo, EntityGenerator> generators(ClassInfoFilter selector) {
+        return generators(scan.getClassesWithAnnotation(Entity.class.getCanonicalName()).filter(selector));
+    }
+
+    public Map<ClassInfo, EntityGenerator> generators(ClassInfoList entities) {
         return entities.filter(new ClassInfoFilter() {
             @Override
             public boolean accept(ClassInfo classInfo) {
@@ -109,36 +140,54 @@ public class SimulationTransform implements Closeable {
         }).stream().collect(Collectors.toMap(ci -> ci, ci -> generateEntity(ci)));
     }
 
-    @SuppressWarnings("deprecation")
     public Map<ClassInfo, byte[]> transformed() {
+        return transformed(new ClassInfoFilter() {
+            @Override
+            public boolean accept(ClassInfo classInfo) {
+                return true;
+            }
+        });
+    }
+
+    public Map<ClassInfo, byte[]> transformed(ClassInfoFilter selector) {
+        var entities = scan.getClassesWithAnnotation(Entity.class.getCanonicalName()).filter(selector);
         var transformed = new HashMap<ClassInfo, byte[]>();
         var map = new HashMap<String, String>();
         map.put(Kronos.class.getCanonicalName().replace('.', '/'), Kairos.class.getCanonicalName().replace('.', '/'));
         var apiRemapper = new SimpleRemapper(map);
-        scan.getAllClasses()
-            .filter(ci -> !entities.contains(ci))
-            .filter(ci -> !ci.getPackageName().equals(Kairos.class.getPackageName()))
-            .filter(ci -> !ci.getPackageName().equals(Kronos.class.getPackageName()))
-            .filter(ci -> !ci.getPackageName().equals(Entity.class.getPackageName()))
-            .filter(ci -> !ci.getPackageName().equals(EntityGenerator.class.getPackageName()))
-            .filter(ci -> !ci.getPackageName().startsWith(ClassVisitor.class.getPackageName()))
-            .filter(ci -> !ci.getPackageName().startsWith("org.junit"))
-            .filter(ci -> !ci.getPackageName().startsWith(ClassInfo.class.getPackageName()))
-            .forEach(ci -> {
-                if (ci.getResource() != null) {
-                    try (var is = ci.getResource().open()) {
-                        final var classReader = new ClassReader(is);
-                        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
-                        classReader.accept(new ClassRemapper(cw, apiRemapper), ClassReader.EXPAND_FRAMES);
-                        final var written = cw.toByteArray();
-                        if (!written.equals(classReader.b))
-                            transformed.put(ci, written);
-                    } catch (IOException e) {
-                        throw new IllegalStateException("Unable to read class bytes: " + ci, e);
-                    }
-                }
-            });
-        generators().forEach((ci, generator) -> {
+        final var allClasses = scan.getAllClasses();
+        var kronos = allClasses.get(Kronos.class.getCanonicalName());
+        if (kronos == null) {
+            throw new IllegalStateException("Cannot find %s".formatted(Kronos.class.getSimpleName()));
+        }
+        allClasses.filter(selector)
+                  .filter(ci -> !ci.getPackageName().equals(Kairos.class.getPackageName()))
+                  .filter(ci -> !ci.getPackageName().equals(Kronos.class.getPackageName()))
+                  .filter(ci -> !ci.getPackageName().equals(Entity.class.getPackageName()))
+                  .filter(ci -> !ci.getPackageName().equals(EntityGenerator.class.getPackageName()))
+                  .filter(ci -> !ci.getPackageName().startsWith(ClassVisitor.class.getPackageName()))
+                  .filter(ci -> !ci.getPackageName().startsWith("org.junit"))
+                  .filter(ci -> !ci.getPackageName().startsWith(ClassInfo.class.getPackageName()))
+                  .filter(ci -> !entities.contains(ci))
+                  .filter(ci -> !ci.hasAnnotation(Transformed.class))
+                  .filter(ci -> ci.getClassDependencies().contains(kronos))
+                  .forEach(ci -> {
+                      if (ci.getResource() != null) {
+                          try (var is = ci.getResource().open()) {
+                              final var classReader = new ClassReader(is);
+                              ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+                              classReader.accept(new ClassRemapper(cw, apiRemapper), ClassReader.EXPAND_FRAMES);
+                              final var written = cw.toByteArray();
+                              @SuppressWarnings("deprecation")
+                              final var b = classReader.b;
+                              if (!written.equals(b))
+                                  transformed.put(ci, written);
+                          } catch (IOException e) {
+                              throw new IllegalStateException("Unable to read class bytes: " + ci, e);
+                          }
+                      }
+                  });
+        generators(entities).forEach((ci, generator) -> {
             ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
             ClassReader classReader;
             try {
@@ -156,7 +205,7 @@ public class SimulationTransform implements Closeable {
 
     private EntityGenerator generateEntity(ClassInfo ci) {
         var entIFaces = getEntityInterfaces(ci);
-        var allPublic = entIFaces.contains(allMethodsMarker);
+        var allPublic = entIFaces.stream().anyMatch(c -> c.getName().equals(ALL_METHODS_MARKER));
         var interfaces = ci.getInterfaces();
         var implemented = new OpenSet<ClassInfo>();
         entIFaces.forEach(c -> {
@@ -164,6 +213,9 @@ public class SimulationTransform implements Closeable {
                 implemented.add(c);
             }
         });
+        if (entIFaces.isEmpty() && !allPublic) {
+            throw new IllegalStateException("Apparently was not able to get the AllMethodsMarker annotation class info");
+        }
         var events = implemented.stream()
                                 .flatMap(intf -> intf.getMethodInfo().stream())
                                 .map(mi -> ci.getMethodInfo(mi.getName())

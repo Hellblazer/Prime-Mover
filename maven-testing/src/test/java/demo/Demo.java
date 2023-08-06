@@ -44,8 +44,7 @@ public class Demo {
         controller.eventLoop();
         System.out.println("Event spectrum:");
         for (Map.Entry<String, Integer> spectrumEntry : controller.getSpectrum().entrySet()) {
-            System.out.println("\t" + spectrumEntry.getValue() + "\t\t : "
-                               + spectrumEntry.getKey());
+            System.out.println("\t" + spectrumEntry.getValue() + "\t\t : " + spectrumEntry.getKey());
         }
     }
 
@@ -53,12 +52,11 @@ public class Demo {
         SimulationController controller = new SimulationController();
         Kronos.setController(controller);
         controller.setCurrentTime(0);
-        new DriverImpl().runContinuationBenchmark("STRING", 10000000, 10);
+        new DriverImpl().runContinuationBenchmark("STRING", 100000, 10);
         controller.eventLoop();
         System.out.println("Event spectrum:");
         for (Map.Entry<String, Integer> spectrumEntry : controller.getSpectrum().entrySet()) {
-            System.out.println("\t" + spectrumEntry.getValue() + "\t\t : "
-                               + spectrumEntry.getKey());
+            System.out.println("\t" + spectrumEntry.getValue() + "\t\t : " + spectrumEntry.getKey());
         }
     }
 
@@ -66,12 +64,11 @@ public class Demo {
         SimulationController controller = new SimulationController();
         Kronos.setController(controller);
         controller.setCurrentTime(0);
-        new DriverImpl().runEventBenchmark("STRING", 10000000, 100);
+        new DriverImpl().runEventBenchmark("STRING", 100000, 100);
         controller.eventLoop();
         System.out.println("Event spectrum:");
         for (Map.Entry<String, Integer> spectrumEntry : controller.getSpectrum().entrySet()) {
-            System.out.println("\t" + spectrumEntry.getValue() + "\t\t : "
-                               + spectrumEntry.getKey());
+            System.out.println("\t" + spectrumEntry.getValue() + "\t\t : " + spectrumEntry.getKey());
         }
     }
 
@@ -94,8 +91,7 @@ public class Demo {
         controller.eventLoop();
         System.out.println("Event spectrum:");
         for (Map.Entry<String, Integer> spectrumEntry : controller.getSpectrum().entrySet()) {
-            System.out.println("\t" + spectrumEntry.getValue() + "\t\t : "
-                               + spectrumEntry.getKey());
+            System.out.println("\t" + spectrumEntry.getValue() + "\t\t : " + spectrumEntry.getKey());
         }
     }
 }

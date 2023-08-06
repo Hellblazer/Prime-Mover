@@ -19,7 +19,11 @@
 
 package demo;
 
+import static com.hellblazer.primeMover.Kronos.currentTime;
+import static com.hellblazer.primeMover.Kronos.sleep;
+
 import com.hellblazer.primeMover.annotations.Blocking;
+import com.hellblazer.primeMover.annotations.Entity;
 
 /**
  * 
@@ -27,56 +31,134 @@ import com.hellblazer.primeMover.annotations.Blocking;
  * 
  */
 
-public interface ContinuationThroughput {
+@Entity
+public class ContinuationThroughput {
+    private static final byte[] B = new byte[] {};
+    /** number of continuation events. */
+    protected final int         limit;
+    /** benchmark type. */
+    protected final String      mode;
 
     /**
-     * Perform benchmark.
-     */
-    void go();
-
-    /**
-     * Blocking operation with array parameter.
+     * Create new continuation event benchmarking entity.
      * 
-     * @param b dummy array parameter
-     * @return dummy return
+     * @param mode  benchmark type
+     * @param limit number of continuation events
+     */
+    public ContinuationThroughput(String mode, int limit) {
+        this.mode = mode;
+        this.limit = limit;
+        System.out.println("   type: " + mode);
+        System.out.println(" events: " + limit);
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see testClasses.ContinuationThroughput#go()
+     */
+    public void go() {
+        System.out.println("benchmark BEGIN");
+        long startTime = System.currentTimeMillis();
+        for (int i = 0; i < limit; i++) {
+            sleep(1);
+            call();
+        }
+        System.out.println("benchmark END");
+        long endTime = System.currentTimeMillis();
+        double duration = (endTime - startTime) / 1000.0;
+        System.out.println("seconds: " + duration);
+        System.out.println(Math.round((limit / duration)) + " " + mode + " continuation events/second");
+        System.out.println();
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see testClasses.ContinuationThroughput#operation_array(byte[])
      */
     @Blocking
-    byte[] operation_array(byte[] b);
+    public byte[] operation_array(byte[] b) {
+        sleep(1);
+        return b;
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see testClasses.ContinuationThroughput#operation_double(double)
+     */
+    @Blocking
+    public void operation_double(double d) {
+        sleep(1);
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see testClasses.ContinuationThroughput#operation_int(int)
+     */
+    @Blocking
+    public void operation_int(int i) {
+        sleep(1);
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see testClasses.ContinuationThroughput#operation_null()
+     */
+    @Blocking
+    public void operation_null() {
+        sleep(1);
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see testClasses.ContinuationThroughput#operation_show()
+     */
+    @Blocking
+    public void operation_show() {
+        System.out.println("operation_show at t=" + currentTime());
+        sleep(1);
+        // throw new RuntimeException("hi");
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see testClasses.ContinuationThroughput#operation_string(java.lang.String)
+     */
+    @Blocking
+    public void operation_string(String s) {
+        sleep(1);
+    }
 
     /**
-     * Blocking operation with primitive double parameter.
-     * 
-     * @param d dummy double parameter
+     * Perform single continuation call.
      */
-    @Blocking
-    void operation_double(double d);
-
-    /**
-     * Blocking operation with primitive integer parameter.
-     * 
-     * @param i dummy int parameter
-     */
-    @Blocking
-    void operation_int(int i);
-
-    /**
-     * Blocking operation with no parameters.
-     */
-    @Blocking
-    void operation_null();
-
-    /**
-     * Blocking operation that displays time.
-     */
-    @Blocking
-    void operation_show();
-
-    /**
-     * Blocking operation with String parameter.
-     * 
-     * @param s dummy string parameter
-     */
-    @Blocking
-    void operation_string(String s);
+    protected int call() {
+        if (mode.equals("NULL")) {
+            operation_null();
+        } else if (mode.equals("INT")) {
+            operation_int(1);
+        } else if (mode.equals("DOUBLE")) {
+            operation_double(1.0);
+        } else if (mode.equals("STRING")) {
+            operation_string("foo");
+        } else if (mode.equals("ARRAY")) {
+            operation_array(B);
+        } else if (mode.equals("SHOW")) {
+            try {
+                operation_show();
+            } catch (RuntimeException e) {
+                System.out.println("caught exception: " + e);
+            }
+        } else {
+            throw new RuntimeException("unrecognized benchmark: " + mode);
+        }
+        return 1;
+    }
 
 }

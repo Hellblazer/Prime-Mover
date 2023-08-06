@@ -195,6 +195,6 @@ public class EntityGeneratorTest {
         TraceClassVisitor visitor = new TraceClassVisitor(null, null);
         reader.accept(visitor, ClassReader.EXPAND_FRAMES);
 
-        CheckClassAdapter.verify(reader, false, new PrintWriter(System.out, true));
+        CheckClassAdapter.verify(reader, false, new PrintWriter(System.out, false));
     }
 }
