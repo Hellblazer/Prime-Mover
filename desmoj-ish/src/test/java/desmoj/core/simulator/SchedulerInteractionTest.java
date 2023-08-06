@@ -41,6 +41,7 @@ public class SchedulerInteractionTest {
     public void setUp() throws Exception {
         this.experiment = new Experiment("Test Experiment", java.util.concurrent.TimeUnit.SECONDS,
                                          java.util.concurrent.TimeUnit.HOURS, null);
+        experiment.setShowProgressBar(false);
         this.model = new TestModel();
         model.connectToExperiment(experiment);
         this.scheduler = experiment.getScheduler();
