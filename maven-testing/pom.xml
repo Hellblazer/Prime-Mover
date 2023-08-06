@@ -46,9 +46,8 @@
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>com.hellblazer.primeMover</groupId>
-				<artifactId>maven-plugin</artifactId>
-				<version>${project.version}</version>
+				<groupId>${project.groupId}</groupId>
+				<artifactId>maven-plugin</artifactId> 
 				<executions>
 					<execution>
 						<goals>
@@ -73,27 +72,7 @@
 								<pluginExecution>
 									<pluginExecutionFilter>
 										<groupId>
-											com.hellblazer.primeMover
-										</groupId>
-										<artifactId>
-											maven.plugin
-										</artifactId>
-										<versionRange>
-											[0.0.5-SNAPSHOT,)
-										</versionRange>
-										<goals>
-											<goal>transform-test</goal>
-											<goal>transform</goal>
-										</goals>
-									</pluginExecutionFilter>
-									<action>
-										<ignore></ignore>
-									</action>
-								</pluginExecution>
-								<pluginExecution>
-									<pluginExecutionFilter>
-										<groupId>
-											com.hellblazer.primeMover
+											${project.groupId}
 										</groupId>
 										<artifactId>
 											maven-plugin
@@ -103,6 +82,7 @@
 										</versionRange>
 										<goals>
 											<goal>transform-test</goal>
+											<goal>transform</goal>
 										</goals>
 									</pluginExecutionFilter>
 									<action>

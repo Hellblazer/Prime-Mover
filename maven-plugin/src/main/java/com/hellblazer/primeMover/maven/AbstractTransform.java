@@ -59,7 +59,6 @@ public abstract class AbstractTransform extends AbstractMojo {
         } catch (IOException e) {
             throw new IllegalStateException("Cannot get canonical path of: %s".formatted(cpFile));
         }
-        System.out.println("Prefix: " + prefix);
         final URL cpUrl;
         try {
             cpUrl = cpFile.toURI().toURL();
@@ -67,7 +66,7 @@ public abstract class AbstractTransform extends AbstractMojo {
             throw new MojoExecutionException("Unable to transform", e);
         }
         graph.addClassLoader(new URLClassLoader(new URL[] { cpUrl }));
-        var filter = new ClassInfoFilter() {
+        ClassInfoFilter filter = new ClassInfoFilter() {
             @Override
             public boolean accept(ClassInfo ci) {
                 final var r = ci.getResource();
@@ -81,11 +80,14 @@ public abstract class AbstractTransform extends AbstractMojo {
                 } catch (IOException e) {
                     throw new IllegalStateException("Cannot get canonical path of: %s".formatted(resource));
                 }
-                final var included = canonicalPath.startsWith(prefix);
-                if (included) {
-                    System.out.println("included: %s".formatted(canonicalPath));
-                }
-                return included;
+                return canonicalPath.startsWith(prefix);
+            }
+        };
+        filter = new ClassInfoFilter() {
+
+            @Override
+            public boolean accept(ClassInfo classInfo) {
+                return true;
             }
         };
         var failed = new ArrayList<String>();
@@ -96,10 +98,10 @@ public abstract class AbstractTransform extends AbstractMojo {
                 file.getParentFile().mkdirs();
                 try (var fos = new FileOutputStream(file)) {
                     fos.write(bytes);
+                    logger.info(String.format("Transformed: %s, written: %s", ci.getName(), file.getAbsoluteFile()));
                 } catch (IOException e) {
                     failed.add(file.getAbsolutePath());
                 }
-                logger.info(String.format("Transformed: %s, written: %s", ci.getName(), file.getAbsoluteFile()));
             });
         } catch (IOException e) {
             throw new MojoExecutionException("Unable to transform", e);
