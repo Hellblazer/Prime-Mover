@@ -30,28 +30,28 @@ import com.hellblazer.primeMover.annotations.Entity;
  * 
  */
 
-@Entity()
+@Entity
 public class EventThroughput {
     /** benchmark end time. */
     private long         endTime;
+    private final int    limit;
     /** benchmark type. */
     private final String mode;
     /** total number of events. */
-    /** number of warm-up events. */
-    private final int nevents;
+    private int          nEvents;
+
     /** benchmark start time. */
-    private long      startTime;
+    private long startTime;
 
     /**
      * Create new event throughput benchmark entity.
      * 
-     * @param mode    benchmark type
-     * @param nevents number of benchmark events
-     * @param nwarm   number of warm-up events
+     * @param mode  benchmark type
+     * @param limit number of benchmark events
      */
-    public EventThroughput(String mode, int nevents, int nwarm) {
+    public EventThroughput(String mode, int limit) {
         this.mode = mode;
-        this.nevents = nevents;
+        this.limit = limit;
 
         if ("NULL".equals(mode)) {
             nullOperation();
@@ -64,8 +64,7 @@ public class EventThroughput {
         } else {
             throw new RuntimeException("unrecognized mode: " + mode);
         }
-        System.out.println(" events: " + nevents);
-        System.out.println(" warmup: " + nwarm);
+        System.out.println(" events: " + limit);
     }
 
     /*
@@ -74,6 +73,10 @@ public class EventThroughput {
      * @see testClasses.EventThroughput#doubleOperation(double)
      */
     public void doubleOperation(double d) {
+        nEvents++;
+        if (nEvents >= limit) {
+            return;
+        }
         sleep(1);
         doubleOperation(d);
     }
@@ -85,10 +88,10 @@ public class EventThroughput {
      */
     public void finish() {
         System.out.println("benchmark END");
-        endTime = System.nanoTime();
-        double duration = (endTime - startTime) / 1000000000.0;
+        endTime = System.currentTimeMillis();
+        double duration = (endTime - startTime) / 1000.0;
         System.out.println("seconds: " + duration);
-        System.out.println(Math.round(nevents / duration) + " " + mode + " events/second");
+        System.out.println(Math.round((nEvents / duration)) + " " + mode + " events/second");
         System.out.println();
         endSimulation();
     }
@@ -99,6 +102,10 @@ public class EventThroughput {
      * @see testClasses.EventThroughput#intOperation(int)
      */
     public void intOperation(int i) {
+        nEvents++;
+        if (nEvents >= limit) {
+            return;
+        }
         sleep(1);
         intOperation(i);
     }
@@ -109,6 +116,10 @@ public class EventThroughput {
      * @see testClasses.EventThroughput#nullOperation()
      */
     public void nullOperation() {
+        nEvents++;
+        if (nEvents >= limit) {
+            return;
+        }
         sleep(1);
         nullOperation();
     }
@@ -120,8 +131,7 @@ public class EventThroughput {
      */
     public void start() {
         System.out.println("benchmark BEGIN");
-        System.gc();
-        startTime = System.nanoTime();
+        startTime = System.currentTimeMillis();
     }
 
     /*
@@ -130,6 +140,10 @@ public class EventThroughput {
      * @see testClasses.EventThroughput#stringOperation(java.lang.String)
      */
     public void stringOperation(String s) {
+        nEvents++;
+        if (nEvents >= limit) {
+            return;
+        }
         sleep(1);
         stringOperation(s);
     }

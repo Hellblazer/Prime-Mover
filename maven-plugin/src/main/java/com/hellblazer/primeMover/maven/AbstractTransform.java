@@ -36,6 +36,8 @@ import org.slf4j.LoggerFactory;
 import com.hellblazer.primeMover.asm.SimulationTransform;
 
 import io.github.classgraph.ClassGraph;
+import io.github.classgraph.ClassInfo;
+import io.github.classgraph.ClassInfoList.ClassInfoFilter;
 
 public abstract class AbstractTransform extends AbstractMojo {
 
@@ -50,25 +52,56 @@ public abstract class AbstractTransform extends AbstractMojo {
         var classpath = getCompileClasspath();
         logger.info(String.format("Using transform classpath: %s", Arrays.asList(classpath)));
         var graph = new ClassGraph();
-//        graph.verbose();
+        final var cpFile = new File(classpath);
+        String prefix;
         try {
-            graph.overrideClassLoaders(new URLClassLoader(new URL[] { new File(classpath).toURI().toURL() }));
+            prefix = cpFile.getCanonicalPath();
+        } catch (IOException e) {
+            throw new IllegalStateException("Cannot get canonical path of: %s".formatted(cpFile));
+        }
+        final URL cpUrl;
+        try {
+            cpUrl = cpFile.toURI().toURL();
         } catch (MalformedURLException e) {
             throw new MojoExecutionException("Unable to transform", e);
         }
-//        graph.acceptPaths(classpath);
+        graph.addClassLoader(new URLClassLoader(new URL[] { cpUrl }));
+        ClassInfoFilter filter = new ClassInfoFilter() {
+            @Override
+            public boolean accept(ClassInfo ci) {
+                final var r = ci.getResource();
+                var resource = r == null ? null : r.getClasspathElementFile();
+                if (resource == null) {
+                    return false;
+                }
+                String canonicalPath;
+                try {
+                    canonicalPath = resource.getCanonicalPath();
+                } catch (IOException e) {
+                    throw new IllegalStateException("Cannot get canonical path of: %s".formatted(resource));
+                }
+                return canonicalPath.startsWith(prefix);
+            }
+        };
+        filter = new ClassInfoFilter() {
+
+            @Override
+            public boolean accept(ClassInfo classInfo) {
+                return true;
+            }
+        };
         var failed = new ArrayList<String>();
         try (var txfm = new SimulationTransform(graph)) {
             var out = getOutputDirectory();
-            txfm.transformed().forEach((ci, bytes) -> {
+            txfm.transformed(filter).forEach((ci, bytes) -> {
                 final var file = new File(out, ci.getName().replace('.', '/') + ".class");
                 file.getParentFile().mkdirs();
                 try (var fos = new FileOutputStream(file)) {
                     fos.write(bytes);
+                    logger.info(String.format("Transformed: %s, written: %s", ci.getName(), file.getAbsoluteFile()));
                 } catch (IOException e) {
                     failed.add(file.getAbsolutePath());
                 }
-                logger.info(String.format("Transformed: %s, written: %s", ci.getName(), file.getAbsoluteFile()));
             });
         } catch (IOException e) {
             throw new MojoExecutionException("Unable to transform", e);

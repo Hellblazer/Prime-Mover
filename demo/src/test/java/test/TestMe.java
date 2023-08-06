@@ -12,7 +12,7 @@ import com.hellblazer.primeMover.controllers.SimulationController;
 
 import hello.HelloWorld;
 
-public class Me {
+public class TestMe {
 
     @Test
     public void helloWorld() throws Exception {

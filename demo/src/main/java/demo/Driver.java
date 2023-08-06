@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package testClasses;
+package demo;
 
 import static com.hellblazer.primeMover.Kronos.sleep;
 
@@ -31,44 +31,24 @@ import com.hellblazer.primeMover.annotations.Entity;
  * @author <a href="mailto:hal.hildebrand@gmail.com">Hal Hildebrand</a>
  */
 
-@Entity({ Driver.class })
-public class DriverImpl implements Driver {
+@Entity
+public class Driver {
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see testClasses.Driver#runContinuationBenchmark(java.lang.String,
-     * java.lang.Integer, java.lang.Integer)
-     */
-    @Override
     public void runContinuationBenchmark(String mode, Integer nevents, Integer nwarm) {
-        ContinuationThroughput benchmark = new ContinuationThroughputImpl(mode, nevents);
+        ContinuationThroughput benchmark = new ContinuationThroughput(mode, nevents);
         benchmark.go();
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see testClasses.Driver#runEventBenchmark(java.lang.String,
-     * java.lang.Integer, java.lang.Integer)
-     */
-    @Override
     public void runEventBenchmark(String mode, Integer nevents, Integer nwarm) {
-        EventThroughputImpl benchmark = new EventThroughputImpl(mode, nevents);
+        EventThroughput benchmark = new EventThroughput(mode, nevents);
         sleep(nwarm);
         benchmark.start();
         sleep(nevents + 1);
         benchmark.finish();
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see testClasses.Driver#runThreaded()
-     */
-    @Override
     public void runThreaded() {
-        Threaded threaded = new ThreadedImpl();
+        Threaded threaded = new Threaded();
         System.out.println("Begin: 1 at: " + Kronos.currentTime());
         threaded.process(1);
         System.out.println("Begin: 2 at: " + Kronos.currentTime());

@@ -31,29 +31,25 @@ import com.hellblazer.primeMover.annotations.Entity;
  * 
  */
 
-@Entity(ContinuationThroughput.class)
+@Entity({ ContinuationThroughput.class })
 public class ContinuationThroughputImpl implements ContinuationThroughput {
+    private static final byte[] B = new byte[] {};
+    /** number of continuation events. */
+    protected final int    limit;
     /** benchmark type. */
     protected final String mode;
-    /** number of continuation events. */
-    protected final int    nevents;
-    /** number of warm-up events. */
-    protected final int    nwarm;
 
     /**
      * Create new continuation event benchmarking entity.
      * 
-     * @param mode    benchmark type
-     * @param nevents number of continuation events
-     * @param nwarm   number of warm-up events
+     * @param mode  benchmark type
+     * @param limit number of continuation events
      */
-    public ContinuationThroughputImpl(String mode, int nevents, int nwarm) {
+    public ContinuationThroughputImpl(String mode, int limit) {
         this.mode = mode;
-        this.nevents = nevents;
-        this.nwarm = nwarm;
+        this.limit = limit;
         System.out.println("   type: " + mode);
-        System.out.println(" events: " + nevents);
-        System.out.println(" warmup: " + nwarm);
+        System.out.println(" events: " + limit);
     }
 
     /*
@@ -63,22 +59,17 @@ public class ContinuationThroughputImpl implements ContinuationThroughput {
      */
     @Override
     public void go() {
-        for (int i = 0; i < nwarm; i++) {
-            sleep(1);
-            call();
-        }
         System.out.println("benchmark BEGIN");
-        System.gc();
-        long startTime = System.nanoTime();
-        for (int i = 0; i < nevents; i++) {
+        long startTime = System.currentTimeMillis();
+        for (int i = 0; i < limit; i++) {
             sleep(1);
             call();
         }
         System.out.println("benchmark END");
-        long endTime = System.nanoTime();
-        double duration = (endTime - startTime) / 1000000000.0;
+        long endTime = System.currentTimeMillis();
+        double duration = (endTime - startTime) / 1000.0;
         System.out.println("seconds: " + duration);
-        System.out.println(Math.round((nevents / duration)) + " " + mode + " continuation events/second");
+        System.out.println(Math.round((limit / duration)) + " " + mode + " continuation events/second");
         System.out.println();
     }
 
@@ -164,7 +155,7 @@ public class ContinuationThroughputImpl implements ContinuationThroughput {
         } else if (mode.equals("STRING")) {
             operation_string("foo");
         } else if (mode.equals("ARRAY")) {
-            operation_array(new byte[] {});
+            operation_array(B);
         } else if (mode.equals("SHOW")) {
             try {
                 operation_show();
