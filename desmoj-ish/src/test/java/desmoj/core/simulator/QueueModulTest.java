@@ -86,6 +86,7 @@ public class QueueModulTest {
      * Checks whether the right Entity is given back.
      */
 
+    @Test
     public void testGet() {
         queue.insert(enty1);
         queue.insert(enty2);

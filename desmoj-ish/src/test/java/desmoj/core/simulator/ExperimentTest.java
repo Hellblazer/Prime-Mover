@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import desmoj.implementation.TestModel;
 
@@ -39,6 +40,7 @@ public class ExperimentTest {
      * The Debugmode is tested. Therefore it is tested off, and tested after being
      * set on.
      */
+    @Test
     public void testDebug() {
         assertFalse(experiment.debugIsOn());
         experiment.debugOn(new TimeInstant(0));
@@ -49,6 +51,7 @@ public class ExperimentTest {
     /**
      * Tests the Delay in milliseconds of the experiment.
      */
+    @Test
     public void testDelay() {
         assertTrue(0 == experiment.getDelayInMillis());
         experiment.setDelayInMillis(10);
@@ -58,6 +61,7 @@ public class ExperimentTest {
     /**
      * This Test checks the ExecutionSpeedRate
      */
+    @Test
     public void testExecutionSpeedRate() {
         assertTrue(0 == experiment.getExecutionSpeedRate());
         experiment.setExecutionSpeedRate(10);
@@ -67,6 +71,7 @@ public class ExperimentTest {
     /**
      * this test checks if the experiment is connected to a model.
      */
+    @Test
     public void testModel() {
         assertEquals(model, experiment.getModel());
         assertTrue(experiment.isConnected());
@@ -75,6 +80,7 @@ public class ExperimentTest {
     /**
      * this test checks if the experiment randomizes Events.
      */
+    @Test
     public void testRandomizingEvents() {
         assertFalse(experiment.isRandomizingConcurrentEvents());
         experiment.randomizeConcurrentEvents(true);
@@ -84,6 +90,7 @@ public class ExperimentTest {
     /**
      * this test checks if the experiment is connected to a ResourceDB.
      */
+    @Test
     public void testResourceDB() {
         assertNotNull(experiment.getResourceDB());
     }
@@ -91,6 +98,7 @@ public class ExperimentTest {
     /**
      * this test checks if the experiment is connected to a scheduler.
      */
+    @Test
     public void testScheduler() {
         assertNotNull(experiment.getScheduler());
     }
@@ -98,6 +106,7 @@ public class ExperimentTest {
     /**
      * this test checks if the experiment is connected to a SimClock.
      */
+    @Test
     public void testSimClock() {
         assertNotNull(experiment.getSimClock());
     }
@@ -108,6 +117,7 @@ public class ExperimentTest {
      *
      * @throws InterruptedException
      */
+    @Test
     public void testStartStopExperiment() throws InterruptedException {
         assertTrue(0 == Experiment.STARTED);
         experiment.stop(new TimeInstant(100));

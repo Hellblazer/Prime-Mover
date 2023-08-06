@@ -5,6 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import desmoj.implementation.TestEntity;
 import desmoj.implementation.TestModel;
 
@@ -23,6 +26,7 @@ public abstract class EntityModulTest {
     /**
      * Sets up the test fixture.
      */
+    @BeforeEach
     public void setUp() throws Exception {
         this.model = new TestModel();
         Experiment experiment = new Experiment("Test Experiment", java.util.concurrent.TimeUnit.SECONDS,
@@ -39,6 +43,7 @@ public abstract class EntityModulTest {
      * To compare different entities, they need to be comparable. This is tested in
      * this method.
      */
+    @Test
     public void testEntityEquals() {
         assertFalse(entity1.equals(entity2));
         TestEntity e = entity2;
@@ -51,6 +56,7 @@ public abstract class EntityModulTest {
     /**
      * The method returns true, if it is called upon a sim-process.
      */
+    @Test
     public void testIsSimprocess() {
         assertFalse(entity1.isSimProcess());
     }
@@ -58,6 +64,7 @@ public abstract class EntityModulTest {
     /**
      * Tests whether the entity can be renamed.
      */
+    @Test
     public void testName() {
         assertEquals("First Test Entity#1", entity1.getName());
         entity1.rename("");
@@ -72,6 +79,7 @@ public abstract class EntityModulTest {
      * scheduled in the Queue. This method tests whether the method sets the
      * priority right.
      */
+    @Test
     public void testPriority() {
         assertTrue(0 == entity1.getQueueingPriority());
         entity1.setQueueingPriority(1);

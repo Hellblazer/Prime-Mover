@@ -1,11 +1,11 @@
 package desmoj.core.simulator;
 
-
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import desmoj.implementation.TestModel;
 import desmoj.implementation.TestSubModel;
@@ -16,48 +16,50 @@ import desmoj.implementation.TestSubModel;
  * @author Sascha Winde, Clara Bluemm
  *
  */
-public abstract class ModelModulTest{
+public abstract class ModelModulTest {
 
-	TestModel model;
-	TestSubModel subModel;
-	Experiment experiment;
-	Experiment experiment2;
+    Experiment   experiment;
+    Experiment   experiment2;
+    TestModel    model;
+    TestSubModel subModel;
 
-	@BeforeEach
-	public void setUp() throws Exception {
+    @BeforeEach
+    public void setUp() throws Exception {
 
-		this.model = new TestModel();
-		this.experiment = new Experiment("Test Experiment", java.util.concurrent.TimeUnit.SECONDS, java.util.concurrent.TimeUnit.HOURS, null);
-		model.connectToExperiment(experiment);
+        this.model = new TestModel();
+        this.experiment = new Experiment("Test Experiment", java.util.concurrent.TimeUnit.SECONDS,
+                                         java.util.concurrent.TimeUnit.HOURS, null);
+        model.connectToExperiment(experiment);
 
-		this.subModel = new TestSubModel(model);
-		this.experiment2 = new Experiment("Test Experiment", java.util.concurrent.TimeUnit.SECONDS, java.util.concurrent.TimeUnit.HOURS, null);
-		subModel.connectToExperiment(experiment2);
-	}
+        this.subModel = new TestSubModel(model);
+        this.experiment2 = new Experiment("Test Experiment", java.util.concurrent.TimeUnit.SECONDS,
+                                          java.util.concurrent.TimeUnit.HOURS, null);
+        subModel.connectToExperiment(experiment2);
+    }
 
-	/**
-	 * This test checks if the model it connected to an experiment.
-	 */
-	public void testExperiment()
-	{
-		assertTrue(experiment == model.getExperiment());
-		assertTrue(model.isConnected());
-	}
+    @AfterEach
+    public void tearDown() throws Exception {
+    }
 
-	/**
-	 * This test checks the model hierarchie to be correct.
-	 */
-	public void testModelHierarchie()
-	{
-		assertTrue(model.hasSubModels());
-		assertTrue(model.isMainModel());
-		assertFalse(model.isSubModel());
-		assertTrue(subModel.isSubModel());
-		assertFalse(subModel.isMainModel());
-	}
+    /**
+     * This test checks if the model it connected to an experiment.
+     */
+    @Test
+    public void testExperiment() {
+        assertTrue(experiment == model.getExperiment());
+        assertTrue(model.isConnected());
+    }
 
-	@AfterEach
-	public void tearDown() throws Exception {
-	}
+    /**
+     * This test checks the model hierarchie to be correct.
+     */
+    @Test
+    public void testModelHierarchie() {
+        assertTrue(model.hasSubModels());
+        assertTrue(model.isMainModel());
+        assertFalse(model.isSubModel());
+        assertTrue(subModel.isSubModel());
+        assertFalse(subModel.isMainModel());
+    }
 
 }

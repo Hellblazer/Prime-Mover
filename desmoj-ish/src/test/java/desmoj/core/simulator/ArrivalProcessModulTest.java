@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import desmoj.implementation.TestArrivalProcess;
 import desmoj.implementation.TestModel;
@@ -41,6 +42,7 @@ public abstract class ArrivalProcessModulTest {
     /**
      * This Test checks, if the given ArrivalRate equals the actual ArrivalRate.
      */
+    @Test
     public void testArrivalRate() {
         assertEquals(dist, arrival.getArrivalRate());
     }
@@ -48,6 +50,7 @@ public abstract class ArrivalProcessModulTest {
     /**
      * This Test checks the given Name of the ArrivalProcess
      */
+    @Test
     public void testName() {
         assertEquals("First Test ArrivalProcess#1", arrival.getName());
     }
@@ -55,6 +58,7 @@ public abstract class ArrivalProcessModulTest {
     /**
      * This Test checks, if the ArrivalProcess successfully creates a Successor.
      */
+    @Test
     public void testSuccessor() {
         SimProcess sim1 = arrival.createSuccessor();
         assertNotNull(sim1);
