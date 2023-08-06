@@ -2,6 +2,9 @@
 
 See [user-manual](./user-manual.pdf) in this directory for details.
 
+## Build Status
+![Build Status](https://github.com/hellblazer/prime-mover/actions/workflows/maven.yml/badge.svg)
+
 ## License
 Licensed under AGPL V 3.0
 
