@@ -55,7 +55,7 @@ public class EventTreeList extends EventList {
     /**
      * Constructs an empty event-list.
      */
-    public EventTreeList() {
+    EventTreeList() {
 
         // create event-list
         eTreeList = new TreeList();

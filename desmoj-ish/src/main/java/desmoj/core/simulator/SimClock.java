@@ -25,116 +25,119 @@ import java.util.Observable;
  * @author modified by Soenke Claassen
  * @author modified by Felix Klueckmann
  *
- *         Licensed under the Apache License, Version 2.0 (the "License"); you
- *         may not use this file except in compliance with the License. You may
- *         obtain a copy of the License at
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License. You
+ * may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *         Unless required by applicable law or agreed to in writing, software
- *         distributed under the License is distributed on an "AS IS" BASIS,
- *         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- *         implied. See the License for the specific language governing
- *         permissions and limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS"
+ * BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing
+ * permissions and limitations under the License.
  * 
  */
-@SuppressWarnings("deprecation")
 public class SimClock extends Observable {
 
-    /**
-     * The Simclock's Name
-     */
-    String name;
+	/**
+	 * The Simclock's Name
+	 */
+	String name;
 
-    /**
-     * Stores internally the actual simulation time.
-     */
-    private TimeInstant _timeNow;
+	/**
+	 * Stores internally the actual simulation time.
+	 */
+	private TimeInstant _timeNow;
 
-    /**
-     * Constructs a simulation clock with no parameters given. By default the actual
-     * simulation time is set to zero.
-     * 
-     * @author Tim Lechler
-     * @author modified by Felix Klueckmann
-     * @param name String : The name of the simulation clock
-     */
-    public SimClock(String name) {
+	/**
+	 * Constructs a simulation clock with no parameters given. By default the
+	 * actual simulation time is set to zero.
+	 * 
+	 * @author Tim Lechler
+	 * @author modified by Felix Klueckmann
+	 * @param name
+	 *            String : The name of the simulation clock
+	 */
+	public SimClock(String name) {
 
-        this.name = name + "_clock";
-        // set the simulation clock to 0
-        _timeNow = new TimeInstant(0); // the birth of time ;-)
+		this.name = name + "_clock";
+		// set the simulation clock to 0
+		_timeNow = new TimeInstant(0); // the birth of time ;-)
 
-    }
+	}
+	/**
+	 * Returns the clock's name as string. This method has become necessary
+	 * since the simulation clock does not extend class
+	 * <code>NamedObjectImp</code>.
+	 * 
+	 * @return java.lang.String : The clock's name
+	 */
+	public String getName() {
 
-    /**
-     * Returns the clock's name as string. This method has become necessary since
-     * the simulation clock does not extend class <code>NamedObjectImp</code>.
-     * 
-     * @return java.lang.String : The clock's name
-     */
-    public String getName() {
+		return name;
 
-        return name;
+	}
 
-    }
+	/**
+	 * Returns the actual simulation time.
+	 * 
+	 * @return TimeInstant : The actual simulation time
+	 */
+	public TimeInstant getTime() {
+		return _timeNow;
+	}
 
-    /**
-     * Returns the actual simulation time.
-     * 
-     * @return TimeInstant : The actual simulation time
-     */
-    public TimeInstant getTime() {
-        return _timeNow;
-    }
+	/**
+	 * Returns the clock's name as string. This method has become necessary
+	 * since the simulation clock does not extend class
+	 * <code>NamedObjectImp</code>.
+	 * 
+	 * @return java.lang.String : The clock's name
+	 */
+	public String toString() {
 
-    /**
-     * Returns the clock's name as string. This method has become necessary since
-     * the simulation clock does not extend class <code>NamedObjectImp</code>.
-     * 
-     * @return java.lang.String : The clock's name
-     */
-    @Override
-    public String toString() {
+		return name;
 
-        return name;
+	}
+	
+	/**
+	 * Sets the initial simulation time, overriding potential previous calls 
+	 * to this method. Allows negative values. This method has to be protected 
+	 * from user access since it must not be manipulated by anyone but the scheduler.
+	 * 
+	 * @param initTime
+	 *            TimeInstant : The initial simulation time
+	 */
+	void setInitTime(TimeInstant initTime){
+		_timeNow= initTime;
+	}
 
-    }
+	/**
+	 * Sets the actual simulation time to a new value. This method has to be
+	 * protected from user access since it must not be manipulated by anyone but
+	 * the scheduler.
+	 * 
+	 * @param newTime
+	 *            TimeInstant : The new simulation time
+	 */
+	void setTime(TimeInstant newTime) {
+		//check if newTime is in the future
+		if(TimeInstant.isBeforeOrEqual(newTime, _timeNow)){
+			// check for legal parameter (newTime>oldTime)
+			if (TimeInstant.isBefore(newTime, _timeNow)) {
+				//TODO Exception (Wrong Time)
+			}			
+			return;
+		}
+		
 
-    /**
-     * Sets the initial simulation time, overriding potential previous calls to this
-     * method. Allows negative values. This method has to be protected from user
-     * access since it must not be manipulated by anyone but the scheduler.
-     * 
-     * @param initTime TimeInstant : The initial simulation time
-     */
-    void setInitTime(TimeInstant initTime) {
-        _timeNow = initTime;
-    }
+		// note all observers of change before setting the new time!!!!
+		setChanged(); // set the status to changed
 
-    /**
-     * Sets the actual simulation time to a new value. This method has to be
-     * protected from user access since it must not be manipulated by anyone but the
-     * scheduler.
-     * 
-     * @param newTime TimeInstant : The new simulation time
-     */
-    void setTime(TimeInstant newTime) {
-        // check if newTime is in the future
-        if (TimeInstant.isBeforeOrEqual(newTime, _timeNow)) {
-            // check for legal parameter (newTime>oldTime)
-            if (TimeInstant.isBefore(newTime, _timeNow)) {
-                // TODO Exception (Wrong Time)
-            }
-            return;
-        }
-
-        // note all observers of change before setting the new time!!!!
-        setChanged(); // set the status to changed
-
-        // tell every Observer registered the actual TimeInstant which will be
-        // changed now
-        notifyObservers(_timeNow);
-
-        _timeNow = newTime; // now make the move for the next time change.
-    }
+		// tell every Observer registered the actual TimeInstant which will be
+		// changed now
+		notifyObservers(_timeNow);
+		
+		_timeNow = newTime; // now make the move for the next time change.
+	}
 }

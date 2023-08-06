@@ -1,6 +1,6 @@
 package desmoj.core.advancedModellingFeatures;
 
-
+import co.paralleluniverse.fibers.SuspendExecution;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.ProcessQueue;
 import desmoj.core.simulator.QueueBased;
@@ -828,7 +828,7 @@ public class Stock extends QueueBased {
      *            long : The number of units the Stock is retrieving for the
      *            consumer; must be positive.
      */
-    public boolean retrieve(long n)  {
+    public boolean retrieve(long n) throws SuspendExecution {
         /* Perform the retrieve method. */
 
         _fieldWhere = "boolean retrieve(long n)";
@@ -1060,7 +1060,7 @@ public class Stock extends QueueBased {
      *            long : The number of units the Stock is receiving from the
      *            producer to store. n must be positive.
      */
-    public boolean store(long n)  {
+    public boolean store(long n) throws SuspendExecution {
         /* Perform the store method. */
 
         _fieldWhere = "boolean store(long n)";
