@@ -135,8 +135,6 @@ public class Experiment extends NamedObject {
      */
     static Class<desmoj.core.report.TraceNote> tracenote;
 
-    private static CoroutineModel coroutineModel = CoroutineModel.THREADS;
-
     /**
      * The last suffix used with filenames when creating multiple batch runs of an
      * experiment.
@@ -164,19 +162,6 @@ public class Experiment extends NamedObject {
      */
     public static String getDesmoJVersion() {
         return "2.5.1d";
-    }
-
-    /**
-     * Sets the coroutine model. This has to be done before the experiment is
-     * created. DESMO-J currently supports two models: Threads (classic) and Fibers.
-     * 
-     * Fibers can have performance benefits, but demand the use of bytecode
-     * manipulation. To use fibers, the Quasar agent has to be activated at the JVM
-     * command line. See http://docs.paralleluniverse.co/quasar/#instrumentation for
-     * further details.
-     */
-    public static void setCoroutineModel(CoroutineModel model) {
-        coroutineModel = model;
     }
 
     /**
@@ -323,8 +308,6 @@ public class Experiment extends NamedObject {
      */
     private ResourceDB _resDB;
 
-    private Strand _schedulerStrand;
-
     /**
      * Flag indicating whether a progress bar for this experiment should be
      * displayed or not.
@@ -365,11 +348,6 @@ public class Experiment extends NamedObject {
      * set only if the user provides a time limit.
      */
     private ExternalEventStop _stopTimeEvent = null;
-
-    /**
-     * The factory for strands (threads or fibers).
-     */
-    private SimStrandFactory _strandFactory;
 
     /**
      * The output types of the trance channel.
@@ -2213,10 +2191,6 @@ public class Experiment extends NamedObject {
         return _nameCatalog;
     }
 
-    Strand getSchedulerStrand() {
-        return _schedulerStrand;
-    }
-
     SimStrandFactory getStrandFactory() {
         return this._strandFactory;
     }
@@ -2429,7 +2403,6 @@ public class Experiment extends NamedObject {
         _stopConditions = new ArrayList<ModelCondition>(); // empty, i.e. no Stopper
                                                            // can be set at
                                                            // instantiation time
-        _strandFactory = coroutineModel.createStrandFactory(name);
 
         System.getProperties().setProperty("co.paralleluniverse.fibers.disableAgentWarning", Boolean.TRUE.toString()); // suppress
                                                                                                                        // non-running
