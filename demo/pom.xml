@@ -48,8 +48,7 @@
         <plugins>
             <plugin>
                 <groupId>com.hellblazer.primeMover</groupId>
-                <artifactId>maven-plugin</artifactId>
-                <version>${project.version}</version>
+                <artifactId>maven-plugin</artifactId> 
                 <executions>
                     <execution>
                         <goals>
@@ -74,7 +73,7 @@
                                 <pluginExecution>
                                     <pluginExecutionFilter>
                                         <groupId>com.hellblazer.primeMover</groupId>
-                                        <artifactId>maven.plugin</artifactId>
+                                        <artifactId>maven-plugin</artifactId>
                                         <versionRange>[0.1.0-SNAPSHOT,)</versionRange>
                                         <goals>
                                             <goal>transform</goal>

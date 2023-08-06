@@ -7,6 +7,7 @@
     <artifactId>primeMover.app</artifactId>
     <packaging>pom</packaging>
     <name>Event Driven Framework</name>
+
     <properties>
         <maven.compiler.source>20</maven.compiler.source>
         <maven.compiler.target>20</maven.compiler.target>
@@ -16,6 +17,7 @@
         <asm.version>9.5</asm.version>
         <maven.version>3.9.0</maven.version>
     </properties>
+
     <modules>
         <module>framework</module>
         <module>transform</module>
@@ -23,6 +25,7 @@
         <module>maven-testing</module>
         <module>demo</module>
     </modules>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -104,21 +107,13 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-    <repositories>
-        <repository>
-            <id>Mvn Repo</id>
-            <url>http://repo1.maven.org/maven2/</url>
-        </repository>
-    </repositories>
+
     <build>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.0.0-M9</version>
                 <configuration>
-                    <forkCount>1</forkCount>
-                    <reuseForks>false</reuseForks>
                     <argLine>--enable-preview</argLine>
                 </configuration>
             </plugin>
@@ -128,14 +123,13 @@
                 <configuration>
                     <release>20</release>
                     <compilerArgs>
-                        <compilerArg>--enable-preview</compilerArg>
+                        <arg>--enable-preview</arg>
                     </compilerArgs>
                 </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
-                <version>2.2.1</version>
                 <executions>
                     <execution>
                         <id>attach-sources</id>
@@ -181,6 +175,21 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-enforcer-plugin</artifactId>
                     <version>3.1.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>3.0.0-M9</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-source-plugin</artifactId>
+                    <version>2.2.1</version>
+                </plugin>
+                <plugin>
+                    <groupId>com.hellblazer.primeMover</groupId>
+                    <artifactId>maven-plugin</artifactId>
+                    <version>${project.version}</version>
                 </plugin>
             </plugins>
         </pluginManagement>
