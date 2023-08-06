@@ -24,7 +24,9 @@ To build:
 
      cd <top level directory>
      mvn clean install
-     
+
+Please see the GitHub Action file [maven.yml](.github/workflows/maven.yml) for an example of how to set up and run your maven build successfully.
+
 ## Status
 Prime Mover is now Soot Free.  The framework now uses the JVM Virtual Threads from Project Loom to provide the blocking 
 thread continuation mechanism required for blocking events.  The Prime Mover event transform is now implemented by an ASM based tranform.  Maven artifacts are not currently 
