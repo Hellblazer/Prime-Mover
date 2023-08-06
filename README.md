@@ -10,15 +10,15 @@ Licensed under AGPL V 3.0
 
 ### Important! Requires  __--enable-preview__
 Prime Mover now requires the [Virtual Thread preview feature from Project Loom](https://openjdk.org/jeps/425).  Unfortunately, this means that the Maven plugin for Prime Mover ultimately
-requires  __--enable-preview__  to be used to run the plugin.  As the Prime Mover plugin is run during normal build processing
-to test the plugin, this poses a problem of how to configure this correctly in Maven.  The answer is, of course, you  **cannot**  - lol.
+requires  __--enable-preview__  to be used to run this plugin.  As the Prime Mover plugin is run during normal build processing
+to test the plugin, this poses a problem of how to configure this correctly in Maven.  The answer is, of course, you  **cannot**  - lol.  The plugin, under test, will run
+with the options from the invoking JVM!  Consequently, you  __must__  have  __"--enable-preview"__  in your [_MAVEN_OPTS_](https://maven.apache.org/configure.html).
 
-Consequently, you  __must__  have  __"--enable-preview"__  in your [_MAVEN_OPTS_](https://maven.apache.org/configure.html).
-
-Much apologies for this inconvienence.  This requirement will be eliminated soon with Java 21, as Project Loom is no longer preview, but a released feature of Java 21.
+Much apologies for this inconvienence.  This requirement will be eliminated soon with Java 21, as Project Loom is no longer preview, but a released feature of Java 21.  This is 
+scheduled for September 2023.
 
 ## Building
-Requires Java 20 and Maven 3.83+
+Requires Java 20 and Maven 3.94+
 
 To build:
 
@@ -31,6 +31,9 @@ Please see the GitHub Action file [maven.yml](.github/workflows/maven.yml) for a
 Prime Mover is now Soot Free.  The framework now uses the JVM Virtual Threads from Project Loom to provide the blocking 
 thread continuation mechanism required for blocking events.  The Prime Mover event transform is now implemented by an ASM based tranform.  Maven artifacts are not currently 
 published, so you'll have to build them until I get that sorted.
+
+I added the GitHub action CI so you can be somewhat assured that this build is reproducible.  Due to the enable preview requirement for Project Loom, it could be a bit
+confusing and troublesome to get everything hunky dory.  But at least with the [maven.yml](.github/workflows/maven.yml) git hub action you can see what works ;0
 
 ### Prime Mover Runtime
 
