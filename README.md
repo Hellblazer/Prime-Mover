@@ -115,3 +115,6 @@ Note that it is important to have the PrimeMover plugin run incrementally.  Furt
 Once this is done, the PrimeMover byte code transformation will run incrementally as you edit your code.  When you run your unit tests (and you have them, right ;) ) they will run as transformed PrimeMover simulations.
 
 For an example of this, please see the "demo" module's pom.xml in this project.
+## Important Note!
+If you want to run the Prime Mover plugin integrated into your IDE, note thate your Maven IDE integration has to meet the same requirements to run Prime Mover - i.e. JVM 20+ and "--enable-preview".  Exactly how to accomplish this varies by IDE and even operating system.  When Java 21 arrives this September, then the requirement for JVM 21 will remain as Project Loom is GA in 21.
+
