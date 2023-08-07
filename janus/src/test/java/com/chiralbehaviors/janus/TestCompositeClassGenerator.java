@@ -15,21 +15,16 @@
  */
 package com.chiralbehaviors.janus;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.PrintWriter;
-import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.util.CheckClassAdapter;
 import org.objectweb.asm.util.TraceClassVisitor;
 
-import com.chiralbehaviors.janus.CompositeAssembler.CompositeClassLoader;
 import com.chiralbehaviors.janus.testClasses.Composite1;
-import com.chiralbehaviors.janus.testClasses.MixIn1;
-import com.chiralbehaviors.janus.testClasses.MixIn2;
 
 /**
  *
@@ -40,29 +35,12 @@ import com.chiralbehaviors.janus.testClasses.MixIn2;
 public class TestCompositeClassGenerator {
     @Test
     public void testGeneratedBits() {
-        CompositeClassGenerator generator = new CompositeClassGenerator(Composite1.class);
-        byte[] generatedBits = generator.generateClassBits();
+        var generator = Composite.instance();
+        byte[] generatedBits = generator.generateClassBits(Composite1.class);
         assertNotNull(generatedBits);
         TraceClassVisitor tcv = new TraceClassVisitor(new PrintWriter(System.out));
         CheckClassAdapter cv = new CheckClassAdapter(tcv);
         ClassReader reader = new ClassReader(generatedBits);
         reader.accept(cv, 0);
-    }
-
-    @Test
-    public void testGeneratedClass() {
-        CompositeClassGenerator generator = new CompositeClassGenerator(Composite1.class);
-        CompositeClassLoader loader = new CompositeClassLoader(Composite1.class.getClassLoader());
-        Class<?> generated = loader.define(generator.getGeneratedClassName(), generator.generateClassBits());
-        assertNotNull(generated);
-    }
-
-    @Test
-    public void testInitialization() {
-        CompositeClassGenerator generator = new CompositeClassGenerator(Composite1.class);
-        Map<Class<?>, Integer> mixInMap = generator.getMixInTypeMapping();
-        assertEquals(2, mixInMap.size());
-        assertEquals(0, mixInMap.get(MixIn1.class));
-        assertEquals(1, mixInMap.get(MixIn2.class));
     }
 }

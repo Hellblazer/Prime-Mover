@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 
 import org.junit.jupiter.api.Test;
 
+import com.chiralbehaviors.janus.Composite.CompositeClassLoader;
 import com.chiralbehaviors.janus.testClasses.Composite1;
 import com.chiralbehaviors.janus.testClasses.MixIn1Impl;
 import com.chiralbehaviors.janus.testClasses.MixIn2Impl;
@@ -35,11 +36,12 @@ public class TestCompositeAssembler {
 
     @Test
     public void testConstruct() {
-        CompositeAssembler<Composite1> assembler = new CompositeAssembler<Composite1>(Composite1.class);
+        var assembler = Composite.instance();
         MixIn1Impl mixIn1 = new MixIn1Impl();
         MixIn2Impl mixIn2 = new MixIn2Impl();
 
-        Composite1 instance = assembler.construct(mixIn2, mixIn1);
+        Composite1 instance = assembler.assemble(Composite1.class,
+                                                 new CompositeClassLoader(getClass().getClassLoader()), mixIn2, mixIn1);
         assertNotNull(instance);
         assertEquals("MixIn1-Method1", instance.m11());
         assertEquals("MixIn1-Method2", instance.m12());
@@ -53,11 +55,12 @@ public class TestCompositeAssembler {
 
     @Test
     public void testFacets() {
-        CompositeAssembler<Composite1> assembler = new CompositeAssembler<Composite1>(Composite1.class);
+        var assembler = Composite.instance();
         MixIn1Impl mixIn1 = new MixIn1Impl();
         MixIn2Impl mixIn2 = new MixIn2Impl();
 
-        Composite1 instance = assembler.construct(mixIn2, mixIn1);
+        Composite1 instance = assembler.assemble(Composite1.class,
+                                                 new CompositeClassLoader(getClass().getClassLoader()), mixIn2, mixIn1);
         assertNotNull(instance);
         assertSame(mixIn2, instance.getFriend1());
         assertSame(mixIn1, instance.getFriend2());
@@ -65,11 +68,12 @@ public class TestCompositeAssembler {
 
     @Test
     public void testThis() {
-        CompositeAssembler<Composite1> assembler = new CompositeAssembler<Composite1>(Composite1.class);
+        var assembler = Composite.instance();
         MixIn1Impl mixIn1 = new MixIn1Impl();
         MixIn2Impl mixIn2 = new MixIn2Impl();
 
-        Composite1 instance = assembler.construct(mixIn2, mixIn1);
+        Composite1 instance = assembler.assemble(Composite1.class,
+                                                 new CompositeClassLoader(getClass().getClassLoader()), mixIn2, mixIn1);
         assertNotNull(instance);
         assertSame(instance, instance.getComposite());
     }
