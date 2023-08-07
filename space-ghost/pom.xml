@@ -7,7 +7,8 @@
         <artifactId>primeMover.app</artifactId>
         <version>0.1.0-SNAPSHOT</version>
     </parent>
-    <artifactId>desmoj-ish</artifactId>
+    <artifactId>space-ghost</artifactId>
+
 
     <dependencies>
         <dependency>
@@ -16,11 +17,11 @@
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
-            <artifactId>commons-math3</artifactId> 
+            <artifactId>commons-math3</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
-            <artifactId>commons-collections4</artifactId> 
+            <artifactId>commons-collections4</artifactId>
         </dependency>
 
         <!-- Test Only Dependencies Below This Line-->
@@ -35,5 +36,21 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
- 
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.hellblazer.primeMover</groupId>
+                <artifactId>maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>transform</goal>
+                            <goal>transform-test</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>
