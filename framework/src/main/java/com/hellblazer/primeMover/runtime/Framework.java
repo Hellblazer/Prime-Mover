@@ -34,7 +34,7 @@ final public class Framework {
     public static Devi getController() {
         Devi controller = CONTROLLER.get();
         if (controller == null) {
-            throw new IllegalStateException("No controller has been set for the current thread");
+            throw new IllegalStateException("No controller has been set for the process");
         }
         return controller;
     }
