@@ -135,6 +135,33 @@ public interface Composite {
         };
     }
 
+    default <T> T assemble(Class<T> composite, final CompositeClassLoader loader, Map<Class<?>, Object> parameters) {
+        if (!composite.isInterface()) {
+            throw new IllegalArgumentException("Supplied composite class is not an interface: " + composite);
+        }
+        Map<Class<?>, Integer> mixInMap = new HashMap<Class<?>, Integer>();
+        var mixIns = mixInTypesFor(composite);
+        int i = 0;
+        for (var in : mixInTypesFor(composite)) {
+            mixInMap.put(in, i++);
+        }
+        if (parameters.size() != mixInMap.size()) {
+            throw new IllegalArgumentException("Supplied composite: %s parameters is the wrong size: %s expected: %s".formatted(composite.getCanonicalName(),
+                                                                                                                                parameters.size(),
+                                                                                                                                mixInMap.size()));
+        }
+        Object[] arguments = new Object[mixInMap.size()];
+        for (Map.Entry<Class<?>, Object> pe : parameters.entrySet()) {
+            for (Map.Entry<Class<?>, Integer> mapping : mixInMap.entrySet()) {
+                if (mapping.getKey().isAssignableFrom(pe.getKey())) {
+                    arguments[mapping.getValue()] = pe.getValue();
+                }
+            }
+        }
+
+        return assemble(composite, arguments, mixIns, mixInMap, loader, arguments);
+    }
+
     /**
      * Assemble a Composite instance implementing the supplied interface using the
      * supplied mix in instances as the constructor arguments
@@ -142,34 +169,21 @@ public interface Composite {
      * @param composite      - the composite interface to implement
      * @param loader         - the class loader to load the generated composite
      * @param mixInInstances - the constructor mixin parameters for the new instance
+     *                       in the declared order of the composite interfaces
      * @return the new instance implementing the composite interface, initialzed
      *         from the supplied mixin instances
      */
-    @SuppressWarnings("unchecked")
     default <T> T assemble(Class<T> composite, final CompositeClassLoader loader, Object... mixInInstances) {
         if (!composite.isInterface()) {
             throw new IllegalArgumentException("Supplied composite class is not an interface: " + composite);
         }
         Map<Class<?>, Integer> mixInMap = new HashMap<Class<?>, Integer>();
         var mixIns = mixInTypesFor(composite);
-        for (int i = 0; i < mixIns.length; i++) {
-            mixInMap.put(mixIns[i], i);
+        int i = 0;
+        for (var in : mixInTypesFor(composite)) {
+            mixInMap.put(in, i++);
         }
-        Class<T> clazz;
-
-        final var name = GENERATED_COMPOSITE_TEMPLATE.formatted(composite.getName());
-        try {
-            clazz = (Class<T>) composite.getClassLoader().loadClass(name.replace('.', '/'));
-        } catch (ClassNotFoundException e) {
-            clazz = (Class<T>) loader.define(name, generateClassBits(composite));
-        }
-        if (mixInInstances == null) {
-            throw new IllegalArgumentException("supplied mixin instances must not be null");
-        }
-        if (mixInInstances.length != mixIns.length) {
-            throw new IllegalArgumentException("wrong number of arguments supplied");
-        }
-        Object[] arguments = new Object[mixIns.length];
+        Object[] arguments = new Object[mixInMap.size()];
         for (Object mixIn : mixInInstances) {
             for (Map.Entry<Class<?>, Integer> mapping : mixInMap.entrySet()) {
                 if (mapping.getKey().isAssignableFrom(mixIn.getClass())) {
@@ -177,11 +191,17 @@ public interface Composite {
                 }
             }
         }
-        T instance = constructInstance(clazz, mixIns, arguments);
-        inject(instance, arguments);
-        return instance;
+
+        return assemble(composite, arguments, mixIns, mixInMap, loader, mixInInstances);
     }
 
+    /**
+     * Generate a Composite class implementing the supplied interface using the
+     * supplied mix in instances defined by implemented interfaces
+     *
+     * @param composite
+     * @return the bytes of the generated composite class
+     */
     default byte[] generateClassBits(Class<?> composite) {
         Type compositeType = Type.getType(composite);
         Type generatedType = Type.getObjectType(GENERATED_COMPOSITE_TEMPLATE.formatted(composite.getName()
@@ -238,6 +258,28 @@ public interface Composite {
                 addMixInTypesTo(extended, collected);
             }
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> T assemble(Class<T> composite, Object[] arguments, Class<?>[] mixIns, Map<Class<?>, Integer> mixInMap,
+                           final CompositeClassLoader loader, Object... mixInInstances) {
+        Class<T> clazz;
+
+        final var name = GENERATED_COMPOSITE_TEMPLATE.formatted(composite.getName());
+        try {
+            clazz = (Class<T>) composite.getClassLoader().loadClass(name.replace('.', '/'));
+        } catch (ClassNotFoundException e) {
+            clazz = (Class<T>) loader.define(name, generateClassBits(composite));
+        }
+        if (mixInInstances == null) {
+            throw new IllegalArgumentException("supplied mixin instances must not be null");
+        }
+        if (mixInInstances.length != mixInMap.size()) {
+            throw new IllegalArgumentException("wrong number of arguments supplied");
+        }
+        T instance = constructInstance(clazz, mixIns, arguments);
+        inject(instance, arguments);
+        return instance;
     }
 
     private <T> T constructInstance(Class<T> generated, Class<?>[] mixIns, Object[] arguments) {
