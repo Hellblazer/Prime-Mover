@@ -521,7 +521,8 @@ public class EntityGenerator {
                     adapter.invokeVirtual(type, new Method(REMAPPED_TEMPLATE.formatted(mi.getName()),
                                                            mi.getTypeDescriptorStr()));
                 } else {
-                    adapter.invokeVirtual(type, Method.getMethod(mi.toString()));
+                    adapter.visitMethodInsn(Opcodes.INVOKESPECIAL, clazz.getSuperclass().getName().replace('.', '/'),
+                                            mi.getName(), mi.getTypeDescriptorStr(), mi.isAbstract());
                 }
                 if (mi.getTypeDescriptor().getResultType().toStringWithSimpleNames().equals("void")) {
                     adapter.loadThis();
@@ -615,9 +616,12 @@ public class EntityGenerator {
     }
 
     private void generateInvoke(ClassVisitor cv) {
+        var keys = keys();
+        if (keys.length == 0) {
+            return;
+        }
         var mg = new GeneratorAdapter(Opcodes.ACC_PUBLIC, INVOKE_METHOD, null,
                                       new Type[] { Type.getType(Throwable.class) }, cv);
-        var keys = mapped.keySet().stream().mapToInt(i -> (int) i).sorted().toArray();
         if (keys.length > 0) {
             mg.loadArg(0);
             mg.tableSwitch(keys, eventSwitch(mg));
@@ -629,8 +633,11 @@ public class EntityGenerator {
     }
 
     private void generateSignatureFor(ClassVisitor cv) {
+        var keys = keys();
+        if (keys.length == 0) {
+            return;
+        }
         var mg = new GeneratorAdapter(Opcodes.ACC_PUBLIC, SIGNATURE_FOR_METHOD, null, null, cv);
-        var keys = mapped.keySet().stream().mapToInt(i -> (int) i).sorted().toArray();
         if (keys.length > 0) {
             mg.loadArg(0);
             mg.tableSwitch(keys, signatureSwitch(mg));
@@ -639,6 +646,15 @@ public class EntityGenerator {
         }
         mg.visitMaxs(0, 0);
         mg.endMethod();
+    }
+
+    private int[] keys() {
+        return mapped.entrySet()
+                     .stream()
+                     .filter(e -> remapped.contains(e.getValue()))
+                     .mapToInt(e -> (int) e.getKey())
+                     .sorted()
+                     .toArray();
     }
 
     private String signatureOf(MethodInfo mi) {
