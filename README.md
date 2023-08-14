@@ -35,6 +35,31 @@ published, so you'll have to build them until I get that sorted.
 I added the GitHub action CI so you can be somewhat assured that this build is reproducible.  Due to the enable preview requirement for Project Loom, it could be a bit
 confusing and troublesome to get everything hunky dory.  But at least with the [maven.yml](.github/workflows/maven.yml) git hub action you can see what works ;0
 
+## Maven Artifacts
+Currently, Prime Mover is in active development and does not publish to maven central.  Rather, periodic snapshots (and releases when they happen)
+will be uploaded to the [repo-hell]() repository.  If you would like to use Prime Mover maven artifacts, you'll need to add the following repository
+declarations to your pom.xml  The maven coordinates for individual artifacts are found below.
+    
+    <repositories>
+        <repository>
+            <id>hell-repo</id>
+            <url>https://raw.githubusercontent.com/Hellblazer/repo-hell/main/mvn-artifact</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>plugin-hell-repo</id>
+            <url>https://raw.githubusercontent.com/Hellblazer/repo-hell/main/mvn-artifact</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </pluginRepository>
+    </pluginRepositories>
+
 ### Prime Mover Runtime
 
 The artifact required for simulation runtime
