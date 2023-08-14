@@ -35,32 +35,38 @@ import com.hellblazer.primeMover.controllers.SimulationController;
 
 public class Demo {
 
-    public static void channel() throws SimulationException {
+    public static void channel() throws Exception {
         SimulationController controller = new SimulationController();
         Kronos.setController(controller);
         controller.setCurrentTime(0);
         new UseChannelImpl().test();
         controller.eventLoop();
+        controller.close();
+        System.out.println("Thread Statistics: " + controller.threadStatistics());
+        System.out.println();
         System.out.println("Event spectrum:");
         for (Map.Entry<String, Integer> spectrumEntry : controller.getSpectrum().entrySet()) {
             System.out.println("\t" + spectrumEntry.getValue() + "\t\t : " + spectrumEntry.getKey());
         }
     }
 
-    public static void eventContinuationThroughput() throws SimulationException {
+    public static void eventContinuationThroughput() throws Exception {
         SimulationController controller = new SimulationController();
         Kronos.setController(controller);
         controller.setCurrentTime(0);
 
         new ContinuationThroughputImpl("STRING", 1_000_000).go();
         controller.eventLoop();
+        controller.close();
+        System.out.println("Thread Statistics: " + controller.threadStatistics());
+        System.out.println();
         System.out.println("Event spectrum:");
         for (Map.Entry<String, Integer> spectrumEntry : controller.getSpectrum().entrySet()) {
             System.out.println("\t" + spectrumEntry.getValue() + "\t\t : " + spectrumEntry.getKey());
         }
     }
 
-    public static void eventThroughput() throws SimulationException {
+    public static void eventThroughput() throws Exception {
         SimulationController controller = new SimulationController();
         Kronos.setController(controller);
         controller.setCurrentTime(0);
@@ -75,10 +81,14 @@ public class Demo {
         } catch (SimulationException e) {
             //
         }
+        controller.close();
+        System.out.println("Thread Statistics: " + controller.threadStatistics());
+        System.out.println();
         System.out.println("Event spectrum:");
         for (Map.Entry<String, Integer> spectrumEntry : controller.getSpectrum().entrySet()) {
             System.out.println("\t" + spectrumEntry.getValue() + "\t\t : " + spectrumEntry.getKey());
         }
+        System.out.println("Thread Statistics: " + controller.threadStatistics());
     }
 
     public static void main(String[] argv) throws Exception {
@@ -111,7 +121,7 @@ public class Demo {
         eventThroughput();
     }
 
-    public static void threaded() throws SimulationException {
+    public static void threaded() throws Exception {
         SimulationController controller = new SimulationController();
         Kronos.setController(controller);
         controller.setCurrentTime(0);
@@ -120,6 +130,9 @@ public class Demo {
         threaded.process(2);
         threaded.process(3);
         controller.eventLoop();
+        controller.close();
+        System.out.println("Thread Statistics: " + controller.threadStatistics());
+        System.out.println();
         System.out.println("Event spectrum:");
         for (Map.Entry<String, Integer> spectrumEntry : controller.getSpectrum().entrySet()) {
             System.out.println("\t" + spectrumEntry.getValue() + "\t\t : " + spectrumEntry.getKey());

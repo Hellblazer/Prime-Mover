@@ -21,8 +21,9 @@ package com.hellblazer.primeMover.runtime;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
-import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -36,7 +37,15 @@ import com.hellblazer.primeMover.SimulationException;
  * 
  * @author <a href="mailto:hal.hildebrand@gmail.com">Hal Hildebrand</a>
  */
-abstract public class Devi implements Controller {
+abstract public class Devi implements Controller, AutoCloseable {
+    public record ThreadStats(int activeCount, long completedTaskCount, int largestPoolSize, int poolSize,
+                              long taskCount) {
+        public ThreadStats(ThreadPoolExecutor executor) {
+            this(executor.getActiveCount(), executor.getCompletedTaskCount(), executor.getLargestPoolSize(),
+                 executor.getPoolSize(), executor.getTaskCount());
+        }
+    }
+
     record EvaluationResult(Throwable t, Object result, EventImpl blockingEvent, EventImpl continuingEvent) {
 
         EvaluationResult(Object o) {
@@ -60,15 +69,21 @@ abstract public class Devi implements Controller {
     private volatile long                                currentTime       = 0;
     private boolean                                      debugEvents       = false;
     private Logger                                       eventLog;
+    private final ThreadPoolExecutor                     executor;
+    private volatile ThreadStats                         finalStats;
     private volatile CompletableFuture<EvaluationResult> futureSailor;
     private final Semaphore                              serializer        = new Semaphore(1);
-    private final ThreadFactory                          tf;
     private boolean                                      trackEventSources = false;
 
     public Devi() {
-        tf = Thread.ofVirtual().uncaughtExceptionHandler((thread, t) -> {
-            logger.log(Level.SEVERE, "unhandled exception in: " + thread, t);
-        }).name("Event Execution: ", 0).factory();
+        executor = (ThreadPoolExecutor) Executors.newCachedThreadPool(Thread.ofVirtual()
+                                                                            .uncaughtExceptionHandler((thread, t) -> {
+                                                                                logger.log(Level.SEVERE,
+                                                                                           "unhandled exception in: "
+                                                                                           + thread, t);
+                                                                            })
+                                                                            .name("Event Execution: ", 0)
+                                                                            .factory());
     }
 
     /**
@@ -92,6 +107,12 @@ abstract public class Devi implements Controller {
         caller = null;
         currentEvent = null;
         futureSailor = null;
+    }
+
+    @Override
+    public void close() throws Exception {
+        finalStats = new ThreadStats(executor);
+        executor.close();
     }
 
     /**
@@ -230,6 +251,10 @@ abstract public class Devi implements Controller {
         trackEventSources = track;
     }
 
+    public ThreadStats threadStatistics() {
+        return finalStats != null ? finalStats : new ThreadStats(executor);
+    }
+
     protected EventImpl createEvent(long time, EntityReference entity, int event, Object... arguments) {
         Event sourceEvent = trackEventSources ? currentEvent : null;
 
@@ -314,7 +339,7 @@ abstract public class Devi implements Controller {
         if (next.isContinuation()) {
             next.proceed();
         } else {
-            tf.newThread(eval(next)).start();
+            executor.execute(eval(next));
         }
         EvaluationResult result = null;
         try {
