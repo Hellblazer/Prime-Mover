@@ -95,7 +95,6 @@ abstract public class Devi implements Controller, AutoCloseable {
     public void advance(long duration) {
         final var current = currentTime;
         currentTime = current + duration;
-        logger.finer("Advancing time from: %s to: %s".formatted(current, currentTime));
     }
 
     /**
@@ -175,8 +174,6 @@ abstract public class Devi implements Controller, AutoCloseable {
         final var ct = currentTime;
         final var continuingEvent = current.clone(ct);
         var blockingEvent = createEvent(ct, entity, event, arguments);
-        logger.finer("Blocking: %s on: %s; continuation: %s".formatted(Thread.currentThread(), blockingEvent,
-                                                                       continuingEvent));
         return continuingEvent.park(sailorMoon, new EvaluationResult(blockingEvent, continuingEvent));
     }
 
@@ -309,7 +306,6 @@ abstract public class Devi implements Controller, AutoCloseable {
     protected EventImpl swapCaller(EventImpl newCaller) {
         var tmp = caller;
         caller = newCaller;
-        logger.finer("Swap caller: %s for: %s".formatted(tmp, newCaller));
         return tmp;
     }
 

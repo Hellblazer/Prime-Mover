@@ -22,7 +22,6 @@ package com.hellblazer.primeMover.runtime;
 import java.io.Serializable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.locks.LockSupport;
-import java.util.logging.Logger;
 
 import com.hellblazer.primeMover.runtime.Devi.EvaluationResult;
 
@@ -33,8 +32,7 @@ import com.hellblazer.primeMover.runtime.Devi.EvaluationResult;
  * 
  */
 public class Continuation implements Serializable {
-    private static final Logger logger           = Logger.getLogger(Continuation.class.getCanonicalName());
-    private static final long   serialVersionUID = -4307033871239385970L;
+    private static final long serialVersionUID = -4307033871239385970L;
 
     private volatile Throwable exception;
     private volatile Object    returnValue;
@@ -57,7 +55,6 @@ public class Continuation implements Serializable {
 
     public void resume() {
         if (thread != null && thread.isAlive()) {
-            logger.finer("Resuming: %s".formatted(thread));
             LockSupport.unpark(thread);
         }
     }

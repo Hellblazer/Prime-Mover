@@ -137,7 +137,6 @@ public class EventImpl implements Cloneable, Serializable, Comparable<EventImpl>
         final var newCont = new Continuation();
         continuation = newCont;
         final var parked = newCont.park(sailorMoon, result);
-        logger.finer("Continuing: %s event: %s".formatted(Thread.currentThread(), this));
         return parked;
     }
 
@@ -203,7 +202,6 @@ public class EventImpl implements Cloneable, Serializable, Comparable<EventImpl>
 
     EventImpl resume(long currentTime, Object result, Throwable exception) {
         time = currentTime;
-        logger.finer("Resume at: %s r: %s ex: %s".formatted(this, result, exception));
         final var current = continuation;
         if (current != null) {
             current.setReturnState(result, exception);

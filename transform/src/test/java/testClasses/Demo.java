@@ -55,7 +55,7 @@ public class Demo {
         Kronos.setController(controller);
         controller.setCurrentTime(0);
 
-        new ContinuationThroughputImpl("STRING", 1_000_000).go();
+        new ContinuationThroughputImpl("STRING", 10_000_000).go();
         controller.eventLoop();
         controller.close();
         System.out.println("Thread Statistics: " + controller.threadStatistics());
