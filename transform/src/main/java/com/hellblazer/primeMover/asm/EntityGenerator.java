@@ -131,7 +131,16 @@ public class EntityGenerator {
     private static final String TO_STRING                 = "toString";
     private static final Method TO_STRING_METHOD;
     private static final String VALUE_OF                  = "valueOf";
-
+    
+    private final Set<Method> blocking;
+    private final ClassInfo                clazz;
+    private final Set<Method>              events;
+    private final String                   internalName;
+    private final Map<Method, Integer>     inverse;
+    private final Map<Integer, MethodInfo> mapped;
+    private final Set<MethodInfo>          remapped;
+    private final Type                     type;
+    
     static {
         java.lang.reflect.Method method;
         try {
@@ -374,15 +383,6 @@ public class EntityGenerator {
         STRING_BUILDER_CONSTRUCTOR = Method.getMethod(constructor);
     }
 
-    private final Set<Method>              blocking;
-    private final ClassInfo                clazz;
-    private final Set<Method>              events;
-    private final String                   internalName;
-    private final Map<Method, Integer>     inverse;
-    private final Map<Integer, MethodInfo> mapped;
-    private final Set<MethodInfo>          remapped;
-    private final Type                     type;
-
     public EntityGenerator(ClassInfo clazz, Set<MethodInfo> events) {
         this.clazz = clazz;
         type = Type.getObjectType(clazz.getName().replace('.', '/'));
@@ -572,7 +572,7 @@ public class EntityGenerator {
                                               String[] exceptions) {
                 final var renamed = eventRemapper.mapMethodName(type.getInternalName(), name, descriptor);
                 if (!renamed.equals(name)) {
-                    access = Opcodes.ACC_PRIVATE;
+                    access = Opcodes.ACC_PROTECTED;
                 }
                 return super.visitMethod(access, renamed, descriptor, signature, exceptions);
             }
