@@ -37,10 +37,6 @@ final public class Framework {
         return controller;
     }
 
-    public static Devi getCurrentController() {
-        return CONTROLLER.get();
-    }
-
     @Blocking
     public static Object postContinuingEvent(EntityReference entity, Object[] arguments, int event) throws Throwable {
         return getController().postContinuingEvent(entity, event, arguments);
@@ -67,6 +63,10 @@ final public class Framework {
 
     public static boolean simulationIsRunning() {
         return CONTROLLER.get() != null;
+    }
+
+    static Devi getCurrentController() {
+        return CONTROLLER.get();
     }
 
     private Framework() {

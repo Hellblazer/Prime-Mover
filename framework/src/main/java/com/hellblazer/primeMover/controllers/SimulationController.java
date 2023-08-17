@@ -28,7 +28,6 @@ import java.util.logging.Logger;
 import com.hellblazer.primeMover.SimulationException;
 import com.hellblazer.primeMover.runtime.Devi;
 import com.hellblazer.primeMover.runtime.EventImpl;
-import com.hellblazer.primeMover.runtime.Framework;
 import com.hellblazer.primeMover.runtime.SimulationEnd;
 import com.hellblazer.primeMover.runtime.SplayQueue;
 
@@ -42,13 +41,13 @@ import com.hellblazer.primeMover.runtime.SplayQueue;
 public class SimulationController extends Devi implements StatisticalController {
     static final Logger            log      = Logger.getLogger(SimulationController.class.getCanonicalName());
     protected long                 endTime  = Long.MAX_VALUE;
-    protected Map<String, Integer> spectrum = new HashMap<String, Integer>();
     protected Queue<EventImpl>     eventQueue;
     protected String               name     = "Prime Mover Simulation Event Evaluation";
     protected long                 simulationEnd;
     protected long                 simulationStart;
+    protected Map<String, Integer> spectrum = new HashMap<String, Integer>();
 
-    protected int                  totalEvents;
+    protected int totalEvents;
 
     public SimulationController() {
         this(new SplayQueue<EventImpl>());
@@ -59,8 +58,8 @@ public class SimulationController extends Devi implements StatisticalController 
     }
 
     /**
-     * Continuously process events until the end of the simulation is reached,
-     * or the simulation clock has advanced to the simulation end time.
+     * Continuously process events until the end of the simulation is reached, or
+     * the simulation clock has advanced to the simulation end time.
      * 
      * @throws SimulationException
      */
@@ -70,23 +69,18 @@ public class SimulationController extends Devi implements StatisticalController 
             simulationStart = 0;
         }
         setCurrentTime(simulationStart);
-        Framework.setController(this);
         log.info("Simulation started at: " + simulationStart);
-        try {
-            while (getCurrentTime() < endTime) {
-                try {
-                    singleStep();
-                } catch (SimulationEnd e) {
-                    break;
-                } catch (NoSuchElementException e) {
-                    break;
-                }
+        while (getCurrentTime() < endTime) {
+            try {
+                singleStep();
+            } catch (SimulationEnd e) {
+                break;
+            } catch (NoSuchElementException e) {
+                break;
             }
-            simulationEnd = getCurrentTime();
-            log.info("Simulation ended at: " + simulationEnd);
-        } finally {
-            Framework.setController(null);
         }
+        simulationEnd = getCurrentTime();
+        log.info("Simulation ended at: " + simulationEnd);
     }
 
     /**
@@ -110,7 +104,8 @@ public class SimulationController extends Devi implements StatisticalController 
     /*
      * (non-Javadoc)
      * 
-     * @see com.hellblazer.primeMover.runtime.StatisticalController#getSimulationEnd()
+     * @see
+     * com.hellblazer.primeMover.runtime.StatisticalController#getSimulationEnd()
      */
     @Override
     public long getSimulationEnd() {
@@ -120,7 +115,8 @@ public class SimulationController extends Devi implements StatisticalController 
     /*
      * (non-Javadoc)
      * 
-     * @see com.hellblazer.primeMover.runtime.StatisticalController#getSimulationStart()
+     * @see
+     * com.hellblazer.primeMover.runtime.StatisticalController#getSimulationStart()
      */
     @Override
     public long getSimulationStart() {
@@ -154,11 +150,6 @@ public class SimulationController extends Devi implements StatisticalController 
     @Override
     public int getTotalEvents() {
         return totalEvents;
-    }
-
-    @Override
-    protected void post(EventImpl event) {
-        eventQueue.add(event);
     }
 
     /**
@@ -203,5 +194,10 @@ public class SimulationController extends Devi implements StatisticalController 
             inc = Integer.valueOf(0);
         }
         spectrum.put(signature, inc + 1);
+    }
+
+    @Override
+    protected void post(EventImpl event) {
+        eventQueue.add(event);
     }
 }
