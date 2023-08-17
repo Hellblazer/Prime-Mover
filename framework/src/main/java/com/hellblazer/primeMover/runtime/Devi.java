@@ -61,8 +61,7 @@ abstract public class Devi implements Controller, AutoCloseable {
         }
     }
 
-    private static final String $ENTITY$GEN = "$entity$gen";
-    private static final Logger logger      = Logger.getLogger(Devi.class.getCanonicalName());
+    private static final Logger logger = Logger.getLogger(Devi.class.getCanonicalName());
 
     private volatile EventImpl                           caller;
     private volatile EventImpl                           currentEvent;
@@ -257,8 +256,9 @@ abstract public class Devi implements Controller, AutoCloseable {
 
         if (debugEvents) {
             StackTraceElement[] stackTrace = new Throwable().getStackTrace();
+            final var cn = entity.getClass().getCanonicalName();
             for (int i = 0; i < stackTrace.length; i++) {
-                if (stackTrace[i].getClassName().endsWith($ENTITY$GEN)) {
+                if (stackTrace[i].getClassName().equals(cn)) {
                     return new EventImpl(stackTrace[i + 1].toString(), time, sourceEvent, entity, event, arguments);
                 }
             }
