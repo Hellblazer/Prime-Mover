@@ -82,20 +82,19 @@ public class EntityGeneratorTest {
         };
         var clazz = loader.loadClass(name);
         assertNotNull(clazz);
-        try (var controller = new ControllerImpl()) {
-            Framework.setController(controller);
-            final var constructor = clazz.getConstructor();
-            assertNotNull(constructor);
-            var entity = constructor.newInstance();
-            assertNotNull(entity);
-            assertTrue(entity instanceof Foo);
-            var foo = (Foo) entity;
-            foo.bar();
-            assertEquals(1, controller.eventQueue.size());
-            while (controller.send())
-                ;
-            assertEquals(0, controller.eventQueue.size());
-        }
+        final var controller = new ControllerImpl();
+        Framework.setController(controller);
+        final var constructor = clazz.getConstructor();
+        assertNotNull(constructor);
+        var entity = constructor.newInstance();
+        assertNotNull(entity);
+        assertTrue(entity instanceof Foo);
+        var foo = (Foo) entity;
+        foo.bar();
+        assertEquals(1, controller.eventQueue.size());
+        while (controller.send())
+            ;
+        assertEquals(0, controller.eventQueue.size());
     }
 
     @Test
