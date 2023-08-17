@@ -20,6 +20,7 @@ package com.hellblazer.primeMover.asm.testClasses;
 
 import com.hellblazer.primeMover.annotations.Blocking;
 import com.hellblazer.primeMover.annotations.Entity;
+import com.hellblazer.primeMover.runtime.Devi;
 import com.hellblazer.primeMover.runtime.EntityReference;
 import com.hellblazer.primeMover.runtime.Framework;
 
@@ -28,6 +29,8 @@ import com.hellblazer.primeMover.runtime.Framework;
  */
 @Entity(Foo.class)
 public class Template implements Foo, EntityReference {
+
+    private final Devi __controller = Framework.getController();
 
     @Override
     public Object __invoke(int event, Object[] arguments) throws Throwable {
@@ -77,14 +80,14 @@ public class Template implements Foo, EntityReference {
 
     @Override
     public void bar() {
-        Framework.getController().postEvent(this, 0);
+        __controller.postEvent(this, 0);
     }
 
     @Override
     @Blocking
     public String myMy() {
         try {
-            return (String) Framework.getController().postContinuingEvent(this, 1);
+            return (String) __controller.postContinuingEvent(this, 1);
         } catch (Throwable e) {
             throw new IllegalStateException(e);
         }
@@ -93,7 +96,7 @@ public class Template implements Foo, EntityReference {
     @Override
     public String[] someArgs(String arg1, Object arg2) throws RuntimeException {
         try {
-            return (String[]) Framework.getController().postContinuingEvent(this, 2, arg1, arg2);
+            return (String[]) __controller.postContinuingEvent(this, 2, arg1, arg2);
         } catch (Throwable e) {
             throw new IllegalStateException(e);
         }
