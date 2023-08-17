@@ -35,7 +35,6 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-import org.objectweb.asm.commons.AdviceAdapter;
 import org.objectweb.asm.commons.ClassRemapper;
 import org.objectweb.asm.commons.GeneratorAdapter;
 import org.objectweb.asm.commons.Method;
@@ -63,27 +62,6 @@ import io.github.classgraph.MethodParameterInfo;
  * @author hal.hildebrand
  */
 public class EntityGenerator {
-    private class InitVisitor extends AdviceAdapter {
-
-        protected InitVisitor(int api, MethodVisitor methodVisitor, int access, String name, String descriptor) {
-            super(api, methodVisitor, access, name, descriptor);
-        }
-
-        @Override
-        protected void onMethodEnter() {
-            super.onMethodEnter();
-            loadThis();
-            invokeStatic(Type.getType(Framework.class), GET_CONTROLLER_METHOD);
-            putField(type, CONTROLLER, Type.getType(Devi.class));
-        }
-
-        @Override
-        protected void onMethodExit(int opcode) {
-            visitMaxs(0, 0);
-            super.onMethodExit(opcode);
-        }
-
-    }
 
     private static final String APPEND                    = "append";
     private static final Method APPEND_METHOD;
@@ -96,7 +74,6 @@ public class EntityGenerator {
     private static final String CHARACTER_VALUE           = "charValue";
     private static final Method CHARACTER_VALUE_METHOD;
     private static final Method CHARACTER_VALUE_OF_METHOD;
-    private static final String CONTROLLER                = "$controller";
     private static final String DOUBLE_VALUE              = "doubleValue";
     private static final Method DOUBLE_VALUE_METHOD;
     private static final Method DOUBLE_VALUE_OF_METHOD;
@@ -105,7 +82,6 @@ public class EntityGenerator {
     private static final Method FLOAT_VALUE_OF_METHOD;
     private static final String GET_CONTROLLER            = "getController";
     private static final Method GET_CONTROLLER_METHOD;
-    private static final Object INIT                      = "<init>";
     private static final String INT_VALUE                 = "intValue";
     private static final Method INT_VALUE_METHOD;
     private static final Method INTEGER_VALUE_OF_METHOD;
@@ -131,8 +107,8 @@ public class EntityGenerator {
     private static final String TO_STRING                 = "toString";
     private static final Method TO_STRING_METHOD;
     private static final String VALUE_OF                  = "valueOf";
-    
-    private final Set<Method> blocking;
+
+    private final Set<Method>              blocking;
     private final ClassInfo                clazz;
     private final Set<Method>              events;
     private final String                   internalName;
@@ -140,7 +116,7 @@ public class EntityGenerator {
     private final Map<Integer, MethodInfo> mapped;
     private final Set<MethodInfo>          remapped;
     private final Type                     type;
-    
+
     static {
         java.lang.reflect.Method method;
         try {
@@ -440,9 +416,6 @@ public class EntityGenerator {
             av.visit("date", Instant.now().toString());
             av.visit("value", "PrimeMover ASM");
             av.visitEnd();
-            var fieldVisitor = transform.visitField(Opcodes.ACC_PRIVATE | Opcodes.ACC_FINAL, CONTROLLER,
-                                                    Type.getType(Devi.class).getDescriptor(), null, null);
-            fieldVisitor.visitEnd();
             generateInvoke(cw);
             generateSignatureFor(cw);
             cw.visit(clazz.getClassfileMajorVersion(), clazz.getModifiers(), internalName, clazz.getTypeSignatureStr(),
@@ -517,12 +490,12 @@ public class EntityGenerator {
                     unboxIt(adapter, pi);
                 }
 
+                final var renamed = REMAPPED_TEMPLATE.formatted(mi.getName());
                 if (remapped.contains(mi)) {
-                    adapter.invokeVirtual(type, new Method(REMAPPED_TEMPLATE.formatted(mi.getName()),
-                                                           mi.getTypeDescriptorStr()));
+                    adapter.invokeVirtual(type, new Method(renamed, mi.getTypeDescriptorStr()));
                 } else {
                     adapter.visitMethodInsn(Opcodes.INVOKESPECIAL, clazz.getSuperclass().getName().replace('.', '/'),
-                                            mi.getName(), mi.getTypeDescriptorStr(), mi.isAbstract());
+                                            renamed, mi.getTypeDescriptorStr(), mi.isAbstract());
                 }
                 if (mi.getTypeDescriptor().getResultType().toStringWithSimpleNames().equals("void")) {
                     adapter.loadThis();
@@ -556,11 +529,6 @@ public class EntityGenerator {
             @Override
             public MethodVisitor visitMethod(int access, String name, String descriptor, String signature,
                                              String[] exceptions) {
-                if (name.equals(INIT)) {
-                    return new InitVisitor(Opcodes.ASM9,
-                                           super.visitMethod(access, name, descriptor, signature, exceptions), access,
-                                           name, descriptor);
-                }
                 var m = new Method(name, descriptor);
                 if (events.contains(m)) {
                     generateEvent(m, access, name, descriptor, exceptions, cv);
@@ -589,7 +557,7 @@ public class EntityGenerator {
                                                                  .toArray(new Type[0]),
                                       cv);
         mg.loadThis();
-        mg.getField(type, CONTROLLER, Type.getType(Devi.class));
+        mg.invokeStatic(Type.getType(Framework.class), GET_CONTROLLER_METHOD);
         mg.loadThis();
         mg.push(inverse.get(m));
         var objectType = OBJECT_TYPE;
