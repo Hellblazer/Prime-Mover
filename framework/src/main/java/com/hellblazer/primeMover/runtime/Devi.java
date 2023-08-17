@@ -311,7 +311,9 @@ abstract public class Devi implements Controller, AutoCloseable {
 
     private Runnable eval(EventImpl event) {
         return () -> {
+            Devi prev = Framework.getCurrentController();
             try {
+                Framework.setController(this);
                 if (eventLog != null) {
                     eventLog.info(event.toString());
                 }
@@ -322,6 +324,8 @@ abstract public class Devi implements Controller, AutoCloseable {
                 futureSailor.complete(new EvaluationResult(result));
             } catch (Throwable e) {
                 futureSailor.complete(new EvaluationResult(e));
+            } finally {
+                Framework.setController(prev);
             }
         };
     }

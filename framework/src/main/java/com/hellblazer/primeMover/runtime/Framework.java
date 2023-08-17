@@ -19,8 +19,6 @@
 
 package com.hellblazer.primeMover.runtime;
 
-import java.util.concurrent.atomic.AtomicReference;
-
 import com.hellblazer.primeMover.annotations.Blocking;
 
 /**
@@ -29,7 +27,7 @@ import com.hellblazer.primeMover.annotations.Blocking;
  * @author <a href="mailto:hal.hildebrand@gmail.com">Hal Hildebrand</a>
  */
 final public class Framework {
-    private final static AtomicReference<Devi> CONTROLLER = new AtomicReference<>();
+    private final static ThreadLocal<Devi> CONTROLLER = new ThreadLocal<>();
 
     public static Devi getController() {
         Devi controller = CONTROLLER.get();
@@ -37,6 +35,10 @@ final public class Framework {
             throw new IllegalStateException("No controller has been set for the current thread");
         }
         return controller;
+    }
+
+    public static Devi getCurrentController() {
+        return CONTROLLER.get();
     }
 
     @Blocking
