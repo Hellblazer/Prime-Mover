@@ -24,9 +24,9 @@ import static com.hellblazer.primeMover.Kronos.sleep;
 import java.util.Map;
 
 import com.hellblazer.primeMover.Kronos;
-import com.hellblazer.primeMover.SimulationException;
 import com.hellblazer.primeMover.controllers.SimulationController;
 import com.hellblazer.primeMover.runtime.Framework;
+import com.hellblazer.primeMover.runtime.SimulationEnd;
 
 /**
  * 
@@ -77,11 +77,7 @@ public class Demo {
         benchmark.start();
         sleep(2 * eventCount);
         benchmark.finish();
-        try {
-            controller.eventLoop();
-        } catch (SimulationException e) {
-            //
-        }
+        controller.eventLoop();
         controller.close();
         System.out.println("Thread Statistics: " + controller.threadStatistics());
         System.out.println();
@@ -120,6 +116,7 @@ public class Demo {
         System.out.println();
         System.out.println();
         eventThroughput();
+        throw new SimulationEnd();
     }
 
     public static void threaded() throws Exception {

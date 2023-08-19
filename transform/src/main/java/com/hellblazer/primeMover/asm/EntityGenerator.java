@@ -543,18 +543,18 @@ public class EntityGenerator {
                 }
                 return new MethodVisitor(Opcodes.ASM9,
                                          super.visitMethod(access, renamed, descriptor, signature, exceptions)) {
-                    final String superClassName = clazz.getSuperclass() == null ? ""
-                                                                                : clazz.getSuperclass()
-                                                                                       .getName()
-                                                                                       .replace('.', '/');
-
+//                    final String superClassName = clazz.getSuperclass() == null ? ""
+//                                                                                : clazz.getSuperclass()
+//                                                                                       .getName()
+//                                                                                       .replace('.', '/');
+//
                     @Override
                     public void visitMethodInsn(int opcodeAndSource, String owner, String name, String descriptor,
                                                 boolean isInterface) {
                         String newName = name;
-                        if (Opcodes.INVOKESPECIAL == opcodeAndSource && superClassName.equals(owner)) {
-                            newName = renamed;
-                        }
+//                        if (Opcodes.INVOKESPECIAL == opcodeAndSource && superClassName.equals(owner)) {
+//                            newName = renamed;
+//                        }
                         super.visitMethodInsn(opcodeAndSource, owner, newName, descriptor, isInterface);
                     }
                 };

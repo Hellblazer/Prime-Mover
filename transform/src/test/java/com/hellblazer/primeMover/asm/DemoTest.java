@@ -8,11 +8,14 @@ package com.hellblazer.primeMover.asm;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
+
+import com.hellblazer.primeMover.runtime.SimulationEnd;
 
 import io.github.classgraph.ClassGraph;
 import testClasses.LocalLoader;
@@ -20,13 +23,21 @@ import testClasses.LocalLoader;
 public class DemoTest {
 
     @Test
-    public void runDemo() throws Exception {
+    public void runDemo() throws Throwable {
         final var transformed = getTransformed();
         assertTrue(transformed.containsKey("testClasses/Demo"));
         var loader = new LocalLoader(transformed);
         Class<?> demoClazz = loader.loadClass("testClasses.Demo");
         Method event = demoClazz.getMethod("runAll");
-        event.invoke(null);
+        try {
+            event.invoke(null);
+        } catch (InvocationTargetException e) {
+            if (e.getCause() instanceof SimulationEnd se) {
+                // expected
+            } else {
+                throw e.getCause();
+            }
+        }
     }
 
     private Map<String, byte[]> getTransformed() throws Exception {

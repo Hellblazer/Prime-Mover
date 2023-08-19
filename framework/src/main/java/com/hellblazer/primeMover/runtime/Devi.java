@@ -72,6 +72,7 @@ abstract public class Devi implements Controller, AutoCloseable {
     private volatile ThreadStats                         finalStats;
     private volatile CompletableFuture<EvaluationResult> futureSailor;
     private final Semaphore                              serializer        = new Semaphore(1);
+    private boolean                                      simulationEnded   = false;
     private boolean                                      trackEventSources = false;
 
     public Devi() {
@@ -140,6 +141,10 @@ abstract public class Devi implements Controller, AutoCloseable {
     @Override
     public boolean isDebugEvents() {
         return debugEvents;
+    }
+
+    public boolean isSimulationEnded() {
+        return simulationEnded;
     }
 
     /**
@@ -322,8 +327,12 @@ abstract public class Devi implements Controller, AutoCloseable {
                     logger.severe("Future sailor already done");
                 }
                 futureSailor.complete(new EvaluationResult(result));
+            } catch (SimulationEnd e) {
+                logger.info("Simulation has ended at: " + currentTime);
+                futureSailor.completeExceptionally(e);
+                return;
             } catch (Throwable e) {
-                futureSailor.complete(new EvaluationResult(e));
+                futureSailor.completeExceptionally(e);
             } finally {
                 Framework.setController(prev);
             }
@@ -348,20 +357,30 @@ abstract public class Devi implements Controller, AutoCloseable {
             Thread.currentThread().interrupt();
             return;
         } catch (ExecutionException e) {
+            if (e.getCause() instanceof SimulationEnd se) {
+                throw se;
+            }
+            if (e.getCause() instanceof SimulationException se) {
+                throw se;
+            }
             throw new SimulationException(e.getCause());
         } finally {
             futureSailor = null;
             currentEvent = null;
         }
 
+        assert result != null;
+
         if (result.t != null) {
+            logger.log(Level.SEVERE, "Cannot evaluate event: " + next, result.t);
             if (result.t instanceof SimulationException se) {
+                throw se;
+            }
+            if (result.t instanceof SimulationEnd se) {
                 throw se;
             }
             throw new SimulationException("error evaluating event: " + next, result.t);
         }
-
-        assert result != null;
 
         final var cc = caller;
         if (result.blockingEvent != null) {
@@ -370,7 +389,7 @@ abstract public class Devi implements Controller, AutoCloseable {
             post(result.blockingEvent);
         } else if (cc != null) {
             final var ct = currentTime;
-            post(cc.resume(ct, result, result.t));
+            post(cc.resume(ct, result.result, result.t));
         }
     }
 }
