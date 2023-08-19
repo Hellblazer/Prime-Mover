@@ -43,6 +43,7 @@ import org.objectweb.asm.commons.TableSwitchGenerator;
 
 import com.hellblazer.primeMover.Kronos;
 import com.hellblazer.primeMover.annotations.Blocking;
+import com.hellblazer.primeMover.annotations.Entity;
 import com.hellblazer.primeMover.annotations.Transformed;
 import com.hellblazer.primeMover.asm.OpenAddressingSet.OpenSet;
 import com.hellblazer.primeMover.runtime.Devi;
@@ -55,6 +56,7 @@ import io.github.classgraph.BaseTypeSignature;
 import io.github.classgraph.ClassInfo;
 import io.github.classgraph.MethodInfo;
 import io.github.classgraph.MethodParameterInfo;
+import io.github.classgraph.ScanResult;
 
 /**
  * Transforms Entity classes into PrimeMover entities.
@@ -115,6 +117,7 @@ public class EntityGenerator {
     private final Map<Method, Integer>     inverse;
     private final Map<Integer, MethodInfo> mapped;
     private final Set<MethodInfo>          remapped;
+    private final ScanResult               scan;
     private final Type                     type;
 
     static {
@@ -359,8 +362,9 @@ public class EntityGenerator {
         STRING_BUILDER_CONSTRUCTOR = Method.getMethod(constructor);
     }
 
-    public EntityGenerator(ClassInfo clazz, Set<MethodInfo> events) {
+    public EntityGenerator(ClassInfo clazz, Set<MethodInfo> events, ScanResult scan) {
         this.clazz = clazz;
+        this.scan = scan;
         type = Type.getObjectType(clazz.getName().replace('.', '/'));
         internalName = clazz.getName().replace('.', '/');
         mapped = new HashMap<>();
@@ -543,18 +547,28 @@ public class EntityGenerator {
                 }
                 return new MethodVisitor(Opcodes.ASM9,
                                          super.visitMethod(access, renamed, descriptor, signature, exceptions)) {
-//                    final String superClassName = clazz.getSuperclass() == null ? ""
-//                                                                                : clazz.getSuperclass()
-//                                                                                       .getName()
-//                                                                                       .replace('.', '/');
-//
+
                     @Override
                     public void visitMethodInsn(int opcodeAndSource, String owner, String name, String descriptor,
                                                 boolean isInterface) {
+                        final var ownerClass = scan.getClassInfo(owner.replace('/', '.'));
+                        boolean isEntity = false;
+                        if (ownerClass != null) {
+                            ClassInfo s = clazz.getSuperclass();
+                            while (s != null) {
+                                if (s.equals(ownerClass)) {
+                                    isEntity = ownerClass.getAnnotationInfo(Entity.class) != null;
+                                    if (isEntity) {
+                                        break;
+                                    }
+                                }
+                                s = s.getSuperclass();
+                            }
+                        }
                         String newName = name;
-//                        if (Opcodes.INVOKESPECIAL == opcodeAndSource && superClassName.equals(owner)) {
-//                            newName = renamed;
-//                        }
+                        if (Opcodes.INVOKESPECIAL == opcodeAndSource && isEntity) {
+                            newName = renamed;
+                        }
                         super.visitMethodInsn(opcodeAndSource, owner, newName, descriptor, isInterface);
                     }
                 };
