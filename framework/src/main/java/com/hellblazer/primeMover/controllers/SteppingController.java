@@ -26,6 +26,7 @@ import com.hellblazer.primeMover.SimulationException;
 import com.hellblazer.primeMover.runtime.Devi;
 import com.hellblazer.primeMover.runtime.EventImpl;
 import com.hellblazer.primeMover.runtime.Framework;
+import com.hellblazer.primeMover.runtime.Kairos;
 import com.hellblazer.primeMover.runtime.SimulationEnd;
 import com.hellblazer.primeMover.runtime.SplayQueue;
 
@@ -51,7 +52,7 @@ public class SteppingController extends Devi {
         }
         Devi current = Framework.queryController();
         try {
-            Framework.setController(this);
+            Kairos.setController(this);
             while (true) {
                 try {
                     evaluate(eventQueue.remove());
@@ -64,7 +65,7 @@ public class SteppingController extends Devi {
                 }
             }
         } finally {
-            Framework.setController(current);
+            Kairos.setController(current);
         }
         return true;
     }

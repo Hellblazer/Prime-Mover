@@ -28,7 +28,7 @@ import java.util.logging.Logger;
 import com.hellblazer.primeMover.SimulationException;
 import com.hellblazer.primeMover.runtime.Devi;
 import com.hellblazer.primeMover.runtime.EventImpl;
-import com.hellblazer.primeMover.runtime.Framework;
+import com.hellblazer.primeMover.runtime.Kairos;
 import com.hellblazer.primeMover.runtime.SplayQueue;
 
 /**
@@ -69,7 +69,7 @@ public class SimulationController extends Devi implements StatisticalController 
             simulationStart = 0;
         }
         setCurrentTime(simulationStart);
-        Framework.setController(this);
+        Kairos.setController(this);
         log.info("Simulation started at: " + simulationStart);
         try {
             while (getCurrentTime() < endTime) {
@@ -82,7 +82,7 @@ public class SimulationController extends Devi implements StatisticalController 
             simulationEnd = getCurrentTime();
             log.info("Simulation ended at: " + simulationEnd);
         } finally {
-            Framework.setController(null);
+            Kairos.setController(null);
         }
     }
 

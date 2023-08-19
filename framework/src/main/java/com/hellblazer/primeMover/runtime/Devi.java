@@ -72,7 +72,6 @@ abstract public class Devi implements Controller, AutoCloseable {
     private volatile ThreadStats                         finalStats;
     private volatile CompletableFuture<EvaluationResult> futureSailor;
     private final Semaphore                              serializer        = new Semaphore(1);
-    private boolean                                      simulationEnded   = false;
     private boolean                                      trackEventSources = false;
 
     public Devi() {
@@ -141,10 +140,6 @@ abstract public class Devi implements Controller, AutoCloseable {
     @Override
     public boolean isDebugEvents() {
         return debugEvents;
-    }
-
-    public boolean isSimulationEnded() {
-        return simulationEnded;
     }
 
     /**
@@ -306,7 +301,7 @@ abstract public class Devi implements Controller, AutoCloseable {
      * Swap the calling event for the current caller
      * 
      * @param newCaller
-     * @return
+     * @return the current caller event
      */
     protected EventImpl swapCaller(EventImpl newCaller) {
         var tmp = caller;

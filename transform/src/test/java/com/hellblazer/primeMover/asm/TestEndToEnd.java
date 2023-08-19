@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 
 import com.hellblazer.primeMover.TrackingController;
-import com.hellblazer.primeMover.runtime.Framework;
+import com.hellblazer.primeMover.runtime.Kairos;
 
 import io.github.classgraph.ClassGraph;
 import testClasses.LocalLoader;
@@ -48,7 +48,7 @@ public class TestEndToEnd {
         TrackingController controller = new TrackingController();
         // controller.setDebugEvents(true);
         // controller.setEventLogger(Logger.getLogger("Event Logger"));
-        Framework.setController(controller);
+        Kairos.setController(controller);
         Class<?> entity1Clazz = loader.loadClass("testClasses.Entity1Impl");
 
         Object entity;
