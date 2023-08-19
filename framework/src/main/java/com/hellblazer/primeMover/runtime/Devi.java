@@ -354,6 +354,13 @@ abstract public class Devi implements Controller, AutoCloseable {
             currentEvent = null;
         }
 
+        if (result.t != null) {
+            if (result.t instanceof SimulationException se) {
+                throw se;
+            }
+            throw new SimulationException("error evaluating event: " + next, result.t);
+        }
+
         assert result != null;
 
         final var cc = caller;

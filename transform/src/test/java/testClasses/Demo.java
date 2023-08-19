@@ -26,6 +26,7 @@ import java.util.Map;
 import com.hellblazer.primeMover.Kronos;
 import com.hellblazer.primeMover.SimulationException;
 import com.hellblazer.primeMover.controllers.SimulationController;
+import com.hellblazer.primeMover.runtime.Framework;
 
 /**
  * 
@@ -68,7 +69,7 @@ public class Demo {
 
     public static void eventThroughput() throws Exception {
         SimulationController controller = new SimulationController();
-        Kronos.setController(controller);
+        Framework.setController(controller);
         controller.setCurrentTime(0);
         final var eventCount = 1_000_000;
         EventThroughput benchmark = new EventThroughputImpl("STRING", eventCount);

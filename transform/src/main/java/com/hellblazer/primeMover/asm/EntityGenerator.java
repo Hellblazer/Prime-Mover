@@ -81,7 +81,7 @@ public class EntityGenerator {
     private static final Method FLOAT_VALUE_METHOD;
     private static final Method FLOAT_VALUE_OF_METHOD;
     private static final String GET_CONTROLLER            = "getController";
-    private static final Method GET_CONTROLLER_METHOD; 
+    private static final Method GET_CONTROLLER_METHOD;
     private static final String INT_VALUE                 = "intValue";
     private static final Method INT_VALUE_METHOD;
     private static final Method INTEGER_VALUE_OF_METHOD;
@@ -519,7 +519,6 @@ public class EntityGenerator {
                          REMAPPED_TEMPLATE.formatted(mi.getName()));
         }
         var eventRemapper = new SimpleRemapper(mappings);
-
         var map = new HashMap<String, String>();
         map.put(Kronos.class.getCanonicalName().replace('.', '/'), Kairos.class.getCanonicalName().replace('.', '/'));
         var apiRemapper = new SimpleRemapper(map);
@@ -542,7 +541,23 @@ public class EntityGenerator {
                 if (!renamed.equals(name)) {
                     access = Opcodes.ACC_PROTECTED;
                 }
-                return super.visitMethod(access, renamed, descriptor, signature, exceptions);
+                return new MethodVisitor(Opcodes.ASM9,
+                                         super.visitMethod(access, renamed, descriptor, signature, exceptions)) {
+                    final String superClassName = clazz.getSuperclass() == null ? ""
+                                                                                : clazz.getSuperclass()
+                                                                                       .getName()
+                                                                                       .replace('.', '/');
+
+                    @Override
+                    public void visitMethodInsn(int opcodeAndSource, String owner, String name, String descriptor,
+                                                boolean isInterface) {
+                        String newName = name;
+                        if (Opcodes.INVOKESPECIAL == opcodeAndSource && superClassName.equals(owner)) {
+                            newName = renamed;
+                        }
+                        super.visitMethodInsn(opcodeAndSource, owner, newName, descriptor, isInterface);
+                    }
+                };
             }
         };
     }

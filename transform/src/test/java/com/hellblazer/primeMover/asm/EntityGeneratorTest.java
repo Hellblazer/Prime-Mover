@@ -58,6 +58,7 @@ public class EntityGeneratorTest {
 
 //        final var name = "testClasses.ContinuationThroughputImpl";
 //        final var name = "testClasses.HelloWorld";
+//        final var name = "testClasses.SubEntity";
         final var name = "com.hellblazer.primeMover.asm.testClasses.MyTest";
         EntityGenerator generator = transform.generatorOf(name);
         assertNotNull(generator);
@@ -67,7 +68,7 @@ public class EntityGeneratorTest {
         assertNotNull(bytes);
 
         ClassReader reader = new ClassReader(bytes);
-        final var out = new PrintStream(new ByteArrayOutputStream()); // System.out;
+        final var out = System.out;
         final PrintWriter printWriter = new PrintWriter(out, true);
         TraceClassVisitor visitor = new TraceClassVisitor(null, printWriter);
         reader.accept(visitor, ClassReader.EXPAND_FRAMES);
