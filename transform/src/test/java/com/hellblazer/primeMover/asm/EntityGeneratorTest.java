@@ -68,7 +68,7 @@ public class EntityGeneratorTest {
         assertNotNull(bytes);
 
         ClassReader reader = new ClassReader(bytes);
-        final var out = System.out;
+        final var out = new PrintStream(new ByteArrayOutputStream()); // System.out;
         final PrintWriter printWriter = new PrintWriter(out, true);
         TraceClassVisitor visitor = new TraceClassVisitor(null, printWriter);
         reader.accept(visitor, ClassReader.EXPAND_FRAMES);
