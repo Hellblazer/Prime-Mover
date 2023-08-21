@@ -56,7 +56,6 @@ import io.github.classgraph.BaseTypeSignature;
 import io.github.classgraph.ClassInfo;
 import io.github.classgraph.MethodInfo;
 import io.github.classgraph.MethodParameterInfo;
-import io.github.classgraph.ScanResult;
 
 /**
  * Transforms Entity classes into PrimeMover entities.
@@ -117,7 +116,6 @@ public class EntityGenerator {
     private final Map<Method, Integer>     inverse;
     private final Map<Integer, MethodInfo> mapped;
     private final Set<MethodInfo>          remapped;
-    private final ScanResult               scan;
     private final Type                     type;
 
     static {
@@ -362,9 +360,8 @@ public class EntityGenerator {
         STRING_BUILDER_CONSTRUCTOR = Method.getMethod(constructor);
     }
 
-    public EntityGenerator(ClassInfo clazz, Set<MethodInfo> events, ScanResult scan) {
+    public EntityGenerator(ClassInfo clazz, Set<MethodInfo> events) {
         this.clazz = clazz;
-        this.scan = scan;
         type = Type.getObjectType(clazz.getName().replace('.', '/'));
         internalName = clazz.getName().replace('.', '/');
         mapped = new HashMap<>();
@@ -517,12 +514,27 @@ public class EntityGenerator {
 
     private ClassVisitor eventTransform(ClassVisitor cv) {
         var mappings = new HashMap<String, String>();
+        var superMappings = new HashMap<String, String>();
+        var superClass = clazz.getSuperclass();
         for (var mi : remapped) {
             mappings.put(METHOD_REMAP_KEY_TEMPLATE.formatted(clazz.getName().replace('.', '/'), mi.getName(),
                                                              mi.getTypeDescriptorStr()),
                          REMAPPED_TEMPLATE.formatted(mi.getName()));
+            if (superClass != null) {
+                if (superClass.getAnnotationInfo(Entity.class) != null && superClass.getMethodAndConstructorInfo()
+                                                                                    .stream()
+                                                                                    .filter(e -> matches(e, mi))
+                                                                                    .findAny()
+                                                                                    .isPresent()) {
+                    superMappings.put(METHOD_REMAP_KEY_TEMPLATE.formatted(superClass.getName().replace('.', '/'),
+                                                                          mi.getName(), mi.getTypeDescriptorStr()),
+                                      REMAPPED_TEMPLATE.formatted(mi.getName()));
+                }
+            }
         }
         var eventRemapper = new SimpleRemapper(mappings);
+        var superRemapper = new SimpleRemapper(superMappings);
+
         var map = new HashMap<String, String>();
         map.put(Kronos.class.getCanonicalName().replace('.', '/'), Kairos.class.getCanonicalName().replace('.', '/'));
         var apiRemapper = new SimpleRemapper(map);
@@ -530,44 +542,33 @@ public class EntityGenerator {
         return new ClassVisitor(Opcodes.ASM9, new ClassRemapper(cv, apiRemapper)) {
 
             @Override
-            public MethodVisitor visitMethod(int access, String name, String descriptor, String signature,
+            public MethodVisitor visitMethod(int access, String ogName, String ogDescriptor, String signature,
                                              String[] exceptions) {
-                var m = new Method(name, descriptor);
+                var m = new Method(ogName, ogDescriptor);
+                var isEvent = false;
                 if (events.contains(m)) {
-                    generateEvent(m, access, name, descriptor, exceptions, cv);
+                    isEvent = true;
+                    generateEvent(m, access, ogName, ogDescriptor, exceptions, cv);
                 }
-                return remapMethod(access, name, descriptor, signature, exceptions);
+                return remapMethod(isEvent, access, ogName, ogDescriptor, signature, exceptions);
             }
 
-            private MethodVisitor remapMethod(int access, String name, String descriptor, String signature,
-                                              String[] exceptions) {
-                final var renamed = eventRemapper.mapMethodName(type.getInternalName(), name, descriptor);
-                if (!renamed.equals(name)) {
+            private MethodVisitor remapMethod(boolean isEvent, int access, String ogName, String ogDescriptor,
+                                              String signature, String[] exceptions) {
+                final var renamed = eventRemapper.mapMethodName(type.getInternalName(), ogName, ogDescriptor);
+                if (!renamed.equals(ogName)) {
                     access = Opcodes.ACC_PROTECTED;
                 }
                 return new MethodVisitor(Opcodes.ASM9,
-                                         super.visitMethod(access, renamed, descriptor, signature, exceptions)) {
+                                         super.visitMethod(access, renamed, ogDescriptor, signature, exceptions)) {
 
                     @Override
                     public void visitMethodInsn(int opcodeAndSource, String owner, String name, String descriptor,
                                                 boolean isInterface) {
-                        final var ownerClass = scan.getClassInfo(owner.replace('/', '.'));
-                        boolean isEntity = false;
-                        if (ownerClass != null) {
-                            ClassInfo s = clazz.getSuperclass();
-                            while (s != null) {
-                                if (s.equals(ownerClass)) {
-                                    isEntity = ownerClass.getAnnotationInfo(Entity.class) != null;
-                                    if (isEntity) {
-                                        break;
-                                    }
-                                }
-                                s = s.getSuperclass();
-                            }
-                        }
                         String newName = name;
-                        if (Opcodes.INVOKESPECIAL == opcodeAndSource && isEntity) {
-                            newName = renamed;
+                        if (isEvent && Opcodes.INVOKESPECIAL == opcodeAndSource && name.equals(ogName) &&
+                            descriptor.equals(ogDescriptor)) {
+                            newName = superRemapper.mapMethodName(owner, name, descriptor);
                         }
                         super.visitMethodInsn(opcodeAndSource, owner, newName, descriptor, isInterface);
                     }
@@ -652,6 +653,13 @@ public class EntityGenerator {
                      .mapToInt(e -> (int) e.getKey())
                      .sorted()
                      .toArray();
+    }
+
+    private boolean matches(MethodInfo e, MethodInfo mi) {
+        if (!mi.getName().equals(e.getName())) {
+            return false;
+        }
+        return mi.getTypeDescriptor().equals(mi.getTypeDescriptor());
     }
 
     private String signatureOf(MethodInfo mi) {
