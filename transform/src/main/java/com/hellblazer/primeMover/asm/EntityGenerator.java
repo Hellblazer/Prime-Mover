@@ -97,7 +97,7 @@ public class EntityGenerator {
     private static final Method POST_CONTINUING_EVENT_METHOD;
     private static final String POST_EVENT                = "postEvent";
     private static final Method POST_EVENT_METHOD;
-    private static final String REMAPPED_TEMPLATE         = "gen$%s";
+    private static final String REMAPPED_TEMPLATE         = "%s$event";
     private static final String SHORT_VALUE               = "shortValue";
     private static final Method SHORT_VALUE_METHOD;
     private static final Method SHORT_VALUE_OF_METHOD;
