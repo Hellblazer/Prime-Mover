@@ -26,7 +26,7 @@ import java.util.concurrent.locks.LockSupport;
 import com.hellblazer.primeMover.runtime.Devi.EvaluationResult;
 
 /**
- * Represents the blocking continuation of blocking simulated event processing
+ * Represents the continuation of a blocking simulated event processing
  * 
  * @author <a href="mailto:hal.hildebrand@gmail.com">Hal Hildebrand</a>
  * 
@@ -47,10 +47,15 @@ public class Continuation implements Serializable {
         thread = Thread.currentThread();
         sailorMoon.complete(result);
         LockSupport.park();
-        if (exception != null) {
-            throw exception;
+        thread = null;
+        final var ex = exception;
+        if (ex != null) {
+            exception = null;
+            throw ex;
         }
-        return returnValue;
+        final var value = returnValue;
+        returnValue = null;
+        return value;
     }
 
     public void resume() {

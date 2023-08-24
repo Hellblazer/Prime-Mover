@@ -42,6 +42,6 @@ public class SimulationTransformTest {
 
         }
         assertNotNull(generators);
-        assertEquals(10, generators.size());
+        assertEquals(12, generators.size());
     }
 }

@@ -35,7 +35,6 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-import org.objectweb.asm.commons.AdviceAdapter;
 import org.objectweb.asm.commons.ClassRemapper;
 import org.objectweb.asm.commons.GeneratorAdapter;
 import org.objectweb.asm.commons.Method;
@@ -44,6 +43,7 @@ import org.objectweb.asm.commons.TableSwitchGenerator;
 
 import com.hellblazer.primeMover.Kronos;
 import com.hellblazer.primeMover.annotations.Blocking;
+import com.hellblazer.primeMover.annotations.Entity;
 import com.hellblazer.primeMover.annotations.Transformed;
 import com.hellblazer.primeMover.asm.OpenAddressingSet.OpenSet;
 import com.hellblazer.primeMover.runtime.Devi;
@@ -63,27 +63,6 @@ import io.github.classgraph.MethodParameterInfo;
  * @author hal.hildebrand
  */
 public class EntityGenerator {
-    private class InitVisitor extends AdviceAdapter {
-
-        protected InitVisitor(int api, MethodVisitor methodVisitor, int access, String name, String descriptor) {
-            super(api, methodVisitor, access, name, descriptor);
-        }
-
-        @Override
-        protected void onMethodEnter() {
-            super.onMethodEnter();
-            loadThis();
-            invokeStatic(Type.getType(Framework.class), GET_CONTROLLER_METHOD);
-            putField(type, CONTROLLER, Type.getType(Devi.class));
-        }
-
-        @Override
-        protected void onMethodExit(int opcode) {
-            visitMaxs(0, 0);
-            super.onMethodExit(opcode);
-        }
-
-    }
 
     private static final String APPEND                    = "append";
     private static final Method APPEND_METHOD;
@@ -96,7 +75,6 @@ public class EntityGenerator {
     private static final String CHARACTER_VALUE           = "charValue";
     private static final Method CHARACTER_VALUE_METHOD;
     private static final Method CHARACTER_VALUE_OF_METHOD;
-    private static final String CONTROLLER                = "$controller";
     private static final String DOUBLE_VALUE              = "doubleValue";
     private static final Method DOUBLE_VALUE_METHOD;
     private static final Method DOUBLE_VALUE_OF_METHOD;
@@ -105,7 +83,6 @@ public class EntityGenerator {
     private static final Method FLOAT_VALUE_OF_METHOD;
     private static final String GET_CONTROLLER            = "getController";
     private static final Method GET_CONTROLLER_METHOD;
-    private static final Object INIT                      = "<init>";
     private static final String INT_VALUE                 = "intValue";
     private static final Method INT_VALUE_METHOD;
     private static final Method INTEGER_VALUE_OF_METHOD;
@@ -120,7 +97,7 @@ public class EntityGenerator {
     private static final Method POST_CONTINUING_EVENT_METHOD;
     private static final String POST_EVENT                = "postEvent";
     private static final Method POST_EVENT_METHOD;
-    private static final String REMAPPED_TEMPLATE         = "gen$%s";
+    private static final String REMAPPED_TEMPLATE         = "%s$event";
     private static final String SHORT_VALUE               = "shortValue";
     private static final Method SHORT_VALUE_METHOD;
     private static final Method SHORT_VALUE_OF_METHOD;
@@ -131,6 +108,15 @@ public class EntityGenerator {
     private static final String TO_STRING                 = "toString";
     private static final Method TO_STRING_METHOD;
     private static final String VALUE_OF                  = "valueOf";
+
+    private final Set<Method>              blocking;
+    private final ClassInfo                clazz;
+    private final Set<Method>              events;
+    private final String                   internalName;
+    private final Map<Method, Integer>     inverse;
+    private final Map<Integer, MethodInfo> mapped;
+    private final Set<MethodInfo>          remapped;
+    private final Type                     type;
 
     static {
         java.lang.reflect.Method method;
@@ -374,15 +360,6 @@ public class EntityGenerator {
         STRING_BUILDER_CONSTRUCTOR = Method.getMethod(constructor);
     }
 
-    private final Set<Method>              blocking;
-    private final ClassInfo                clazz;
-    private final Set<Method>              events;
-    private final String                   internalName;
-    private final Map<Method, Integer>     inverse;
-    private final Map<Integer, MethodInfo> mapped;
-    private final Set<MethodInfo>          remapped;
-    private final Type                     type;
-
     public EntityGenerator(ClassInfo clazz, Set<MethodInfo> events) {
         this.clazz = clazz;
         type = Type.getObjectType(clazz.getName().replace('.', '/'));
@@ -440,9 +417,6 @@ public class EntityGenerator {
             av.visit("date", Instant.now().toString());
             av.visit("value", "PrimeMover ASM");
             av.visitEnd();
-            var fieldVisitor = transform.visitField(Opcodes.ACC_PRIVATE | Opcodes.ACC_FINAL, CONTROLLER,
-                                                    Type.getType(Devi.class).getDescriptor(), null, null);
-            fieldVisitor.visitEnd();
             generateInvoke(cw);
             generateSignatureFor(cw);
             cw.visit(clazz.getClassfileMajorVersion(), clazz.getModifiers(), internalName, clazz.getTypeSignatureStr(),
@@ -517,12 +491,12 @@ public class EntityGenerator {
                     unboxIt(adapter, pi);
                 }
 
+                final var renamed = REMAPPED_TEMPLATE.formatted(mi.getName());
                 if (remapped.contains(mi)) {
-                    adapter.invokeVirtual(type, new Method(REMAPPED_TEMPLATE.formatted(mi.getName()),
-                                                           mi.getTypeDescriptorStr()));
+                    adapter.invokeVirtual(type, new Method(renamed, mi.getTypeDescriptorStr()));
                 } else {
                     adapter.visitMethodInsn(Opcodes.INVOKESPECIAL, clazz.getSuperclass().getName().replace('.', '/'),
-                                            mi.getName(), mi.getTypeDescriptorStr(), mi.isAbstract());
+                                            renamed, mi.getTypeDescriptorStr(), mi.isAbstract());
                 }
                 if (mi.getTypeDescriptor().getResultType().toStringWithSimpleNames().equals("void")) {
                     adapter.loadThis();
@@ -540,12 +514,26 @@ public class EntityGenerator {
 
     private ClassVisitor eventTransform(ClassVisitor cv) {
         var mappings = new HashMap<String, String>();
+        var superMappings = new HashMap<String, String>();
+        var superClass = clazz.getSuperclass();
         for (var mi : remapped) {
             mappings.put(METHOD_REMAP_KEY_TEMPLATE.formatted(clazz.getName().replace('.', '/'), mi.getName(),
                                                              mi.getTypeDescriptorStr()),
                          REMAPPED_TEMPLATE.formatted(mi.getName()));
+            if (superClass != null) {
+                if (superClass.getAnnotationInfo(Entity.class) != null && superClass.getMethodAndConstructorInfo()
+                                                                                    .stream()
+                                                                                    .filter(e -> matches(e, mi))
+                                                                                    .findAny()
+                                                                                    .isPresent()) {
+                    superMappings.put(METHOD_REMAP_KEY_TEMPLATE.formatted(superClass.getName().replace('.', '/'),
+                                                                          mi.getName(), mi.getTypeDescriptorStr()),
+                                      REMAPPED_TEMPLATE.formatted(mi.getName()));
+                }
+            }
         }
         var eventRemapper = new SimpleRemapper(mappings);
+        var superRemapper = new SimpleRemapper(superMappings);
 
         var map = new HashMap<String, String>();
         map.put(Kronos.class.getCanonicalName().replace('.', '/'), Kairos.class.getCanonicalName().replace('.', '/'));
@@ -554,27 +542,37 @@ public class EntityGenerator {
         return new ClassVisitor(Opcodes.ASM9, new ClassRemapper(cv, apiRemapper)) {
 
             @Override
-            public MethodVisitor visitMethod(int access, String name, String descriptor, String signature,
+            public MethodVisitor visitMethod(int access, String ogName, String ogDescriptor, String signature,
                                              String[] exceptions) {
-                if (name.equals(INIT)) {
-                    return new InitVisitor(Opcodes.ASM9,
-                                           super.visitMethod(access, name, descriptor, signature, exceptions), access,
-                                           name, descriptor);
-                }
-                var m = new Method(name, descriptor);
+                var m = new Method(ogName, ogDescriptor);
+                var isEvent = false;
                 if (events.contains(m)) {
-                    generateEvent(m, access, name, descriptor, exceptions, cv);
+                    isEvent = true;
+                    generateEvent(m, access, ogName, ogDescriptor, exceptions, cv);
                 }
-                return remapMethod(access, name, descriptor, signature, exceptions);
+                return remapMethod(isEvent, access, ogName, ogDescriptor, signature, exceptions);
             }
 
-            private MethodVisitor remapMethod(int access, String name, String descriptor, String signature,
-                                              String[] exceptions) {
-                final var renamed = eventRemapper.mapMethodName(type.getInternalName(), name, descriptor);
-                if (!renamed.equals(name)) {
-                    access = Opcodes.ACC_PRIVATE;
+            private MethodVisitor remapMethod(boolean isEvent, int access, String ogName, String ogDescriptor,
+                                              String signature, String[] exceptions) {
+                final var renamed = eventRemapper.mapMethodName(type.getInternalName(), ogName, ogDescriptor);
+                if (!renamed.equals(ogName)) {
+                    access = Opcodes.ACC_PROTECTED;
                 }
-                return super.visitMethod(access, renamed, descriptor, signature, exceptions);
+                return new MethodVisitor(Opcodes.ASM9,
+                                         super.visitMethod(access, renamed, ogDescriptor, signature, exceptions)) {
+
+                    @Override
+                    public void visitMethodInsn(int opcodeAndSource, String owner, String name, String descriptor,
+                                                boolean isInterface) {
+                        String newName = name;
+                        if (isEvent && Opcodes.INVOKESPECIAL == opcodeAndSource && name.equals(ogName) &&
+                            descriptor.equals(ogDescriptor)) {
+                            newName = superRemapper.mapMethodName(owner, name, descriptor);
+                        }
+                        super.visitMethodInsn(opcodeAndSource, owner, newName, descriptor, isInterface);
+                    }
+                };
             }
         };
     }
@@ -589,7 +587,7 @@ public class EntityGenerator {
                                                                  .toArray(new Type[0]),
                                       cv);
         mg.loadThis();
-        mg.getField(type, CONTROLLER, Type.getType(Devi.class));
+        mg.invokeStatic(Type.getType(Framework.class), GET_CONTROLLER_METHOD);
         mg.loadThis();
         mg.push(inverse.get(m));
         var objectType = OBJECT_TYPE;
@@ -655,6 +653,13 @@ public class EntityGenerator {
                      .mapToInt(e -> (int) e.getKey())
                      .sorted()
                      .toArray();
+    }
+
+    private boolean matches(MethodInfo e, MethodInfo mi) {
+        if (!mi.getName().equals(e.getName())) {
+            return false;
+        }
+        return mi.getTypeDescriptor().equals(mi.getTypeDescriptor());
     }
 
     private String signatureOf(MethodInfo mi) {

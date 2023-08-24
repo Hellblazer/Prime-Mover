@@ -33,7 +33,7 @@ import org.objectweb.asm.util.CheckClassAdapter;
 import org.objectweb.asm.util.TraceClassVisitor;
 
 import com.hellblazer.primeMover.TrackingController;
-import com.hellblazer.primeMover.runtime.Framework;
+import com.hellblazer.primeMover.runtime.Kairos;
 
 import io.github.classgraph.ClassGraph;
 import testClasses.LocalLoader;
@@ -81,7 +81,7 @@ public class TestAPI {
 
     private void testChannel(ClassLoader loader) throws Exception {
         TrackingController controller = new TrackingController();
-        Framework.setController(controller);
+        Kairos.setController(controller);
         controller.setCurrentTime(0);
         Class<?> useChannelImplClass = loader.loadClass("testClasses.UseChannelImpl");
         Object useChannel = useChannelImplClass.getConstructor().newInstance();
@@ -129,7 +129,7 @@ public class TestAPI {
 
     private void testThreading(ClassLoader loader) throws Exception {
         var controller = new TrackingController();
-        Framework.setController(controller);
+        Kairos.setController(controller);
         controller.setCurrentTime(0);
 
         var driverImplClass = loader.loadClass("testClasses.DriverImpl");

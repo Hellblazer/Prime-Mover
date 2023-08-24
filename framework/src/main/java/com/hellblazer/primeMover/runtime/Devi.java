@@ -61,8 +61,7 @@ abstract public class Devi implements Controller, AutoCloseable {
         }
     }
 
-    private static final String $ENTITY$GEN = "$entity$gen";
-    private static final Logger logger      = Logger.getLogger(Devi.class.getCanonicalName());
+    private static final Logger logger = Logger.getLogger(Devi.class.getCanonicalName());
 
     private volatile EventImpl                           caller;
     private volatile EventImpl                           currentEvent;
@@ -257,8 +256,9 @@ abstract public class Devi implements Controller, AutoCloseable {
 
         if (debugEvents) {
             StackTraceElement[] stackTrace = new Throwable().getStackTrace();
+            final var cn = entity.getClass().getCanonicalName();
             for (int i = 0; i < stackTrace.length; i++) {
-                if (stackTrace[i].getClassName().endsWith($ENTITY$GEN)) {
+                if (stackTrace[i].getClassName().equals(cn)) {
                     return new EventImpl(stackTrace[i + 1].toString(), time, sourceEvent, entity, event, arguments);
                 }
             }
@@ -301,7 +301,7 @@ abstract public class Devi implements Controller, AutoCloseable {
      * Swap the calling event for the current caller
      * 
      * @param newCaller
-     * @return
+     * @return the current caller event
      */
     protected EventImpl swapCaller(EventImpl newCaller) {
         var tmp = caller;
@@ -311,7 +311,9 @@ abstract public class Devi implements Controller, AutoCloseable {
 
     private Runnable eval(EventImpl event) {
         return () -> {
+            Devi prev = Framework.getCurrentController();
             try {
+                Framework.setController(this);
                 if (eventLog != null) {
                     eventLog.info(event.toString());
                 }
@@ -320,8 +322,14 @@ abstract public class Devi implements Controller, AutoCloseable {
                     logger.severe("Future sailor already done");
                 }
                 futureSailor.complete(new EvaluationResult(result));
+            } catch (SimulationEnd e) {
+                logger.info("Simulation has ended at: " + currentTime);
+                futureSailor.completeExceptionally(e);
+                return;
             } catch (Throwable e) {
-                futureSailor.complete(new EvaluationResult(e));
+                futureSailor.completeExceptionally(e);
+            } finally {
+                Framework.setController(prev);
             }
         };
     }
@@ -344,6 +352,12 @@ abstract public class Devi implements Controller, AutoCloseable {
             Thread.currentThread().interrupt();
             return;
         } catch (ExecutionException e) {
+            if (e.getCause() instanceof SimulationEnd se) {
+                throw se;
+            }
+            if (e.getCause() instanceof SimulationException se) {
+                throw se;
+            }
             throw new SimulationException(e.getCause());
         } finally {
             futureSailor = null;
@@ -352,6 +366,17 @@ abstract public class Devi implements Controller, AutoCloseable {
 
         assert result != null;
 
+        if (result.t != null) {
+            logger.log(Level.SEVERE, "Cannot evaluate event: " + next, result.t);
+            if (result.t instanceof SimulationException se) {
+                throw se;
+            }
+            if (result.t instanceof SimulationEnd se) {
+                throw se;
+            }
+            throw new SimulationException("error evaluating event: " + next, result.t);
+        }
+
         final var cc = caller;
         if (result.blockingEvent != null) {
             result.continuingEvent.setCaller(cc);
@@ -359,7 +384,7 @@ abstract public class Devi implements Controller, AutoCloseable {
             post(result.blockingEvent);
         } else if (cc != null) {
             final var ct = currentTime;
-            post(cc.resume(ct, result, result.t));
+            post(cc.resume(ct, result.result, result.t));
         }
     }
 }

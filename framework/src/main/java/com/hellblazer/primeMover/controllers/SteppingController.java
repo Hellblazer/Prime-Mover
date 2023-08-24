@@ -4,7 +4,7 @@
  * This file is part of the Prime Mover Event Driven Simulation Framework.
  * 
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as 
+ * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  * 
@@ -26,6 +26,7 @@ import com.hellblazer.primeMover.SimulationException;
 import com.hellblazer.primeMover.runtime.Devi;
 import com.hellblazer.primeMover.runtime.EventImpl;
 import com.hellblazer.primeMover.runtime.Framework;
+import com.hellblazer.primeMover.runtime.Kairos;
 import com.hellblazer.primeMover.runtime.SimulationEnd;
 import com.hellblazer.primeMover.runtime.SplayQueue;
 
@@ -45,32 +46,32 @@ public class SteppingController extends Devi {
         this.eventQueue = eventQueue;
     }
 
-    @Override
-    protected void post(EventImpl event) {
-        eventQueue.add(event);
-    }
-
     public boolean step() throws SimulationException {
         if (getCurrentTime() < 0) {
             setCurrentTime(0);
         }
         Devi current = Framework.queryController();
         try {
-            Framework.setController(this);
+            Kairos.setController(this);
             while (true) {
                 try {
                     evaluate(eventQueue.remove());
                 } catch (SimulationEnd e) {
                     // simulation end
-                    return false;
+                    return true;
                 } catch (NoSuchElementException e) {
                     // no more events to process
                     break;
                 }
             }
         } finally {
-            Framework.setController(current);
+            Kairos.setController(current);
         }
         return true;
+    }
+
+    @Override
+    protected void post(EventImpl event) {
+        eventQueue.add(event);
     }
 }

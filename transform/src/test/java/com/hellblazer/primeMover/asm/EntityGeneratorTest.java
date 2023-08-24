@@ -43,7 +43,7 @@ import org.objectweb.asm.util.TraceClassVisitor;
 
 import com.hellblazer.primeMover.ControllerImpl;
 import com.hellblazer.primeMover.asm.testClasses.Foo;
-import com.hellblazer.primeMover.runtime.Framework;
+import com.hellblazer.primeMover.runtime.Kairos;
 
 import io.github.classgraph.ClassGraph;
 
@@ -58,6 +58,7 @@ public class EntityGeneratorTest {
 
 //        final var name = "testClasses.ContinuationThroughputImpl";
 //        final var name = "testClasses.HelloWorld";
+//        final var name = "testClasses.SubEntity";
         final var name = "com.hellblazer.primeMover.asm.testClasses.MyTest";
         EntityGenerator generator = transform.generatorOf(name);
         assertNotNull(generator);
@@ -83,7 +84,7 @@ public class EntityGeneratorTest {
         var clazz = loader.loadClass(name);
         assertNotNull(clazz);
         final var controller = new ControllerImpl();
-        Framework.setController(controller);
+        Kairos.setController(controller);
         final var constructor = clazz.getConstructor();
         assertNotNull(constructor);
         var entity = constructor.newInstance();
