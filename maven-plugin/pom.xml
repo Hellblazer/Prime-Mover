@@ -60,6 +60,9 @@
                         <goals>
                             <goal>descriptor</goal>
                         </goals>
+                        <configuration>
+                            <requiredJavaVersion>"[21,)"</requiredJavaVersion>
+                        </configuration>
                     </execution>
                     <!-- if you want to generate help goal -->
                     <execution>
