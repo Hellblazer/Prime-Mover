@@ -46,7 +46,7 @@
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>${project.groupId}</groupId>
+				<groupId>com.hellblazer.primeMover</groupId>
 				<artifactId>maven-plugin</artifactId> 
 				<executions>
 					<execution>
