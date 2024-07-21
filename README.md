@@ -9,12 +9,12 @@ See [user-manual](./user-manual.pdf) in this directory for details.
 Licensed under AGPL V 3.0
 
 ## Building
-Requires Java 21 and Maven 3.94+
+Requires Java 22+
 
 To build:
 
      cd <top level directory>
-     mvn clean install
+     ./mvnw clean install
 
 Please see the GitHub Action file [maven.yml](.github/workflows/maven.yml) for an example of how to set up and run your maven build successfully.
 

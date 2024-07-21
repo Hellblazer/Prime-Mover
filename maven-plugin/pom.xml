@@ -61,7 +61,7 @@
                             <goal>descriptor</goal>
                         </goals>
                         <configuration>
-                            <requiredJavaVersion>"[21,)"</requiredJavaVersion>
+                            <requiredJavaVersion>"[22,)"</requiredJavaVersion>
                         </configuration>
                     </execution>
                     <!-- if you want to generate help goal -->
