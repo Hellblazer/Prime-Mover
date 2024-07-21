@@ -8,12 +8,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Full Build
       - uses: actions/checkout@v4
       - uses: graalvm/setup-graalvm@v1
-        with: 
+        with:
           java-version: '22'
-          distribution: graalvm
+          distribution: 'graalvm'
           cache: 'maven'
           github-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Build with Maven
