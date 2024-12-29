@@ -1,34 +1,34 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<parent>
-		<artifactId>primeMover.app</artifactId>
-		<groupId>com.hellblazer.primeMover</groupId>
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>primeMover.app</artifactId>
+        <groupId>com.hellblazer.primeMover</groupId>
         <version>0.1.0-SNAPSHOT</version>
-	</parent> 
-	<artifactId>maven-test</artifactId>
-	<name>Maven plugin integration testing</name>
-	<description>Maven plugin integration testing</description>
+    </parent>
+    <artifactId>maven-test</artifactId>
+    <name>Maven plugin integration testing</name>
+    <description>Maven plugin integration testing</description>
 
-	<licenses>
-		<license>
-			<name>GNU Affero General Public License V3</name>
-			<url>http://www.gnu.org/licenses/agpl-3.0.txt</url>
-			<distribution>repo</distribution>
-			<comments>
+    <licenses>
+        <license>
+            <name>GNU Affero General Public License V3</name>
+            <url>http://www.gnu.org/licenses/agpl-3.0.txt</url>
+            <distribution>repo</distribution>
+            <comments>
                 Copyright (c) 2010, Hal Hildebrand
                 &lt;hal.hildebrand @ gmail.com&gt; All
                 rights reserved.
             </comments>
-		</license>
-	</licenses>
+        </license>
+    </licenses>
 
-	<dependencies>
-		<dependency>
-			<groupId>com.hellblazer.primeMover</groupId>
-			<artifactId>runtime</artifactId> 
-		</dependency>
+    <dependencies>
+        <dependency>
+            <groupId>com.hellblazer.primeMover</groupId>
+            <artifactId>runtime</artifactId>
+        </dependency>
 
         <!-- Test Only Dependencies Below This Line-->
         <dependency>
@@ -41,59 +41,22 @@
             <artifactId>junit-jupiter</artifactId>
             <scope>test</scope>
         </dependency>
-	</dependencies>
+    </dependencies>
 
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>${project.groupId}</groupId>
-				<artifactId>primemover-maven-plugin</artifactId>
-				<executions>
-					<execution>
-						<goals>
-							<goal>transform</goal>
-							<goal>transform-test</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin> 
-		</plugins>
-		<pluginManagement>
-			<plugins>
-				<!--This plugin's configuration is used to store Eclipse m2e settings 
-					only. It has no influence on the Maven build itself. -->
-				<plugin>
-					<groupId>org.eclipse.m2e</groupId>
-					<artifactId>lifecycle-mapping</artifactId>
-					<version>1.0.0</version>
-					<configuration>
-						<lifecycleMappingMetadata>
-							<pluginExecutions>
-								<pluginExecution>
-									<pluginExecutionFilter>
-										<groupId>
-											${project.groupId}
-										</groupId>
-										<artifactId>
-											maven-plugin
-										</artifactId>
-										<versionRange>
-											[0.1.0-SNAPSHOT,)
-										</versionRange>
-										<goals>
-											<goal>transform-test</goal>
-											<goal>transform</goal>
-										</goals>
-									</pluginExecutionFilter>
-									<action>
-										<ignore></ignore>
-									</action>
-								</pluginExecution>
-							</pluginExecutions>
-						</lifecycleMappingMetadata>
-					</configuration>
-				</plugin>
-			</plugins>
-		</pluginManagement>
-	</build>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>primemover-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>transform</goal>
+                            <goal>transform-test</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>
