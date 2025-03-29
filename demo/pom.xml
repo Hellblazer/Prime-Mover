@@ -50,6 +50,7 @@
             <plugin>
                 <groupId>com.hellblazer.primeMover</groupId>
                 <artifactId>primemover-maven-plugin</artifactId>
+                <version>${project.version}</version>
                 <executions>
                     <execution>
                         <goals>

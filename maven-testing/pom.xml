@@ -48,6 +48,7 @@
             <plugin>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>primemover-maven-plugin</artifactId>
+                <version>${project.version}</version>
                 <executions>
                     <execution>
                         <goals>

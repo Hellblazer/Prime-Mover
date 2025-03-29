@@ -38,18 +38,14 @@ import java.util.logging.Logger;
 abstract public class RealTimeController extends Devi {
     private static final Logger log = Logger.getLogger(RealTimeController.class.getCanonicalName());
 
-    protected Thread           animator;
-    protected Queue<EventImpl> eventQueue = new SplayQueue<EventImpl>();
-    protected String           name;
-    protected AtomicBoolean    running    = new AtomicBoolean(false);
-    protected Lock             queueLock  = new ReentrantLock();
+    protected final Queue<EventImpl> eventQueue = new SplayQueue<EventImpl>();
+    protected final String           name;
+    protected final AtomicBoolean    running    = new AtomicBoolean(false);
+    protected final Lock             queueLock  = new ReentrantLock();
+    protected       Thread           animator;
+    private         long             offset;
 
-    /**
-     * Set the name of the simulation.
-     *
-     * @param name
-     */
-    public void setName(String name) {
+    protected RealTimeController(String name) {
         this.name = name;
     }
 
@@ -57,9 +53,17 @@ abstract public class RealTimeController extends Devi {
      * Start the controller
      */
     public void start() {
+        start(System.nanoTime());
+    }
+
+    /**
+     * Start the controller
+     */
+    public void start(long offset) {
         if (running.getAndSet(true)) {
             return;
         }
+        this.offset = offset;
         animator = Thread.ofVirtual().name("Event Animation Thread [" + name + "]").factory().newThread(eventLoop());
         animator.start();
     }
@@ -84,6 +88,10 @@ abstract public class RealTimeController extends Devi {
         animator = null;
     }
 
+    protected long advance() {
+        return System.nanoTime() - offset;
+    }
+
     /**
      * the event loop of the simulation controller
      */
@@ -91,7 +99,7 @@ abstract public class RealTimeController extends Devi {
         return () -> {
             EventImpl event;
             boolean eventFired;
-            long millis;
+            long nanos;
             while (running.get()) {
                 // Wait for queue to become non-empty
                 while (eventQueue.isEmpty() && running.get()) {
@@ -107,8 +115,8 @@ abstract public class RealTimeController extends Devi {
                         break;
                     }
                     event = eventQueue.peek();
-                    millis = event.getTime();
-                    eventFired = millis <= System.currentTimeMillis();
+                    nanos = event.getTime();
+                    eventFired = nanos <= advance();
                     if (eventFired) {
                         eventQueue.remove();
                     }
@@ -122,7 +130,7 @@ abstract public class RealTimeController extends Devi {
                         log.log(Level.SEVERE, "Error firing: " + event, e.getCause());
                     }
                 } else {
-                    LockSupport.parkUntil(millis);
+                    LockSupport.parkNanos(nanos);
                     if (Thread.interrupted()) {
                         break;
                     }
