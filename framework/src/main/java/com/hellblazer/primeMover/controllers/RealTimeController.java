@@ -45,7 +45,7 @@ public class RealTimeController extends Devi {
     protected       Thread           animator;
     private         long             offset;
 
-    protected RealTimeController(String name) {
+    public RealTimeController(String name) {
         this.name = name;
     }
 
