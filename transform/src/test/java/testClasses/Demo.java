@@ -24,8 +24,9 @@ import static com.hellblazer.primeMover.Kronos.sleep;
 import java.util.Map;
 
 import com.hellblazer.primeMover.Kronos;
-import com.hellblazer.primeMover.SimulationException;
 import com.hellblazer.primeMover.controllers.SimulationController;
+import com.hellblazer.primeMover.runtime.Kairos;
+import com.hellblazer.primeMover.runtime.SimulationEnd;
 
 /**
  * 
@@ -35,34 +36,40 @@ import com.hellblazer.primeMover.controllers.SimulationController;
 
 public class Demo {
 
-    public static void channel() throws SimulationException {
+    public static void channel() throws Exception {
         SimulationController controller = new SimulationController();
         Kronos.setController(controller);
         controller.setCurrentTime(0);
         new UseChannelImpl().test();
         controller.eventLoop();
+        controller.close();
+        System.out.println("Thread Statistics: " + controller.threadStatistics());
+        System.out.println();
         System.out.println("Event spectrum:");
         for (Map.Entry<String, Integer> spectrumEntry : controller.getSpectrum().entrySet()) {
             System.out.println("\t" + spectrumEntry.getValue() + "\t\t : " + spectrumEntry.getKey());
         }
     }
 
-    public static void eventContinuationThroughput() throws SimulationException {
+    public static void eventContinuationThroughput() throws Exception {
         SimulationController controller = new SimulationController();
         Kronos.setController(controller);
         controller.setCurrentTime(0);
 
         new ContinuationThroughputImpl("STRING", 1_000_000).go();
         controller.eventLoop();
+        controller.close();
+        System.out.println("Thread Statistics: " + controller.threadStatistics());
+        System.out.println();
         System.out.println("Event spectrum:");
         for (Map.Entry<String, Integer> spectrumEntry : controller.getSpectrum().entrySet()) {
             System.out.println("\t" + spectrumEntry.getValue() + "\t\t : " + spectrumEntry.getKey());
         }
     }
 
-    public static void eventThroughput() throws SimulationException {
+    public static void eventThroughput() throws Exception {
         SimulationController controller = new SimulationController();
-        Kronos.setController(controller);
+        Kairos.setController(controller);
         controller.setCurrentTime(0);
         final var eventCount = 1_000_000;
         EventThroughput benchmark = new EventThroughputImpl("STRING", eventCount);
@@ -70,15 +77,15 @@ public class Demo {
         benchmark.start();
         sleep(2 * eventCount);
         benchmark.finish();
-        try {
-            controller.eventLoop();
-        } catch (SimulationException e) {
-            //
-        }
+        controller.eventLoop();
+        controller.close();
+        System.out.println("Thread Statistics: " + controller.threadStatistics());
+        System.out.println();
         System.out.println("Event spectrum:");
         for (Map.Entry<String, Integer> spectrumEntry : controller.getSpectrum().entrySet()) {
             System.out.println("\t" + spectrumEntry.getValue() + "\t\t : " + spectrumEntry.getKey());
         }
+        System.out.println("Thread Statistics: " + controller.threadStatistics());
     }
 
     public static void main(String[] argv) throws Exception {
@@ -109,9 +116,10 @@ public class Demo {
         System.out.println();
         System.out.println();
         eventThroughput();
+        throw new SimulationEnd();
     }
 
-    public static void threaded() throws SimulationException {
+    public static void threaded() throws Exception {
         SimulationController controller = new SimulationController();
         Kronos.setController(controller);
         controller.setCurrentTime(0);
@@ -120,6 +128,9 @@ public class Demo {
         threaded.process(2);
         threaded.process(3);
         controller.eventLoop();
+        controller.close();
+        System.out.println("Thread Statistics: " + controller.threadStatistics());
+        System.out.println();
         System.out.println("Event spectrum:");
         for (Map.Entry<String, Integer> spectrumEntry : controller.getSpectrum().entrySet()) {
             System.out.println("\t" + spectrumEntry.getValue() + "\t\t : " + spectrumEntry.getKey());

@@ -67,6 +67,7 @@ public class SimulationTransform implements Closeable {
                                         .collect(Collectors.toCollection(() -> new OpenSet<ClassInfo>()));
         ci.getSuperclasses()
           .stream()
+          .filter(s -> s.getAnnotationInfo(Entity.class) != null)
           .flatMap(s -> Arrays.stream((Object[]) s.getAnnotationInfo(Entity.class)
                                                   .getParameterValues(true)
                                                   .getValue("value")))

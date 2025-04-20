@@ -40,21 +40,17 @@ final public class Kairos {
     private static Method RUN_METHOD = getRunMethod();
 
     /**
-     * Advance the simulation time, blocking the event invoking this API until
-     * such time is reached in the simulation
+     * Advance the simulation time, blocking the event invoking this API until such
+     * time is reached in the simulation
      * 
-     * @param duration
-     *            - the duration to advance the simulation
+     * @param duration - the duration to advance the simulation
      */
     @Blocking
     public static void blockingSleep(long duration) {
         try {
-            postContinuingEvent(BLOCKING_SLEEP_INSTANCE,
-                                new Object[] { duration }, SLEEP_EVENT);
+            postContinuingEvent(BLOCKING_SLEEP_INSTANCE, new Object[] { duration }, SLEEP_EVENT);
         } catch (Throwable e) {
-            throw new IllegalStateException(
-                                            "No exception should have been thrown",
-                                            e);
+            throw new IllegalStateException("No exception should have been thrown", e);
         }
     }
 
@@ -69,18 +65,14 @@ final public class Kairos {
     public static void callStatic(long time, Method method, Object... arguments) {
         int modifiers = method.getModifiers();
         if (Modifier.isStatic(modifiers) && Modifier.isPublic(modifiers)) {
-            getController().postEvent(time, new StaticEntityReference(method),
-                                      0, arguments);
+            getController().postEvent(time, new StaticEntityReference(method), 0, arguments);
         } else {
-            throw new IllegalArgumentException(
-                                               "Must be a public static event: "
-                                                       + method.toGenericString());
+            throw new IllegalArgumentException("Must be a public static event: " + method.toGenericString());
         }
     }
 
     /**
-     * Schedule the call of the static event in the simulation at the current
-     * time
+     * Schedule the call of the static event in the simulation at the current time
      * 
      * @param event
      * @param arguments
@@ -125,21 +117,11 @@ final public class Kairos {
 
     /**
      * @return the current controller of the thread
-     * @throws IllegalStateException
-     *             - if there is no controller set for the current thread
+     * @throws IllegalStateException - if there is no controller set for the current
+     *                               thread
      */
     public static Controller getController() {
         return Framework.getController();
-    }
-
-    private static Method getRunMethod() {
-        try {
-            return Framework.class.getDeclaredMethod("run", Runnable.class);
-        } catch (Exception e) {
-            throw new IllegalStateException(
-                                            "Unable to acquire run(Runnable) event",
-                                            e);
-        }
     }
 
     /**
@@ -152,8 +134,7 @@ final public class Kairos {
     /**
      * Execute a runnable at the currently scheduled simulatioin time.
      * 
-     * @param r
-     *            - the Runnable to schedule
+     * @param r - the Runnable to schedule
      */
     public static void run(Runnable r) {
         callStatic(RUN_METHOD, r);
@@ -162,10 +143,8 @@ final public class Kairos {
     /**
      * Execute a runnable at the indicated instant in the simulation
      * 
-     * @param r
-     *            - the Runnable to schedule
-     * @param instant
-     *            - the instant in time the runnable is scheduled
+     * @param r       - the Runnable to schedule
+     * @param instant - the instant in time the runnable is scheduled
      */
     public static void runAt(Runnable r, long instant) {
         callStatic(instant, RUN_METHOD, r);
@@ -177,9 +156,8 @@ final public class Kairos {
      * @param controller
      */
     public static void setController(Controller controller) {
-        if (!(controller instanceof Devi)) {
-            throw new IllegalArgumentException(
-                                               "Controller must be instanceof Devi");
+        if (controller != null && !(controller instanceof Devi)) {
+            throw new IllegalArgumentException("Controller must be instanceof Devi: " + controller.getClass());
         }
         Framework.setController((Devi) controller);
     }
@@ -196,11 +174,18 @@ final public class Kairos {
     /**
      * Advance the simulation time. Do not block the event invoking this API
      * 
-     * @param duration
-     *            - the measure of time to advance the simulation
+     * @param duration - the measure of time to advance the simulation
      */
     public static void sleep(long duration) {
         getController().advance(duration);
+    }
+
+    private static Method getRunMethod() {
+        try {
+            return Framework.class.getDeclaredMethod("run", Runnable.class);
+        } catch (Exception e) {
+            throw new IllegalStateException("Unable to acquire run(Runnable) event", e);
+        }
     }
 
     private Kairos() {

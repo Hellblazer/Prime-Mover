@@ -137,7 +137,6 @@ public class EventImpl implements Cloneable, Serializable, Comparable<EventImpl>
         final var newCont = new Continuation();
         continuation = newCont;
         final var parked = newCont.park(sailorMoon, result);
-        logger.finer("Continuing: %s event: %s".formatted(Thread.currentThread(), this));
         return parked;
     }
 
@@ -179,9 +178,9 @@ public class EventImpl implements Cloneable, Serializable, Comparable<EventImpl>
     }
 
     Object invoke() throws Throwable {
-        logger.finest("Invoking " + this);
+//        logger.info("Invoking " + this);
         final var result = reference.__invoke(event, arguments);
-        logger.finest("Finished invoking " + this);
+//        logger.info("Finished invoking " + this);
         return result;
     }
 
@@ -197,14 +196,12 @@ public class EventImpl implements Cloneable, Serializable, Comparable<EventImpl>
 //                                                                                   cont == null ? false
 //                                                                                                : cont.isParked());
         continuation = null;
-        Logger.getLogger(EventImpl.class.getCanonicalName()).finer("Continuing: %s".formatted(this));
+        logger.finer("Continuing: %s".formatted(this));
         cont.resume();
     }
 
     EventImpl resume(long currentTime, Object result, Throwable exception) {
         time = currentTime;
-        Logger.getLogger(EventImpl.class.getCanonicalName())
-              .finer("Resume at: %s r: %s ex: %s".formatted(this, result, exception));
         final var current = continuation;
         if (current != null) {
             current.setReturnState(result, exception);

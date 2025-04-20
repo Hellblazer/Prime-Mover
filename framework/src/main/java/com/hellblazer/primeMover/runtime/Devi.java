@@ -1,86 +1,64 @@
 /**
  * Copyright (C) 2008 Hal Hildebrand. All rights reserved.
- * 
+ *
  * This file is part of the Prime Mover Event Driven Simulation Framework.
- * 
- * This program is free software: you can redistribute it and/or modify it under
- * the terms of the GNU Affero General Public License as published by the Free
- * Software Foundation, either version 3 of the License, or (at your option) any
+ *
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General
+ * Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
  * later version.
- * 
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
  * details.
- * 
- * You should have received a copy of the GNU Affero General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * You should have received a copy of the GNU Affero General Public License along with this program. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 package com.hellblazer.primeMover.runtime;
-
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.ThreadFactory;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.hellblazer.primeMover.Controller;
 import com.hellblazer.primeMover.Event;
 import com.hellblazer.primeMover.SimulationException;
 
+import java.util.concurrent.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  * The processor of events, the continuation of time. This is the central
  * control interface of PrimeMover.
- * 
+ *
  * @author <a href="mailto:hal.hildebrand@gmail.com">Hal Hildebrand</a>
  */
-abstract public class Devi implements Controller {
-    record EvaluationResult(Throwable t, Object result, EventImpl blockingEvent, EventImpl continuingEvent) {
-
-        EvaluationResult(Object o) {
-            this(null, o, null, null);
-        }
-
-        public EvaluationResult(Throwable t) {
-            this(t, null, null, null);
-        }
-
-        EvaluationResult(EventImpl blocking, EventImpl continuing) {
-            this(null, null, blocking, continuing);
-        }
-    }
-
-    private static final String $ENTITY$GEN = "$entity$gen";
-    private static final Logger logger      = Logger.getLogger(Devi.class.getCanonicalName());
-
+abstract public class Devi implements Controller, AutoCloseable {
+    private static final Logger logger = Logger.getLogger(Devi.class.getCanonicalName());
+    private final    ThreadPoolExecutor                  executor;
+    private final    Semaphore                           serializer        = new Semaphore(1);
     private volatile EventImpl                           caller;
     private volatile EventImpl                           currentEvent;
     private volatile long                                currentTime       = 0;
-    private boolean                                      debugEvents       = false;
-    private Logger                                       eventLog;
+    private          boolean                             debugEvents       = false;
+    private          Logger                              eventLog;
+    private volatile ThreadStats                         finalStats;
     private volatile CompletableFuture<EvaluationResult> futureSailor;
-    private final Semaphore                              serializer        = new Semaphore(1);
-    private final ThreadFactory                          tf;
-    private boolean                                      trackEventSources = false;
-
+    private          boolean                             trackEventSources = false;
     public Devi() {
-        tf = Thread.ofVirtual().uncaughtExceptionHandler((thread, t) -> {
+        executor = (ThreadPoolExecutor) Executors.newCachedThreadPool(
+        Thread.ofVirtual().uncaughtExceptionHandler((thread, t) -> {
             logger.log(Level.SEVERE, "unhandled exception in: " + thread, t);
-        }).name("Event Execution: ", 0).factory();
+        }).name("Event Execution: ", 0).factory());
     }
 
     /**
      * Advance the current time of the controller
-     * 
+     *
      * @param duration
      */
     @Override
     public void advance(long duration) {
         final var current = currentTime;
         currentTime = current + duration;
-        logger.finer("Advancing time from: %s to: %s".formatted(current, currentTime));
     }
 
     /**
@@ -94,9 +72,17 @@ abstract public class Devi implements Controller {
         futureSailor = null;
     }
 
+    @Override
+    public void close() throws Exception {
+        if (finalStats != null) {
+            finalStats = new ThreadStats(executor);
+        }
+        executor.close();
+    }
+
     /**
      * Answer the current event of the controller
-     * 
+     *
      * @return
      */
     @Override
@@ -106,12 +92,22 @@ abstract public class Devi implements Controller {
 
     /**
      * Answer the current instant in time of the controller
-     * 
+     *
      * @return
      */
     @Override
     public long getCurrentTime() {
         return currentTime;
+    }
+
+    /**
+     * Set the current time of the controller
+     *
+     * @param time
+     */
+    @Override
+    public void setCurrentTime(long time) {
+        currentTime = time;
     }
 
     /**
@@ -124,6 +120,19 @@ abstract public class Devi implements Controller {
     }
 
     /**
+     * Configure the collecting of debug information for raised events. When debug
+     * is enabled, the controller will record the source location where an event was
+     * raised. The collection of debug information for events is expensive and
+     * significantly impacts the performance of the simulation event processing.
+     *
+     * @param debug - true to trigger the collecting of event debug information
+     */
+    @Override
+    public void setDebugEvents(boolean debug) {
+        debugEvents = debug;
+    }
+
+    /**
      * @return true if the controller is tracking event sources
      */
     @Override
@@ -132,10 +141,23 @@ abstract public class Devi implements Controller {
     }
 
     /**
+     * Configure whether the controller will track the source event of a raised
+     * event. Tracking event sources has garbage collection implications, as event
+     * chains prevent the elimantion of previous events which have already been
+     * processed.
+     *
+     * @param track - true to track event sources
+     */
+    @Override
+    public void setTrackEventSources(boolean track) {
+        trackEventSources = track;
+    }
+
+    /**
      * Post the event to be evaluated. The event is blocking, meaning that it will
      * cause the caller to block execution until the event is processed, continuing
      * with the result of the blocking event
-     * 
+     *
      * @param entity    - the target of the event
      * @param event     - the event
      * @param arguments - the arguments to the event
@@ -154,14 +176,12 @@ abstract public class Devi implements Controller {
         final var ct = currentTime;
         final var continuingEvent = current.clone(ct);
         var blockingEvent = createEvent(ct, entity, event, arguments);
-        logger.finer("Blocking: %s on: %s; continuation: %s".formatted(Thread.currentThread(), blockingEvent,
-                                                                       continuingEvent));
         return continuingEvent.park(sailorMoon, new EvaluationResult(blockingEvent, continuingEvent));
     }
 
     /**
      * Post the event to be evaluated
-     * 
+     *
      * @param entity    - the target of the event
      * @param event     - the event event
      * @param arguments - the arguments to the event
@@ -173,7 +193,7 @@ abstract public class Devi implements Controller {
 
     /**
      * Post the event to be evaluated at the specified instant in time
-     * 
+     *
      * @param time      - the instant in time the event is to be processed
      * @param entity    - the target of the event
      * @param event     - the event event
@@ -185,31 +205,8 @@ abstract public class Devi implements Controller {
     }
 
     /**
-     * Set the current time of the controller
-     * 
-     * @param time
-     */
-    @Override
-    public void setCurrentTime(long time) {
-        currentTime = time;
-    }
-
-    /**
-     * Configure the collecting of debug information for raised events. When debug
-     * is enabled, the controller will record the source location where an event was
-     * raised. The collection of debug information for events is expensive and
-     * significantly impacts the performance of the simulation event processing.
-     * 
-     * @param debug - true to trigger the collecting of event debug information
-     */
-    @Override
-    public void setDebugEvents(boolean debug) {
-        debugEvents = debug;
-    }
-
-    /**
      * Configure the logger for tracing all event processing
-     * 
+     *
      * @param eventLog
      */
     @Override
@@ -217,17 +214,8 @@ abstract public class Devi implements Controller {
         this.eventLog = eventLog;
     }
 
-    /**
-     * Configure whether the controller will track the source event of a raised
-     * event. Tracking event sources has garbage collection implications, as event
-     * chains prevent the elimantion of previous events which have already been
-     * processed.
-     * 
-     * @param track - true to track event sources
-     */
-    @Override
-    public void setTrackEventSources(boolean track) {
-        trackEventSources = track;
+    public ThreadStats threadStatistics() {
+        return finalStats != null ? finalStats : new ThreadStats(executor);
     }
 
     protected EventImpl createEvent(long time, EntityReference entity, int event, Object... arguments) {
@@ -235,8 +223,9 @@ abstract public class Devi implements Controller {
 
         if (debugEvents) {
             StackTraceElement[] stackTrace = new Throwable().getStackTrace();
+            final var cn = entity.getClass().getCanonicalName();
             for (int i = 0; i < stackTrace.length; i++) {
-                if (stackTrace[i].getClassName().endsWith($ENTITY$GEN)) {
+                if (stackTrace[i].getClassName().equals(cn)) {
                     return new EventImpl(stackTrace[i + 1].toString(), time, sourceEvent, entity, event, arguments);
                 }
             }
@@ -248,7 +237,7 @@ abstract public class Devi implements Controller {
     /**
      * The heart of the event processing loop. This is where the events are
      * evaluated.
-     * 
+     *
      * @param next - the event to evaluate.
      * @throws SimulationException - if an exception occurs during the evaluation of
      *                             the event.
@@ -270,27 +259,28 @@ abstract public class Devi implements Controller {
 
     /**
      * Post the event to be evaluated
-     * 
+     *
      * @param event
      */
     abstract protected void post(EventImpl event);
 
     /**
      * Swap the calling event for the current caller
-     * 
+     *
      * @param newCaller
-     * @return
+     * @return the current caller event
      */
     protected EventImpl swapCaller(EventImpl newCaller) {
         var tmp = caller;
         caller = newCaller;
-        logger.finer("Swap caller: %s for: %s".formatted(tmp, newCaller));
         return tmp;
     }
 
     private Runnable eval(EventImpl event) {
         return () -> {
+            Devi prev = Framework.getCurrentController();
             try {
+                Framework.setController(this);
                 if (eventLog != null) {
                     eventLog.info(event.toString());
                 }
@@ -299,8 +289,14 @@ abstract public class Devi implements Controller {
                     logger.severe("Future sailor already done");
                 }
                 futureSailor.complete(new EvaluationResult(result));
+            } catch (SimulationEnd e) {
+                logger.info("Simulation has ended at: " + currentTime);
+                futureSailor.completeExceptionally(e);
+                return;
             } catch (Throwable e) {
-                futureSailor.complete(new EvaluationResult(e));
+                futureSailor.completeExceptionally(e);
+            } finally {
+                Framework.setController(prev);
             }
         };
     }
@@ -314,7 +310,7 @@ abstract public class Devi implements Controller {
         if (next.isContinuation()) {
             next.proceed();
         } else {
-            tf.newThread(eval(next)).start();
+            executor.execute(eval(next));
         }
         EvaluationResult result = null;
         try {
@@ -323,6 +319,12 @@ abstract public class Devi implements Controller {
             Thread.currentThread().interrupt();
             return;
         } catch (ExecutionException e) {
+            if (e.getCause() instanceof SimulationEnd se) {
+                throw se;
+            }
+            if (e.getCause() instanceof SimulationException se) {
+                throw se;
+            }
             throw new SimulationException(e.getCause());
         } finally {
             futureSailor = null;
@@ -331,6 +333,17 @@ abstract public class Devi implements Controller {
 
         assert result != null;
 
+        if (result.t != null) {
+            logger.log(Level.SEVERE, "Cannot evaluate event: " + next, result.t);
+            if (result.t instanceof SimulationException se) {
+                throw se;
+            }
+            if (result.t instanceof SimulationEnd se) {
+                throw se;
+            }
+            throw new SimulationException("error evaluating event: " + next, result.t);
+        }
+
         final var cc = caller;
         if (result.blockingEvent != null) {
             result.continuingEvent.setCaller(cc);
@@ -338,7 +351,30 @@ abstract public class Devi implements Controller {
             post(result.blockingEvent);
         } else if (cc != null) {
             final var ct = currentTime;
-            post(cc.resume(ct, result, result.t));
+            post(cc.resume(ct, result.result, result.t));
+        }
+    }
+
+    public record ThreadStats(int activeCount, long completedTaskCount, int largestPoolSize, int poolSize,
+                              long taskCount) {
+        public ThreadStats(ThreadPoolExecutor executor) {
+            this(executor.getActiveCount(), executor.getCompletedTaskCount(), executor.getLargestPoolSize(),
+                 executor.getPoolSize(), executor.getTaskCount());
+        }
+    }
+
+    record EvaluationResult(Throwable t, Object result, EventImpl blockingEvent, EventImpl continuingEvent) {
+
+        EvaluationResult(Object o) {
+            this(null, o, null, null);
+        }
+
+        public EvaluationResult(Throwable t) {
+            this(t, null, null, null);
+        }
+
+        EvaluationResult(EventImpl blocking, EventImpl continuing) {
+            this(null, null, blocking, continuing);
         }
     }
 }
