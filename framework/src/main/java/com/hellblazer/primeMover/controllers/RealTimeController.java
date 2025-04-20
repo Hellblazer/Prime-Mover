@@ -35,7 +35,7 @@ import java.util.logging.Logger;
  *
  * @author <a href="mailto:hal.hildebrand@gmail.com">Hal Hildebrand</a>
  */
-abstract public class RealTimeController extends Devi {
+public class RealTimeController extends Devi {
     private static final Logger log = Logger.getLogger(RealTimeController.class.getCanonicalName());
 
     protected final Queue<EventImpl> eventQueue = new SplayQueue<EventImpl>();
