@@ -7,11 +7,9 @@ import com.hellblazer.primeMover.runtime.EntityReference;
 import com.hellblazer.primeMover.runtime.Framework;
 import io.github.classgraph.ClassInfo;
 import io.github.classgraph.MethodInfo;
+import jdk.internal.constant.PrimitiveClassDescImpl;
 
-import java.lang.classfile.ClassFile;
-import java.lang.classfile.ClassTransform;
-import java.lang.classfile.CodeTransform;
-import java.lang.classfile.MethodTransform;
+import java.lang.classfile.*;
 import java.lang.classfile.instruction.InvokeInstruction;
 import java.lang.constant.ClassDesc;
 import java.lang.constant.MethodTypeDesc;
@@ -20,6 +18,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+
+import static jdk.internal.constant.PrimitiveClassDescImpl.*;
 
 /**
  * @author hal.hildebrand
@@ -334,17 +334,14 @@ public class EntityTransformer {
         var key = 0;
         for (var mi : events.stream().sorted().toList()) {
             mapped.put(key, mi);
-            final var event = new Method(mi.getName(), MethodTypeDesc.ofDescriptor(mi.getTypeDescriptorStr()));
+            final var event = new Method(ClassDesc.of(mi.getClassName()), mi.getName(),
+                                         MethodTypeDesc.ofDescriptor(mi.getTypeDescriptorStr()));
             inverse.put(event, key++);
             this.events.add(event);
             if (!mi.getTypeDescriptor().getResultType().toString().equals("void") || mi.hasAnnotation(Blocking.class)) {
                 blocking.add(event);
             }
-            final boolean declared = clazz.getDeclaredMethodInfo(mi.getName())
-                                          .stream()
-                                          .filter(m -> mi.equals(m))
-                                          .findFirst()
-                                          .isPresent();
+            final boolean declared = clazz.getDeclaredMethodInfo(mi.getName()).stream().anyMatch(m -> mi.equals(m));
             if (declared) {
                 remapped.add(mi);
             }
@@ -355,7 +352,7 @@ public class EntityTransformer {
         CodeTransform codeTransform = (codeBuilder, e) -> {
             switch (e) {
                 case InvokeInstruction i -> {
-                    var method = new Method(i.name().stringValue(), i.typeSymbol());
+                    var method = new Method(i.owner().asSymbol(), i.name().stringValue(), i.typeSymbol());
                     if (!mapped.containsKey(method)) {
                         codeBuilder.invoke(i.opcode(), ClassDesc.of("Bar"), i.name().stringValue(), i.typeSymbol(),
                                            i.isInterface());
@@ -374,15 +371,59 @@ public class EntityTransformer {
         return ClassFile.of().transformClass(ClassFile.of().parse(bytes), classTransform);
     }
 
-    private record Method(String name, MethodTypeDesc descriptor) {
+    private void boxIt(CodeBuilder builder, PrimitiveClassDescImpl type) {
+        if (type == CD_byte) {
+            builder.invokestatic(BYTE_VALUE_OF_METHOD.defining, BYTE_VALUE_OF_METHOD.name,
+                                 BYTE_VALUE_OF_METHOD.descriptor);
+            return;
+        }
+        if (type == CD_char) {
+            builder.invokestatic(CHARACTER_VALUE_OF_METHOD.defining, CHARACTER_VALUE_OF_METHOD.name,
+                                 CHARACTER_VALUE_OF_METHOD.descriptor);
+            return;
+        }
+        if (type == CD_double) {
+            builder.invokestatic(DOUBLE_VALUE_OF_METHOD.defining, DOUBLE_VALUE_OF_METHOD.name,
+                                 DOUBLE_VALUE_OF_METHOD.descriptor);
+            return;
+        }
+        if (type == CD_float) {
+            builder.invokestatic(FLOAT_VALUE_OF_METHOD.defining, FLOAT_VALUE_OF_METHOD.name,
+                                 FLOAT_VALUE_OF_METHOD.descriptor);
+            return;
+        }
+        if (type == CD_int) {
+            builder.invokestatic(INTEGER_VALUE_OF_METHOD.defining, INTEGER_VALUE_OF_METHOD.name,
+                                 INTEGER_VALUE_OF_METHOD.descriptor);
+            return;
+        }
+        if (type == CD_long) {
+            builder.invokestatic(LONG_VALUE_OF_METHOD.defining, LONG_VALUE_OF_METHOD.name,
+                                 LONG_VALUE_OF_METHOD.descriptor);
+            return;
+        }
+        if (type == CD_short) {
+            builder.invokestatic(SHORT_VALUE_OF_METHOD.defining, SHORT_VALUE_OF_METHOD.name,
+                                 SHORT_VALUE_OF_METHOD.descriptor);
+            return;
+        }
+        if (type == CD_boolean) {
+            builder.invokestatic(BOOLEAN_VALUE_OF_METHOD.defining, BOOLEAN_VALUE_OF_METHOD.name,
+                                 BOOLEAN_VALUE_OF_METHOD.descriptor);
+            return;
+        }
+        throw new IllegalArgumentException("Unknown parameter type: " + type);
+    }
+
+    private record Method(ClassDesc defining, String name, MethodTypeDesc descriptor) {
         static Method getMethod(final java.lang.reflect.Method method) {
-            return new Method(method.getName(),
+            return new Method(ClassDesc.of(method.getDeclaringClass().getCanonicalName()), method.getName(),
                               MethodTypeDesc.of(ClassDesc.of(method.getReturnType().getCanonicalName()), Arrays.stream(
                               method.getParameterTypes()).map(e -> ClassDesc.of(e.getCanonicalName())).toList()));
         }
 
         public static Method getMethod(Constructor<?> constructor) {
-            return new Method("<init>",
+            return new Method(ClassDesc.of(constructor.getDeclaringClass().getCanonicalName()), "<init>",
                               MethodTypeDesc.of(ClassDesc.of(constructor.getDeclaringClass().getCanonicalName()),
                                                 Arrays.stream(constructor.getParameterTypes())
                                                       .map(e -> ClassDesc.of(e.getCanonicalName()))
