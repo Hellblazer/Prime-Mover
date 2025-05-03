@@ -47,12 +47,6 @@ public abstract class AbstractTransform extends AbstractMojo {
         logger.info(String.format("Using transform classpath: %s", Arrays.asList(classpath)));
         var graph = new ClassGraph();
         final var cpFile = new File(classpath);
-        String prefix;
-        try {
-            prefix = cpFile.getCanonicalPath();
-        } catch (IOException e) {
-            throw new IllegalStateException("Cannot get canonical path of: %s".formatted(cpFile));
-        }
         final URL cpUrl;
         try {
             cpUrl = cpFile.toURI().toURL();

@@ -429,10 +429,6 @@ public class EntityGenerator {
         }
     }
 
-    public ClassInfo getClazz() {
-        return clazz;
-    }
-
     private void boxIt(GeneratorAdapter adapter, Type type) {
         switch (type.getSort()) {
         case Type.BYTE:
