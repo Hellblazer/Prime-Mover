@@ -4,10 +4,12 @@ import com.hellblazer.primeMover.Kronos;
 import com.hellblazer.primeMover.annotations.Blocking;
 import com.hellblazer.primeMover.asm.OpenAddressingSet;
 import com.hellblazer.primeMover.runtime.Kairos;
-import io.github.classgraph.ClassInfo;
 import io.github.classgraph.MethodInfo;
 
-import java.lang.classfile.*;
+import java.lang.classfile.ClassFile;
+import java.lang.classfile.CodeBuilder;
+import java.lang.classfile.CodeTransform;
+import java.lang.classfile.MethodModel;
 import java.lang.classfile.instruction.InvokeInstruction;
 import java.lang.constant.ClassDesc;
 import java.lang.constant.MethodTypeDesc;
@@ -17,6 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import static java.lang.classfile.ClassTransform.transformingMethodBodies;
 import static java.lang.constant.ConstantDescs.*;
 
 /**
@@ -25,18 +28,14 @@ import static java.lang.constant.ConstantDescs.*;
 public class EntityTransformer {
 
     private final Set<Method>              blocking;
-    private final ClassInfo                clazz;
     private final Set<Method>              events;
-    private final String                   internalName;
     private final Map<Method, Integer>     inverse;
     private final Map<Integer, MethodInfo> mapped;
     private final Set<MethodInfo>          remapped;
     private final ClassDesc                type;
 
-    public EntityTransformer(ClassInfo clazz, Set<MethodInfo> events) {
-        this.clazz = clazz;
-        type = ClassDesc.of(clazz.getName());
-        internalName = clazz.getName().replace('.', '/');
+    public EntityTransformer(ClassDesc clazz, Set<MethodInfo> events) {
+        type = clazz;
         mapped = new HashMap<>();
         remapped = new OpenAddressingSet.OpenSet<>();
         blocking = new OpenAddressingSet.OpenSet<>();
@@ -52,15 +51,24 @@ public class EntityTransformer {
             if (!mi.getTypeDescriptor().getResultType().toString().equals("void") || mi.hasAnnotation(Blocking.class)) {
                 blocking.add(event);
             }
-            final boolean declared = clazz.getDeclaredMethodInfo(mi.getName()).stream().anyMatch(m -> mi.equals(m));
-            if (declared) {
-                remapped.add(mi);
-            }
+//            final boolean declared = clazz.getDeclaredMethodInfo(mi.getName()).stream().anyMatch(m -> mi.equals(m));
+//            if (declared) {
+//                remapped.add(mi);
+//            }
         }
     }
 
     public byte[] transform(byte[] bytes) {
-        CodeTransform codeTransform = (codeBuilder, e) -> {
+        var classModel = ClassFile.of().parse(bytes);
+        for (var classElement : classModel) {
+            switch (classElement) {
+                case MethodModel mm -> System.out.printf("Method name %s type %s%n", mm.methodName().stringValue(),
+                                                         mm.methodType().stringValue());
+                default -> {
+                }
+            }
+        }
+        CodeTransform apiTransform = (codeBuilder, e) -> {
             switch (e) {
                 case InvokeInstruction i -> {
                     var method = new Method(i.owner().asSymbol(), i.name().stringValue(), i.typeSymbol());
@@ -78,9 +86,8 @@ public class EntityTransformer {
         var classMap = Map.of(ClassDesc.of(Kronos.class.getCanonicalName()),
                               ClassDesc.of(Kairos.class.getCanonicalName()));
         var classRemapper = new ClassRemapper(desc -> classMap.getOrDefault(desc, desc));
-        var methodTransform = MethodTransform.transformingCode(codeTransform);
-        var classTransform = ClassTransform.transformingMethods(methodTransform).andThen(classRemapper);
-        return ClassFile.of().transformClass(ClassFile.of().parse(bytes), classTransform);
+        var classTransform = transformingMethodBodies(apiTransform).andThen(classRemapper);
+        return ClassFile.of().transformClass(classModel, classTransform);
     }
 
     private void boxIt(CodeBuilder builder, ClassDesc type) {
