@@ -1,0 +1,4 @@
+Agent-Class: com.hellblazer.primeMover.agent.SimAgent
+Can-Redefine-Classes: true
+Can-Retransform-Classes: true
+Premain-Class: com.hellblazer.primeMover.agent.SimAgent

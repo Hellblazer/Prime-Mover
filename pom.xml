@@ -1,6 +1,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.hellblazer.primeMover</groupId>
     <version>0.1.0-SNAPSHOT</version>
@@ -13,9 +13,11 @@
     <scm>
         <url>https://github.com/${repository-owner}/${repository-name}.git</url>
         <connection>
-            scm:git:git@github.com:${repository-owner}/${repository-name}.git</connection>
+            scm:git:git@github.com:${repository-owner}/${repository-name}.git
+        </connection>
         <developerConnection>
-            scm:git:git@github.com:${repository-owner}/${repository-name}.git</developerConnection>
+            scm:git:git@github.com:${repository-owner}/${repository-name}.git
+        </developerConnection>
     </scm>
 
 
@@ -38,6 +40,7 @@
         <module>desmoj-ish</module>
         <module>space-ghost</module>
         <module>janus</module>
+        <module>sim-agent</module>
     </modules>
 
     <dependencyManagement>
@@ -65,6 +68,11 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>janus</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>sim-agent</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
@@ -117,6 +125,11 @@
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-collections4</artifactId>
                 <version>4.4</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.auto.service</groupId>
+                <artifactId>auto-service</artifactId>
+                <version>1.1.1</version>
             </dependency>
 
             <!-- Test Only Dependencies Below This Line-->
@@ -175,7 +188,7 @@
                                 <requireMavenVersion>
                                     <version>[3.8.3,)</version>
                                 </requireMavenVersion>
-                                <dependencyConvergence />
+                                <dependencyConvergence/>
                                 <requireJavaVersion>
                                     <version>[24,)</version>
                                 </requireJavaVersion>
@@ -185,7 +198,7 @@
                 </executions>
             </plugin>
             <plugin>
-                <artifactId>maven-deploy-plugin</artifactId> 
+                <artifactId>maven-deploy-plugin</artifactId>
                 <configuration>
                     <altDeploymentRepository>
                         internal.repo::default::file://${env.INTERNAL_REPOSITORY}
