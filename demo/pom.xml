@@ -13,6 +13,10 @@
         framework
     </description>
 
+    <properties>
+        <sim.agent.jar>_sim-agent.jar</sim.agent.jar>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.hellblazer.primeMover</groupId>
@@ -29,6 +33,10 @@
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.hellblazer.primeMover</groupId>
+            <artifactId>sim-agent</artifactId>
         </dependency>
     </dependencies>
 
@@ -48,18 +56,58 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <argLine>-javaagent:${project.build.directory}/${sim.agent.jar}</argLine>
+                </configuration>
+            </plugin>
+            <plugin>
                 <groupId>com.hellblazer.primeMover</groupId>
                 <artifactId>primemover-maven-plugin</artifactId>
                 <version>${project.version}</version>
                 <executions>
                     <execution>
+                        <id>transform-classes</id>
+                        <phase>process-classes</phase>
                         <goals>
                             <goal>transform</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>transform-test-classes</id>
+                        <phase>process-test-classes</phase>
+                        <goals>
                             <goal>transform-test</goal>
                         </goals>
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>${project.groupId}</groupId>
+                                    <artifactId>sim-agent</artifactId>
+                                    <outputDirectory>${project.build.directory}</outputDirectory>
+                                    <destFileName>${sim.agent.jar}</destFileName>
+                                    <overWrite>true</overWrite>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
+
 </project>
