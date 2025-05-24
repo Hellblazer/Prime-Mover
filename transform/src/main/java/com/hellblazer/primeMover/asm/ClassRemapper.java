@@ -1,4 +1,4 @@
-package com.hellblazer.primeMover.classfile;
+package com.hellblazer.primeMover.asm;
 
 import java.lang.classfile.*;
 import java.lang.classfile.attribute.*;
