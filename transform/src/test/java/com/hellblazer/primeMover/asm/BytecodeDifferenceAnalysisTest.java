@@ -92,7 +92,7 @@ public class BytecodeDifferenceAnalysisTest {
                   .forEach(mi -> events.add(mi));
         }
 
-        EntityGeneratorRefactored refactoredGenerator = new EntityGeneratorRefactored(entity, events);
+        EntityGeneratorRefactored refactoredGenerator = new EntityGeneratorRefactored(entity, events, transform.getTransformTimestamp());
         byte[] refactoredBytecode = refactoredGenerator.generate().toByteArray();
 
         // Parse both into ClassNode for detailed comparison
