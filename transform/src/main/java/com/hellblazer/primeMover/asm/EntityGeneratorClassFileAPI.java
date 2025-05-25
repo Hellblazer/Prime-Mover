@@ -84,7 +84,7 @@ public class EntityGeneratorClassFileAPI {
     private static final MethodTypeDesc SIGNATURE_FOR_METHOD_TYPE = MethodTypeDesc.of(STRING_CLASS, ConstantDescs.CD_int);
     private static final MethodTypeDesc GET_CONTROLLER_METHOD_TYPE = MethodTypeDesc.of(DEVI_CLASS);
     private static final MethodTypeDesc POST_EVENT_METHOD_TYPE = MethodTypeDesc.of(ConstantDescs.CD_void, ENTITY_REFERENCE_CLASS, ConstantDescs.CD_int, OBJECT_ARRAY_CLASS);
-    private static final MethodTypeDesc POST_CONTINUING_EVENT_METHOD_TYPE = MethodTypeDesc.of(ConstantDescs.CD_void, ENTITY_REFERENCE_CLASS, ConstantDescs.CD_int, OBJECT_ARRAY_CLASS);
+    private static final MethodTypeDesc POST_CONTINUING_EVENT_METHOD_TYPE = MethodTypeDesc.of(OBJECT_CLASS, ENTITY_REFERENCE_CLASS, ConstantDescs.CD_int, OBJECT_ARRAY_CLASS);
     
     // === Instance State ===
     private final ClassInfo clazz;
@@ -250,19 +250,30 @@ public class EntityGeneratorClassFileAPI {
                     String eventMethodName = REMAPPED_TEMPLATE.formatted(methodName);
                     
                     // Match ASM implementations: hardcode access flags to PROTECTED for $event methods
-                    int eventMethodFlags = ClassFile.ACC_PROTECTED;
+                    int eventMethodFlags = 0x0004; // ACC_PROTECTED = 4
                     
                     classBuilder.withMethod(eventMethodName,
                         methodModel.methodTypeSymbol(),
                         eventMethodFlags,
                         methodBuilder -> {
-                            // Copy only non-access-flag method elements to preserve our access flags
-                            for (MethodElement methodElement : methodModel) {
-                                // Skip any element that might override access flags
-                                if (!(methodElement instanceof AccessFlags)) {
-                                    methodBuilder.with(methodElement);
+                            // Apply API remapping transformation to copy method elements
+                            ClassRemapper apiRemapper = new ClassRemapper(classDesc -> {
+                                String className = classDesc.packageName() + "." + classDesc.displayName();
+                                if (className.equals(Kronos.class.getCanonicalName())) {
+                                    return ClassDesc.of(Kairos.class.getCanonicalName());
                                 }
-                            }
+                                return classDesc;
+                            });
+                            
+                            // Use MethodTransform to copy elements but preserve access flags
+                            MethodTransform methodTransform = (mb, me) -> {
+                                if (!(me instanceof AccessFlags)) {
+                                    apiRemapper.asMethodTransform().accept(mb, me);
+                                }
+                                // Skip AccessFlags - already set by withMethod
+                            };
+                            
+                            methodBuilder.transform(methodModel, methodTransform);
                         });
                 }
             }
@@ -368,8 +379,11 @@ public class EntityGeneratorClassFileAPI {
                 // Determine which post method to call based on blocking status
                 if (blockingMethods.contains(originalMethod)) {
                     codeBuilder.invokevirtual(DEVI_CLASS, "postContinuingEvent", POST_CONTINUING_EVENT_METHOD_TYPE);
+                    // postContinuingEvent returns Object, so pop it off the stack
+                    codeBuilder.pop();
                 } else {
                     codeBuilder.invokevirtual(DEVI_CLASS, "postEvent", POST_EVENT_METHOD_TYPE);
+                    // postEvent returns void, so nothing to pop
                 }
                 
                 // Return appropriate value
@@ -381,13 +395,27 @@ public class EntityGeneratorClassFileAPI {
      * Load a parameter onto the stack with the correct load instruction
      */
     private void loadParameter(CodeBuilder codeBuilder, int index, MethodParameterInfo param) {
-        String typeDesc = param.getTypeDescriptor().toString();
-        switch (typeDesc.charAt(0)) {
+        var typeDescriptor = param.getTypeDescriptor();
+        
+        if (typeDescriptor instanceof io.github.classgraph.BaseTypeSignature bts) {
+            // Load primitive types with appropriate instruction
+            loadPrimitive(codeBuilder, index, bts.getTypeSignatureChar());
+        } else {
+            // Load reference types (objects, arrays, etc.)
+            codeBuilder.aload(index);
+        }
+    }
+    
+    /**
+     * Load a primitive type with the correct instruction
+     */
+    private void loadPrimitive(CodeBuilder codeBuilder, int index, char primitiveType) {
+        switch (primitiveType) {
             case 'I', 'B', 'C', 'S', 'Z' -> codeBuilder.iload(index);
             case 'J' -> codeBuilder.lload(index);
             case 'F' -> codeBuilder.fload(index);
             case 'D' -> codeBuilder.dload(index);
-            default -> codeBuilder.aload(index);
+            default -> throw new IllegalArgumentException("Unknown primitive type: " + primitiveType);
         }
     }
     
@@ -395,8 +423,20 @@ public class EntityGeneratorClassFileAPI {
      * Box primitive types for storage in Object array
      */
     private void boxPrimitiveIfNeeded(CodeBuilder codeBuilder, MethodParameterInfo param) {
-        String typeDesc = param.getTypeDescriptor().toString();
-        switch (typeDesc.charAt(0)) {
+        var typeDescriptor = param.getTypeDescriptor();
+        
+        if (typeDescriptor instanceof io.github.classgraph.BaseTypeSignature bts) {
+            // Box primitive types
+            boxPrimitive(codeBuilder, bts.getTypeSignatureChar());
+        }
+        // Reference types don't need boxing - they're already objects
+    }
+    
+    /**
+     * Box a primitive type to its wrapper object
+     */
+    private void boxPrimitive(CodeBuilder codeBuilder, char primitiveType) {
+        switch (primitiveType) {
             case 'I' -> codeBuilder.invokestatic(ClassDesc.of("java.lang.Integer"), 
                 "valueOf", MethodTypeDesc.of(ClassDesc.of("java.lang.Integer"), ConstantDescs.CD_int));
             case 'J' -> codeBuilder.invokestatic(ClassDesc.of("java.lang.Long"), 
@@ -413,7 +453,7 @@ public class EntityGeneratorClassFileAPI {
                 "valueOf", MethodTypeDesc.of(ClassDesc.of("java.lang.Character"), ConstantDescs.CD_char));
             case 'S' -> codeBuilder.invokestatic(ClassDesc.of("java.lang.Short"), 
                 "valueOf", MethodTypeDesc.of(ClassDesc.of("java.lang.Short"), ConstantDescs.CD_short));
-            // Reference types don't need boxing
+            default -> throw new IllegalArgumentException("Unknown primitive type: " + primitiveType);
         }
     }
     
@@ -421,8 +461,29 @@ public class EntityGeneratorClassFileAPI {
      * Return the appropriate default value based on method return type
      */
     private void returnDefaultValue(CodeBuilder codeBuilder, MethodInfo method) {
-        String returnType = method.getTypeDescriptor().getResultType().toString();
-        switch (returnType.charAt(0)) {
+        var returnTypeDescriptor = method.getTypeDescriptor().getResultType();
+        
+        // Use the same approach as ASM implementation for void check
+        if (returnTypeDescriptor.toStringWithSimpleNames().equals("void")) {
+            codeBuilder.return_();
+            return;
+        }
+        
+        if (returnTypeDescriptor instanceof io.github.classgraph.BaseTypeSignature bts) {
+            // Return default values for primitive types
+            returnPrimitiveDefault(codeBuilder, bts.getTypeSignatureChar());
+        } else {
+            // Return null for reference types
+            codeBuilder.aconst_null();
+            codeBuilder.areturn();
+        }
+    }
+    
+    /**
+     * Return the default value for a primitive type
+     */
+    private void returnPrimitiveDefault(CodeBuilder codeBuilder, char primitiveType) {
+        switch (primitiveType) {
             case 'I', 'B', 'C', 'S', 'Z' -> {
                 codeBuilder.iconst_0();
                 codeBuilder.ireturn();
@@ -439,13 +500,7 @@ public class EntityGeneratorClassFileAPI {
                 codeBuilder.dconst_0();
                 codeBuilder.dreturn();
             }
-            case 'V' -> {
-                codeBuilder.return_();
-            }
-            default -> {
-                codeBuilder.aconst_null();
-                codeBuilder.areturn();
-            }
+            default -> throw new IllegalArgumentException("Unknown primitive type: " + primitiveType);
         }
     }
     
@@ -544,11 +599,39 @@ public class EntityGeneratorClassFileAPI {
     }
     
     /**
-     * Unbox a parameter from Object to its primitive type
+     * Convert a parameter from Object to the target type (primitive or reference)
      */
     private void unboxParameter(CodeBuilder codeBuilder, MethodParameterInfo param) {
-        String typeDesc = param.getTypeDescriptor().toString();
-        switch (typeDesc.charAt(0)) {
+        var typeDescriptor = param.getTypeDescriptor();
+        
+        if (typeDescriptor instanceof io.github.classgraph.BaseTypeSignature bts) {
+            // Handle primitive types - unbox from wrapper objects
+            unboxPrimitive(codeBuilder, bts.getTypeSignatureChar());
+        } else if (typeDescriptor instanceof io.github.classgraph.ArrayTypeSignature ats) {
+            // Handle array types - cast to specific array type
+            String arrayType = ats.toString();
+            codeBuilder.checkcast(ClassDesc.ofDescriptor(ats.getTypeSignatureStr()));
+        } else {
+            // Handle reference types (Objects, wrappers when used as Objects)
+            String className = typeDescriptor.toString();
+            
+            // Special handling for wrapper classes that might need to stay as wrapper objects
+            if (isWrapperClass(className)) {
+                codeBuilder.checkcast(ClassDesc.of(className));
+            } else if (className.startsWith("java.lang.") || className.equals("java.lang.String")) {
+                codeBuilder.checkcast(ClassDesc.of(className));
+            } else {
+                // Custom reference types
+                codeBuilder.checkcast(ClassDesc.of(className));
+            }
+        }
+    }
+    
+    /**
+     * Unbox a primitive type from its wrapper object
+     */
+    private void unboxPrimitive(CodeBuilder codeBuilder, char primitiveType) {
+        switch (primitiveType) {
             case 'I' -> {
                 codeBuilder.checkcast(ClassDesc.of("java.lang.Integer"));
                 codeBuilder.invokevirtual(ClassDesc.of("java.lang.Integer"), "intValue", 
@@ -589,12 +672,22 @@ public class EntityGeneratorClassFileAPI {
                 codeBuilder.invokevirtual(ClassDesc.of("java.lang.Short"), "shortValue", 
                     MethodTypeDesc.of(ConstantDescs.CD_short));
             }
-            default -> {
-                // Reference types - just cast to Object (since it's from Object array)
-                // We could try to cast to specific type but it's not necessary for functionality
-                // codeBuilder.checkcast(targetType); // Skip cast - already correct type from array
-            }
+            default -> throw new IllegalArgumentException("Unknown primitive type: " + primitiveType);
         }
+    }
+    
+    /**
+     * Check if a class name represents a wrapper class
+     */
+    private boolean isWrapperClass(String className) {
+        return className.equals("java.lang.Integer") ||
+               className.equals("java.lang.Long") ||
+               className.equals("java.lang.Float") ||
+               className.equals("java.lang.Double") ||
+               className.equals("java.lang.Boolean") ||
+               className.equals("java.lang.Byte") ||
+               className.equals("java.lang.Character") ||
+               className.equals("java.lang.Short");
     }
     
     /**

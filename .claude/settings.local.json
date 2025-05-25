@@ -11,7 +11,9 @@
       "Bash(./mvnw:*)",
       "Bash(grep:*)",
       "WebFetch(domain:openjdk.org)",
-      "Bash(rg:*)"
+      "Bash(rg:*)",
+      "Bash(jar tf:*)",
+      "Bash(rm:*)"
     ],
     "deny": []
   }

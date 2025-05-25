@@ -49,6 +49,7 @@ import io.github.classgraph.ClassInfoList.ClassInfoFilter;
 import io.github.classgraph.MethodInfo;
 import io.github.classgraph.ScanResult;
 
+
 /**
  * ClassFile API implementation of SimulationTransform that provides entity transformation
  * using Java 24 JEP 484 ClassFile API instead of ASM.
@@ -71,7 +72,7 @@ public class SimulationTransformClassFileAPI implements Closeable {
     private static final ClassInfoFilter EXCLUDE_TRANSFORMED_FILTER = classInfo -> !classInfo.hasAnnotation(Transformed.class);
 
     private final ScanResult scan;
-    private final ApiRemapperClassFileAPI apiRemapper;
+    private final ClassRemapper apiRemapper;
     private String transformTimestamp;
 
     /**
@@ -94,7 +95,14 @@ public class SimulationTransformClassFileAPI implements Closeable {
      */
     public SimulationTransformClassFileAPI(ScanResult scan) {
         this.scan = scan;
-        this.apiRemapper = new ApiRemapperClassFileAPI();
+        // Create mapping function for ClassFile API ClassRemapper
+        this.apiRemapper = new ClassRemapper(classDesc -> {
+            String className = classDesc.packageName() + "." + classDesc.displayName();
+            if (className.equals(Kronos.class.getCanonicalName())) {
+                return ClassDesc.of(Kairos.class.getCanonicalName());
+            }
+            return classDesc;
+        });
         this.transformTimestamp = java.time.Instant.now().toString();
     }
 
@@ -411,7 +419,7 @@ public class SimulationTransformClassFileAPI implements Closeable {
             .filter(EXCLUDE_TRANSFORMED_FILTER)
             .filter(ci -> ci.getClassDependencies().contains(kronosClass))
             .forEach(classInfo -> {
-                var transformedBytes = apiRemapper.remapClass(classInfo);
+                var transformedBytes = remapClassWithClassFileAPI(classInfo);
                 if (transformedBytes != null) {
                     transformed.put(classInfo, transformedBytes);
                 }
@@ -428,7 +436,7 @@ public class SimulationTransformClassFileAPI implements Closeable {
         generators(entities).forEach((classInfo, generator) -> {
             try {
                 var generatedBytes = generator.generate();
-                var remappedBytes = apiRemapper.remapGeneratedClass(generatedBytes);
+                var remappedBytes = remapGeneratedClassWithClassFileAPI(generatedBytes);
                 transformed.put(classInfo, remappedBytes);
             } catch (Exception e) {
                 throw new IllegalStateException("Failed to transform entity: " + classInfo.getName(), e);
@@ -470,202 +478,44 @@ public class SimulationTransformClassFileAPI implements Closeable {
     }
 
     /**
-     * Helper class that handles API remapping from Kronos to Kairos using ClassFile API.
-     * Uses a similar approach to ASM's ClassRemapper but with ClassFile API.
+     * Remaps a class's bytecode using ClassFile API ClassRemapper to replace Kronos with Kairos.
+     * 
+     * @param classInfo The class to remap
+     * @return Remapped bytecode or null if no changes needed
      */
-    private static class ApiRemapperClassFileAPI {
-        private final Map<String, String> classNameMappings;
-
-        public ApiRemapperClassFileAPI() {
-            this.classNameMappings = new HashMap<>();
-            classNameMappings.put(
-                Kronos.class.getCanonicalName().replace('.', '/'),
-                Kairos.class.getCanonicalName().replace('.', '/')
-            );
+    private byte[] remapClassWithClassFileAPI(ClassInfo classInfo) {
+        if (classInfo.getResource() == null) {
+            return null;
         }
-
-        /**
-         * Remaps a class's bytecode to use Kairos instead of Kronos.
-         * 
-         * @param classInfo The class to remap
-         * @return Remapped bytecode or null if no changes needed
-         */
-        public byte[] remapClass(ClassInfo classInfo) {
-            if (classInfo.getResource() == null) {
-                return null;
-            }
-            
-            try (var inputStream = classInfo.getResource().open()) {
-                byte[] originalBytes = inputStream.readAllBytes();
-                
-                // Check if this class actually needs remapping
-                if (!needsRemapping(originalBytes)) {
-                    return null;
-                }
-                
-                ClassFile cf = ClassFile.of();
-                ClassModel originalClass = cf.parse(originalBytes);
-                
-                // Transform the class by rebuilding it with remapped references
-                byte[] transformedBytes = cf.build(originalClass.thisClass().asSymbol(), classBuilder -> {
-                    transformClass(classBuilder, originalClass);
-                });
-                
-                // Only return transformed bytes if they differ from original
-                return java.util.Arrays.equals(originalBytes, transformedBytes) ? null : transformedBytes;
-                
-            } catch (IOException e) {
-                throw new IllegalStateException("Unable to read class bytes: " + classInfo.getName(), e);
-            }
-        }
-
-        /**
-         * Remaps generated entity class bytecode to use Kairos instead of Kronos.
-         * 
-         * @param generatedBytes Bytecode generated by EntityGeneratorClassFileAPI
-         * @return Remapped bytecode
-         */
-        public byte[] remapGeneratedClass(byte[] generatedBytes) {
-            if (!needsRemapping(generatedBytes)) {
-                return generatedBytes;
-            }
+        
+        try (var inputStream = classInfo.getResource().open()) {
+            byte[] originalBytes = inputStream.readAllBytes();
             
             ClassFile cf = ClassFile.of();
-            ClassModel originalClass = cf.parse(generatedBytes);
+            var classModel = cf.parse(originalBytes);
             
-            return cf.build(originalClass.thisClass().asSymbol(), classBuilder -> {
-                transformClass(classBuilder, originalClass);
-            });
+            byte[] transformedBytes = cf.build(classModel.thisClass().asSymbol(), 
+                classBuilder -> classBuilder.transform(classModel, apiRemapper));
+            
+            // Only return transformed bytes if they differ from original
+            return java.util.Arrays.equals(originalBytes, transformedBytes) ? null : transformedBytes;
+            
+        } catch (IOException e) {
+            throw new IllegalStateException("Unable to read class bytes: " + classInfo.getName(), e);
         }
+    }
 
-        /**
-         * Checks if bytecode needs remapping by looking for Kronos references.
-         * 
-         * @param bytecode The bytecode to check
-         * @return true if the bytecode references Kronos and needs remapping
-         */
-        private boolean needsRemapping(byte[] bytecode) {
-            // Simple string search in the bytecode for Kronos references
-            String bytecodeString = new String(bytecode, java.nio.charset.StandardCharsets.ISO_8859_1);
-            return bytecodeString.contains("Kronos") || 
-                   bytecodeString.contains(Kronos.class.getCanonicalName().replace('.', '/'));
-        }
-
-        /**
-         * Transforms a class by remapping all Kronos references to Kairos.
-         * 
-         * @param classBuilder The class builder
-         * @param originalClass The original class model
-         */
-        private void transformClass(ClassBuilder classBuilder, ClassModel originalClass) {
-            // Set basic class info with remapped superclass
-            classBuilder.withFlags(originalClass.flags().flagsMask());
-            
-            if (originalClass.superclass().isPresent()) {
-                ClassDesc superclass = originalClass.superclass().get().asSymbol();
-                classBuilder.withSuperclass(remapClassDesc(superclass));
-            }
-            
-            // Set interfaces with remapping
-            if (originalClass.interfaces() != null && !originalClass.interfaces().isEmpty()) {
-                ClassDesc[] remappedInterfaces = originalClass.interfaces()
-                    .stream()
-                    .map(ClassEntry::asSymbol)
-                    .map(this::remapClassDesc)
-                    .toArray(ClassDesc[]::new);
-                classBuilder.withInterfaceSymbols(remappedInterfaces);
-            }
-            
-            // Copy all elements with remapping
-            for (ClassElement element : originalClass) {
-                if (element instanceof MethodModel methodModel) {
-                    transformMethod(classBuilder, methodModel);
-                } else if (element instanceof FieldModel fieldModel) {
-                    transformField(classBuilder, fieldModel);
-                } else {
-                    // For other elements, copy as-is for now
-                    // In a full implementation, we might need to handle attributes
-                    classBuilder.with(element);
-                }
-            }
-        }
-
-        /**
-         * Transforms a method by remapping type references.
-         * 
-         * @param classBuilder The class builder
-         * @param methodModel The original method model
-         */
-        private void transformMethod(ClassBuilder classBuilder, MethodModel methodModel) {
-            // Remap method type descriptor
-            MethodTypeDesc remappedType = remapMethodType(methodModel.methodTypeSymbol());
-            
-            classBuilder.withMethod(methodModel.methodName().stringValue(),
-                remappedType,
-                methodModel.flags().flagsMask(),
-                methodBuilder -> {
-                    // Copy all method elements
-                    // For now, we copy as-is since the main remapping is in type descriptors
-                    for (MethodElement methodElement : methodModel) {
-                        methodBuilder.with(methodElement);
-                    }
-                });
-        }
-
-        /**
-         * Transforms a field by remapping type references.
-         * 
-         * @param classBuilder The class builder
-         * @param fieldModel The original field model
-         */
-        private void transformField(ClassBuilder classBuilder, FieldModel fieldModel) {
-            ClassDesc remappedType = remapClassDesc(fieldModel.fieldTypeSymbol());
-            
-            classBuilder.withField(fieldModel.fieldName().stringValue(),
-                remappedType,
-                fieldModel.flags().flagsMask());
-        }
-
-        /**
-         * Remaps a ClassDesc by replacing Kronos with Kairos.
-         * 
-         * @param classDesc The original class descriptor
-         * @return Remapped class descriptor
-         */
-        private ClassDesc remapClassDesc(ClassDesc classDesc) {
-            String className = classDesc.descriptorString();
-            
-            // Check if this is a Kronos reference
-            if (className.contains("Kronos")) {
-                for (Map.Entry<String, String> mapping : classNameMappings.entrySet()) {
-                    String oldName = "L" + mapping.getKey() + ";";
-                    String newName = "L" + mapping.getValue() + ";";
-                    if (className.equals(oldName)) {
-                        return ClassDesc.ofDescriptor(newName);
-                    }
-                }
-            }
-            
-            return classDesc;
-        }
-
-        /**
-         * Remaps a MethodTypeDesc by replacing Kronos references in parameters and return type.
-         * 
-         * @param methodType The original method type descriptor
-         * @return Remapped method type descriptor
-         */
-        private MethodTypeDesc remapMethodType(MethodTypeDesc methodType) {
-            // Remap return type
-            ClassDesc remappedReturnType = remapClassDesc(methodType.returnType());
-            
-            // Remap parameter types
-            ClassDesc[] remappedParams = methodType.parameterList()
-                .stream()
-                .map(this::remapClassDesc)
-                .toArray(ClassDesc[]::new);
-            
-            return MethodTypeDesc.of(remappedReturnType, remappedParams);
-        }
+    /**
+     * Remaps generated entity class bytecode using ClassFile API ClassRemapper to replace Kronos with Kairos.
+     * 
+     * @param generatedBytes Bytecode generated by EntityGeneratorClassFileAPI
+     * @return Remapped bytecode
+     */
+    private byte[] remapGeneratedClassWithClassFileAPI(byte[] generatedBytes) {
+        ClassFile cf = ClassFile.of();
+        var classModel = cf.parse(generatedBytes);
+        
+        return cf.build(classModel.thisClass().asSymbol(), 
+            classBuilder -> classBuilder.transform(classModel, apiRemapper));
     }
 }

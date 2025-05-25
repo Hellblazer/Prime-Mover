@@ -58,9 +58,9 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <argLine>-javaagent:${project.build.directory}/${sim.agent.jar}</argLine>
-                </configuration>
+<!--                <configuration>-->
+<!--                    <argLine>-javaagent:${project.build.directory}/${sim.agent.jar}</argLine>-->
+<!--                </configuration>-->
             </plugin>
             <plugin>
                 <groupId>com.hellblazer.primeMover</groupId>

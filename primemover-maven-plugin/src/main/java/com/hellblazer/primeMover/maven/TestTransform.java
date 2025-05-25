@@ -36,7 +36,7 @@ import org.apache.maven.project.MavenProject;
  */
 @Mojo(name = "transform-test", defaultPhase = LifecyclePhase.PROCESS_TEST_CLASSES, requiresDependencyResolution = ResolutionScope.TEST, threadSafe = false, executionStrategy = "once-per-session", instantiationStrategy = InstantiationStrategy.PER_LOOKUP, requiresDependencyCollection = ResolutionScope.COMPILE_PLUS_RUNTIME)
 @Execute(phase = LifecyclePhase.PROCESS_TEST_CLASSES)
-public class TestTransform extends AbstractTransform {
+public class TestTransform extends AbstractTransformClassFileAPI {
 
     @Parameter(property = "project")
     private MavenProject project;

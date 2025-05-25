@@ -34,7 +34,7 @@ import org.apache.maven.project.MavenProject;
  * 
  */
 @Mojo(name = "transform", defaultPhase = LifecyclePhase.PROCESS_CLASSES, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME, threadSafe = false, executionStrategy = "once-per-session", instantiationStrategy = InstantiationStrategy.PER_LOOKUP, requiresDependencyCollection = ResolutionScope.COMPILE_PLUS_RUNTIME)
-public class CompileTransform extends AbstractTransform {
+public class CompileTransform extends AbstractTransformClassFileAPI {
 
     @Parameter(property = "project.build.outputDirectory", readonly = true)
     private File buildOutputDirectory;

@@ -10,12 +10,12 @@ public class SimAgent {
     SimAgent.class.getName());
 
     public static void agentmain(String agentArgs, Instrumentation inst) {
-        log.info("[Agent] In agentmain method");
-        inst.addTransformer(new SimulationTransformer(), true);
+        log.info("[Agent] In agentmain method using ClassFile API");
+        inst.addTransformer(new SimulationTransformerClassFileAPI(), true);
     }
 
     public static void premain(String agentArgs, Instrumentation inst) {
-        log.info("[Agent] In premain method");
-        inst.addTransformer(new SimulationTransformer(), true);
+        log.info("[Agent] In premain method using ClassFile API");
+        inst.addTransformer(new SimulationTransformerClassFileAPI(), true);
     }
 }
