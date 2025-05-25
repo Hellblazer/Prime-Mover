@@ -116,6 +116,7 @@ public class EntityGenerator {
     private final Map<Method, Integer>     inverse;
     private final Map<Integer, MethodInfo> mapped;
     private final Set<MethodInfo>          remapped;
+    private final String                   timestamp;
     private final Type                     type;
 
     static {
@@ -361,7 +362,12 @@ public class EntityGenerator {
     }
 
     public EntityGenerator(ClassInfo clazz, Set<MethodInfo> events) {
+        this(clazz, events, Instant.now().toString());
+    }
+    
+    public EntityGenerator(ClassInfo clazz, Set<MethodInfo> events, String timestamp) {
         this.clazz = clazz;
+        this.timestamp = timestamp;
         type = Type.getObjectType(clazz.getName().replace('.', '/'));
         internalName = clazz.getName().replace('.', '/');
         mapped = new HashMap<>();
@@ -414,7 +420,7 @@ public class EntityGenerator {
             interfaces.add(Type.getType(EntityReference.class).getInternalName());
             var av = transform.visitAnnotation(Type.getType(Transformed.class).getDescriptor(), true);
             av.visit("comment", "PrimeMover ASM Event Transform");
-            av.visit("date", Instant.now().toString());
+            av.visit("date", timestamp);
             av.visit("value", "PrimeMover ASM");
             av.visitEnd();
             generateInvoke(cw);

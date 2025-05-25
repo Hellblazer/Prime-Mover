@@ -1,22 +1,34 @@
 /*
  * Copyright (C) 2023 Hal Hildebrand. All rights reserved.
- * 
+ *
  * This file is part of the Prime Mover Event Driven Simulation Framework.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Affero General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.hellblazer.primeMover.asm;
+
+import com.hellblazer.primeMover.Kronos;
+import com.hellblazer.primeMover.annotations.*;
+import com.hellblazer.primeMover.asm.OpenAddressingSet.OpenSet;
+import com.hellblazer.primeMover.runtime.Kairos;
+import io.github.classgraph.*;
+import io.github.classgraph.ClassInfoList.ClassInfoFilter;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.commons.ClassRemapper;
+import org.objectweb.asm.commons.SimpleRemapper;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -26,35 +38,24 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.commons.ClassRemapper;
-import org.objectweb.asm.commons.SimpleRemapper;
-
-import com.hellblazer.primeMover.Kronos;
-import com.hellblazer.primeMover.annotations.AllMethodsMarker;
-import com.hellblazer.primeMover.annotations.Blocking;
-import com.hellblazer.primeMover.annotations.Entity;
-import com.hellblazer.primeMover.annotations.Event;
-import com.hellblazer.primeMover.annotations.NonEvent;
-import com.hellblazer.primeMover.annotations.Transformed;
-import com.hellblazer.primeMover.asm.OpenAddressingSet.OpenSet;
-import com.hellblazer.primeMover.runtime.Kairos;
-
-import io.github.classgraph.AnnotationClassRef;
-import io.github.classgraph.ClassGraph;
-import io.github.classgraph.ClassInfo;
-import io.github.classgraph.ClassInfoList;
-import io.github.classgraph.ClassInfoList.ClassInfoFilter;
-import io.github.classgraph.ScanResult;
-
 /**
  * @author hal.hildebrand
  */
 public class SimulationTransform implements Closeable {
 
-    private static final String ALL_METHODS_MARKER = AllMethodsMarker.class.getCanonicalName();
+    private static final String     ALL_METHODS_MARKER = AllMethodsMarker.class.getCanonicalName();
+    private final        ScanResult scan;
+
+    private String transformTimestamp = java.time.Instant.now().toString();
+
+    public SimulationTransform(ClassGraph graph) {
+        this(
+        graph.enableAllInfo().enableInterClassDependencies().enableExternalClasses().ignoreMethodVisibility().scan());
+    }
+
+    public SimulationTransform(ScanResult scan) {
+        this.scan = scan;
+    }
 
     public static Set<ClassInfo> getEntityInterfaces(ClassInfo ci) {
         var arr = (Object[]) ci.getAnnotationInfo(Entity.class).getParameterValues(true).getValue("value");
@@ -75,20 +76,6 @@ public class SimulationTransform implements Closeable {
           .map(acr -> acr.getClassInfo())
           .forEach(c -> returned.add(c));
         return returned;
-    }
-
-    private final ScanResult scan;
-
-    public SimulationTransform(ClassGraph graph) {
-        this(graph.enableAllInfo()
-                  .enableInterClassDependencies()
-                  .enableExternalClasses()
-                  .ignoreMethodVisibility()
-                  .scan());
-    }
-
-    public SimulationTransform(ScanResult scan) {
-        this.scan = scan;
     }
 
     @Override
@@ -141,6 +128,25 @@ public class SimulationTransform implements Closeable {
         }).stream().collect(Collectors.toMap(ci -> ci, ci -> generateEntity(ci)));
     }
 
+    /**
+     * Gets the current transform timestamp being used for @Transformed annotations.
+     *
+     * @return The current timestamp string
+     */
+    public String getTransformTimestamp() {
+        return transformTimestamp;
+    }
+
+    /**
+     * Sets the timestamp to be used in @Transformed annotations for all generated entities. This allows for
+     * deterministic bytecode generation when the same timestamp is used.
+     *
+     * @param timestamp The timestamp string to use (typically ISO-8601 format)
+     */
+    public void setTransformTimestamp(String timestamp) {
+        this.transformTimestamp = timestamp;
+    }
+
     public Map<ClassInfo, byte[]> transformed() {
         return transformed(new ClassInfoFilter() {
             @Override
@@ -181,8 +187,9 @@ public class SimulationTransform implements Closeable {
                               final var written = cw.toByteArray();
                               @SuppressWarnings("deprecation")
                               final var b = classReader.b;
-                              if (!written.equals(b))
+                              if (!written.equals(b)) {
                                   transformed.put(ci, written);
+                              }
                           } catch (IOException e) {
                               throw new IllegalStateException("Unable to read class bytes: " + ci, e);
                           }
@@ -215,17 +222,20 @@ public class SimulationTransform implements Closeable {
             }
         });
         if (entIFaces.isEmpty() && !allPublic) {
-            throw new IllegalStateException("Apparently was not able to get the AllMethodsMarker annotation class info");
+            throw new IllegalStateException(
+            "Apparently was not able to get the AllMethodsMarker annotation class info");
         }
         var events = implemented.stream()
                                 .flatMap(intf -> intf.getMethodInfo().stream())
                                 .map(mi -> ci.getMethodInfo(mi.getName())
                                              .stream()
-                                             .filter(m -> m.getTypeDescriptorStr().equals(mi.getTypeDescriptorStr()))
+                                             .filter(m -> m.getTypeDescriptorStr()
+                                                           .equals(mi.getTypeDescriptorStr()))
                                              .findFirst()
                                              .orElseGet(() -> ci.getSuperclasses()
                                                                 .stream()
-                                                                .flatMap(c -> c.getMethodInfo(mi.getName()).stream())
+                                                                .flatMap(c -> c.getMethodInfo(mi.getName())
+                                                                               .stream())
                                                                 .filter(m -> m.getTypeDescriptorStr()
                                                                               .equals(mi.getTypeDescriptorStr()))
                                                                 .findFirst()
@@ -239,6 +249,6 @@ public class SimulationTransform implements Closeable {
           .filter(m -> !m.hasAnnotation(NonEvent.class))
           .filter(m -> allPublic ? m.isPublic() : m.hasAnnotation(Blocking.class) || m.hasAnnotation(Event.class))
           .forEach(mi -> events.add(mi));
-        return new EntityGenerator(ci, events);
+        return new EntityGenerator(ci, events, transformTimestamp);
     }
 }
