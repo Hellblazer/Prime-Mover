@@ -55,13 +55,13 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
+<!--            <plugin>-->
+<!--                <groupId>org.apache.maven.plugins</groupId>-->
+<!--                <artifactId>maven-surefire-plugin</artifactId>-->
 <!--                <configuration>-->
 <!--                    <argLine>-javaagent:${project.build.directory}/${sim.agent.jar}</argLine>-->
 <!--                </configuration>-->
-            </plugin>
+<!--            </plugin>-->
             <plugin>
                 <groupId>com.hellblazer.primeMover</groupId>
                 <artifactId>primemover-maven-plugin</artifactId>

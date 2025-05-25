@@ -7,16 +7,16 @@ import com.hellblazer.primeMover.runtime.Kairos;
 import io.github.classgraph.ClassGraph;
 import org.objectweb.asm.Opcodes;
 
-import java.lang.classfile.ClassFile;
-import java.lang.constant.ClassDesc;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.lang.classfile.ClassFile;
+import java.lang.constant.ClassDesc;
 import java.lang.instrument.ClassFileTransformer;
 import java.security.ProtectionDomain;
 
 /**
  * ClassFile API version of SimulationTransformer for runtime transformation
+ *
  * @author hal.hildebrand
  **/
 
@@ -25,7 +25,7 @@ public class SimulationTransformerClassFileAPI implements ClassFileTransformer {
     SimulationTransformerClassFileAPI.class.getCanonicalName());
 
     private final ClassRemapper apiRemapper;
-    private       ClassGraph     graph = new ClassGraph();
+    private       ClassGraph    graph = new ClassGraph();
 
     public SimulationTransformerClassFileAPI() {
         // Create mapping function for ClassFile API ClassRemapper
@@ -76,17 +76,17 @@ public class SimulationTransformerClassFileAPI implements ClassFileTransformer {
             if (generator == null) {
                 return null;
             }
-            
+
             // Generate the bytecode and apply API remapping to replace Kronos with Kairos
             byte[] generatedBytes = generator.generate();
-            
+
             // Apply API remapping using ClassFile API
             ClassFile cf = ClassFile.of();
             var classModel = cf.parse(generatedBytes);
-            
-            byte[] remappedBytes = cf.build(classModel.thisClass().asSymbol(), 
-                classBuilder -> classBuilder.transform(classModel, apiRemapper));
-            
+
+            byte[] remappedBytes = cf.build(classModel.thisClass().asSymbol(),
+                                            classBuilder -> classBuilder.transform(classModel, apiRemapper));
+
             log.info("ClassFile API Transformed " + className);
             return remappedBytes;
         } catch (IOException e) {
