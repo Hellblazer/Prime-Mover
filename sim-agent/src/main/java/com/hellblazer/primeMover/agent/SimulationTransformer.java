@@ -1,7 +1,7 @@
 package com.hellblazer.primeMover.agent;
 
 import com.hellblazer.primeMover.Kronos;
-import com.hellblazer.primeMover.asm.SimulationTransform;
+import com.hellblazer.primeMover.asm.SimulationTransformRefactored;
 import com.hellblazer.primeMover.runtime.Kairos;
 import io.github.classgraph.ClassGraph;
 import org.objectweb.asm.ClassReader;
@@ -65,7 +65,7 @@ public class SimulationTransformer implements ClassFileTransformer {
 
         graph.addClassLoader(loader);
 
-        try (var txfm = new SimulationTransform(graph)) {
+        try (var txfm = new SimulationTransformRefactored(graph)) {
             var generator = txfm.generatorOf(className);
             log.info("Transformed " + className);
             return generator == null ? null : generator.generate().toByteArray();

@@ -17,7 +17,7 @@
 
 package com.hellblazer.primeMover.maven;
 
-import com.hellblazer.primeMover.asm.SimulationTransform;
+import com.hellblazer.primeMover.asm.SimulationTransformRefactored;
 import io.github.classgraph.ClassGraph;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -55,7 +55,7 @@ public abstract class AbstractTransform extends AbstractMojo {
         }
         graph.addClassLoader(new URLClassLoader(new URL[] { cpUrl }));
         var failed = new ArrayList<String>();
-        try (var txfm = new SimulationTransform(graph)) {
+        try (var txfm = new SimulationTransformRefactored(graph)) {
             var out = getOutputDirectory();
             txfm.transformed(_ -> true).forEach((ci, bytes) -> {
                 final var file = new File(out, ci.getName().replace('.', '/') + ".class");

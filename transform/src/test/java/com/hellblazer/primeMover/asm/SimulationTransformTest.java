@@ -35,8 +35,8 @@ public class SimulationTransformTest {
 
     @Test
     public void smokin() throws Exception {
-        Map<ClassInfo, EntityGenerator> generators;
-        try (var transform = new SimulationTransform(new ClassGraph().acceptPackages("testClasses",
+        Map<ClassInfo, EntityGeneratorRefactored> generators;
+        try (var transform = new SimulationTransformRefactored(new ClassGraph().acceptPackages("testClasses",
                                                                                      "com.hellblazer.asm.testClasses"))) {
             generators = transform.generators();
 

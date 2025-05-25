@@ -41,7 +41,7 @@ public class DemoTest {
     }
 
     private Map<String, byte[]> getTransformed() throws Exception {
-        try (var transform = new SimulationTransform(new ClassGraph().acceptPackages("testClasses",
+        try (var transform = new SimulationTransformRefactored(new ClassGraph().acceptPackages("testClasses",
                                                                                      "com.hellblazer.*"))) {
             return transform.transformed()
                             .entrySet()
