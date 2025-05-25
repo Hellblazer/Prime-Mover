@@ -280,7 +280,7 @@ public class EntityGeneratorClassFileAPI {
             }
         }
         
-        // 5. Generate EntityReference methods
+        // 5. Generate EntityReference methods (always generate for ASM compatibility)
         generateInvokeMethod(classBuilder);
         generateSignatureForMethod(classBuilder);
     }
@@ -296,6 +296,28 @@ public class EntityGeneratorClassFileAPI {
             .filter(mi -> mi.getName().equals(name) && mi.getTypeDescriptorStr().equals(descriptor))
             .findFirst()
             .orElse(null);
+    }
+
+    /**
+     * Checks if the original class already has an __invoke method.
+     * 
+     * @param originalClass The original class model
+     * @return true if __invoke method exists
+     */
+    private boolean hasInvokeMethod(ClassModel originalClass) {
+        return originalClass.methods().stream()
+            .anyMatch(method -> method.methodName().stringValue().equals("__invoke"));
+    }
+
+    /**
+     * Checks if the original class already has a __signatureFor method.
+     * 
+     * @param originalClass The original class model
+     * @return true if __signatureFor method exists
+     */
+    private boolean hasSignatureForMethod(ClassModel originalClass) {
+        return originalClass.methods().stream()
+            .anyMatch(method -> method.methodName().stringValue().equals("__signatureFor"));
     }
 
     
