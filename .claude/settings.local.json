@@ -13,7 +13,8 @@
       "WebFetch(domain:openjdk.org)",
       "Bash(rg:*)",
       "Bash(jar tf:*)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "Bash(/opt/homebrew/lib/node_modules/@anthropic-ai/claude-code/vendor/ripgrep/arm64-darwin/rg \"STATIC|ABSTRACT\" transform/src/main/java/com/hellblazer/primeMover/asm/EntityGeneratorClassFileAPI.java)"
     ],
     "deny": []
   }
