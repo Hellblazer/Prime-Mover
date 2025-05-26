@@ -19,9 +19,9 @@
 
 package testClasses;
 
-import static com.hellblazer.primeMover.Kronos.sleep;
+import static com.hellblazer.primeMover.api.Kronos.sleep;
 
-import com.hellblazer.primeMover.Kronos;
+import com.hellblazer.primeMover.api.Kronos;
 import com.hellblazer.primeMover.annotations.Entity;
 
 /*

@@ -3,43 +3,34 @@ package desmoj.core.simulator;
 import desmoj.core.dist.NumericalDist;
 
 /**
- * Provides the class for user defined events to change <b>a single</b> entity's
- * internal state. The state of a discrete model is changed by events that occur
- * at distinct points of simulation time.
+ * Provides the class for user defined events to change <b>a single</b> entity's internal state. The state of a discrete
+ * model is changed by events that occur at distinct points of simulation time.
  * <p>
- * For events changing the state of <b>two</b> or <b>three</b> entities, refer
- * to <code>EventOf2Entities</code> and <code>EventOf3Entities</code>. Events
- * not associated to a specific entity are based on <code>ExternalEvent</code>.
+ * For events changing the state of <b>two</b> or <b>three</b> entities, refer to <code>EventOf2Entities</code> and
+ * <code>EventOf3Entities</code>. Events not associated to a specific entity are based on <code>ExternalEvent</code>.
  * <p>
- * For type safety it is recommended to generically assign the entity type an
- * Event operates on by using the generic type <code>Event&lt;E&gt;</code> where
+ * For type safety it is recommended to generically assign the entity type an Event operates on by using the generic
+ * type <code>Event&lt;E&gt;</code> where
  * <code>E</code> is derived from <code>Entity</code>.
  * <p>
- * All event object should be used only once. Implement the changes of state for
- * the specific entity associated with this event by overriding the abstract
- * method <code>eventRoutine(E who)</code>.
+ * All event object should be used only once. Implement the changes of state for the specific entity associated with
+ * this event by overriding the abstract method <code>eventRoutine(E who)</code>.
  *
+ * @author Tim Lechler
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  * @see Entity
  * @see ExternalEvent
  * @see EventOf2Entities
  * @see EventOf3Entities
  * @see TimeInstant
  * @see TimeSpan
- *
- * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
- * @author Tim Lechler
- *
- *         Licensed under the Apache License, Version 2.0 (the "License"); you
- *         may not use this file except in compliance with the License. You may
- *         obtain a copy of the License at
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
- *         Unless required by applicable law or agreed to in writing, software
- *         distributed under the License is distributed on an "AS IS" BASIS,
- *         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- *         implied. See the License for the specific language governing
- *         permissions and limitations under the License.
- *
  */
 public abstract class Event<E extends Entity> extends EventAbstract {
 
@@ -50,8 +41,7 @@ public abstract class Event<E extends Entity> extends EventAbstract {
      * @param owner       Model : The model this event is associated to
      * @param showInTrace boolean : Flag for showing event in trace-files. Set it to
      *                    <code>true</code> if event should show up in trace. Set it
-     *                    to <code>false</code> if event should not be shown in
-     *                    trace.
+     *                    to <code>false</code> if event should not be shown in trace.
      */
     public Event(Model owner, String name, boolean showInTrace) {
 
@@ -61,10 +51,9 @@ public abstract class Event<E extends Entity> extends EventAbstract {
     }
 
     /**
-     * Creates and returns a copy of this event. Note that subclasses have to
-     * implement the interface <code>java.lang.Cloneable</code> to actually use this
-     * method as otherwise, a <code>CloneNotSupportedException</code> will be
-     * thrown.
+     * Creates and returns a copy of this event. Note that subclasses have to implement the interface
+     * <code>java.lang.Cloneable</code> to actually use this method as otherwise, a
+     * <code>CloneNotSupportedException</code> will be thrown.
      *
      * @return Event<E> : A copy of this event.
      */
@@ -75,28 +64,26 @@ public abstract class Event<E extends Entity> extends EventAbstract {
     }
 
     /**
-     * Implement this abstract method to express the changes of state this event
-     * does to a single entity. This event is related to the entity it has been
-     * scheduled with. That Entity is given note that since class
+     * Implement this abstract method to express the changes of state this event does to a single entity. This event is
+     * related to the entity it has been scheduled with. That Entity is given note that since class
      * <code>SimProcess</code> inherits from class <code>Entity</code>, an event can
-     * also be given a process to operate on. In this case, the process is scheduled
-     * and manipulated by this event just like an entity.
+     * also be given a process to operate on. In this case, the process is scheduled and manipulated by this event just
+     * like an entity.
      *
-     * Implement this abstract method to express the changes of state this event
-     * does to an entity (as <code>SimProcess</code> is a subclass of
+     * Implement this abstract method to express the changes of state this event does to an entity (as
+     * <code>SimProcess</code> is a subclass of
      * <code>Entity</code>, a process can be passed as well).
      * <p>
-     * For type safety, it is recommended to derive your events from the generic
-     * type <code>Event&lt;EntityOperatingOn&gt;</code> where
+     * For type safety, it is recommended to derive your events from the generic type
+     * <code>Event&lt;EntityOperatingOn&gt;</code> where
      * <code>EntityOperatingOn</code> (which is derived from class
      * <code>Entity</code>) represents the entity type your event is supposed to
      * operate on.
      * <p>
-     * Should you decide to derive your event from the raw type <code>Event</code>
-     * (which is not recommended), please take extra care in checking the given
-     * Entity parameter to your special eventRoutine since any subtype of Entity
-     * will be accepted! If your model uses several different entity types, chances
-     * are that while developing the model, wrong entity types might be passed.
+     * Should you decide to derive your event from the raw type <code>Event</code> (which is not recommended), please
+     * take extra care in checking the given Entity parameter to your special eventRoutine since any subtype of Entity
+     * will be accepted! If your model uses several different entity types, chances are that while developing the model,
+     * wrong entity types might be passed.
      *
      * @param who Entity : The Entity associated to this event.
      * @throws SuspendExecution Marker exception for Quasar.
@@ -104,8 +91,7 @@ public abstract class Event<E extends Entity> extends EventAbstract {
     public abstract void eventRoutine(E who);
 
     /**
-     * Schedules this event to act on the given Entity now. Preemption is not
-     * allowed.
+     * Schedules this event to act on the given Entity now. Preemption is not allowed.
      *
      * @param who E : The Entity this event happens to
      * @see SimClock
@@ -140,14 +126,12 @@ public abstract class Event<E extends Entity> extends EventAbstract {
     }
 
     /**
-     * Schedules this event to act on the given Entity at a point in simulation time
-     * determined by a sample from the distribution provided to the method. The
-     * sample is interpreted as offset from the the present time in the reference
-     * time unit.
+     * Schedules this event to act on the given Entity at a point in simulation time determined by a sample from the
+     * distribution provided to the method. The sample is interpreted as offset from the the present time in the
+     * reference time unit.
      *
      * @param who  E : The Entity this event happens to
-     * @param dist NumericalDist<?> : Numerical distribution to sample the offset to
-     *             the current simulation time from
+     * @param dist NumericalDist<?> : Numerical distribution to sample the offset to the current simulation time from
      * @see SimClock
      */
     public void schedule(E who, NumericalDist<?> dist) {
@@ -193,13 +177,11 @@ public abstract class Event<E extends Entity> extends EventAbstract {
     }
 
     /**
-     * Schedules this event to act on the given entity at a certain point in
-     * simulation time. No preemption, i.e. a process calling this method will
-     * continue until passivated or hold.
+     * Schedules this event to act on the given entity at a certain point in simulation time. No preemption, i.e. a
+     * process calling this method will continue until passivated or hold.
      *
      * @param who     E : The first entity to be manipulated by this event
-     * @param instant TimeInstant : The point in simulation time this event is
-     *                scheduled to happen.
+     * @param instant TimeInstant : The point in simulation time this event is scheduled to happen.
      */
     public void schedule(E who, TimeInstant instant) {
 
@@ -240,14 +222,12 @@ public abstract class Event<E extends Entity> extends EventAbstract {
     }
 
     /**
-     * Schedules this event to act on the given Entity at the specified point in
-     * simulation time. The point of time is given as an offset to the current
-     * simulation time as displayed by the simulation clock. Preemption is not
+     * Schedules this event to act on the given Entity at the specified point in simulation time. The point of time is
+     * given as an offset to the current simulation time as displayed by the simulation clock. Preemption is not
      * allowed.
      *
      * @param who E : The Entity this event happens to
-     * @param dt  TimeSpan : The offset to the current simulation time this Event is
-     *            to happen
+     * @param dt  TimeSpan : The offset to the current simulation time this Event is to happen
      * @see SimClock
      */
     public void schedule(E who, TimeSpan dt) {
@@ -286,15 +266,12 @@ public abstract class Event<E extends Entity> extends EventAbstract {
     }
 
     /**
-     * Schedules this event to act on the given Entity directly after the given
-     * Schedulable is already set to be activated. Note that this event's point of
-     * simulation time will be set to be the same as the Schedulable's time. Thus
-     * this event will occur directly after the given Schedulable but the simulation
-     * clock will not change. Make sure that the Schedulable given as parameter is
-     * actually scheduled.
+     * Schedules this event to act on the given Entity directly after the given Schedulable is already set to be
+     * activated. Note that this event's point of simulation time will be set to be the same as the Schedulable's time.
+     * Thus this event will occur directly after the given Schedulable but the simulation clock will not change. Make
+     * sure that the Schedulable given as parameter is actually scheduled.
      *
-     * @param after Schedulable : The Schedulable this entity should be scheduled
-     *              after
+     * @param after Schedulable : The Schedulable this entity should be scheduled after
      * @param who   E : The Entity to be manipulated by this event
      */
     public void scheduleAfter(Schedulable after, E who) {
@@ -349,22 +326,20 @@ public abstract class Event<E extends Entity> extends EventAbstract {
         getModel().getExperiment().getScheduler().scheduleAfter(after, who, this);
 
         if (currentlySendDebugNotes()) {
-            sendDebugNote("scheduleAfter " + after.getQuotedName() + " on EventList<br>"
-            + getModel().getExperiment().getScheduler().toString());
+            sendDebugNote("scheduleAfter " + after.getQuotedName() + " on EventList<br>" + getModel().getExperiment()
+                                                                                                     .getScheduler()
+                                                                                                     .toString());
         }
 
     }
 
     /**
-     * Schedules this event to act on the given Entity directly before the given
-     * Schedulable is already set to be activated. Note that this event's point of
-     * simulation time will be set to be the same as the Schedulable's time. Thus
-     * this event will occur directly before the given Schedulable but the
-     * simulation clock will not change. Make sure that the Schedulable given as
-     * parameter is actually scheduled.
+     * Schedules this event to act on the given Entity directly before the given Schedulable is already set to be
+     * activated. Note that this event's point of simulation time will be set to be the same as the Schedulable's time.
+     * Thus this event will occur directly before the given Schedulable but the simulation clock will not change. Make
+     * sure that the Schedulable given as parameter is actually scheduled.
      *
-     * @param before Schedulable : The Schedulable this entity should be scheduled
-     *               before
+     * @param before Schedulable : The Schedulable this entity should be scheduled before
      * @param who    E : The Entity to be manipulated by this event
      */
     public void scheduleBefore(Schedulable before, E who) {
@@ -418,15 +393,15 @@ public abstract class Event<E extends Entity> extends EventAbstract {
         getModel().getExperiment().getScheduler().scheduleBefore(before, who, this);
 
         if (currentlySendDebugNotes()) {
-            sendDebugNote("scheduleBefore " + before.getQuotedName() + " on EventList<br>"
-            + getModel().getExperiment().getScheduler().toString());
+            sendDebugNote("scheduleBefore " + before.getQuotedName() + " on EventList<br>" + getModel().getExperiment()
+                                                                                                       .getScheduler()
+                                                                                                       .toString());
         }
 
     }
 
     /**
-     * Schedules this event to be executed immediately, preempting the process
-     * lifecycle executed at the moment.
+     * Schedules this event to be executed immediately, preempting the process lifecycle executed at the moment.
      *
      * @param who E : The Entity this event happens to
      * @throws SuspendExecution

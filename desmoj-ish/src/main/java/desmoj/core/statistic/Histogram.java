@@ -1,36 +1,29 @@
 package desmoj.core.statistic;
 
-import java.util.Observable;
-
+import desmoj.core.simulator.Model;
 import org.apache.commons.math3.distribution.ChiSquaredDistribution;
 import org.apache.commons.math3.exception.OutOfRangeException;
 
-import desmoj.core.simulator.Model;
+import java.util.Observable;
 
 /**
- * The <code>Histogram</code> class is providing a statistic analysis about
- * values. An interval is divided into sections with an under- and an overflow
- * section. When a value is updated it will be decided to which section it
- * belongs to and the counter for that section will be updated. In the end the
- * report will show how many values belong to which section. <br />
+ * The <code>Histogram</code> class is providing a statistic analysis about values. An interval is divided into sections
+ * with an under- and an overflow section. When a value is updated it will be decided to which section it belongs to and
+ * the counter for that section will be updated. In the end the report will show how many values belong to which
+ * section. <br />
  *
- * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  * @author Soenke Claassen
  * @author based on DESMO-C from Thomas Schniewind, 1998
- * @author edited by Lorna Slawski (changes in implementation and added
- *         possibility of non-equidistant sections as well as the Chi-squared
- *         test)
+ * @author edited by Lorna Slawski (changes in implementation and added possibility of non-equidistant sections as well
+ * as the Chi-squared test)
  *
- *         Licensed under the Apache License, Version 2.0 (the "License"); you
- *         may not use this file except in compliance with the License. You may
- *         obtain a copy of the License at
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
  *
- *         Unless required by applicable law or agreed to in writing, software
- *         distributed under the License is distributed on an "AS IS" BASIS,
- *         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- *         implied. See the License for the specific language governing
- *         permissions and limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  */
 public class Histogram extends desmoj.core.statistic.Tally {
 
@@ -43,8 +36,7 @@ public class Histogram extends desmoj.core.statistic.Tally {
     private boolean _condensed;
 
     /**
-     * The array holding the lower limits of the interval sections and the upper
-     * limit as the final value.
+     * The array holding the lower limits of the interval sections and the upper limit as the final value.
      */
     private double[] _range;
 
@@ -56,19 +48,16 @@ public class Histogram extends desmoj.core.statistic.Tally {
     // ****** methods ******
 
     /**
-     * Constructor for a Histogram object with equidistant interval cells that will
-     * NOT be connected to a <code>ValueSupplier</code>.
+     * Constructor for a Histogram object with equidistant interval cells that will NOT be connected to a
+     * <code>ValueSupplier</code>.
      *
      * @param ownerModel   Model : The model this Histogram is associated to.
      * @param name         java.lang.String : The name of this Histogram object.
      * @param lowerEnd     double : The lower end of the interval.
      * @param upperEnd     double : The upper end of the interval.
-     * @param cells        int : The number of cells (sections) the given interval
-     *                     will be divided into.
-     * @param showInReport boolean : Flag for showing the report about this
-     *                     Histogram.
-     * @param showInTrace  boolean : Flag for showing the trace output of this
-     *                     Histogram.
+     * @param cells        int : The number of cells (sections) the given interval will be divided into.
+     * @param showInReport boolean : Flag for showing the report about this Histogram.
+     * @param showInTrace  boolean : Flag for showing the trace output of this Histogram.
      */
     public Histogram(Model ownerModel, String name, double lowerEnd, double upperEnd, int cells, boolean showInReport,
                      boolean showInTrace) {
@@ -86,17 +75,15 @@ public class Histogram extends desmoj.core.statistic.Tally {
     }
 
     /**
-     * Constructor for a Histogram object with user-defined interval cells that will
-     * NOT be connected to a <code>ValueSupplier</code>.
+     * Constructor for a Histogram object with user-defined interval cells that will NOT be connected to a
+     * <code>ValueSupplier</code>.
      *
      * @param ownerModel   Model : The model this Histogram is associated to.
      * @param name         java.lang.String : The name of this Histogram object.
-     * @param range        double[] : The interval with the lower limit of each cell
-     *                     and the upper limit of the interval as the final value.
-     * @param showInReport boolean : Flag for showing the report about this
-     *                     Histogram.
-     * @param showInTrace  boolean : Flag for showing the trace output of this
-     *                     Histogram.
+     * @param range        double[] : The interval with the lower limit of each cell and the upper limit of the interval
+     *                     as the final value.
+     * @param showInReport boolean : Flag for showing the report about this Histogram.
+     * @param showInTrace  boolean : Flag for showing the trace output of this Histogram.
      */
     public Histogram(Model ownerModel, String name, double[] range, boolean showInReport, boolean showInTrace) {
 
@@ -114,22 +101,18 @@ public class Histogram extends desmoj.core.statistic.Tally {
     }
 
     /**
-     * Constructor for a Histogram object with equidistant interval cells that will
-     * be connected to a <code>ValueSupplier</code>.
+     * Constructor for a Histogram object with equidistant interval cells that will be connected to a
+     * <code>ValueSupplier</code>.
      *
      * @param ownerModel   Model : The model this Histogram is associated to.
      * @param name         java.lang.String : The name of this Histogram object.
-     * @param valSup       ValueSupplier : The ValueSupplier providing the value for
-     *                     this Histogram. The given ValueSupplier will be observed
-     *                     by this Histogram object.
+     * @param valSup       ValueSupplier : The ValueSupplier providing the value for this Histogram. The given
+     *                     ValueSupplier will be observed by this Histogram object.
      * @param lowerEnd     double : The lower end of the interval.
      * @param upperEnd     double : The upper end of the interval.
-     * @param cells        int : The number of cells (sections) the given interval
-     *                     will be divided into.
-     * @param showInReport boolean : Flag for showing the report about this
-     *                     Histogram.
-     * @param showInTrace  boolean : Flag for showing the trace output of this
-     *                     Histogram.
+     * @param cells        int : The number of cells (sections) the given interval will be divided into.
+     * @param showInReport boolean : Flag for showing the report about this Histogram.
+     * @param showInTrace  boolean : Flag for showing the trace output of this Histogram.
      */
     public Histogram(Model ownerModel, String name, ValueSupplier valSup, double lowerEnd, double upperEnd, int cells,
                      boolean showInReport, boolean showInTrace) {
@@ -138,14 +121,13 @@ public class Histogram extends desmoj.core.statistic.Tally {
 
         // valsup is no valid ValueSupplier
         if (valSup == null) {
-            sendWarning("Attempt to produce a Histogram about a non existing "
-            + "ValueSupplier. The command will be ignored!",
-                        "Histogram: " + this.getName() + " Constructor: Histogram"
-                        + " (Model ownerModel, String name, ValueSupplier valSup, "
-                        + "double lowerEnd, double upperEnd, int cells, "
-                        + "boolean showInReport, boolean showInTrace)",
-                        "The given ValueSupplier: valSup is only a null pointer.",
-                        "Make sure to pass a valid ValueSupplier when constructing a new " + "Histogram object.");
+            sendWarning(
+            "Attempt to produce a Histogram about a non existing " + "ValueSupplier. The command will be ignored!",
+            "Histogram: " + this.getName() + " Constructor: Histogram"
+            + " (Model ownerModel, String name, ValueSupplier valSup, "
+            + "double lowerEnd, double upperEnd, int cells, " + "boolean showInReport, boolean showInTrace)",
+            "The given ValueSupplier: valSup is only a null pointer.",
+            "Make sure to pass a valid ValueSupplier when constructing a new " + "Histogram object.");
 
             return; // just return
         }
@@ -161,20 +143,17 @@ public class Histogram extends desmoj.core.statistic.Tally {
     }
 
     /**
-     * Constructor for a Histogram object with user-defined interval cells that will
-     * be connected to a <code>ValueSupplier</code>.
+     * Constructor for a Histogram object with user-defined interval cells that will be connected to a
+     * <code>ValueSupplier</code>.
      *
      * @param ownerModel   Model : The model this Histogram is associated to.
      * @param name         java.lang.String : The name of this Histogram object.
-     * @param valSup       ValueSupplier : The ValueSupplier providing the value for
-     *                     this Histogram. The given ValueSupplier will be observed
-     *                     by this Histogram object.
-     * @param range        double[] : The interval with the lower limit of each cell
-     *                     and the upper limit of the interval as the final value.
-     * @param showInReport boolean : Flag for showing the report about this
-     *                     Histogram.
-     * @param showInTrace  boolean : Flag for showing the trace output of this
-     *                     Histogram.
+     * @param valSup       ValueSupplier : The ValueSupplier providing the value for this Histogram. The given
+     *                     ValueSupplier will be observed by this Histogram object.
+     * @param range        double[] : The interval with the lower limit of each cell and the upper limit of the interval
+     *                     as the final value.
+     * @param showInReport boolean : Flag for showing the report about this Histogram.
+     * @param showInTrace  boolean : Flag for showing the trace output of this Histogram.
      */
     public Histogram(Model ownerModel, String name, ValueSupplier valSup, double[] range, boolean showInReport,
                      boolean showInTrace) {
@@ -184,14 +163,13 @@ public class Histogram extends desmoj.core.statistic.Tally {
 
         // valsup is no valid ValueSupplier
         if (valSup == null) {
-            sendWarning("Attempt to produce a Histogram about a non existing "
-            + "ValueSupplier. The command will be ignored!",
-                        "Histogram: " + this.getName() + " Constructor: Histogram"
-                        + " (Model ownerModel, String name, ValueSupplier valSup, "
-                        + "double lowerEnd, double upperEnd, int cells, "
-                        + "boolean showInReport, boolean showInTrace)",
-                        "The given ValueSupplier: valSup is only a null pointer.",
-                        "Make sure to pass a valid ValueSupplier when constructing a new " + "Histogram object.");
+            sendWarning(
+            "Attempt to produce a Histogram about a non existing " + "ValueSupplier. The command will be ignored!",
+            "Histogram: " + this.getName() + " Constructor: Histogram"
+            + " (Model ownerModel, String name, ValueSupplier valSup, "
+            + "double lowerEnd, double upperEnd, int cells, " + "boolean showInReport, boolean showInTrace)",
+            "The given ValueSupplier: valSup is only a null pointer.",
+            "Make sure to pass a valid ValueSupplier when constructing a new " + "Histogram object.");
 
             return; // just return
         }
@@ -207,19 +185,18 @@ public class Histogram extends desmoj.core.statistic.Tally {
     }
 
     /**
-     * Changes the parameters of the interval and its number of segments. Can only
-     * be done after construction of a Histogram or after a reset.
+     * Changes the parameters of the interval and its number of segments. Can only be done after construction of a
+     * Histogram or after a reset.
      *
      * @param low double : The lower end of the interval.
      * @param up  double : The upper end of the interval.
-     * @param cel int : The number of cells (sections) the given interval will be
-     *            divided into.
+     * @param cel int : The number of cells (sections) the given interval will be divided into.
      */
     public void changeParameters(double low, double up, int cel) {
         if (getObservations() > 0) // Histogram has been used already
         {
             sendWarning("Attempt to change the parameters of a Histogram, but "
-            + "it has been used already. The command will be ignored!",
+                        + "it has been used already. The command will be ignored!",
                         "Histogram: " + this.getName() + " Method: changeParameters( double "
                         + "low, double up, int cel )",
                         "The parameters of a Histogram can not be changed when the Histogram "
@@ -237,17 +214,17 @@ public class Histogram extends desmoj.core.statistic.Tally {
     }
 
     /**
-     * Changes the parameters of the interval and its number of segments. Can only
-     * be done after construction of a Histogram or after a reset.
+     * Changes the parameters of the interval and its number of segments. Can only be done after construction of a
+     * Histogram or after a reset.
      *
-     * @param range double[] : The array holding the lower limits of the interval
-     *              sections and the upper limit as the final value.
+     * @param range double[] : The array holding the lower limits of the interval sections and the upper limit as the
+     *              final value.
      */
     public void changeParameters(double[] range) {
         if (getObservations() > 0) // Histogram has been used already
         {
             sendWarning("Attempt to change the parameters of a Histogram, but "
-            + "it has been used already. The command will be ignored!",
+                        + "it has been used already. The command will be ignored!",
                         "Histogram: " + this.getName() + " Method: changeParameters( double "
                         + "low, double up, int cel )",
                         "The parameters of a Histogram can not be changed when the Histogram "
@@ -265,21 +242,16 @@ public class Histogram extends desmoj.core.statistic.Tally {
     }
 
     /**
-     * Performs Pearson's Chi-square test on given frequencies, a fixed degree of
-     * freedom and desired probability. The frequencies are given in an array either
-     * including under- and overflow cells or not. The degree of freedom is set to 1
-     * deducted from the number of given cells. On an error the Chi-squared test is
-     * not performed and false is returned. Details on errors are given out in the
-     * error message log. The result is <code>true</code> if the null hypothesis can
-     * not be rejected.
+     * Performs Pearson's Chi-square test on given frequencies, a fixed degree of freedom and desired probability. The
+     * frequencies are given in an array either including under- and overflow cells or not. The degree of freedom is set
+     * to 1 deducted from the number of given cells. On an error the Chi-squared test is not performed and false is
+     * returned. Details on errors are given out in the error message log. The result is <code>true</code> if the null
+     * hypothesis can not be rejected.
      *
      * @param values     long[]: Array of assumed frequencies for each cell.
-     *
      * @param confidence double: (1-alpha) probability level.
-     *
-     * @return boolean : <code>true</code> if the the null hypothesis can not be
-     *         rejected. <code>false</code> on error or if the null hypothesis has
-     *         to be rejected.
+     * @return boolean : <code>true</code> if the the null hypothesis can not be rejected. <code>false</code> on error
+     * or if the null hypothesis has to be rejected.
      */
     public boolean chiSquareTest(long[] values, double confidence) {
 
@@ -294,8 +266,8 @@ public class Histogram extends desmoj.core.statistic.Tally {
         // check if we have a reasonable amount of observations
         else if (this.getObservations() < 3) {
             sendWarning("Attempt to perform a Chi-squared test on an insufficient data amount,  "
-            + "there are less than three observations!  ", "chiSquareTest(long[], double) : ", "Too few observations. ",
-                        "Make sure to have a sufficient amount of observations "
+                        + "there are less than three observations!  ", "chiSquareTest(long[], double) : ",
+                        "Too few observations. ", "Make sure to have a sufficient amount of observations "
                         + "when calling the chiSquareTest() method.  ");
             return false;
         }
@@ -324,20 +296,16 @@ public class Histogram extends desmoj.core.statistic.Tally {
     }
 
     /**
-     * Performs Pearson's Chi-square test on given frequencies, degrees of freedom
-     * and desired probability. The frequencies are given in an array either
-     * including under- and overflow cells or not. On error the Chi-squared test is
-     * not performed and false is returned. Details on errors are given out in the
-     * error message log. The result is true if the null hypothesis can not be
-     * rejected.
+     * Performs Pearson's Chi-square test on given frequencies, degrees of freedom and desired probability. The
+     * frequencies are given in an array either including under- and overflow cells or not. On error the Chi-squared
+     * test is not performed and false is returned. Details on errors are given out in the error message log. The result
+     * is true if the null hypothesis can not be rejected.
      *
      * @param values     long[]: Array of assumed frequencies for each cell.
      * @param degFreedom int: Degrees of freedom of the test.
      * @param confidence double: (1-alpha) probability level.
-     *
-     * @return boolean : <code>true</code> if the the null hypothesis can not be
-     *         rejected. <code>false</code> on error or if the null hypothesis has
-     *         to be rejected.
+     * @return boolean : <code>true</code> if the the null hypothesis can not be rejected. <code>false</code> on error
+     * or if the null hypothesis has to be rejected.
      */
     public boolean chiSquareTest(long[] values, int degFreedom, double confidence) {
 
@@ -352,7 +320,7 @@ public class Histogram extends desmoj.core.statistic.Tally {
         // check if we have a reasonable amount of observations
         else if (this.getObservations() < 3) {
             sendWarning("Attempt to perform a Chi-squared test on an insufficient data amount,  "
-            + "there are less than three observations!  ", "chiSquareTest(long[], int, double) : ",
+                        + "there are less than three observations!  ", "chiSquareTest(long[], int, double) : ",
                         "Too few observations. ", "Make sure to have a sufficient amount of observations "
                         + "when calling the chiSquareTest() method.  ");
             return false;
@@ -373,9 +341,7 @@ public class Histogram extends desmoj.core.statistic.Tally {
                         "chiSquareTest(long[], int, double) : ", "Illegal degree of freedom. ",
                         "Make sure to have a valid degree of freedom " + "when calling the chiSquareTest() method.  ");
             return false;
-        }
-
-        else {
+        } else {
             long sumValuesObserved = 0;
             long sumValuesExpected = 0;
 
@@ -434,11 +400,21 @@ public class Histogram extends desmoj.core.statistic.Tally {
      * Returns a Reporter to produce a report about this Histogram.
      *
      * @return desmoj.report.Reporter : The Reporter for this Histogram.
-     *
      */
     @Override
     public desmoj.core.report.Reporter createDefaultReporter() {
         return new desmoj.core.report.HistogramReporter(this);
+    }
+
+    /**
+     * Returns the mean width of all cells.
+     *
+     * @return double : The mean width of all cells.
+     * @deprecated The same functionality is given by getMeanWidth().
+     */
+    @Deprecated
+    public double getCellWidth() {
+        return round((this.getUpperLimit() - this.getLowerLimit(1)) / this.getCells());
     }
 
     /**
@@ -451,24 +427,11 @@ public class Histogram extends desmoj.core.statistic.Tally {
     }
 
     /**
-     * Returns the mean width of all cells.
-     *
-     * @return double : The mean width of all cells.
-     *
-     * @deprecated The same functionality is given by getMeanWidth().
-     */
-    @Deprecated
-    public double getCellWidth() {
-        return round((this.getUpperLimit() - this.getLowerLimit(1)) / this.getCells());
-    }
-
-    /**
      * Returns the lower limit of the given cell. If the given cell is negative,
      * <code>UNDEFINED</code> (-1) will be returned.
      *
+     * @param cell int : The cell for which we want to know its lower limit. Should be zero or positive.
      * @return double : The lower limit of the given cell.
-     * @param cell int : The cell for which we want to know its lower limit. Should
-     *             be zero or positive.
      */
     public double getLowerLimit(int cell) {
         if (cell < 0 || cell > this.getCells() + 1) {
@@ -500,9 +463,7 @@ public class Histogram extends desmoj.core.statistic.Tally {
      * Returns the number of the first cell holding the maximum value.
      *
      * @return int : The number of one cell holding the maximum value.
-     *
-     * @deprecated Gives the same result as the first entry of the returned array of
-     *             getMostFrequentedCells().
+     * @deprecated Gives the same result as the first entry of the returned array of getMostFrequentedCells().
      */
     @Deprecated
     public int getMostFrequentedCell() {
@@ -543,17 +504,16 @@ public class Histogram extends desmoj.core.statistic.Tally {
     /**
      * Returns the observations made for the given cell, so far.
      *
+     * @param cell int : The cell of which want to get the number of observations made for.
      * @return long : The observations made for the given cell.
-     * @param cell int : The cell of which want to get the number of observations
-     *             made for.
      */
     public long getObservationsInCell(int cell) {
         if (cell < 0 || cell > this.getCells() + 1) { // cell 0: underflow, cell this.getCells() + 1: overflow
-            sendWarning("Attempt to get the number of observations from a not "
-            + "known cell. Zero (0) will be returned!",
-                        "Histogram: " + this.getName() + " Method: getObservationsInCell" + "( int cell ).",
-                        "The passed int: cell in this method is negative or greater than " + "the largest cell number.",
-                        "Make sure to ask for the number of observations only for valid " + "cell numbers.");
+            sendWarning(
+            "Attempt to get the number of observations from a not " + "known cell. Zero (0) will be returned!",
+            "Histogram: " + this.getName() + " Method: getObservationsInCell" + "( int cell ).",
+            "The passed int: cell in this method is negative or greater than " + "the largest cell number.",
+            "Make sure to ask for the number of observations only for valid " + "cell numbers.");
             return 0; // return zero (0)
         }
 
@@ -570,21 +530,19 @@ public class Histogram extends desmoj.core.statistic.Tally {
     }
 
     /**
-     * Returns whether output is condensed, i.e.\ empty cells on the right tail not
-     * shown.
+     * Returns whether output is condensed, i.e.\ empty cells on the right tail not shown.
      *
-     * @return boolean : Not displaying unused cells in report view
-     *         (<code>true</code>) or printing all cells (<code>false</code>).
+     * @return boolean : Not displaying unused cells in report view (<code>true</code>) or printing all cells
+     * (<code>false</code>).
      */
     public boolean isCondensed() {
         return this._condensed;
     }
 
     /**
-     * Resets this Histogram object by resetting the counters for each cell to zero.
-     * That means the array of the cell counters will be reset, but the interval and
-     * the number of sections this interval is divided into will remain the same.
-     * The parameters of the interval can be changed with the
+     * Resets this Histogram object by resetting the counters for each cell to zero. That means the array of the cell
+     * counters will be reset, but the interval and the number of sections this interval is divided into will remain the
+     * same. The parameters of the interval can be changed with the
      * <code>changeParameters</code> method after the reset.
      */
     @Override
@@ -599,11 +557,9 @@ public class Histogram extends desmoj.core.statistic.Tally {
     }
 
     /**
-     * Sets whether output should be condensed, i.e.\ empty cells on the right tail
-     * not shown.
+     * Sets whether output should be condensed, i.e.\ empty cells on the right tail not shown.
      *
-     * @param condensed boolean: Not displaying unused cells in report view
-     *                  (<code>true</code>) or printing all cells
+     * @param condensed boolean: Not displaying unused cells in report view (<code>true</code>) or printing all cells
      *                  (<code>false</code>).
      */
     public void setCondensed(boolean condensed) {
@@ -611,8 +567,8 @@ public class Histogram extends desmoj.core.statistic.Tally {
     }
 
     /**
-     * Updates this <code>Histogram</code> object by fetching the actual value of
-     * the <code>ValueSupplier</code> and processing it. The
+     * Updates this <code>Histogram</code> object by fetching the actual value of the <code>ValueSupplier</code> and
+     * processing it. The
      * <code>ValueSupplier</code> is passed in the constructor of this
      * <code>Histogram</code> object. This <code>update()</code> method complies
      * with the one described in DESMO, see [Page91].
@@ -651,14 +607,13 @@ public class Histogram extends desmoj.core.statistic.Tally {
     }
 
     /**
-     * Updates this <code>Histogram</code> object with the double value given as
-     * parameter. In some cases it might be more convenient to pass the value this
+     * Updates this <code>Histogram</code> object with the double value given as parameter. In some cases it might be
+     * more convenient to pass the value this
      * <code>Histogram</code> will be updated with directly within the
      * <code>update(double val)</code> method instead of going via the
      * <code>ValueSupplier</code>.
      *
-     * @param val double : The value with which this <code>Histogram</code> will be
-     *            updated.
+     * @param val double : The value with which this <code>Histogram</code> will be updated.
      */
     @Override
     public void update(double val) {
@@ -691,19 +646,17 @@ public class Histogram extends desmoj.core.statistic.Tally {
     }
 
     /**
-     * Implementation of the virtual <code>update(Observable, Object)</code> method
-     * of the <code>Observer</code> interface. This method will be called
-     * automatically from an <code>Observable</code> object within its
+     * Implementation of the virtual <code>update(Observable, Object)</code> method of the <code>Observer</code>
+     * interface. This method will be called automatically from an <code>Observable</code> object within its
      * <code>notifyObservers()</code> method. <br>
-     * If no Object (a<code>null</code> value) is passed as arg, the actual value of
-     * the ValueSupplier will be fetched with the <code>value()</code> method of the
-     * ValueSupplier. Otherwise it is expected that the actual value is passed in
-     * the Object arg.
+     * If no Object (a<code>null</code> value) is passed as arg, the actual value of the ValueSupplier will be fetched
+     * with the <code>value()</code> method of the ValueSupplier. Otherwise it is expected that the actual value is
+     * passed in the Object arg.
      *
-     * @param o   java.util.Observable : The Observable calling this method within
-     *            its own <code>notifyObservers()</code> method.
-     * @param arg Object : The Object with which this <code>Tally</code> is updated.
-     *            Normally a double number which is added to the statistics or
+     * @param o   java.util.Observable : The Observable calling this method within its own
+     *            <code>notifyObservers()</code> method.
+     * @param arg Object : The Object with which this <code>Tally</code> is updated. Normally a double number which is
+     *            added to the statistics or
      *            <code>null</code>.
      */
     @Override
@@ -711,7 +664,7 @@ public class Histogram extends desmoj.core.statistic.Tally {
         if (o == null) // null was passed instead of an Observable
         {
             sendWarning("Attempt to update a Histogram with no reference to an " + "Observable. The actual value of '"
-            + getValueSupplier().getName() + "' will be fetched and processed anyway.",
+                        + getValueSupplier().getName() + "' will be fetched and processed anyway.",
                         "Histogram: " + this.getName() + " Method: update (Observable " + "o, Object arg)",
                         "The passed Observable: o in this method is only a null pointer.",
                         "The update()-method was not called via notifyObservers() from an "
@@ -750,14 +703,13 @@ public class Histogram extends desmoj.core.statistic.Tally {
     }
 
     /**
-     * Checks the segmentation of the given equidistant interval and then
-     * initializes the range array.
+     * Checks the segmentation of the given equidistant interval and then initializes the range array.
      */
     protected void checkParamAndInitRange(double lowerLimit, double upperLimit, int cells) {
         if (cells <= 0) // the interval will not be divided into segments
         {
             sendWarning("Attempt to produce a Histogram about an interval, "
-            + "which is not divided into segments. The number of segments will be " + "set to one!",
+                        + "which is not divided into segments. The number of segments will be " + "set to one!",
                         "Histogram: " + this.getName() + " Constructor: Histogram"
                         + " (Model ownerModel, String name, ... int cells, ...) "
                         + "or Method: changeParameters( ..., int cel ).",
@@ -771,7 +723,7 @@ public class Histogram extends desmoj.core.statistic.Tally {
         if (lowerLimit > upperLimit) // lowerLimit is greater than upperLimit
         {
             sendWarning("Attempt to produce a Histogram about an interval, "
-            + "which lower end is greater than its upper end. The lower and " + "upper end are exchanged!",
+                        + "which lower end is greater than its upper end. The lower and " + "upper end are exchanged!",
                         "Histogram: " + this.getName() + " Constructor: Histogram"
                         + " (Model ownerModel, ... double lowerEnd, double upperEnd, ...) "
                         + "or Method: changeParameters( double low, double up, int cel ).",
@@ -786,7 +738,7 @@ public class Histogram extends desmoj.core.statistic.Tally {
             // there is no segmentation (all is one segment)
             if (lowerLimit == upperLimit && cells != 1) {
                 sendWarning("Attempt to produce a Histogram about an interval, "
-                + "which lower and upper limit are the same. The number of cells is " + "set to one!",
+                            + "which lower and upper limit are the same. The number of cells is " + "set to one!",
                             "Histogram: " + this.getName() + " Constructor: Histogram"
                             + " (Model ownerModel, ... double lowerEnd, double upperEnd, ...) "
                             + "or Method: changeParameters( double low, double up, int cel ).",
@@ -799,7 +751,7 @@ public class Histogram extends desmoj.core.statistic.Tally {
 
             } // end inner if
         } // end else
-          // Init range array
+        // Init range array
         this._range = new double[cells + 1];
         for (int i = 0; i < this._range.length - 1; i++)
             this._range[i] = lowerLimit + i * (upperLimit - lowerLimit) / cells;
@@ -807,8 +759,7 @@ public class Histogram extends desmoj.core.statistic.Tally {
     }
 
     /**
-     * Checks the segmentation of the given user-defined interval and then
-     * initializes the range array.
+     * Checks the segmentation of the given user-defined interval and then initializes the range array.
      */
     protected void checkParamAndInitRange(double[] range) {
         double temp;
@@ -816,9 +767,8 @@ public class Histogram extends desmoj.core.statistic.Tally {
         {
             temp = 0;
             sendWarning("Attempt to produce a Histogram only containing of the underflow and the overflow. "
-            + "There will an interval of the length of 0 between these. The number of segments will be "
-            + "set to one!",
-                        "Histogram: " + this.getName() + " Constructor: Histogram"
+                        + "There will an interval of the length of 0 between these. The number of segments will be "
+                        + "set to one!", "Histogram: " + this.getName() + " Constructor: Histogram"
                         + " (Model ownerModel, String name, double[] range, ...) "
                         + "or Method: changeParameters( double[] range ).", "There are no given cells. ",
                         "Make sure to pass a valid number of cells when constructing a new "
@@ -848,8 +798,8 @@ public class Histogram extends desmoj.core.statistic.Tally {
         if (errorMsgAsc) // the limits were not ascending
         {
             sendWarning("Attempt to produce a Histogram about an interval, "
-            + "which has at least one section whose upper is smaller than its lower limit. "
-            + "The lower and upper limits are being exchanged!",
+                        + "which has at least one section whose upper is smaller than its lower limit. "
+                        + "The lower and upper limits are being exchanged!",
                         "Histogram: " + this.getName() + " Constructor: Histogram"
                         + " (Model ownerModel, ... double[] range, ...) "
                         + "or Method: changeParameters( double[] range ).",
@@ -879,9 +829,8 @@ public class Histogram extends desmoj.core.statistic.Tally {
         }
         if (errorMsgEq) {
             sendWarning("Attempt to produce a Histogram about an interval, "
-            + "which has at least two sections in a row whose lower limits are the same. At least one "
-            + "lower limit is being deleted!",
-                        "Histogram: " + this.getName() + " Constructor: Histogram"
+                        + "which has at least two sections in a row whose lower limits are the same. At least one "
+                        + "lower limit is being deleted!", "Histogram: " + this.getName() + " Constructor: Histogram"
                         + " (Model ownerModel, ... double[] range, ...) "
                         + "or Method: changeParameters( double[] range ).",
                         "The given interval has at least two sections with the same lower limit. ",

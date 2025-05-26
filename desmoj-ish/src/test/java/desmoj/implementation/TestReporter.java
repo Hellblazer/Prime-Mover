@@ -7,8 +7,7 @@ import desmoj.core.report.Reporter;
 import desmoj.core.simulator.Schedulable;
 
 /**
- * This class is the Implementation for having a test object of the typ
- * Reporter.
+ * This class is the Implementation for having a test object of the typ Reporter.
  *
  * @author Clara Bluemm
  * @see desmoj.core.report
@@ -25,8 +24,8 @@ public class TestReporter extends Reporter {
     /**
      * Returns the Entries of the superclass Reporter.
      *
-     * @see desmoj.core.report.Reporter
      * @return string
+     * @see desmoj.core.report.Reporter
      */
     @Override
     public String[] getEntries() {

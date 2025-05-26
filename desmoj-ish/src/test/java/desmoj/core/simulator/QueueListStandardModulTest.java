@@ -1,25 +1,19 @@
 package desmoj.core.simulator;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
+import desmoj.implementation.TestEntity;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import desmoj.implementation.TestEntity;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * In this class we test the methods of QueueListStandard. It gets extended by
- * QueueListLifo or QueueListFifo.
+ * In this class we test the methods of QueueListStandard. It gets extended by QueueListLifo or QueueListFifo.
  *
  * @author Clara Bluemm, Sascha Winde
- *
  * @see desmoj.core.simulator.QueueListStandard
  * @see desmoj.core.simulator.QueueListFifo
  * @see desmoj.core.simulator.QueueListLifo
- *
  */
 public abstract class QueueListStandardModulTest extends QueueListModulTest {
 
@@ -29,7 +23,6 @@ public abstract class QueueListStandardModulTest extends QueueListModulTest {
 
     /**
      * Checks whether the method validates the sim-process correctly.
-     *
      */
 
     public void CheckProcess() {
@@ -45,8 +38,7 @@ public abstract class QueueListStandardModulTest extends QueueListModulTest {
     }
 
     /**
-     * Should return the typ of the list as a String. In our case that would be
-     * LIFO.
+     * Should return the typ of the list as a String. In our case that would be LIFO.
      */
 
     public void getAbbreviation() {
@@ -70,8 +62,7 @@ public abstract class QueueListStandardModulTest extends QueueListModulTest {
     }
 
     /**
-     * Returns the Implementation of QueueListStandard: QueueListLifo or
-     * QueueListFifo
+     * Returns the Implementation of QueueListStandard: QueueListLifo or QueueListFifo
      */
     @Override
     public abstract QueueListStandard getTyp();
@@ -116,8 +107,7 @@ public abstract class QueueListStandardModulTest extends QueueListModulTest {
     }
 
     /**
-     * Shall send a warning to the QueueBased. This method is passed on right to
-     * desmoj.core.simulator.ModelComponent.
+     * Shall send a warning to the QueueBased. This method is passed on right to desmoj.core.simulator.ModelComponent.
      */
 
     public void sendWarning() {
@@ -153,8 +143,7 @@ public abstract class QueueListStandardModulTest extends QueueListModulTest {
     }
 
     /**
-     * It should return true or false, depending on whether the entity is already
-     * part of the queue.
+     * It should return true or false, depending on whether the entity is already part of the queue.
      */
     @Test
     public void testContains() {
@@ -188,8 +177,8 @@ public abstract class QueueListStandardModulTest extends QueueListModulTest {
     }
 
     /**
-     * This method indicates whether the second parameter (=Entity) was sucessfully
-     * inserted after the first parameter (=entity).
+     * This method indicates whether the second parameter (=Entity) was sucessfully inserted after the first parameter
+     * (=entity).
      */
     @Test
     public void testInsertAfter() {
@@ -206,8 +195,7 @@ public abstract class QueueListStandardModulTest extends QueueListModulTest {
     }
 
     /**
-     * Same as the method above, but inserts the first paramter before the second
-     * parameter (=entity).
+     * Same as the method above, but inserts the first paramter before the second parameter (=entity).
      */
     @Test
     public void testInsertBefore() {
@@ -245,8 +233,7 @@ public abstract class QueueListStandardModulTest extends QueueListModulTest {
     }
 
     /**
-     * Removes the first occurence from the given entity. If that is successfully:
-     * true is returned.
+     * Removes the first occurence from the given entity. If that is successfully: true is returned.
      */
     @Test
     public void testRemoveEntity() {
@@ -260,8 +247,7 @@ public abstract class QueueListStandardModulTest extends QueueListModulTest {
     }
 
     /**
-     * Removes at the named (int) position. If that is successfully: true is
-     * returned.
+     * Removes at the named (int) position. If that is successfully: true is returned.
      */
     @Test
     public void testRemoveInt() {

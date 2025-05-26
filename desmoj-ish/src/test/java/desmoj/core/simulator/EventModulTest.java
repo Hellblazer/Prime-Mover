@@ -1,21 +1,17 @@
 package desmoj.core.simulator;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
+import desmoj.implementation.TestEventAbstract;
+import desmoj.implementation.TestModel;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import desmoj.implementation.TestEventAbstract;
-import desmoj.implementation.TestModel;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * This class tests the methods derived of the abstract class Event.
  *
  * @author Sascha Winde, Clara Bluemm
- *
  */
 public abstract class EventModulTest {
 

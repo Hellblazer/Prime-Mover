@@ -1,25 +1,19 @@
 package desmoj.core.simulator;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.util.Enumeration;
-
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-
 import desmoj.implementation.TestComplexSimProcess;
 import desmoj.implementation.TestModel;
 import desmoj.implementation.TestSimProcess;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+
+import java.util.Enumeration;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * This class tests the functionality of the class ComplexSimProcess.
  *
  * @author Sascuemm
- *
- *
  */
 public abstract class ComplexSimProcessModulTest {
 
@@ -46,8 +40,7 @@ public abstract class ComplexSimProcessModulTest {
     }
 
     /**
-     * This Test checks the functionality to add, remove or check for components,
-     * given to a ComplexSimProcess
+     * This Test checks the functionality to add, remove or check for components, given to a ComplexSimProcess
      *
      * @
      */

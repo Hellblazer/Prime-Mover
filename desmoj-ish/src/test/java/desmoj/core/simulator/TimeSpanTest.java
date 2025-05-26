@@ -1,18 +1,15 @@
 package desmoj.core.simulator;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * This class tests the TimeSpan Operations.
  *
  * @author Sascha Winde, Clara Bluemm
- *
  */
 public class TimeSpanTest {
 
@@ -51,8 +48,7 @@ public class TimeSpanTest {
     }
 
     /**
-     * This test checks two timespans to be equal or longer/shorter than one
-     * another.
+     * This test checks two timespans to be equal or longer/shorter than one another.
      */
     @Test
     public void testTimeDuration() {

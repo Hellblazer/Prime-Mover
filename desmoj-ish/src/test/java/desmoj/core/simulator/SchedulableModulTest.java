@@ -1,19 +1,17 @@
 package desmoj.core.simulator;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-
+import desmoj.implementation.TestModel;
+import desmoj.implementation.TestSchedulable;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import desmoj.implementation.TestModel;
-import desmoj.implementation.TestSchedulable;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
  * This class tests if a schedulable object is scheduled or not.
  *
  * @author Sascha Winde, Clara Bluemm
- *
  */
 public abstract class SchedulableModulTest {
 

@@ -3,27 +3,25 @@
  *
  * This file is part of the Prime Mover Event Driven Simulation Framework.
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General
+ * Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
+ * later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Affero General Public License for more
+ * details.
  *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License along with this program.  If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 package demo;
 
-import static com.hellblazer.primeMover.Kronos.currentTime;
-import static com.hellblazer.primeMover.Kronos.sleep;
-
 import com.hellblazer.primeMover.annotations.Blocking;
 import com.hellblazer.primeMover.annotations.Entity;
+
+import static com.hellblazer.primeMover.api.Kronos.currentTime;
+import static com.hellblazer.primeMover.api.Kronos.sleep;
 
 /**
  *
@@ -35,9 +33,9 @@ import com.hellblazer.primeMover.annotations.Entity;
 public class ContinuationThroughput {
     private static final byte[] B = new byte[] {};
     /** number of continuation events. */
-    protected final int         limit;
+    protected final      int    limit;
     /** benchmark type. */
-    protected final String      mode;
+    protected final      String mode;
 
     /**
      * Create new continuation event benchmarking entity.

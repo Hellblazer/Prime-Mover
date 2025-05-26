@@ -1,32 +1,26 @@
 package desmoj.core.statistic;
 
-import java.util.Observable;
-
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.SimClock;
 import desmoj.core.simulator.TimeSpan;
 
+import java.util.Observable;
+
 /**
- * The <code>ValueStatistics</code> class is the super class for all the classes
- * providing a statistic analysis about one value (e.g. minimum and maximum
- * values). Derived classes are: Tally, Accumulate and Histogram (because it is
+ * The <code>ValueStatistics</code> class is the super class for all the classes providing a statistic analysis about
+ * one value (e.g. minimum and maximum values). Derived classes are: Tally, Accumulate and Histogram (because it is
  * derived from Tally).
  *
- * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  * @author Soenke Claassen
  * @author based on DESMO-C from Thomas Schniewind, 1998
  *
- *         Licensed under the Apache License, Version 2.0 (the "License"); you
- *         may not use this file except in compliance with the License. You may
- *         obtain a copy of the License at
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
  *
- *         Unless required by applicable law or agreed to in writing, software
- *         distributed under the License is distributed on an "AS IS" BASIS,
- *         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- *         implied. See the License for the specific language governing
- *         permissions and limitations under the License.
- *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  */
 
 public abstract class ValueStatistics extends desmoj.core.statistic.StatisticObjectSupportingTimeSpans {
@@ -60,12 +54,9 @@ public abstract class ValueStatistics extends desmoj.core.statistic.StatisticObj
      * <code>ValueSupplier</code>.
      *
      * @param ownerModel   Model : The model this ValueStatistics is associated to
-     * @param name         java.lang.String : The name of this ValueStatistics
-     *                     object
-     * @param showInReport boolean : Flag for showing the report about this
-     *                     ValueStatistics.
-     * @param showInTrace  boolean : Flag for showing the trace output of this
-     *                     ValueStatistics.
+     * @param name         java.lang.String : The name of this ValueStatistics object
+     * @param showInReport boolean : Flag for showing the report about this ValueStatistics.
+     * @param showInTrace  boolean : Flag for showing the trace output of this ValueStatistics.
      */
     public ValueStatistics(Model ownerModel, String name, boolean showInReport, boolean showInTrace) {
         super(ownerModel, name, showInReport, showInTrace);
@@ -83,15 +74,11 @@ public abstract class ValueStatistics extends desmoj.core.statistic.StatisticObj
      * <code>ValueSupplier</code>.
      *
      * @param ownerModel   Model : The model this ValueStatistics is associated to
-     * @param name         java.lang.String : The name of this ValueStatistics
-     *                     object
-     * @param valSup       ValueSupplier : The ValueSupplier providing the value for
-     *                     this ValueStatistics. The given ValueSupplier will be
-     *                     observed by this ValueStatistics object.
-     * @param showInReport boolean : Flag for showing the report about this
-     *                     ValueStatistics.
-     * @param showInTrace  boolean : Flag for showing the trace output of this
-     *                     ValueStatistics.
+     * @param name         java.lang.String : The name of this ValueStatistics object
+     * @param valSup       ValueSupplier : The ValueSupplier providing the value for this ValueStatistics. The given
+     *                     ValueSupplier will be observed by this ValueStatistics object.
+     * @param showInReport boolean : Flag for showing the report about this ValueStatistics.
+     * @param showInTrace  boolean : Flag for showing the trace output of this ValueStatistics.
      */
     public ValueStatistics(Model ownerModel, String name, ValueSupplier valSup, boolean showInReport,
                            boolean showInTrace) {
@@ -100,7 +87,7 @@ public abstract class ValueStatistics extends desmoj.core.statistic.StatisticObj
         // valSup is no valid ValueSupplier
         if (valSup == null) {
             sendWarning("Attempt to produce a ValueStatistics about a non "
-            + "existing ValueSupplier. The command will be ignored!",
+                        + "existing ValueSupplier. The command will be ignored!",
                         "ValueStatistics: " + this.getName() + " Constructor: ValueStatistics"
                         + " (Model ownerModel, String name, ValueSupplier valSup, "
                         + "boolean showInReport, boolean showInTrace)",
@@ -137,7 +124,7 @@ public abstract class ValueStatistics extends desmoj.core.statistic.StatisticObj
 
         if (getObservations() == 0) {
             sendWarning("Attempt to get a maximum value, but there is not "
-            + "sufficient data yet. UNDEFINED (-1.0) will be returned!",
+                        + "sufficient data yet. UNDEFINED (-1.0) will be returned!",
                         "ValueStatistics: " + this.getName() + " Method: double getMaximum()",
                         "You can not obtain a maximum value as long as no data is collected.",
                         "Make sure to ask for a maximum value only after some data has been " + "collected already.");
@@ -150,8 +137,7 @@ public abstract class ValueStatistics extends desmoj.core.statistic.StatisticObj
     }
 
     /**
-     * Returns the mean value of all the values observed so far. Has to be
-     * implemented in a derived class.
+     * Returns the mean value of all the values observed so far. Has to be implemented in a derived class.
      *
      * @return double : The mean value of all the values observed so far.
      */
@@ -166,7 +152,7 @@ public abstract class ValueStatistics extends desmoj.core.statistic.StatisticObj
 
         if (getObservations() == 0) {
             sendWarning("Attempt to get a minimum value, but there is not "
-            + "sufficient data yet. UNDEFINED (-1.0) will be returned!",
+                        + "sufficient data yet. UNDEFINED (-1.0) will be returned!",
                         "ValueStatistics: " + this.getName() + " Method: double getMinimum()",
                         "You can not obtain a minimum value as long as no data is collected.",
                         "Make sure to ask for a minimum value only after some data has been " + "collected already.");
@@ -179,8 +165,7 @@ public abstract class ValueStatistics extends desmoj.core.statistic.StatisticObj
     }
 
     /**
-     * Returns the standard deviation of all the values observed so far. Has to be
-     * implemented in a derived class.
+     * Returns the standard deviation of all the values observed so far. Has to be implemented in a derived class.
      *
      * @return double : The standard deviation of all the values observed so far.
      */
@@ -197,8 +182,8 @@ public abstract class ValueStatistics extends desmoj.core.statistic.StatisticObj
     }
 
     /**
-     * Updates this <code>ValueStatistics</code> object by fetching the actual value
-     * of the <code>ValueSupplier</code> and processing it. The
+     * Updates this <code>ValueStatistics</code> object by fetching the actual value of the <code>ValueSupplier</code>
+     * and processing it. The
      * <code>ValueSupplier</code> is passed in the constructor of this
      * <code>ValueStatistics</code> object. This <code>update()</code> method
      * complies with the one described in DESMO, see [Page91].
@@ -206,8 +191,8 @@ public abstract class ValueStatistics extends desmoj.core.statistic.StatisticObj
     public void update() {
         if (this._valSuppl == null) {
             sendWarning("Attempt to update a ValueStatistics that is not "
-            + "connected to a ValueSupplier. No value is provided with which "
-            + "the statistic could be updated. The command will be ignored!",
+                        + "connected to a ValueSupplier. No value is provided with which "
+                        + "the statistic could be updated. The command will be ignored!",
                         "ValueStatistics: " + this.getName() + " Method: update()",
                         "The given ValueSupplier: valSuppl is only a null pointer.",
                         "Make sure to update a ValueStatistics only when it is connected "
@@ -238,14 +223,12 @@ public abstract class ValueStatistics extends desmoj.core.statistic.StatisticObj
     }
 
     /**
-     * Updates this <code>ValueStatistics</code> object with the double value given
-     * as parameter. In some cases it might be more convenient to pass the value
-     * this <code>ValueStatistics</code> will be updated with directly within the
+     * Updates this <code>ValueStatistics</code> object with the double value given as parameter. In some cases it might
+     * be more convenient to pass the value this <code>ValueStatistics</code> will be updated with directly within the
      * <code>update(double val)</code> method instead of going via the
      * <code>ValueSupplier</code>.
      *
-     * @param val double : The value with which this <code>ValueStatistics</code>
-     *            will be updated.
+     * @param val double : The value with which this <code>ValueStatistics</code> will be updated.
      */
     public void update(double val) {
         _lastValue = val; // update lastValue
@@ -269,20 +252,17 @@ public abstract class ValueStatistics extends desmoj.core.statistic.StatisticObj
     }
 
     /**
-     * Implementation of the virtual <code>update(Observable, Object)</code> method
-     * of the <code>Observer</code> interface. This method will be called
-     * automatically from an <code>Observable</code> object within its
+     * Implementation of the virtual <code>update(Observable, Object)</code> method of the <code>Observer</code>
+     * interface. This method will be called automatically from an <code>Observable</code> object within its
      * <code>notifyObservers()</code> method. <br>
-     * If no Object (a<code>null</code> value) is passed as arg, the actual value of
-     * the ValueSupplier will be fetched with the <code>value()</code> method of the
-     * ValueSupplier. Otherwise it is expected that the actual value is passed in
-     * the Object arg.
+     * If no Object (a<code>null</code> value) is passed as arg, the actual value of the ValueSupplier will be fetched
+     * with the <code>value()</code> method of the ValueSupplier. Otherwise it is expected that the actual value is
+     * passed in the Object arg.
      *
-     * @param o   java.util.Observable : The Observable calling this method within
-     *            its own <code>notifyObservers()</code> method.
-     * @param arg Object : The Object with which this <code>ValueStatistics</code>
-     *            is updated. Normally a double number or TimeSpan which is added to
-     *            the statistics or <code>null</code>.
+     * @param o   java.util.Observable : The Observable calling this method within its own
+     *            <code>notifyObservers()</code> method.
+     * @param arg Object : The Object with which this <code>ValueStatistics</code> is updated. Normally a double number
+     *            or TimeSpan which is added to the statistics or <code>null</code>.
      */
     @Override
     public void update(Observable o, Object arg) {
@@ -290,8 +270,8 @@ public abstract class ValueStatistics extends desmoj.core.statistic.StatisticObj
         if (arg == null || o instanceof SimClock) {
             if (_valSuppl == null) {
                 sendWarning("Attempt to update a ValueStatistics that is not "
-                + "connected to a ValueSupplier. No value is provided with which "
-                + "the statistic could be updated. The command will be ignored!",
+                            + "connected to a ValueSupplier. No value is provided with which "
+                            + "the statistic could be updated. The command will be ignored!",
                             "ValueStatistics: " + this.getName() + " Method: update " + "(Observable o, Object arg)",
                             "The given ValueSupplier: valSuppl is only a null pointer.",
                             "Make sure to update a ValueStatistics only when it is connected "
@@ -318,7 +298,7 @@ public abstract class ValueStatistics extends desmoj.core.statistic.StatisticObj
                 // Reportable class
             } else {
                 sendWarning("Attempt to update a ValueStatistics with an argument "
-                + "arg, that can not be recognized. The attempted action is ignored!",
+                            + "arg, that can not be recognized. The attempted action is ignored!",
                             "ValueStatistics: " + this.getName() + " Method: update (Observable " + "o, Object arg)",
                             "The passed Object in the argument arg could not be recognized.",
                             "Make sure to pass null or a Number object as the arg argument.");
@@ -346,8 +326,7 @@ public abstract class ValueStatistics extends desmoj.core.statistic.StatisticObj
     @Override
     /**
      * {@inheritDoc}
-     */
-    public void update(TimeSpan t) {
+     */ public void update(TimeSpan t) {
         this.setShowTimeSpansInReport(true);
         this.update(t.getTimeAsDouble());
     }
@@ -355,8 +334,7 @@ public abstract class ValueStatistics extends desmoj.core.statistic.StatisticObj
     /**
      * Returns the ValueSupplier object providing all the values.
      *
-     * @return ValueSupplier : The ValueSupplier object providing the values for
-     *         this ValueStatistics.
+     * @return ValueSupplier : The ValueSupplier object providing the values for this ValueStatistics.
      */
     protected ValueSupplier getValueSupplier() {
         return _valSuppl;

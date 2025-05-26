@@ -6,10 +6,9 @@ import org.junit.jupiter.api.BeforeEach;
 /**
  * Implements StatisticObjectModulTest.
  *
+ * @author Sascha Winde, Clara Bluemm
  * @see TestFramework.core.simulator.StatisticObjectModulTest
  * @see desmo.core.simulator.statistic.StatisticObject
- * @author Sascha Winde, Clara Bluemm
- *
  */
 public class StatisticObjectTest extends StatisticObjectModulTest {
 

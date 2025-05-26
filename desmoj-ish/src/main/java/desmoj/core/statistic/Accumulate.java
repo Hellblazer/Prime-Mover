@@ -1,31 +1,26 @@
 package desmoj.core.statistic;
 
-import java.util.Observable;
-
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 import desmoj.core.simulator.TimeOperations;
 import desmoj.core.simulator.TimeSpan;
 
+import java.util.Observable;
+
 /**
- * The <code>Accumulate</code> class is providing a statistic analysis about one
- * value. The mean value and the standard deviation is weighted over time.<br />
+ * The <code>Accumulate</code> class is providing a statistic analysis about one value. The mean value and the standard
+ * deviation is weighted over time.<br />
  *
- * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  * @author Soenke Claassen
  * @author based on DESMO-C from Thomas Schniewind, 1998
  *
- *         Licensed under the Apache License, Version 2.0 (the "License"); you
- *         may not use this file except in compliance with the License. You may
- *         obtain a copy of the License at
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
  *
- *         Unless required by applicable law or agreed to in writing, software
- *         distributed under the License is distributed on an "AS IS" BASIS,
- *         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- *         implied. See the License for the specific language governing
- *         permissions and limitations under the License.
- *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  */
 
 public class Accumulate extends desmoj.core.statistic.ValueStatistics {
@@ -53,41 +48,34 @@ public class Accumulate extends desmoj.core.statistic.ValueStatistics {
     private double _mean;
 
     /**
-     * The length of the period during which this Accumulate was paused since the
-     * last reset
+     * The length of the period during which this Accumulate was paused since the last reset
      */
     private TimeSpan _pausedPeriodSinceLastReset;
 
     /**
-     * Instant at which the current pause has started (<code>null</code> if not
-     * paused at the moment)
+     * Instant at which the current pause has started (<code>null</code> if not paused at the moment)
      */
     private TimeInstant _pausedSince;
 
     /**
-     * This flag indicates if the accumulate's last value is retained on reset
-     * (true) or nullified (false)
+     * This flag indicates if the accumulate's last value is retained on reset (true) or nullified (false)
      */
     private boolean _retainLastValueOnReset;
 
     /**
-     * The time-weighted sum of the squares of the differences from the mean of all
-     * values so far
+     * The time-weighted sum of the squares of the differences from the mean of all values so far
      */
     private double _sumOfSquaredDevsFromMean;
 
     /**
      * Constructor for a Accumulate object that will not be connected to a
      * <code>ValueSupplier</code> automatically. No specific initial value is
-     * assumed, so that the period covered effectively begins after the first
-     * update.
+     * assumed, so that the period covered effectively begins after the first update.
      *
      * @param ownerModel   Model : The model this Accumulate is associated to
      * @param name         java.lang.String : The name of this Accumulate object.
-     * @param showInReport boolean : Flag for showing the report about this
-     *                     Accumulate.
-     * @param showInTrace  boolean : Flag for showing the trace output of this
-     *                     Accumulate.
+     * @param showInReport boolean : Flag for showing the report about this Accumulate.
+     * @param showInTrace  boolean : Flag for showing the trace output of this Accumulate.
      */
     public Accumulate(Model ownerModel, String name, boolean showInReport, boolean showInTrace) {
         // call the constructor of ValueStatistics without a connection to a
@@ -113,10 +101,8 @@ public class Accumulate extends desmoj.core.statistic.ValueStatistics {
      * @param ownerModel   Model : The model this Accumulate is associated to
      * @param name         java.lang.String : The name of this Accumulate object.
      * @param initialValue double : Value to assume initially and after resets.
-     * @param showInReport boolean : Flag for showing the report about this
-     *                     Accumulate.
-     * @param showInTrace  boolean : Flag for showing the trace output of this
-     *                     Accumulate.
+     * @param showInReport boolean : Flag for showing the report about this Accumulate.
+     * @param showInTrace  boolean : Flag for showing the trace output of this Accumulate.
      */
     public Accumulate(Model ownerModel, String name, double initialValue, boolean showInReport, boolean showInTrace) {
         // call the constructor of ValueStatistics without a connection to a
@@ -135,17 +121,13 @@ public class Accumulate extends desmoj.core.statistic.ValueStatistics {
      *
      * @param ownerModel   Model : The model this Accumulate is associated to
      * @param name         java.lang.String : The name of this Accumulate object
-     * @param valSup       ValueSupplier : The ValueSupplier providing the value for
-     *                     this Accumulate. The given ValueSupplier will be observed
-     *                     by this <code>Accumulate</code> object, if it is not
-     *                     observed automatically at every tick of the SimClock.
-     * @param automatic    boolean : Flag for observing the ValueSupplier at every
-     *                     tick of the SimClock. Set it to <code>true</code> to have
-     *                     it observed at every SimClock tick.
-     * @param showInReport boolean : Flag for showing the report about this
-     *                     Accumulate.
-     * @param showInTrace  boolean : Flag for showing the trace output of this
-     *                     Accumulate.
+     * @param valSup       ValueSupplier : The ValueSupplier providing the value for this Accumulate. The given
+     *                     ValueSupplier will be observed by this <code>Accumulate</code> object, if it is not observed
+     *                     automatically at every tick of the SimClock.
+     * @param automatic    boolean : Flag for observing the ValueSupplier at every tick of the SimClock. Set it to
+     *                     <code>true</code> to have it observed at every SimClock tick.
+     * @param showInReport boolean : Flag for showing the report about this Accumulate.
+     * @param showInTrace  boolean : Flag for showing the trace output of this Accumulate.
      */
     public Accumulate(Model ownerModel, String name, ValueSupplier valSup, boolean automatic, boolean showInReport,
                       boolean showInTrace) {
@@ -160,13 +142,12 @@ public class Accumulate extends desmoj.core.statistic.ValueStatistics {
 
         // valSup is no valid ValueSupplier
         if (valSup == null) {
-            sendWarning("Attempt to produce a Accumulate about a non existing "
-            + "ValueSupplier. The command will be ignored!",
-                        "Accumulate: " + this.getName() + " Constructor: Accumulate"
-                        + " (Model ownerModel, String name, ValueSupplier valSup, "
-                        + "boolean showInReport, boolean showInTrace)",
-                        "The given ValueSupplier: valSup is only a null pointer.",
-                        "Make sure to pass a valid ValueSupplier when constructing a new " + "Accumulate object.");
+            sendWarning(
+            "Attempt to produce a Accumulate about a non existing " + "ValueSupplier. The command will be ignored!",
+            "Accumulate: " + this.getName() + " Constructor: Accumulate"
+            + " (Model ownerModel, String name, ValueSupplier valSup, " + "boolean showInReport, boolean showInTrace)",
+            "The given ValueSupplier: valSup is only a null pointer.",
+            "Make sure to pass a valid ValueSupplier when constructing a new " + "Accumulate object.");
 
             return; // just return
         }
@@ -193,8 +174,8 @@ public class Accumulate extends desmoj.core.statistic.ValueStatistics {
     }
 
     /**
-     * This method determines whether if the accumulate's last value is retained on
-     * reset (true) or nullified (false). The default value is true.
+     * This method determines whether if the accumulate's last value is retained on reset (true) or nullified (false).
+     * The default value is true.
      *
      * @return value of the retainLastValueOnReset flag
      */
@@ -205,8 +186,7 @@ public class Accumulate extends desmoj.core.statistic.ValueStatistics {
     /**
      * Returns the mean value of all the values observed so far, weighted over time.
      *
-     * @return double : The mean value of all the values observed so far, weighted
-     *         over time.
+     * @return double : The mean value of all the values observed so far, weighted over time.
      */
     @Override
     public double getMean() {
@@ -214,12 +194,12 @@ public class Accumulate extends desmoj.core.statistic.ValueStatistics {
 
         // has no time passed?
         if (_firstValueReadAt == null || TimeInstant.isEqual(now, _firstValueReadAt) || getObservations() == 0) // OR no
-                                                                                                                // observations
-                                                                                                                // are
-                                                                                                                // made
+        // observations
+        // are
+        // made
         {
             sendWarning("Attempt to get a mean value, but there is not "
-            + "sufficient data yet. UNDEFINED (-1.0) will be returned!",
+                        + "sufficient data yet. UNDEFINED (-1.0) will be returned!",
                         "Accumulate: " + this.getName() + " Method: double getMean()",
                         "You can not calculate a mean value as long as no data is collected.",
                         "Make sure to ask for the mean value only after some data has been " + "collected already.");
@@ -266,11 +246,9 @@ public class Accumulate extends desmoj.core.statistic.ValueStatistics {
     }
 
     /**
-     * Returns the standard deviation of all the values observed so far, weighted
-     * over time.
+     * Returns the standard deviation of all the values observed so far, weighted over time.
      *
-     * @return double : The standard deviation of all the values observed so far,
-     *         weighted over time.
+     * @return double : The standard deviation of all the values observed so far, weighted over time.
      */
     @Override
     public double getStdDev() {
@@ -279,12 +257,12 @@ public class Accumulate extends desmoj.core.statistic.ValueStatistics {
         // is totalTimeDiff less than the minimum distinguishable span of
         // time?
         if (_firstValueReadAt == null || TimeInstant.isEqual(now, _firstValueReadAt) || getObservations() < 2) // OR not
-                                                                                                               // enough
-                                                                                                               // observations
-                                                                                                               // are
+        // enough
+        // observations
+        // are
         {
             sendWarning("Attempt to get a standard deviation value, but there is "
-            + "insufficient data yet. UNDEFINED (-1.0) will be returned!",
+                        + "insufficient data yet. UNDEFINED (-1.0) will be returned!",
                         "Accumulate: " + this.getName() + " Method: double getStdDev()",
                         "You can not calculate a standard deviation as long as no data is " + "collected.",
                         "Make sure to ask for the standard deviation only after some data "
@@ -317,9 +295,8 @@ public class Accumulate extends desmoj.core.statistic.ValueStatistics {
     }
 
     /**
-     * Temporarily suspend data collection to exclude a period, e.g. to disregard
-     * the night period in which a plant is closed from machine utilization
-     * statistics. Data collection will be resumed automatically on calling an
+     * Temporarily suspend data collection to exclude a period, e.g. to disregard the night period in which a plant is
+     * closed from machine utilization statistics. Data collection will be resumed automatically on calling an
      * update(...)-method.
      */
     public void pause() {
@@ -334,11 +311,11 @@ public class Accumulate extends desmoj.core.statistic.ValueStatistics {
         }
 
         if (this._firstValueReadAt == null) {
-            sendWarning("Attempt to pause an Accumulate which is not yet collecting data."
-            + " Method call will be ignored.", "Accumulate: " + this.getName() + " Method: pause()",
-                        "Multiple calls to pause this Accumulate.",
-                        "No need to pause an Accumulate that has not yet collected any data as"
-                        + " data collection not will start before first update anyway.");
+            sendWarning(
+            "Attempt to pause an Accumulate which is not yet collecting data." + " Method call will be ignored.",
+            "Accumulate: " + this.getName() + " Method: pause()", "Multiple calls to pause this Accumulate.",
+            "No need to pause an Accumulate that has not yet collected any data as"
+            + " data collection not will start before first update anyway.");
             return;
         }
 
@@ -354,9 +331,8 @@ public class Accumulate extends desmoj.core.statistic.ValueStatistics {
     }
 
     /**
-     * Resets this Accumulate object by resetting all variables to 0.0. If the flag
-     * retainLastValueOnReset is set to true, the last value is not nullified but
-     * remains unchanged.
+     * Resets this Accumulate object by resetting all variables to 0.0. If the flag retainLastValueOnReset is set to
+     * true, the last value is not nullified but remains unchanged.
      */
     @Override
     public void reset() {
@@ -390,8 +366,8 @@ public class Accumulate extends desmoj.core.statistic.ValueStatistics {
     }
 
     /**
-     * Updates this <code>Accumulate</code> object by fetching the actual value of
-     * the <code>ValueSupplier</code> and processing it. The
+     * Updates this <code>Accumulate</code> object by fetching the actual value of the <code>ValueSupplier</code> and
+     * processing it. The
      * <code>ValueSupplier</code> can be passed in the constructor of this
      * <code>Accumulate</code> object. This <code>update()</code> method complies
      * with the one described in DESMO, see [Page91].
@@ -419,14 +395,13 @@ public class Accumulate extends desmoj.core.statistic.ValueStatistics {
     }
 
     /**
-     * Updates this <code>Accumulate</code> object with the double value given as
-     * parameter. In some cases it might be more convenient to pass the value this
+     * Updates this <code>Accumulate</code> object with the double value given as parameter. In some cases it might be
+     * more convenient to pass the value this
      * <code>Accumulate</code> will be updated with directly within the
      * <code>update(double val)</code> method instead of going via the
      * <code>ValueSupplier</code>.
      *
-     * @param val double : The value with which this <code>Accumulate</code> will be
-     *            updated.
+     * @param val double : The value with which this <code>Accumulate</code> will be updated.
      */
     @Override
     public void update(double val) {
@@ -452,20 +427,17 @@ public class Accumulate extends desmoj.core.statistic.ValueStatistics {
     }
 
     /**
-     * Implementation of the virtual <code>update(Observable, Object)</code> method
-     * of the <code>Observer</code> interface. This method will be called
-     * automatically from an <code>Observable</code> object within its
+     * Implementation of the virtual <code>update(Observable, Object)</code> method of the <code>Observer</code>
+     * interface. This method will be called automatically from an <code>Observable</code> object within its
      * <code>notifyObservers()</code> method. <br>
-     * If no Object (a<code>null</code> value) is passed as arg, the actual value of
-     * the ValueSupplier will be fetched with the <code>value()</code> method of the
-     * ValueSupplier. Otherwise it is expected that the actual value is passed in
-     * the Object arg.
+     * If no Object (a<code>null</code> value) is passed as arg, the actual value of the ValueSupplier will be fetched
+     * with the <code>value()</code> method of the ValueSupplier. Otherwise it is expected that the actual value is
+     * passed in the Object arg.
      *
-     * @param o   java.util.Observable : The Observable calling this method within
-     *            its own <code>notifyObservers()</code> method.
-     * @param arg Object : The Object with which this <code>Accumulate</code> is
-     *            updated. Normally a Double value which is added to the statistics
-     *            or <code>null</code>.
+     * @param o   java.util.Observable : The Observable calling this method within its own
+     *            <code>notifyObservers()</code> method.
+     * @param arg Object : The Object with which this <code>Accumulate</code> is updated. Normally a Double value which
+     *            is added to the statistics or <code>null</code>.
      */
     @Override
     public void update(Observable o, Object arg) {
@@ -473,7 +445,7 @@ public class Accumulate extends desmoj.core.statistic.ValueStatistics {
         if (o == null) // null was passed instead of an Observable
         {
             sendWarning("Attempt to update a Accumulate with no reference to an " + "Observable. The actual value of '"
-            + getValueSupplier().getName() + "' will be fetched and processed anyway.",
+                        + getValueSupplier().getName() + "' will be fetched and processed anyway.",
                         "Accumulate: " + this.getName() + " Method: update (Observable o," + " Object arg)",
                         "The passed Observable: o in this method is only a null pointer.",
                         "The update()-method was not called via notifyObservers() from an "
@@ -501,12 +473,11 @@ public class Accumulate extends desmoj.core.statistic.ValueStatistics {
     }
 
     /**
-     * Internal method to update the time-weighted mean and sum of the squares of
-     * the differences from the mean of values so far with a new sample.
+     * Internal method to update the time-weighted mean and sum of the squares of the differences from the mean of
+     * values so far with a new sample.
      *
      * @param value            double : The new sample.
-     * @param periodValueValid long : The length of the period in epsilon during
-     *                         which the sample was valid.
+     * @param periodValueValid long : The length of the period in epsilon during which the sample was valid.
      */
     private void internalUpdate(double value, long periodValueValid) {
 

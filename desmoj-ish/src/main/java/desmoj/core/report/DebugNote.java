@@ -4,9 +4,8 @@ import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 
 /**
- * Represents a DebugNote produced by a simulation run whenever the modeller
- * enables the debug mode for a specific ModelComponent. Provides the basic
- * information needed to debug a model's changes of state:
+ * Represents a DebugNote produced by a simulation run whenever the modeller enables the debug mode for a specific
+ * ModelComponent. Provides the basic information needed to debug a model's changes of state:
  * <ul>
  * <li>The Model this DebugNote originates from</li>
  * <li>The point in simulation time that this DebugNote was issued</li>
@@ -14,20 +13,15 @@ import desmoj.core.simulator.TimeInstant;
  * <li>The textual debug information produced by that ModelComponent</li>
  * </ul>
  *
- * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  * @author Tim Lechler
  *
- *         Licensed under the Apache License, Version 2.0 (the "License"); you
- *         may not use this file except in compliance with the License. You may
- *         obtain a copy of the License at
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
  *
- *         Unless required by applicable law or agreed to in writing, software
- *         distributed under the License is distributed on an "AS IS" BASIS,
- *         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- *         implied. See the License for the specific language governing
- *         permissions and limitations under the License.
- *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  */
 public class DebugNote extends Message {
 
@@ -41,10 +35,8 @@ public class DebugNote extends Message {
      *
      * @param origin        Model : The model that produced this debugnote
      * @param description   java.lang.String : The actual debug information
-     * @param time          TimeInstant : The point of simulation time this
-     *                      debugnote was created
-     * @param componentName java.lang.String : The name of the modelcomponent the
-     *                      debugnote evolved from
+     * @param time          TimeInstant : The point of simulation time this debugnote was created
+     * @param componentName java.lang.String : The name of the modelcomponent the debugnote evolved from
      */
     // TODO:
     public DebugNote(Model origin, TimeInstant time, String componentName, String description) {

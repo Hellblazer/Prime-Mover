@@ -1,39 +1,33 @@
 package desmoj.core.simulator;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
+import desmoj.implementation.TestModel;
+import desmoj.implementation.TestSimProcess;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import desmoj.implementation.TestModel;
-import desmoj.implementation.TestSimProcess;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Since it is not possible to generate an TestClass for SimProcessQueue and
- * Queue, this class tests the PrcessQueue only. In this class not the default
- * sort order is chosen, but the order lifo (last in first out).
+ * Since it is not possible to generate an TestClass for SimProcessQueue and Queue, this class tests the PrcessQueue
+ * only. In this class not the default sort order is chosen, but the order lifo (last in first out).
  * <p>
- * The methods of QueueBased are not tested here. Look at QueueBasedModulTest
- * for that.
+ * The methods of QueueBased are not tested here. Look at QueueBasedModulTest for that.
  *
  * @author Clara Bluemm, Sascha Winde
- *
  * @see desmoj.core.simulator.ProcessQueue
- *      <P>
+ * <P>
  * @see TestFramework.core.simulator.QueueModulTest
  * @see TestFramework.core.simulator.QueueBasedModulTest
  */
 public class ProcessQueueModulTest {
 
-    public ProcessQueue<TestSimProcess> queue;
-    private TestSimProcess              enty1;
-    private TestSimProcess              enty2;
-    private TestSimProcess              enty3;
-    private Experiment                  experiment;
-    private TestModel                   model;
+    public  ProcessQueue<TestSimProcess> queue;
+    private TestSimProcess               enty1;
+    private TestSimProcess               enty2;
+    private TestSimProcess               enty3;
+    private Experiment                   experiment;
+    private TestModel                    model;
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -109,8 +103,7 @@ public class ProcessQueueModulTest {
     }
 
     /**
-     * Tests insertBefore. The first parameter is the one to be inserted before the
-     * second parameter.
+     * Tests insertBefore. The first parameter is the one to be inserted before the second parameter.
      */
     @Test
     public void testInsertBefore() {
@@ -142,7 +135,7 @@ public class ProcessQueueModulTest {
         queue.insert(enty2);
         assertEquals((queue).pred(enty1), enty2);
         // Bug? throws OutOfBounceException
-//		assertEquals(queue.pred(enty2), null);
+        //		assertEquals(queue.pred(enty2), null);
     }
 
     /**
@@ -166,8 +159,8 @@ public class ProcessQueueModulTest {
     }
 
     /**
-     * Resets the statistical counter in QueueBased. Minimum and Maximum length will
-     * be set to the current number of entrys.
+     * Resets the statistical counter in QueueBased. Minimum and Maximum length will be set to the current number of
+     * entrys.
      */
     @Test
     public void testReset() {
@@ -191,11 +184,11 @@ public class ProcessQueueModulTest {
         queue.insert(enty1);
         queue.insert(enty2);
         queue.insert(enty3);
-//		assertEquals(queue.succ(enty3), enty2);
+        //		assertEquals(queue.succ(enty3), enty2);
         assertEquals(queue.succ(enty2), enty1);
         queue.remove(enty2);
         // Bug? throws out of BounceException
-//		assertEquals(queue.succ(enty1), null);
+        //		assertEquals(queue.succ(enty1), null);
     }
 
     // TODO QueueIterator???

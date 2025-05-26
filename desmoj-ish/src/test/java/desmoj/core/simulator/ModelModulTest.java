@@ -1,20 +1,18 @@
 package desmoj.core.simulator;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
+import desmoj.implementation.TestModel;
+import desmoj.implementation.TestSubModel;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import desmoj.implementation.TestModel;
-import desmoj.implementation.TestSubModel;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * this abstract class tests the Model Class on it's own.
  *
  * @author Sascha Winde, Clara Bluemm
- *
  */
 public abstract class ModelModulTest {
 

@@ -1,29 +1,23 @@
 package desmoj.core.dist;
 
+import desmoj.core.simulator.Model;
+import desmoj.core.statistic.StatisticObject;
 import org.apache.commons.math3.distribution.GammaDistribution;
 import org.apache.commons.math3.exception.OutOfRangeException;
 
-import desmoj.core.simulator.Model;
-import desmoj.core.statistic.StatisticObject;
-
 /**
- * Erlang distributed stream of pseudo random numbers of type double. Erlang
- * distributed streams are specified by a mean value and their order.
+ * Erlang distributed stream of pseudo random numbers of type double. Erlang distributed streams are specified by a mean
+ * value and their order.
  *
- * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  * @author Tim Lechler
  *
- *         Licensed under the Apache License, Version 2.0 (the "License"); you
- *         may not use this file except in compliance with the License. You may
- *         obtain a copy of the License at
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
  *
- *         Unless required by applicable law or agreed to in writing, software
- *         distributed under the License is distributed on an "AS IS" BASIS,
- *         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- *         implied. See the License for the specific language governing
- *         permissions and limitations under the License.
- *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  */
 public class ContDistErlang extends ContDistExponential {
 
@@ -33,10 +27,9 @@ public class ContDistErlang extends ContDistExponential {
     protected long k;
 
     /**
-     * Creates a stream of pseudo random numbers following a normal (a.k.a.
-     * "Gaussian") distribution. The specific mean and standard deviation values
-     * have to be given here at creation time, as well as the seed for the
-     * underlying pseudo random generator.
+     * Creates a stream of pseudo random numbers following a normal (a.k.a. "Gaussian") distribution. The specific mean
+     * and standard deviation values have to be given here at creation time, as well as the seed for the underlying
+     * pseudo random generator.
      *
      * @param owner        Model : The distribution's owner
      * @param name         java.lang.String : The distribution's name
@@ -66,12 +59,11 @@ public class ContDistErlang extends ContDistExponential {
     }
 
     /**
-     * Abstract method to map a double <code>p</code> from 0...1 to the
-     * distribution's domain by determining the value x that satisfies
+     * Abstract method to map a double <code>p</code> from 0...1 to the distribution's domain by determining the value x
+     * that satisfies
      * <code>P(X &lt; x) = p</code>.
      *
      * @param p double: A value between 0 and 1
-     *
      * @return Double : The value x that satisfies <code>P(X &lt; x) = p</code>
      */
     @Override
@@ -112,9 +104,8 @@ public class ContDistErlang extends ContDistExponential {
     }
 
     /**
-     * Returns the next Erlang distributed sample from this distribution. The
-     * algorithm used is taken from DESMO-C from Thomas Schniewind [Schni98] Volume
-     * 2, page 222, file realdist.cc. It has been adapted to Java and extended to
+     * Returns the next Erlang distributed sample from this distribution. The algorithm used is taken from DESMO-C from
+     * Thomas Schniewind [Schni98] Volume 2, page 222, file realdist.cc. It has been adapted to Java and extended to
      * handle antithetic random numbers if antithetic mode is switched on.
      *
      * @return Double : The next Erlang distributed sample
@@ -131,13 +122,14 @@ public class ContDistErlang extends ContDistExponential {
         newSample = newSample / k;
 
         incrementObservations(-(k - 1)); // super class was sampled k times,
-                                         // reduce observations by k-1 so
-                                         // that one Erlang
-                                         // sample counts only as one
-                                         // observation
+        // reduce observations by k-1 so
+        // that one Erlang
+        // sample counts only as one
+        // observation
 
-        if (this.currentlySendTraceNotes())
+        if (this.currentlySendTraceNotes()) {
             this.traceLastSample(Double.toString(newSample));
+        }
 
         return newSample;
 

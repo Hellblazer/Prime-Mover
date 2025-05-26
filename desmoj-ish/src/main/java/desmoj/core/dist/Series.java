@@ -1,34 +1,26 @@
 package desmoj.core.dist;
 
+import desmoj.core.simulator.Model;
+
 import java.util.ArrayList;
 import java.util.Collection;
 
-import desmoj.core.simulator.Model;
-
 /**
- * A series is a special distribution returning preset, user-defined entries
- * from a list. Series may be used to simulate certain non-random scenarios
- * within the simulation or to include external sources of (preudo) random
- * distributions
+ * A series is a special distribution returning preset, user-defined entries from a list. Series may be used to simulate
+ * certain non-random scenarios within the simulation or to include external sources of (preudo) random distributions
  * <p>
  *
- * The internal list can be set to be traversed backwards and/or to repeat once
- * its end has been reached.
+ * The internal list can be set to be traversed backwards and/or to repeat once its end has been reached.
  *
- * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  * @author Broder Fredrich
  *
- *         Licensed under the Apache License, Version 2.0 (the "License"); you
- *         may not use this file except in compliance with the License. You may
- *         obtain a copy of the License at
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
  *
- *         Unless required by applicable law or agreed to in writing, software
- *         distributed under the License is distributed on an "AS IS" BASIS,
- *         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- *         implied. See the License for the specific language governing
- *         permissions and limitations under the License.
- *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  */
 public abstract class Series<O extends Object> extends Distribution {
 
@@ -48,14 +40,13 @@ public abstract class Series<O extends Object> extends Distribution {
     private int _index;
 
     /**
-     * Whether or not the list is getting repeated once the last value has been
-     * read.
+     * Whether or not the list is getting repeated once the last value has been read.
      */
     private boolean _repeat;
 
     /**
-     * Creates a new Series. Default behaviour when returning samples is - starting
-     * at 1st element - reading forward - non-repeating
+     * Creates a new Series. Default behaviour when returning samples is - starting at 1st element - reading forward -
+     * non-repeating
      *
      * @param owner        Model : The distribution's owner
      * @param name         java.lang.String : The distribution's name
@@ -108,34 +99,33 @@ public abstract class Series<O extends Object> extends Distribution {
     }
 
     /**
-     * Returns the amount of samples this series can still return, given the current
-     * reading direction and repeating property.
+     * Returns the amount of samples this series can still return, given the current reading direction and repeating
+     * property.
      *
-     * @return int : Amount of samples that can be returned before the series
-     *         reaches its end.
+     * @return int : Amount of samples that can be returned before the series reaches its end.
      */
     public int getNumberOfAvailableElements() {
-        if (_repeat)
+        if (_repeat) {
             return Integer.MAX_VALUE;
-        else {
+        } else {
             if (!_direction) {
                 return _allValList.size() - _index;
-            } else
+            } else {
                 return _index + 1;
+            }
         }
     }
 
     /**
      * Returns whether this series is getting read forward.
-     *
      */
     public boolean isforward() {
         return !_direction;
     }
 
     /**
-     * Removes am entry at a certain position out of the sample list, lowering the
-     * index of all following entries by one.
+     * Removes am entry at a certain position out of the sample list, lowering the index of all following entries by
+     * one.
      *
      * @param position int : The position to remove the value from.
      */
@@ -191,13 +181,12 @@ public abstract class Series<O extends Object> extends Distribution {
     }
 
     /**
-     * Convenience method to return the series' sample as <code>Object</code>. For
-     * type safety, method <code>sample()</code> should be preferred. However, this
-     * method is useful for environments requiring a non-genetic access point to
-     * obtain samples from any distribution.
+     * Convenience method to return the series' sample as <code>Object</code>. For type safety, method
+     * <code>sample()</code> should be preferred. However, this method is useful for environments requiring a
+     * non-genetic access point to obtain samples from any distribution.
      *
      * @return Object : A sample from this this distribution wrapped as
-     *         <code>Object</code>.
+     * <code>Object</code>.
      */
     @Override
     public Object sampleObject() {
@@ -215,13 +204,11 @@ public abstract class Series<O extends Object> extends Distribution {
     }
 
     /**
-     * Sets whether reading samples from the list is continued from start once the
-     * last sample has been returned. If the list is getting read backwards,
-     * enabling this will cause the series to start over from the end of the list
-     * once the first value has been read.
+     * Sets whether reading samples from the list is continued from start once the last sample has been returned. If the
+     * list is getting read backwards, enabling this will cause the series to start over from the end of the list once
+     * the first value has been read.
      *
-     * @param repeat boolean : Whether this series repeats its value list once the
-     *               last value has been returned.
+     * @param repeat boolean : Whether this series repeats its value list once the last value has been returned.
      */
 
     public void setRepeating(boolean repeat) {
@@ -230,7 +217,6 @@ public abstract class Series<O extends Object> extends Distribution {
 
     /**
      * Sets the reading direction for the sample list of this series.
-     *
      *
      * @param direc boolean : true - forward; false - backwards
      */

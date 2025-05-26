@@ -3,26 +3,24 @@
  *
  * This file is part of the Prime Mover Event Driven Simulation Framework.
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General
+ * Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
+ * later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Affero General Public License for more
+ * details.
  *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License along with this program.  If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 package demo;
 
-import static com.hellblazer.primeMover.Kronos.sleep;
-
-import com.hellblazer.primeMover.Kronos;
 import com.hellblazer.primeMover.annotations.Entity;
+import com.hellblazer.primeMover.api.Kronos;
+
+import static com.hellblazer.primeMover.api.Kronos.sleep;
 
 /*
  * A trampoline for tests which lives in the transformed class space of the

@@ -7,80 +7,53 @@ import desmoj.core.simulator.QueueBased.QueueAction;
 import desmoj.core.statistic.StatisticObject;
 
 /**
- * Provides the typical statistics common to all ModelComponents based on
- * Queues. It is set abstract to prevent users to use it straight without
- * deriving a class first because it only provides the functionality for
- * statistical data extraction, not the functionality for actually queueing
- * Entities. The statistical values provided are the queue's length and its
- * elements' waiting times with minimum, maximum, mean and standard deviation
- * for each. This class should be used when any type of ModelComponent using
- * Queues is created. In combination with class QueueList an automatic
- * insert/remove mechanism including search functionality with condition
- * checking can be set up within a few lines of code. It also provides full
- * automatic statistical data about the Queue used.
+ * Provides the typical statistics common to all ModelComponents based on Queues. It is set abstract to prevent users to
+ * use it straight without deriving a class first because it only provides the functionality for statistical data
+ * extraction, not the functionality for actually queueing Entities. The statistical values provided are the queue's
+ * length and its elements' waiting times with minimum, maximum, mean and standard deviation for each. This class should
+ * be used when any type of ModelComponent using Queues is created. In combination with class QueueList an automatic
+ * insert/remove mechanism including search functionality with condition checking can be set up within a few lines of
+ * code. It also provides full automatic statistical data about the Queue used.
  *
- * @see QueueList
- *
- * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  * @author Tim Lechler
  * @author modified by Soenke Claassen
  *
- *         Licensed under the Apache License, Version 2.0 (the "License"); you
- *         may not use this file except in compliance with the License. You may
- *         obtain a copy of the License at
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
  *
- *         Unless required by applicable law or agreed to in writing, software
- *         distributed under the License is distributed on an "AS IS" BASIS,
- *         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- *         implied. See the License for the specific language governing
- *         permissions and limitations under the License.
- *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
+ * @see QueueList
  */
 public abstract class QueueBased extends desmoj.core.simulator.Reportable implements Subject<QueueBased, QueueAction> {
 
     /**
-     *
-     * Enum to representing the actions of adding and removing an item to/from the
-     * queue. This enum is usesed
-     *
-     * @author Malte Unkrig
-     *
-     */
-    public enum QueueAction {
-        ITEM_ADDED, ITEM_DELETED
-    }
-
-    /**
-     * Defining a constant for the FIFO (First In First Out) service discipline of
-     * the underlying queue: An Entity inserted into the queue is removed after all
-     * entities already enqueued with the same priority.
+     * Defining a constant for the FIFO (First In First Out) service discipline of the underlying queue: An Entity
+     * inserted into the queue is removed after all entities already enqueued with the same priority.
      */
     public final static int FIFO = 0;
-
     /**
-     * Defining a constant for the LIFO (Last In First Out) service discipline of
-     * the underlying queue: An Entity inserted into the queue is removed before all
-     * entities already enqueued with the same priority.
+     * Defining a constant for the LIFO (Last In First Out) service discipline of the underlying queue: An Entity
+     * inserted into the queue is removed before all entities already enqueued with the same priority.
      */
     public final static int LIFO = 1;
-
     /**
-     * Defining a constant for the random service discipline of the underlying
-     * queue: An Entity inserted into the queue may be removed before or after any
-     * other Entity with the same priority.
+     * Defining a constant for the random service discipline of the underlying queue: An Entity inserted into the queue
+     * may be removed before or after any other Entity with the same priority.
      */
     public final static int RANDOM = 2;
-
     /**
-     * Represents the value returned if for a given statistics no valid value can be
-     * returned.
+     * Represents the value returned if for a given statistics no valid value can be returned.
      */
     public static final double UNDEFINED = -1;
-
     /**
-     * Represents the maximum number of entities in the queue (default is unlimited
-     * capacity).
+     * intern Reference to the administration code
+     */
+    private final SubjectAdministration<QueueBased, QueueAction> subjectAdministration = new SubjectAdministration<>();
+    /**
+     * Represents the maximum number of entities in the queue (default is unlimited capacity).
      */
     protected int queueLimit = Integer.MAX_VALUE;
 
@@ -90,98 +63,85 @@ public abstract class QueueBased extends desmoj.core.simulator.Reportable implem
     private int _currentLength;
 
     /**
-     * The point in simulation time the queue was last accessed. Value is valid for
-     * the span of time since the last reset.
+     * The point in simulation time the queue was last accessed. Value is valid for the span of time since the last
+     * reset.
      */
     private TimeInstant _lastAcc;
 
     /**
-     * Displays the maximum number of objects that have been waiting inside the
-     * queue since the last reset.
+     * Displays the maximum number of objects that have been waiting inside the queue since the last reset.
      */
     private int _maximumLength;
 
     /**
-     * The point in simulation time the queue's maximum length was recorded. Value
-     * is valid for the span of time since the last reset.
+     * The point in simulation time the queue's maximum length was recorded. Value is valid for the span of time since
+     * the last reset.
      */
     private TimeInstant _maximumLengthAt;
     /**
-     * The maximum time an object inside the queue spent waiting. Value is valid for
-     * the span of time since the last reset.
+     * The maximum time an object inside the queue spent waiting. Value is valid for the span of time since the last
+     * reset.
      */
     private TimeSpan    _maximumWaitTime;
 
     /**
-     * The point in simulation time the maximum waiting time of an object inside the
-     * queue was recorded at. Value is valid for the span of time since the last
-     * reset.
+     * The point in simulation time the maximum waiting time of an object inside the queue was recorded at. Value is
+     * valid for the span of time since the last reset.
      */
     private TimeInstant _maximumWaitTimeAt;
 
     /**
-     * Displays the minimum number of objects that have been waiting inside the
-     * queue since the last reset.
+     * Displays the minimum number of objects that have been waiting inside the queue since the last reset.
      */
     private int _minimumLength;
 
     /**
-     * The point in simulation time the queue's minimum length was recorded. Value
-     * is valid for the span of time since the last reset.
+     * The point in simulation time the queue's minimum length was recorded. Value is valid for the span of time since
+     * the last reset.
      */
     private TimeInstant _minimumLengthAt;
 
     /**
      * Flag for letting the underlying queue implementation (
      * <code>QueueList</code>) show own warnings (<code>true</code>) or suppressing
-     * them ( <code>false</code>). Is <code>false</code> by default but can be set
-     * to <code>true</code> for debugging purposes
+     * them ( <code>false</code>). Is <code>false</code> by default but can be set to <code>true</code> for debugging
+     * purposes
      */
     private boolean _qImpWarnings;
 
     /**
-     * The square of the sums of the waiting times spent by all objects that have
-     * passed through the queue. Value is valid for the span of time since the last
-     * reset.
+     * The square of the sums of the waiting times spent by all objects that have passed through the queue. Value is
+     * valid for the span of time since the last reset.
      */
     private double _sumSquareWaitTime;
 
     /**
-     * The sum of the waiting times spent by all objects that have passed through
-     * the queue. Value is valid for the span of time since the last reset.
+     * The sum of the waiting times spent by all objects that have passed through the queue. Value is valid for the span
+     * of time since the last reset.
      */
     private TimeSpan _sumWaitTime;
 
     /**
-     * Displays the sum of the queue length weighted over the time each object spent
-     * waiting in the queue. Value is valid for the span of time since the last
-     * reset.
+     * Displays the sum of the queue length weighted over the time each object spent waiting in the queue. Value is
+     * valid for the span of time since the last reset.
      */
     private double _wSumLength;
 
     /**
-     * Displays the squares of the sums of the queue length weighted over the time
-     * each object spent waiting in the queue. Value is valid for the span of time
-     * since the last reset.
+     * Displays the squares of the sums of the queue length weighted over the time each object spent waiting in the
+     * queue. Value is valid for the span of time since the last reset.
      */
     private double _wSumSquareLength;
 
     /**
-     * Displays the number of objects that have passed the queue without waiting
-     * time. Thus the name "zeros" for zero waiting time. Value is valid for the
-     * span of time since the last reset.
+     * Displays the number of objects that have passed the queue without waiting time. Thus the name "zeros" for zero
+     * waiting time. Value is valid for the span of time since the last reset.
      */
     private long _zeros;
 
     /**
-     * intern Reference to the administration code
-     */
-    private final SubjectAdministration<QueueBased, QueueAction> subjectAdministration = new SubjectAdministration<>();
-
-    /**
-     * Creates a QueueBased object and initializes all statistical counters. If this
-     * standard constructor is used a queue with Fifo sort order and no limited
-     * capacity will be created.
+     * Creates a QueueBased object and initializes all statistical counters. If this standard constructor is used a
+     * queue with Fifo sort order and no limited capacity will be created.
      *
      * @param owner        desmoj.Model : The model it belongs to
      * @param name         java.lang.String : The name for this QueueBased object
@@ -213,12 +173,11 @@ public abstract class QueueBased extends desmoj.core.simulator.Reportable implem
     }
 
     /**
-     * Returns the average length of the underlying queue since the last reset.
-     * Current length of that queue will be returned, if the time span since the
-     * last reset is smaller than the smallest distinguishable timespan epsilon.
+     * Returns the average length of the underlying queue since the last reset. Current length of that queue will be
+     * returned, if the time span since the last reset is smaller than the smallest distinguishable timespan epsilon.
      *
-     * @return double : The average queue length since last reset or current length
-     *         of queue if no distinguishable periode of time has passed
+     * @return double : The average queue length since last reset or current length of queue if no distinguishable
+     * periode of time has passed
      */
     public double averageLength() {
 
@@ -244,12 +203,10 @@ public abstract class QueueBased extends desmoj.core.simulator.Reportable implem
     }
 
     /**
-     * Returns the average waiting time of all objects who have exited the queue.
-     * Value is valid for the time span since the last reset. Returns 0 (zero) if no
-     * objects have exited the queue after the last reset.
+     * Returns the average waiting time of all objects who have exited the queue. Value is valid for the time span since
+     * the last reset. Returns 0 (zero) if no objects have exited the queue after the last reset.
      *
-     * @return TimeSpan : Average waiting time of all objects since last reset or 0
-     *         if no objects have exited the queue
+     * @return TimeSpan : Average waiting time of all objects since last reset or 0 if no objects have exited the queue
      */
     public TimeSpan averageWaitTime() {
 
@@ -303,12 +260,10 @@ public abstract class QueueBased extends desmoj.core.simulator.Reportable implem
     }
 
     /**
-     * Returns the point of simulation time with the maximum number of objects
-     * waiting inside the underlying queue. The value is valid for the period since
-     * the last reset.
+     * Returns the point of simulation time with the maximum number of objects waiting inside the underlying queue. The
+     * value is valid for the period since the last reset.
      *
-     * @return desmoj.TimeInstant : Point of time with maximum queue length since
-     *         last reset
+     * @return desmoj.TimeInstant : Point of time with maximum queue length since last reset
      */
     public TimeInstant maxLengthAt() {
 
@@ -317,12 +272,10 @@ public abstract class QueueBased extends desmoj.core.simulator.Reportable implem
     }
 
     /**
-     * Returns the maximum duration in simulation time that an object has spent
-     * waiting inside the underlying queue. The value is valid for the period since
-     * the last reset.
+     * Returns the maximum duration in simulation time that an object has spent waiting inside the underlying queue. The
+     * value is valid for the period since the last reset.
      *
-     * @return desmoj.TimeSpan : Longest waiting time of an object in the queue
-     *         since last reset
+     * @return desmoj.TimeSpan : Longest waiting time of an object in the queue since last reset
      */
     public TimeSpan maxWaitTime() {
 
@@ -331,12 +284,11 @@ public abstract class QueueBased extends desmoj.core.simulator.Reportable implem
     }
 
     /**
-     * Returns the point of simulation time when the object with the maximum waiting
-     * time exited the underlying queue. The value is valid for the period since the
-     * last reset.
+     * Returns the point of simulation time when the object with the maximum waiting time exited the underlying queue.
+     * The value is valid for the period since the last reset.
      *
-     * @return desmoj.TimeInstant : The point of simulation time when the object
-     *         with the maximum waiting time exited the queue
+     * @return desmoj.TimeInstant : The point of simulation time when the object with the maximum waiting time exited
+     * the queue
      */
     public TimeInstant maxWaitTimeAt() {
 
@@ -356,12 +308,10 @@ public abstract class QueueBased extends desmoj.core.simulator.Reportable implem
     }
 
     /**
-     * Returns the point of simulation time with the minimum number of objects
-     * waiting inside the underlying queue. The value is valid for the period since
-     * the last reset.
+     * Returns the point of simulation time with the minimum number of objects waiting inside the underlying queue. The
+     * value is valid for the period since the last reset.
      *
-     * @return desmoj.TimeInstant : Point of time with minimum queue length since
-     *         last reset
+     * @return desmoj.TimeInstant : Point of time with minimum queue length since last reset
      */
     public TimeInstant minLengthAt() {
 
@@ -376,8 +326,8 @@ public abstract class QueueBased extends desmoj.core.simulator.Reportable implem
     }
 
     /**
-     * Resets all statistical counters to their default values. The mininum and
-     * maximum length of the queue are set to the current number of queued objects.
+     * Resets all statistical counters to their default values. The mininum and maximum length of the queue are set to
+     * the current number of queued objects.
      */
     @Override
     public void reset() {
@@ -396,8 +346,8 @@ public abstract class QueueBased extends desmoj.core.simulator.Reportable implem
     }
 
     /**
-     * Method switches on warnings issued from the underlying queue implementation
-     * if parameter given is <code>true</code>. Warnings are suppressed if
+     * Method switches on warnings issued from the underlying queue implementation if parameter given is
+     * <code>true</code>. Warnings are suppressed if
      * <code>false</code> is given. This method is used for internal debugging only.
      *
      * @param warnFlag boolean :<code>true</code> switches warnings on,
@@ -410,11 +360,9 @@ public abstract class QueueBased extends desmoj.core.simulator.Reportable implem
     }
 
     /**
-     * Returns the standard deviation of the queue's length. Value is weighted over
-     * time.
+     * Returns the standard deviation of the queue's length. Value is weighted over time.
      *
-     * @return double : The standard deviation for the queue's length weighted over
-     *         time
+     * @return double : The standard deviation for the queue's length weighted over time
      */
     public double stdDevLength() {
 
@@ -428,11 +376,12 @@ public abstract class QueueBased extends desmoj.core.simulator.Reportable implem
             double len = _currentLength; // store and convert length
             double mean = averageLength(); // get mean for queuelength
             TimeSpan spanSinceLastAcess = TimeOperations.diff(now, _lastAcc); // time
-                                                                              // span
+            // span
             // since last
             // access
-            return java.lang.Math.sqrt(java.lang.Math.abs((_wSumSquareLength
-            + (len * len * spanSinceLastAcess.getTimeInEpsilon())) / deltaTime.getTimeInEpsilon() - (mean * mean)));
+            return java.lang.Math.sqrt(java.lang.Math.abs(
+            (_wSumSquareLength + (len * len * spanSinceLastAcess.getTimeInEpsilon())) / deltaTime.getTimeInEpsilon() - (
+            mean * mean)));
         }
 
     }
@@ -450,8 +399,9 @@ public abstract class QueueBased extends desmoj.core.simulator.Reportable implem
             double obs = getObservations(); // number of obs exited
 
             return new TimeSpan(java.lang.Math.sqrt( // not nice but functual
-                                                    java.lang.Math.abs(((obs * _sumSquareWaitTime) - (mean * mean))
-                                                    / (obs * (obs - 1.0)))),
+                                                     java.lang.Math.abs(
+                                                     ((obs * _sumSquareWaitTime) - (mean * mean)) / (obs * (obs
+                                                                                                            - 1.0)))),
                                 TimeOperations.getEpsilon()); // as simple as
             // that
         } else {
@@ -461,11 +411,9 @@ public abstract class QueueBased extends desmoj.core.simulator.Reportable implem
     }
 
     /**
-     * Returns the number of objects that have passed through the queue without
-     * spending time waiting.
+     * Returns the number of objects that have passed through the queue without spending time waiting.
      *
-     * @return long : The number of elements who have passed the queue without
-     *         waiting
+     * @return long : The number of elements who have passed the queue without waiting
      */
     public long zeroWaits() {
 
@@ -474,11 +422,9 @@ public abstract class QueueBased extends desmoj.core.simulator.Reportable implem
     }
 
     /**
-     * Updates the statistics when a new element is inserted into the underlying
-     * queue. Note that this method must always be called whenever an insertion is
-     * made. If class <code>QueueList</code> is used in combination with a
-     * QueueBased, this method gets called automatically whenever a new Entity is
-     * inserted.
+     * Updates the statistics when a new element is inserted into the underlying queue. Note that this method must
+     * always be called whenever an insertion is made. If class <code>QueueList</code> is used in combination with a
+     * QueueBased, this method gets called automatically whenever a new Entity is inserted.
      *
      * @see QueueList
      * @see QueueListFifo
@@ -499,16 +445,14 @@ public abstract class QueueBased extends desmoj.core.simulator.Reportable implem
     }
 
     /**
-     * Updates the statistics when a new element is exiting the underlying queue.
-     * Note that this method must always be called whenever an object is taken from
-     * the queue. The simulation time parameter given provides the statistics with
-     * the information about the point of time the exiting object had enterd this
-     * queue. This is needed to calculate the waiting times. If a QueueBased is used
-     * in conjunction with class queuelist, this method is automatically called
-     * whenever an entity is taken from the queuelist to keep track of
+     * Updates the statistics when a new element is exiting the underlying queue. Note that this method must always be
+     * called whenever an object is taken from the queue. The simulation time parameter given provides the statistics
+     * with the information about the point of time the exiting object had enterd this queue. This is needed to
+     * calculate the waiting times. If a QueueBased is used in conjunction with class queuelist, this method is
+     * automatically called whenever an entity is taken from the queuelist to keep track of
      *
-     * @param entryTime TimeInstant : Point of simulation time that the object now
-     *                  exiting the QueueBased had entered it
+     * @param entryTime TimeInstant : Point of simulation time that the object now exiting the QueueBased had entered
+     *                  it
      */
     protected void deleteItem(TimeInstant entryTime) {
 
@@ -567,24 +511,32 @@ public abstract class QueueBased extends desmoj.core.simulator.Reportable implem
         _wSumLength += _currentLength * deltaTime.getTimeInEpsilon(); // weighted
         // length sum
         _wSumSquareLength += _currentLength * _currentLength * deltaTime.getTimeInEpsilon();// weighted
-                                                                                            // square
-                                                                                            // length
-                                                                                            // sum
+        // square
+        // length
+        // sum
         _lastAcc = now;
 
     }
 
     /**
-     * Returns a boolean flag telling if the underlying queue implementation should
-     * issue own warnings or not. The warnings from the queue implementation
-     * (<code>QueueList</code>) are needed for debugging purposes.
+     * Returns a boolean flag telling if the underlying queue implementation should issue own warnings or not. The
+     * warnings from the queue implementation (<code>QueueList</code>) are needed for debugging purposes.
      *
-     * @return boolean : Is <code>true</code> if the underlying queue implementation
-     *         should issue warnings, <code>false</code> otherwise
+     * @return boolean : Is <code>true</code> if the underlying queue implementation should issue warnings,
+     * <code>false</code> otherwise
      */
     boolean qImpWarn() {
 
         return _qImpWarnings;
 
+    }
+
+    /**
+     * Enum to representing the actions of adding and removing an item to/from the queue. This enum is usesed
+     *
+     * @author Malte Unkrig
+     */
+    public enum QueueAction {
+        ITEM_ADDED, ITEM_DELETED
     }
 }

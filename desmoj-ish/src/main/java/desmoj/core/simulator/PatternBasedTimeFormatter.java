@@ -7,24 +7,18 @@ import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Use this class to format TimeInstant objects using a java.text.DateFormat
- * object. The PatternBasedTimeFormatter uses a MultiUnitTimeFormatter to format
- * TimeSpans.
+ * Use this class to format TimeInstant objects using a java.text.DateFormat object. The PatternBasedTimeFormatter uses
+ * a MultiUnitTimeFormatter to format TimeSpans.
  *
- * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  * @author Felix Klueckmann
  *
- *         Licensed under the Apache License, Version 2.0 (the "License"); you
- *         may not use this file except in compliance with the License. You may
- *         obtain a copy of the License at
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
  *
- *         Unless required by applicable law or agreed to in writing, software
- *         distributed under the License is distributed on an "AS IS" BASIS,
- *         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- *         implied. See the License for the specific language governing
- *         permissions and limitations under the License.
- *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  */
 public class PatternBasedTimeFormatter implements TimeFormatter {
     /**
@@ -34,21 +28,18 @@ public class PatternBasedTimeFormatter implements TimeFormatter {
     private MultiUnitTimeFormatter _myMultiUnitTimeFormatter;
 
     /**
-     * Constructor for a GeneralTimeFormatter. This shortcut constructor uses the
-     * pattern "dd.MM.yyyy HH:mm:ss:SSS" (no time zone output). Default Locale is
-     * Germany.
+     * Constructor for a GeneralTimeFormatter. This shortcut constructor uses the pattern "dd.MM.yyyy HH:mm:ss:SSS" (no
+     * time zone output). Default Locale is Germany.
      */
     public PatternBasedTimeFormatter() {
         this(false);
     }
 
     /**
-     * Constructor for a GeneralTimeFormatter. This shortcut constructor uses the
-     * pattern "dd.MM.yyyy HH:mm:ss:SSS", followed by a five digits time zone
-     * identifier (e.g. "-0800"), if requested. Default Locale is Germany.
+     * Constructor for a GeneralTimeFormatter. This shortcut constructor uses the pattern "dd.MM.yyyy HH:mm:ss:SSS",
+     * followed by a five digits time zone identifier (e.g. "-0800"), if requested. Default Locale is Germany.
      *
-     * @param timeZoneIncluded boolean : inclusion of time zone identifiers (true)
-     *                         or not (false).
+     * @param timeZoneIncluded boolean : inclusion of time zone identifiers (true) or not (false).
      */
     public PatternBasedTimeFormatter(boolean timeZoneIncluded) {
         this(new SimpleDateFormat("dd.MM.yyyy HH:mm:ss:SSS" + (timeZoneIncluded ? " Z" : ""), Locale.GERMANY),
@@ -70,9 +61,8 @@ public class PatternBasedTimeFormatter implements TimeFormatter {
     /**
      * Constructor for a GeneralTimeFormatter. Default Locale is Germany.
      *
-     * @param pattern      String : the pattern used by this UTCTimeFormatter to
-     *                     format TimeSpan and TimeInstant objects. See
-     *                     http://download.oracle.com/javase/1.5.0/docs/api/java/text/SimpleDateFormat.html
+     * @param pattern      String : the pattern used by this UTCTimeFormatter to format TimeSpan and TimeInstant
+     *                     objects. See http://download.oracle.com/javase/1.5.0/docs/api/java/text/SimpleDateFormat.html
      *                     for a description of the syntax of such patterns.
      * @param coarsestUnit TimeUnit: The coarsest Unit for the TimeSpan
      * @param finestUnit   TimeUnit: The finest Unit for the TimeSpan

@@ -1,49 +1,33 @@
 package desmoj.core.report;
 
+import desmoj.core.advancedModellingFeatures.report.StockReporter;
+import desmoj.core.report.html5chart.*;
+
 import java.util.TreeMap;
 
-import desmoj.core.advancedModellingFeatures.report.StockReporter;
-import desmoj.core.report.html5chart.CanvasHistogramDouble;
-import desmoj.core.report.html5chart.CanvasHistogramLong;
-import desmoj.core.report.html5chart.CanvasTimeSeries;
-import desmoj.core.report.html5chart.ChartDataHistogramDouble;
-import desmoj.core.report.html5chart.ChartDataHistogramLong;
-import desmoj.core.report.html5chart.ChartDataTimeSeries;
-
 /**
- * ReportMultRowsFileOut is used to create a file to let the reporters write
- * their reports to. It receives a reporter and divides its individual text
- * information up to be displayed in HTML format on disc in the user's local
- * directory. The messages are displayed in a tabular design with columns for
- * each item displayed by the reporter. For each Reporter giving a new group-ID,
- * a new table is opened. This leads to a number of distinct tables displayed in
- * one HTML-page with all reporters grouped by their group-id in one table. This
- * special ReportFileOut is designed to write reports with more than one row for
- * one reporter. This is needed for the <code>WaitQueueReporter</code> where
- * there will be one row for the data of the waiting slaves and one row for the
- * data of the waiting masters and for the <code>HistogramReporter</code> where
- * there will be multiple rows, one for each segment (cell) of ther interval.
- * Note that if the framework is used as an Applet in webpages there is no
- * access to the disc and an alternative output on screen or into a graphics
- * window must be registered at the Experiment's MessageManager for this type of
- * messages. Errors affecting the java runtime are always displayed on the
- * system's standard output PrintStream.
+ * ReportMultRowsFileOut is used to create a file to let the reporters write their reports to. It receives a reporter
+ * and divides its individual text information up to be displayed in HTML format on disc in the user's local directory.
+ * The messages are displayed in a tabular design with columns for each item displayed by the reporter. For each
+ * Reporter giving a new group-ID, a new table is opened. This leads to a number of distinct tables displayed in one
+ * HTML-page with all reporters grouped by their group-id in one table. This special ReportFileOut is designed to write
+ * reports with more than one row for one reporter. This is needed for the <code>WaitQueueReporter</code> where there
+ * will be one row for the data of the waiting slaves and one row for the data of the waiting masters and for the
+ * <code>HistogramReporter</code> where there will be multiple rows, one for each segment (cell) of ther interval. Note
+ * that if the framework is used as an Applet in webpages there is no access to the disc and an alternative output on
+ * screen or into a graphics window must be registered at the Experiment's MessageManager for this type of messages.
+ * Errors affecting the java runtime are always displayed on the system's standard output PrintStream.
  *
+ * @author of ReportFileOut class : Tim Lechler, modified by Soenke Claassen and Nicolas Knaak, modified by Chr.
+ * M&uuml;ller (TH Wildau) 28.11.2012
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
- * @author of ReportFileOut class : Tim Lechler, modified by Soenke Claassen and
- *         Nicolas Knaak, modified by Chr. M&uuml;ller (TH Wildau) 28.11.2012
- *
- *         Licensed under the Apache License, Version 2.0 (the "License"); you
- *         may not use this file except in compliance with the License. You may
- *         obtain a copy of the License at
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
- *         Unless required by applicable law or agreed to in writing, software
- *         distributed under the License is distributed on an "AS IS" BASIS,
- *         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- *         implied. See the License for the specific language governing
- *         permissions and limitations under the License.
- *
  */
 public class ReportMultRowsFileOut extends ReportFileOut {
 
@@ -52,24 +36,15 @@ public class ReportMultRowsFileOut extends ReportFileOut {
      * <code>true</code>.
      */
     private static boolean offsetDescriptionsOneColumn = false;
-
-    /**
-     * Set report output such that nested Reporter descriptions are offset by one
-     * column, thus improving readability at the expense of space.
-     */
-    public static void offsetDescriptionsOneColumn() {
-        offsetDescriptionsOneColumn = true;
-    }
-
     private TreeMap<String, CanvasTimeSeries> _timeSeriesCanvas;
 
     /**
-     * Creates a file to print reports into a HTML page. By opening the file, the
-     * necessary HTML tags to define a webpage are already inserted into the file.
-     * The parameter given should reflect the experiment that produces this file.
+     * Creates a file to print reports into a HTML page. By opening the file, the necessary HTML tags to define a
+     * webpage are already inserted into the file. The parameter given should reflect the experiment that produces this
+     * file.
      *
-     * @param simTimeFloatingDigits int : The number of floating point digits of the
-     *                              simulation time values to be displayed
+     * @param simTimeFloatingDigits int : The number of floating point digits of the simulation time values to be
+     *                              displayed
      */
     public ReportMultRowsFileOut(int simTimeFloatingDigits, String formatter) {
         super(simTimeFloatingDigits, formatter); // make a ReportFileOut
@@ -78,21 +53,28 @@ public class ReportMultRowsFileOut extends ReportFileOut {
     }
 
     /**
-     * Receives a reporter and writes its contents formatted to a HTML table into a
-     * file in the user's default directory. In case of a ModelReporter it writes
-     * the model's information into the file. After writing the model data, all
-     * reportables registered with the ModelReporter are asked for a reporter and
-     * those are also written to the report file. After processing the Reportables,
-     * the registered subModels are asked to produce their reporters which in turn
-     * are recursively sent to this method until no other submodels are available.
+     * Set report output such that nested Reporter descriptions are offset by one column, thus improving readability at
+     * the expense of space.
+     */
+    public static void offsetDescriptionsOneColumn() {
+        offsetDescriptionsOneColumn = true;
+    }
+
+    /**
+     * Receives a reporter and writes its contents formatted to a HTML table into a file in the user's default
+     * directory. In case of a ModelReporter it writes the model's information into the file. After writing the model
+     * data, all reportables registered with the ModelReporter are asked for a reporter and those are also written to
+     * the report file. After processing the Reportables, the registered subModels are asked to produce their reporters
+     * which in turn are recursively sent to this method until no other submodels are available.
      *
      * @param r Reporter : The Reporter to be processed
      */
     @Override
     public void receive(desmoj.core.report.Reporter r) {
         // check parameters
-        if (r == null)
+        if (r == null) {
             return; // invalid parameter
+        }
 
         // copy values in buffer variables for faster access
         String[] titleBuf = r.getColumnTitles();
@@ -103,8 +85,8 @@ public class ReportMultRowsFileOut extends ReportFileOut {
         // and the formatter is a HTMLTableChartFormatter
         // then draw the TimeSeries in a canvas before the new reporter is displayed
         // ---added by Johanna Djimandjaja
-        if (lastReporter instanceof desmoj.core.report.TimeSeriesReporter &&
-            !(r instanceof desmoj.core.report.TimeSeriesReporter)) {
+        if (lastReporter instanceof desmoj.core.report.TimeSeriesReporter
+        && !(r instanceof desmoj.core.report.TimeSeriesReporter)) {
 
             HTMLTableChartFormatter chartFormatter = null;
 
@@ -147,8 +129,8 @@ public class ReportMultRowsFileOut extends ReportFileOut {
              * lastReporter.getClass().isAssignableFrom(r.getClass()))) {
              */
             // modified if condition by Chr. M&uuml;ller (TH Wildau) 28.11.2012
-            if (r.isContinuingReporter() && lastReporter.isContinuingReporter() &&
-                Reporter.isSameGroup(r, lastReporter)) {
+            if (r.isContinuingReporter() && lastReporter.isContinuingReporter() && Reporter.isSameGroup(r,
+                                                                                                        lastReporter)) {
                 formatter.closeTable();
                 // open new table for new XYReporter with no special header
                 formatter.openTable(" ");
@@ -181,8 +163,8 @@ public class ReportMultRowsFileOut extends ReportFileOut {
             // if formatter is an instance of HTMLTableChartFormatter
             // add a column for color
             // ---added by Johanna Djimandjaja
-            if (formatter instanceof HTMLTableChartFormatter &&
-                r.makeAdditionalColorEntryIfHTMLColorChartIsGenerated()) {
+            if (formatter instanceof HTMLTableChartFormatter
+            && r.makeAdditionalColorEntryIfHTMLColorChartIsGenerated()) {
                 formatter.writeHeadingCell("Color");
             }
 
@@ -260,8 +242,9 @@ public class ReportMultRowsFileOut extends ReportFileOut {
                             break;
                         }
                     }
-                    if (empty)
+                    if (empty) {
                         continue; // row empty
+                    }
 
                     // at least one cell non-empty --> continue with output: open new row
                     if (formatter instanceof AbstractTableFormatter) {
@@ -280,8 +263,8 @@ public class ReportMultRowsFileOut extends ReportFileOut {
 
             }
         } // end of two row reporter
-          // --- Modification by N. Knaak (27.11.01): TableReporters are
-          // completely handled below.
+        // --- Modification by N. Knaak (27.11.01): TableReporters are
+        // completely handled below.
         else if (!(r instanceof TableReporter))
         // normal handling of all other Reporters
         {
@@ -377,8 +360,9 @@ public class ReportMultRowsFileOut extends ReportFileOut {
 
         // --- The table reporter produces a table of arbitrary length.
         // (Modification: Nicolas Knaak 27.11.2001)
-        if (r instanceof TableReporter)
+        if (r instanceof TableReporter) {
             writeTableReporter((TableReporter) r, titleBuf);
+        }
 
         // remember the last reporter
         lastReporter = r;
@@ -407,8 +391,9 @@ public class ReportMultRowsFileOut extends ReportFileOut {
             if (formatter instanceof HTMLTableChartFormatter) {
                 chartFormatter = (HTMLTableChartFormatter) formatter;
                 ChartDataHistogramDouble histData = hr.getChartData();
-                histCanvas = new CanvasHistogramDouble("histogramAccumulateCanvas"
-                + chartFormatter.getFreeCanvasIDNum(), 350, 500, histData, hr.source.getName());
+                histCanvas = new CanvasHistogramDouble(
+                "histogramAccumulateCanvas" + chartFormatter.getFreeCanvasIDNum(), 350, 500, histData,
+                hr.source.getName());
             }
 
             // write headings of the cells
@@ -417,10 +402,11 @@ public class ReportMultRowsFileOut extends ReportFileOut {
             }
             // if (formatter instanceof HTMLTableChartFormatter) change the last heading to
             // "Color"
-            if (chartFormatter != null)
+            if (chartFormatter != null) {
                 formatter.writeHeadingCell("Color");
-            else
+            } else {
                 formatter.writeHeadingCell(histTitleBuf[hr.getHistNumColumns() - 1]);
+            }
 
             formatter.closeRow();
 
@@ -439,10 +425,11 @@ public class ReportMultRowsFileOut extends ReportFileOut {
                 }
                 // if (formatter instanceof HTMLTableChartFormatter) change the last content to
                 // a colored cell
-                if (chartFormatter != null)
+                if (chartFormatter != null) {
                     chartFormatter.writeColoredCell(histCanvas.getDataColor(j));
-                else
+                } else {
                     formatter.writeCell(histEntryBuf[j][hr.getHistNumColumns() - 1], 1);
+                }
 
                 // the row is finished now
                 formatter.closeRow();
@@ -490,10 +477,11 @@ public class ReportMultRowsFileOut extends ReportFileOut {
             }
             // if (formatter instanceof HTMLTableChartFormatter) change the last heading to
             // "Color"
-            if (chartFormatter != null)
+            if (chartFormatter != null) {
                 formatter.writeHeadingCell("Color");
-            else
+            } else {
                 formatter.writeHeadingCell(histTitleBuf[hr.getHistNumColumns() - 1]);
+            }
 
             formatter.closeRow();
 
@@ -512,10 +500,11 @@ public class ReportMultRowsFileOut extends ReportFileOut {
                 }
                 // if (formatter instanceof HTMLTableChartFormatter) change the last content to
                 // a colored cell
-                if (chartFormatter != null)
+                if (chartFormatter != null) {
                     chartFormatter.writeColoredCell(histCanvas.getDataColor(j));
-                else
+                } else {
                     formatter.writeCell(histEntryBuf[j][hr.getHistNumColumns() - 1], 1);
+                }
 
                 // the row is finished now
                 formatter.closeRow();
@@ -605,10 +594,11 @@ public class ReportMultRowsFileOut extends ReportFileOut {
             }
             // if (formatter instanceof HTMLTableChartFormatter) change the last heading to
             // "Color"
-            if (chartFormatter != null)
+            if (chartFormatter != null) {
                 formatter.writeHeadingCell("Color");
-            else
+            } else {
                 formatter.writeHeadingCell(textHistTitleBuf[thr.getTextHistNumColumns() - 1]);
+            }
 
             formatter.closeRow();
 
@@ -627,10 +617,11 @@ public class ReportMultRowsFileOut extends ReportFileOut {
                 }
                 // if (formatter instanceof HTMLTableChartFormatter) change the last content to
                 // a colored cell
-                if (chartFormatter != null)
+                if (chartFormatter != null) {
                     chartFormatter.writeColoredCell(textHistCanvas.getDataColor(j));
-                else
+                } else {
                     formatter.writeCell(histEntryBuf[j][thr.getTextHistNumColumns() - 1], 1);
+                }
 
                 // the row is finished now
                 formatter.closeRow();
@@ -650,8 +641,9 @@ public class ReportMultRowsFileOut extends ReportFileOut {
         int cols = tr.numColumns();
         int rows = tr.numRows();
         String[][] entryTable = tr.getEntryTable();
-        if (formatter.tableIsOpen())
+        if (formatter.tableIsOpen()) {
             formatter.closeTable();
+        }
 
         formatter.writeHorizontalRuler();
         formatter.openTable(tr.getTitle());

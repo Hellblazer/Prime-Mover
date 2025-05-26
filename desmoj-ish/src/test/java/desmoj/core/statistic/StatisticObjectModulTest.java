@@ -1,23 +1,20 @@
 package desmoj.core.statistic;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
+import desmoj.implementation.TestModel;
+import desmoj.implementation.TestStatisticObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import desmoj.implementation.TestModel;
-import desmoj.implementation.TestStatisticObject;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Tests the class StatisticObject. It is the superclass of the other
- * statistical classes, which collect data. Since it is declared as abstract
- * this test class is abstract as well. It is implemented by StatisticObjectTest
+ * Tests the class StatisticObject. It is the superclass of the other statistical classes, which collect data. Since it
+ * is declared as abstract this test class is abstract as well. It is implemented by StatisticObjectTest
  *
- * @see core.statistic.StatisticObject
  * @author Sascha Winde, Clara Bluemm
- *
+ * @see core.statistic.StatisticObject
  */
 public abstract class StatisticObjectModulTest {
 

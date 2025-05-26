@@ -1,35 +1,27 @@
 package desmoj.core.dist;
 
-import java.util.concurrent.TimeUnit;
-
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeSpan;
 
+import java.util.concurrent.TimeUnit;
+
 /**
- * A series is a special distribution returning preset, user-defined entries
- * from a list. This subclass of Series serves to sample numbers from a custom
- * numerical data type. Series may be used to simulate certain non-random
- * scenarios within the simulation or to include external sources of (preudo)
- * random distributions
+ * A series is a special distribution returning preset, user-defined entries from a list. This subclass of Series serves
+ * to sample numbers from a custom numerical data type. Series may be used to simulate certain non-random scenarios
+ * within the simulation or to include external sources of (preudo) random distributions
  * <p>
  *
- * The internal list can be set to be traversed backwards and/or to repeat once
- * its end has been reached.
+ * The internal list can be set to be traversed backwards and/or to repeat once its end has been reached.
  *
- * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  * @author Broder Fredrich
  *
- *         Licensed under the Apache License, Version 2.0 (the "License"); you
- *         may not use this file except in compliance with the License. You may
- *         obtain a copy of the License at
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
  *
- *         Unless required by applicable law or agreed to in writing, software
- *         distributed under the License is distributed on an "AS IS" BASIS,
- *         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- *         implied. See the License for the specific language governing
- *         permissions and limitations under the License.
- *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  */
 public class SeriesNumerical<N extends Number> extends Series<N> {
 
@@ -49,8 +41,8 @@ public class SeriesNumerical<N extends Number> extends Series<N> {
     protected double _sumSquare;
 
     /**
-     * Creates a new SeriesNumerical. Default behaviour when returning samples is -
-     * starting at 1st element - reading forward - non-repeating
+     * Creates a new SeriesNumerical. Default behaviour when returning samples is - starting at 1st element - reading
+     * forward - non-repeating
      *
      * @param owner        Model : The distribution's owner
      * @param name         java.lang.String : The distribution's name
@@ -65,8 +57,7 @@ public class SeriesNumerical<N extends Number> extends Series<N> {
     }
 
     /**
-     * Returns the mean value of all samples that have been returned via the
-     * sample() method.
+     * Returns the mean value of all samples that have been returned via the sample() method.
      *
      * @return double : The mean value of all returned samples
      */
@@ -74,7 +65,7 @@ public class SeriesNumerical<N extends Number> extends Series<N> {
 
         if (_successfulObs == 0) {
             sendWarning("Attempt to get a mean value, but there is not "
-            + "sufficient data yet. UNDEFINED (-1.0) will be returned!",
+                        + "sufficient data yet. UNDEFINED (-1.0) will be returned!",
                         "SeriesNumerical: " + this.getName() + " Method: double getMean()",
                         "You can not calculate a mean value as long as no samples haven been taken.",
                         "Make sure to ask for the mean value only after at least one sample has been taken.");
@@ -95,7 +86,7 @@ public class SeriesNumerical<N extends Number> extends Series<N> {
 
         if (_successfulObs < 2) {
             sendWarning("Attempt to get a standard deviation value, but there is not "
-            + "sufficient data yet. UNDEFINED (-1.0) will be returned!",
+                        + "sufficient data yet. UNDEFINED (-1.0) will be returned!",
                         "SeriesNumerical: " + this.getName() + " Method: double getStdDev()",
                         "You can not calculate a standard deviation value as long as less than two samples haven been taken.",
                         "Make sure to ask for the standard deviation value only after at least two samples have been taken.");
@@ -158,20 +149,17 @@ public class SeriesNumerical<N extends Number> extends Series<N> {
      * <code>new TimeSpan(series.sample(), unit)</code>.
      *
      * @param unit TimeUnit: the TimeUnit to assign to the sampled value
-     *
      * @return TimeSpan : The TimeSpan sampled from this series
      */
     public TimeSpan sampleTimeSpan(TimeUnit unit) {
 
         if (unit == null) { // no time unit given
-            throw (new desmoj.core.exception.SimAbortedException(new desmoj.core.report.ErrorMessage(null,
-                                                                                                     "Can't create TimeSpan object! Simulation aborted.",
-                                                                                                     "SeriesNumerical: "
-                                                                                                     + getName()
-                                                                                                     + " Method: TimeSpan sampleTimeSpan(TimeUnit unit)",
-                                                                                                     "Time unit passed is null",
-                                                                                                     "Make sure to pass a non-null time unit.",
-                                                                                                     null)));
+            throw (new desmoj.core.exception.SimAbortedException(
+            new desmoj.core.report.ErrorMessage(null, "Can't create TimeSpan object! Simulation aborted.",
+                                                "SeriesNumerical: " + getName()
+                                                + " Method: TimeSpan sampleTimeSpan(TimeUnit unit)",
+                                                "Time unit passed is null", "Make sure to pass a non-null time unit.",
+                                                null)));
         }
 
         // Obtain a sample

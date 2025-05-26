@@ -1,20 +1,18 @@
 package desmoj.core.statistic;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
+import desmoj.implementation.TestModel;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import desmoj.implementation.TestModel;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Tests the class Aggregate. It is supposed to
  *
- * @see core.statistic.Aggregate
  * @author Sascha Winde, Clara Bluemm
- *
+ * @see core.statistic.Aggregate
  */
 public class AggregateTest {
 
@@ -39,8 +37,7 @@ public class AggregateTest {
     }
 
     /**
-     * Tests the method getMaximum, which is supposed to return the highest value of
-     * the count object so far.
+     * Tests the method getMaximum, which is supposed to return the highest value of the count object so far.
      */
     @Test
     public void testMax() {
@@ -54,8 +51,7 @@ public class AggregateTest {
     }
 
     /**
-     * Tests the method getMinimum, which is supposed to return the lowest value of
-     * the count object so far.
+     * Tests the method getMinimum, which is supposed to return the lowest value of the count object so far.
      */
     @Test
     public void testMin() {

@@ -3,27 +3,21 @@ package desmoj.core.report;
 /**
  * Reports all information about a ContDistAggregate distribution.
  *
- * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  * @author Peter Wueppen
  *
- *         Licensed under the Apache License, Version 2.0 (the "License"); you
- *         may not use this file except in compliance with the License. You may
- *         obtain a copy of the License at
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
  *
- *         Unless required by applicable law or agreed to in writing, software
- *         distributed under the License is distributed on an "AS IS" BASIS,
- *         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- *         implied. See the License for the specific language governing
- *         permissions and limitations under the License.
- *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  */
 public class ContDistAggregateReporter extends DistributionReporter {
     /**
      * Creates a new ContDistAggregateReporter.
      *
-     * @param informationSource desmoj.core.simulator.Reportable : The
-     *                          ContDistAggregate distribution to report about
+     * @param informationSource desmoj.core.simulator.Reportable : The ContDistAggregate distribution to report about
      */
     public ContDistAggregateReporter(desmoj.core.simulator.Reportable informationSource) {
 
@@ -34,11 +28,10 @@ public class ContDistAggregateReporter extends DistributionReporter {
     }
 
     /**
-     * Returns the array of strings containing all information about the
-     * ContDistAggregate distribution.
+     * Returns the array of strings containing all information about the ContDistAggregate distribution.
      *
-     * @return java.lang.String[] : The array of Strings containing all information
-     *         about the ContDistAggregate distribution
+     * @return java.lang.String[] : The array of Strings containing all information about the ContDistAggregate
+     * distribution
      */
     @Override
     public java.lang.String[] getEntries() {
@@ -58,8 +51,8 @@ public class ContDistAggregateReporter extends DistributionReporter {
             // param1
             entries[4] = td.getDists().get(0).getName();
             // param2
-            entries[5] = (td.getDists().size() > 1 ? td.getDists().get(1).getName() : "")
-            + (td.getDists().size() > 2 ? ", ..." : "");
+            entries[5] = (td.getDists().size() > 1 ? td.getDists().get(1).getName() : "") + (td.getDists().size() > 2
+                                                                                             ? ", ..." : "");
             // param3
             entries[6] = td.getOperator().getDescription();
             // seed

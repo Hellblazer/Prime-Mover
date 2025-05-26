@@ -1,23 +1,17 @@
 package desmoj.core.report;
 
 /**
- * A basic implementation of the TableFormatter interface realizing common
- * properties of table formatters.
+ * A basic implementation of the TableFormatter interface realizing common properties of table formatters.
  *
- * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  * @author Nicolas Knaak
  *
- *         Licensed under the Apache License, Version 2.0 (the "License"); you
- *         may not use this file except in compliance with the License. You may
- *         obtain a copy of the License at
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
  *
- *         Unless required by applicable law or agreed to in writing, software
- *         distributed under the License is distributed on an "AS IS" BASIS,
- *         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- *         implied. See the License for the specific language governing
- *         permissions and limitations under the License.
- *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  */
 public abstract class AbstractTableFormatter implements TableFormatter {
 
@@ -37,9 +31,8 @@ public abstract class AbstractTableFormatter implements TableFormatter {
     private int _timeFloats = 0;
 
     /**
-     * Opens a new row. Calls openRow() and saves reference on reporter which will
-     * we displayed in that row. Reference on reporter is not necessary for getting
-     * content of reporter!!! But maybe its useful for some kind of extended
+     * Opens a new row. Calls openRow() and saves reference on reporter which will we displayed in that row. Reference
+     * on reporter is not necessary for getting content of reporter!!! But maybe its useful for some kind of extended
      * reports.
      *
      * @param rep Reporter which will be displayed in new row
@@ -50,8 +43,7 @@ public abstract class AbstractTableFormatter implements TableFormatter {
     }
 
     /**
-     * Sets tableOpen flag to true. Should always be called from subclass
-     * implementations of this method.
+     * Sets tableOpen flag to true. Should always be called from subclass implementations of this method.
      *
      * @return value of row open flag
      * @see desmoj.core.report.TableFormatter#rowIsOpen()
@@ -126,8 +118,8 @@ public abstract class AbstractTableFormatter implements TableFormatter {
     }
 
     /**
-     * Returns the reporter which is displayed in current row. Maybe null, if
-     * openRow() insted of openRow(Reporter) was called.
+     * Returns the reporter which is displayed in current row. Maybe null, if openRow() insted of openRow(Reporter) was
+     * called.
      *
      * @return the reporter which is displayed in current row.
      */

@@ -1,17 +1,12 @@
 package test;
 
-import static demo.Demo.channel;
-import static demo.Demo.eventContinuationThroughput;
-import static demo.Demo.eventThroughput;
-import static demo.Demo.threaded;
-
-import org.junit.jupiter.api.Test;
-
-import com.hellblazer.primeMover.Kronos;
+import com.hellblazer.primeMover.api.Kronos;
 import com.hellblazer.primeMover.controllers.SimulationController;
 import com.hellblazer.primeMover.runtime.SimulationEnd;
-
 import hello.HelloWorld;
+import org.junit.jupiter.api.Test;
+
+import static demo.Demo.*;
 
 public class TestMe {
 

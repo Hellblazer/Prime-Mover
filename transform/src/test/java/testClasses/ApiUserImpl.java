@@ -1,6 +1,6 @@
 package testClasses;
 
-import com.hellblazer.primeMover.Kronos;
+import com.hellblazer.primeMover.api.Kronos;
 
 public class ApiUserImpl implements ApiUser {
 

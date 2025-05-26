@@ -17,9 +17,10 @@
 
 package com.hellblazer.primeMover.runtime;
 
-import com.hellblazer.primeMover.Controller;
-import com.hellblazer.primeMover.Event;
-import com.hellblazer.primeMover.SimulationException;
+import com.hellblazer.primeMover.api.Controller;
+import com.hellblazer.primeMover.api.Event;
+import com.hellblazer.primeMover.api.SimulationException;
+import com.hellblazer.primeMover.api.EntityReference;
 
 import java.util.concurrent.*;
 import java.util.logging.Level;

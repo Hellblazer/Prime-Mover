@@ -1,18 +1,15 @@
 package desmoj.core.simulator;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * This class tests the TimeInstant operations.
  *
  * @author Sascha Winde, Clara Bluemm
- *
  */
 public class TimeInstantTest {
 
@@ -67,8 +64,7 @@ public class TimeInstantTest {
     }
 
     /**
-     * TimeInstants can be sequenced. This test checks, if a TimeInstant is before
-     * or after another TimeInstant.
+     * TimeInstants can be sequenced. This test checks, if a TimeInstant is before or after another TimeInstant.
      */
     @Test
     public void testTimeSequence() {

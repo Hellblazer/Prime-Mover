@@ -6,25 +6,20 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
- * This is the default Time Formatter. Use this class to format TimeSpan and
- * TimeInstant objects like in the following examples: 5.1 , 5.1 SECONDS,
- * 12.035, 12.035 MINUTES.
+ * This is the default Time Formatter. Use this class to format TimeSpan and TimeInstant objects like in the following
+ * examples: 5.1 , 5.1 SECONDS, 12.035, 12.035 MINUTES.
  *
  * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  * @author Felix Klueckmann
  *
- *         Licensed under the Apache License, Version 2.0 (the "License"); you
- *         may not use this file except in compliance with the License. You may
- *         obtain a copy of the License at
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
  *
- *         Unless required by applicable law or agreed to in writing, software
- *         distributed under the License is distributed on an "AS IS" BASIS,
- *         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- *         implied. See the License for the specific language governing
- *         permissions and limitations under the License.
- *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
+
 /**
  * @author goebel
  *
@@ -70,23 +65,24 @@ public class SingleUnitTimeFormatter implements TimeFormatter {
         timeConstants.put(TimeUnit.MICROSECONDS, microConstants);
 
     }
+
     /**
      * The number of digits after the decimal point which will be displayed for the
      * time values.
      */
-    protected final long   _floats;
+    protected final long     _floats;
     /**
      * the value of epsilon used in this TimeFormatter
      */
-    private final TimeUnit _epsilon;
+    private final   TimeUnit _epsilon;
     /**
      * A Factor used for unit conversion
      */
-    private final long     _myFactor;
+    private final   long     _myFactor;
     /**
      * The TimeUnit that is used in this TimeFormatter
      */
-    private final TimeUnit _myTimeUnit;
+    private final   TimeUnit _myTimeUnit;
 
     /**
      *

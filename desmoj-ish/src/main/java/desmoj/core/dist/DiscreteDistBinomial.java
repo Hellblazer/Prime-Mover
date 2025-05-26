@@ -1,88 +1,50 @@
 package desmoj.core.dist;
 
+import desmoj.core.simulator.Model;
+import org.apache.commons.math3.distribution.BinomialDistribution;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.math3.distribution.BinomialDistribution;
-
-import desmoj.core.simulator.Model;
-
 /**
- * Distribution returning binomial distributed long values. The binomial
- * distribution describes the probability of having a certain amount of
- * successes in a series of indepedent Bernoulli experiments, all having the
- * same success probability.
+ * Distribution returning binomial distributed long values. The binomial distribution describes the probability of
+ * having a certain amount of successes in a series of indepedent Bernoulli experiments, all having the same success
+ * probability.
  *
- * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  * @author Peter Wueppen
  *
- *         Licensed under the Apache License, Version 2.0 (the "License"); you
- *         may not use this file except in compliance with the License. You may
- *         obtain a copy of the License at
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
  *
- *         Unless required by applicable law or agreed to in writing, software
- *         distributed under the License is distributed on an "AS IS" BASIS,
- *         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- *         implied. See the License for the specific language governing
- *         permissions and limitations under the License.
- *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  */
 
 public class DiscreteDistBinomial extends DiscreteDist<Long> {
-
-    private static class Entry {
-
-        /**
-         * The cumulative probability of the entry Value, P(X <= entryValue).
-         */
-        private double entryCumProbability;
-
-        /**
-         * The entry value (amount of successes this entry is about)
-         */
-        private long entryValue;
-
-        /**
-         * Constructs a simple entry pair with the given value and cumulative
-         * probability.
-         *
-         * @param val  long : The entry value
-         * @param freq double : The cumulative frequency of this entry value
-         */
-        private Entry(long val, double freq) {
-            entryValue = val;
-            entryCumProbability = freq;
-        }
-
-    }
 
     /**
      * The amount of separate Bernoulli experiments that lead to the result.
      */
     protected int amount;
-
     /**
      * The probability of success in each separate Bernoulli experiment.
      */
     protected double probability;
-
     /**
      * List to store the computed distribution values for each outcome.
      */
     private List<Entry> valueList;
 
     /**
-     * Creates a stream of pseudo random numbers following a binomial distribution.
-     * The specific parameters p (probability) and n (amount) have to be given here
-     * at creation time.
+     * Creates a stream of pseudo random numbers following a binomial distribution. The specific parameters p
+     * (probability) and n (amount) have to be given here at creation time.
      *
      * @param owner        Model : The distribution's owner
      * @param name         java.lang.String : The distribution's name
-     * @param probability  double : The probability of success in each separate
-     *                     Bernoulli experiment.
-     * @param amount       int : The amount of separate Bernoulli experiments that
-     *                     lead to the result.
+     * @param probability  double : The probability of success in each separate Bernoulli experiment.
+     * @param amount       int : The amount of separate Bernoulli experiments that lead to the result.
      * @param showInReport boolean : Flag for producing reports
      * @param showInTrace  boolean : Flag for producing trace output
      */
@@ -119,8 +81,7 @@ public class DiscreteDistBinomial extends DiscreteDist<Long> {
     /**
      * Returns the amount of separate Bernoulli experiments that lead to the result.
      *
-     * @return int : The amount of separate Bernoulli experiments that lead to the
-     *         result.
+     * @return int : The amount of separate Bernoulli experiments that lead to the result.
      */
     public int getAmount() {
 
@@ -129,12 +90,11 @@ public class DiscreteDistBinomial extends DiscreteDist<Long> {
     }
 
     /**
-     * Abstract method to map a double <code>p</code> from 0...1 to the
-     * distribution's domain by determining the value x that satisfies
+     * Abstract method to map a double <code>p</code> from 0...1 to the distribution's domain by determining the value x
+     * that satisfies
      * <code>P(X &lt; x) = p</code>.
      *
      * @param p double: A value between 0 and 1
-     *
      * @return N : The value x that satisfies <code>P(X &lt; x) = p</code>
      */
     @Override
@@ -151,8 +111,7 @@ public class DiscreteDistBinomial extends DiscreteDist<Long> {
     /**
      * Returns the probability of success in each separate Bernoulli experiment
      *
-     * @return double : The probability of success in each separate Bernoulli
-     *         experiment.
+     * @return double : The probability of success in each separate Bernoulli experiment.
      */
     public double getProbability() {
 
@@ -160,9 +119,8 @@ public class DiscreteDistBinomial extends DiscreteDist<Long> {
     }
 
     /**
-     * Returns the next sample from this distribution. The value depends upon the
-     * seed, the number of values taken from the stream by using this method before
-     * and the probability and amount of trials specified for this distribution.
+     * Returns the next sample from this distribution. The value depends upon the seed, the number of values taken from
+     * the stream by using this method before and the probability and amount of trials specified for this distribution.
      *
      * @return Long : The next binomial distributed sample from this distribution.
      */
@@ -170,6 +128,31 @@ public class DiscreteDistBinomial extends DiscreteDist<Long> {
     public Long sample() {
 
         return super.sample();
+    }
+
+    private static class Entry {
+
+        /**
+         * The cumulative probability of the entry Value, P(X <= entryValue).
+         */
+        private double entryCumProbability;
+
+        /**
+         * The entry value (amount of successes this entry is about)
+         */
+        private long entryValue;
+
+        /**
+         * Constructs a simple entry pair with the given value and cumulative probability.
+         *
+         * @param val  long : The entry value
+         * @param freq double : The cumulative frequency of this entry value
+         */
+        private Entry(long val, double freq) {
+            entryValue = val;
+            entryCumProbability = freq;
+        }
+
     }
 
 }

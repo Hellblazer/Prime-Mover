@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-import com.hellblazer.primeMover.Kronos;
+import com.hellblazer.primeMover.api.Kronos;
 
 import testClasses.DriverImpl;
 import testClasses.UseChannelImpl;

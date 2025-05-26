@@ -1,38 +1,31 @@
 package desmoj.core.statistic;
 
-import java.util.Observable;
-
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeSpan;
 
+import java.util.Observable;
+
 /**
- * The <code>Aggregate</code> class is simply counting (aggregating) a
- * continuous (i.e. double) value during an experiment. Be careful the aggregate
- * can be updated with positive and negative values!
+ * The <code>Aggregate</code> class is simply counting (aggregating) a continuous (i.e. double) value during an
+ * experiment. Be careful the aggregate can be updated with positive and negative values!
  *
  * To get this <code>Aggregate</code> object updated automatically every time a
  * <code>ValueSupplier</code> has changed, call the <code>addObserver
- * (Observer)</code>-method from the <code>ValueSupplier</code> of interest,
- * where Observer is this <code>Aggregate</code> object. <br>
- * This must be done by the user in his model! <br>
- * Consider usage of class <code>Count</code> to aggregate integer values.
+ * (Observer)</code>-method from the <code>ValueSupplier</code> of interest, where Observer is this
+ * <code>Aggregate</code> object. <br> This must be done by the user in his model! <br> Consider usage of class
+ * <code>Count</code> to aggregate integer values.
  *
- * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  * @author Soenke Claassen
  * @author based on DESMO-C from Thomas Schniewind, 1998
  * @author modified by Ruth Meyer, Johannes G&ouml;bel
  *
- *         Licensed under the Apache License, Version 2.0 (the "License"); you
- *         may not use this file except in compliance with the License. You may
- *         obtain a copy of the License at
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
  *
- *         Unless required by applicable law or agreed to in writing, software
- *         distributed under the License is distributed on an "AS IS" BASIS,
- *         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- *         implied. See the License for the specific language governing
- *         permissions and limitations under the License.
- *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  */
 
 public class Aggregate extends desmoj.core.statistic.StatisticObjectSupportingTimeSpans {
@@ -40,8 +33,7 @@ public class Aggregate extends desmoj.core.statistic.StatisticObjectSupportingTi
     // ****** attributes ******
 
     /**
-     * Flag indicating if this aggregate will retain its value during a reset.
-     * Default is false.
+     * Flag indicating if this aggregate will retain its value during a reset. Default is false.
      */
     private boolean _isResetResistant;
 
@@ -69,12 +61,10 @@ public class Aggregate extends desmoj.core.statistic.StatisticObjectSupportingTi
      * @param name         java.lang.String : The name of this Aggregate object
      * @param showInReport boolean : Flag for showing the report Set it to
      *                     <code>true</code> if this Aggregate should show up in
-     *                     report. Set it to <code>false</code> if this Aggregate
-     *                     should not be shown in report.
-     * @param showInTrace  boolean : Flag for showing this Aggregate in trace files.
-     *                     Set it to <code>true</code> if this Aggregate should show
-     *                     up in trace. Set it to <code>false</code> if this
-     *                     Aggregate should not be shown in trace.
+     *                     report. Set it to <code>false</code> if this Aggregate should not be shown in report.
+     * @param showInTrace  boolean : Flag for showing this Aggregate in trace files. Set it to <code>true</code> if this
+     *                     Aggregate should show up in trace. Set it to <code>false</code> if this Aggregate should not
+     *                     be shown in trace.
      */
     public Aggregate(Model ownerModel, String name, boolean showInReport, boolean showInTrace) {
         this(ownerModel, name, showInReport, showInTrace, false);
@@ -87,16 +77,13 @@ public class Aggregate extends desmoj.core.statistic.StatisticObjectSupportingTi
      * @param name             java.lang.String : The name of this Aggregate object
      * @param showInReport     boolean : Flag for showing the report Set it to
      *                         <code>true</code> if this Aggregate should show up in
-     *                         report. Set it to <code>false</code> if this
-     *                         Aggregate should not be shown in report.
-     * @param showInTrace      boolean : Flag for showing this Aggregate in trace
-     *                         files. Set it to <code>true</code> if this Aggregate
-     *                         should show up in trace. Set it to <code>false</code>
-     *                         if this Aggregate should not be shown in trace.
-     * @param isResetResistant boolean : Flag for retaining the value of the
-     *                         aggregate during resets. Set it to <code>true</code>
-     *                         if this Aggregate should retain its current value and
-     *                         only reset min, max and observations to 0. Set it to
+     *                         report. Set it to <code>false</code> if this Aggregate should not be shown in report.
+     * @param showInTrace      boolean : Flag for showing this Aggregate in trace files. Set it to <code>true</code> if
+     *                         this Aggregate should show up in trace. Set it to <code>false</code> if this Aggregate
+     *                         should not be shown in trace.
+     * @param isResetResistant boolean : Flag for retaining the value of the aggregate during resets. Set it to
+     *                         <code>true</code> if this Aggregate should retain its current value and only reset min,
+     *                         max and observations to 0. Set it to
      *                         <code>false</code> if this Aggregate should also
      *                         reset its value to 0.
      */
@@ -148,9 +135,8 @@ public class Aggregate extends desmoj.core.statistic.StatisticObjectSupportingTi
     }
 
     /**
-     * Resets this Aggregate object by resetting (nearly) all variables to zero. If
-     * the flag <code>isResetResistant</code> is set to <code>true</code> the value
-     * of the aggregate will NOT be changed.
+     * Resets this Aggregate object by resetting (nearly) all variables to zero. If the flag
+     * <code>isResetResistant</code> is set to <code>true</code> the value of the aggregate will NOT be changed.
      */
     @Override
     public void reset() {
@@ -164,8 +150,7 @@ public class Aggregate extends desmoj.core.statistic.StatisticObjectSupportingTi
     }
 
     /**
-     * Increments the value of this <code>Aggregate</code> object by the value given
-     * in the parameter n.
+     * Increments the value of this <code>Aggregate</code> object by the value given in the parameter n.
      *
      * @param n double : The number that will be added to the value of this
      *          <code>Aggregate</code> object.
@@ -187,27 +172,24 @@ public class Aggregate extends desmoj.core.statistic.StatisticObjectSupportingTi
     }
 
     /**
-     * Implementation of the virtual <code>update(Observable, Object)</code> method
-     * of the <code>Observer</code> interface. This method will be called
-     * automatically from an <code>Observable</code> object within its
+     * Implementation of the virtual <code>update(Observable, Object)</code> method of the <code>Observer</code>
+     * interface. This method will be called automatically from an <code>Observable</code> object within its
      * <code>notifyObservers()</code> method. <br>
-     * If no Object (a<code>null</code> value) is passed as arg, the actual value of
-     * the ValueSupplier will be fetched with the <code>value()</code> method of the
-     * ValueSupplier. Otherwise it is expected that the actual value is passed in
-     * the Object arg.
+     * If no Object (a<code>null</code> value) is passed as arg, the actual value of the ValueSupplier will be fetched
+     * with the <code>value()</code> method of the ValueSupplier. Otherwise it is expected that the actual value is
+     * passed in the Object arg.
      *
-     * @param o   java.util.Observable : The Observable calling this method within
-     *            its own <code>notifyObservers()</code> method.
-     * @param arg Object : The Object with which this <code>Aggregate</code> is
-     *            updated. Normally a double number which is added to the value of
-     *            the aggregate or <code>null</code>.
+     * @param o   java.util.Observable : The Observable calling this method within its own
+     *            <code>notifyObservers()</code> method.
+     * @param arg Object : The Object with which this <code>Aggregate</code> is updated. Normally a double number which
+     *            is added to the value of the aggregate or <code>null</code>.
      */
     @Override
     public void update(Observable o, Object arg) {
         if (o == null) // null was passed instead of an Observable
         {
             sendWarning("Attempt to update a Aggregate with no reference to an "
-            + "Observable. The attempted action will be ignored!",
+                        + "Observable. The attempted action will be ignored!",
                         "Aggregate: " + this.getName() + " Method: update (Observable o, " + "Object arg)",
                         "The passed Observable: o in this method is only a null pointer.",
                         "The update()-method was not called via notifyObservers() from an "
@@ -230,7 +212,7 @@ public class Aggregate extends desmoj.core.statistic.StatisticObjectSupportingTi
 
             } else {
                 sendWarning("Attempt to update a Aggregate with an object, that can "
-                + "not be recognized. The attempted action will be ignored!",
+                            + "not be recognized. The attempted action will be ignored!",
                             "Aggregate: " + this.getName() + " Method: update (Observable o, " + "Object arg)",
                             "The passed Object: arg in this method is not a Number.",
                             "Make sure to pass as Object: arg in the update()-method only "
@@ -245,8 +227,7 @@ public class Aggregate extends desmoj.core.statistic.StatisticObjectSupportingTi
     @Override
     /**
      * {@inheritDoc}
-     */
-    public void update(TimeSpan t) {
+     */ public void update(TimeSpan t) {
         this.setShowTimeSpansInReport(true);
         this.update(t.getTimeAsDouble());
     }

@@ -20,6 +20,7 @@
 package com.hellblazer.primeMover.runtime;
 
 import com.hellblazer.primeMover.annotations.Blocking;
+import com.hellblazer.primeMover.api.EntityReference;
 
 /**
  * Static core utilities representing the simulation framework.

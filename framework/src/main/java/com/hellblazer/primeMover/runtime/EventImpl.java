@@ -24,7 +24,8 @@ import java.io.Serializable;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Logger;
 
-import com.hellblazer.primeMover.Event;
+import com.hellblazer.primeMover.api.Event;
+import com.hellblazer.primeMover.api.EntityReference;
 import com.hellblazer.primeMover.runtime.Devi.EvaluationResult;
 
 /**
@@ -52,7 +53,7 @@ public class EventImpl implements Cloneable, Serializable, Comparable<EventImpl>
     /**
      * The event
      */
-    private final int                 event;
+    private final     int             event;
     /**
      * The entity which is the target of the event
      */

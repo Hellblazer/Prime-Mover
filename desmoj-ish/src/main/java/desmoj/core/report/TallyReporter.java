@@ -3,38 +3,30 @@ package desmoj.core.report;
 import desmoj.core.simulator.TimeSpan;
 
 /**
- * Captures all relevant information about the Tally. Extended to show unit and
- * description of reported object.
+ * Captures all relevant information about the Tally. Extended to show unit and description of reported object.
  *
- * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  * @author Soenke Claassen based on ideas from Tim Lechler
  * @author based on DESMO-C from Thomas Schniewind, 1998
  * @author modified by Chr. M&uuml;ller (TH Wildau) 28.11.2012
  *
- *         Licensed under the Apache License, Version 2.0 (the "License"); you
- *         may not use this file except in compliance with the License. You may
- *         obtain a copy of the License at
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
  *
- *         Unless required by applicable law or agreed to in writing, software
- *         distributed under the License is distributed on an "AS IS" BASIS,
- *         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- *         implied. See the License for the specific language governing
- *         permissions and limitations under the License.
- *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  */
 public class TallyReporter extends desmoj.core.report.Reporter {
 
     // ****** methods ******
 
     /**
-     * Constructor for a new TallyReporter. Note that although any Reportable is
-     * accepted you should make sure that only subtypes of Tally are passed to this
-     * constructor. Otherwise the number of column titles and their individual
+     * Constructor for a new TallyReporter. Note that although any Reportable is accepted you should make sure that only
+     * subtypes of Tally are passed to this constructor. Otherwise the number of column titles and their individual
      * headings will differ from the actual content collected by this reporter.
      *
-     * @param informationSource desmoj.core.simulator.Reportable : The Tally to
-     *                          report about.
+     * @param informationSource desmoj.core.simulator.Reportable : The Tally to report about.
      */
     public TallyReporter(desmoj.core.simulator.Reportable informationSource) {
         super(informationSource); // make a Reporter
@@ -55,11 +47,10 @@ public class TallyReporter extends desmoj.core.report.Reporter {
     }
 
     /**
-     * Returns an array of Strings each containing the data for the corresponding
-     * column in array <code>columns[]</code>. Implement this method in a way, that
-     * an array of the same length as the column titles is produced containing the
-     * data at the point of time this method is called by someone else to produce
-     * up-to-date information.
+     * Returns an array of Strings each containing the data for the corresponding column in array
+     * <code>columns[]</code>. Implement this method in a way, that an array of the same length as the column titles is
+     * produced containing the data at the point of time this method is called by someone else to produce up-to-date
+     * information.
      *
      * @return java.lang.String[] : Array containing the data for reporting
      */
@@ -87,9 +78,10 @@ public class TallyReporter extends desmoj.core.report.Reporter {
             } else // return mean value
             {
                 entries[3] = this.format(_showTimeSpansInReport, tl.getMean());
-                if (tlr != null)
-                    entries[3] += " (last " + tlr.getSampleSizeN() + " obs: "
-                    + this.format(_showTimeSpansInReport, tlr.getMeanLastN()) + ")";
+                if (tlr != null) {
+                    entries[3] += " (last " + tlr.getSampleSizeN() + " obs: " + this.format(_showTimeSpansInReport,
+                                                                                            tlr.getMeanLastN()) + ")";
+                }
             }
 
             // Std.Dev
@@ -100,9 +92,10 @@ public class TallyReporter extends desmoj.core.report.Reporter {
             } else // return standard deviation
             {
                 entries[4] = this.format(_showTimeSpansInReport, tl.getStdDev());
-                if (tlr != null)
-                    entries[4] += " (last " + tlr.getSampleSizeN() + " obs: "
-                    + this.format(_showTimeSpansInReport, tlr.getStdDevLastN()) + ")";
+                if (tlr != null) {
+                    entries[4] += " (last " + tlr.getSampleSizeN() + " obs: " + this.format(_showTimeSpansInReport,
+                                                                                            tlr.getStdDevLastN()) + ")";
+                }
             }
 
             // Min
@@ -110,9 +103,11 @@ public class TallyReporter extends desmoj.core.report.Reporter {
                 entries[5] = "Insufficient data";
             } else {
                 entries[5] = this.format(_showTimeSpansInReport, tl.getMinimum());
-                if (tlr != null)
-                    entries[5] += " (last " + tlr.getSampleSizeN() + " obs: "
-                    + this.format(_showTimeSpansInReport, tlr.getMinimumLastN()) + ")";
+                if (tlr != null) {
+                    entries[5] += " (last " + tlr.getSampleSizeN() + " obs: " + this.format(_showTimeSpansInReport,
+                                                                                            tlr.getMinimumLastN())
+                    + ")";
+                }
             }
 
             // Max
@@ -120,9 +115,11 @@ public class TallyReporter extends desmoj.core.report.Reporter {
                 entries[6] = "Insufficient data";
             } else {
                 entries[6] = this.format(_showTimeSpansInReport, tl.getMaximum());
-                if (tlr != null)
-                    entries[6] += " (last " + tlr.getSampleSizeN() + " obs: "
-                    + this.format(_showTimeSpansInReport, tlr.getMaximumLastN()) + ")";
+                if (tlr != null) {
+                    entries[6] += " (last " + tlr.getSampleSizeN() + " obs: " + this.format(_showTimeSpansInReport,
+                                                                                            tlr.getMaximumLastN())
+                    + ")";
+                }
             }
 
             // cm 21.11.12 Extension for viewing unit
@@ -139,12 +136,13 @@ public class TallyReporter extends desmoj.core.report.Reporter {
 
     private String format(boolean showTimeSpans, double value) {
         String out = Double.toString(value);
-        if (showTimeSpans && value < 0.0)
+        if (showTimeSpans && value < 0.0) {
             out += " (Invalid)";
-        else if (showTimeSpans && value >= Long.MAX_VALUE)
+        } else if (showTimeSpans && value >= Long.MAX_VALUE) {
             out += " (Invalid)";
-        else if (showTimeSpans)
+        } else if (showTimeSpans) {
             out = new TimeSpan(value).toString();
+        }
         return out;
     }
 

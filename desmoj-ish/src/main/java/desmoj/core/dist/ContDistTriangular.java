@@ -5,20 +5,15 @@ import desmoj.core.simulator.Model;
 /**
  * Distribution returning triangular distributed double values.
  *
- * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  * @author Peter Wueppen
  *
- *         Licensed under the Apache License, Version 2.0 (the "License"); you
- *         may not use this file except in compliance with the License. You may
- *         obtain a copy of the License at
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
  *
- *         Unless required by applicable law or agreed to in writing, software
- *         distributed under the License is distributed on an "AS IS" BASIS,
- *         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- *         implied. See the License for the specific language governing
- *         permissions and limitations under the License.
- *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  */
 
 public class ContDistTriangular extends ContDist {
@@ -39,16 +34,14 @@ public class ContDistTriangular extends ContDist {
     protected double upper;
 
     /**
-     * Creates a stream of pseudo random numbers following a triangular
-     * distribution. The specific lower and upper bounds as well as the most
-     * probable value have to be given here at creation time.
+     * Creates a stream of pseudo random numbers following a triangular distribution. The specific lower and upper
+     * bounds as well as the most probable value have to be given here at creation time.
      *
      * @param owner        Model : The distribution's owner
      * @param name         java.lang.String : The distribution's name
      * @param lower        double : The lowest possibly generated value.
      * @param upper        double : The highest possibly generated value.
-     * @param peak         double : The most probable value within the distribution,
-     *                     the peak of the triangle.
+     * @param peak         double : The most probable value within the distribution, the peak of the triangle.
      * @param showInReport boolean : Flag for producing reports
      * @param showInTrace  boolean : Flag for producing trace output
      */
@@ -74,12 +67,11 @@ public class ContDistTriangular extends ContDist {
     }
 
     /**
-     * Abstract method to map a double <code>p</code> from 0...1 to the
-     * distribution's domain by determining the value x that satisfies
+     * Abstract method to map a double <code>p</code> from 0...1 to the distribution's domain by determining the value x
+     * that satisfies
      * <code>P(X &lt; x) = p</code>.
      *
      * @param p double: A value between 0 and 1
-     *
      * @return N : The value x that satisfies P(X &lt; x) = p
      */
     @Override
@@ -130,13 +122,11 @@ public class ContDistTriangular extends ContDist {
     }
 
     /**
-     * Returns the next sample from this distribution. The value depends upon the
-     * seed, the number of values taken from the stream by using this method before
-     * and the lower and upper bounds as well as the peak value specified for this
-     * distribution.
+     * Returns the next sample from this distribution. The value depends upon the seed, the number of values taken from
+     * the stream by using this method before and the lower and upper bounds as well as the peak value specified for
+     * this distribution.
      *
-     * @return Double : The next triangular distributed sample from this
-     *         distribution.
+     * @return Double : The next triangular distributed sample from this distribution.
      */
     @Override
     public Double sample() {

@@ -25,7 +25,7 @@ import java.util.NoSuchElementException;
 import java.util.Queue;
 import java.util.logging.Logger;
 
-import com.hellblazer.primeMover.SimulationException;
+import com.hellblazer.primeMover.api.SimulationException;
 import com.hellblazer.primeMover.runtime.Devi;
 import com.hellblazer.primeMover.runtime.EventImpl;
 import com.hellblazer.primeMover.runtime.Kairos;

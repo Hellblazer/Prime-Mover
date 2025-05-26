@@ -3,45 +3,36 @@ package desmoj.core.simulator;
 import desmoj.core.dist.NumericalDist;
 
 /**
- * Provides the class for user defined events to change <b>two</b> entities'
- * internal states. The state of a discrete model is changed by events that
- * occur at distinct points of simulation time.
+ * Provides the class for user defined events to change <b>two</b> entities' internal states. The state of a discrete
+ * model is changed by events that occur at distinct points of simulation time.
  * <p>
- * For events changing the state of <b>one</b> or <b>three</b> entities, refer
- * to <code>Event</code> and <code>EventOf3Entities</code>. Events not
- * associated to a specific entity are based on <code>ExternalEvent</code>.
+ * For events changing the state of <b>one</b> or <b>three</b> entities, refer to <code>Event</code> and
+ * <code>EventOf3Entities</code>. Events not associated to a specific entity are based on <code>ExternalEvent</code>.
  * <p>
  * For type safety it is recommended to generically assign the entity types an
  * <code>EventOf2Entities</code> operates on by using the generic type
  * <code>EventOf2Entities&lt;E,F&gt;</code> where <code>E</code> and
  * <code>F</code> are derived from <code>Entity</code>.
  * <p>
- * All event object should be used only once. Implement the changes of state for
- * the specific entities associated with this event by overriding the abstract
- * method <code>eventRoutine(E who1, F who2)</code>.
+ * All event object should be used only once. Implement the changes of state for the specific entities associated with
+ * this event by overriding the abstract method <code>eventRoutine(E who1, F who2)</code>.
  *
+ * @author Tim Lechler
+ * @author modified by Justin Neumann
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  * @see Entity
  * @see ExternalEvent
  * @see Event
  * @see EventOf3Entities
  * @see TimeInstant
  * @see TimeSpan
- *
- * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
- * @author Tim Lechler
- * @author modified by Justin Neumann
- *
- *         Licensed under the Apache License, Version 2.0 (the "License"); you
- *         may not use this file except in compliance with the License. You may
- *         obtain a copy of the License at
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
- *         Unless required by applicable law or agreed to in writing, software
- *         distributed under the License is distributed on an "AS IS" BASIS,
- *         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- *         implied. See the License for the specific language governing
- *         permissions and limitations under the License.
- *
  */
 public abstract class EventOf2Entities<E extends Entity, F extends Entity> extends EventAbstract {
 
@@ -52,8 +43,7 @@ public abstract class EventOf2Entities<E extends Entity, F extends Entity> exten
      * @param owner       Model : The model this event is associated to
      * @param showInTrace boolean : Flag for showing Event in trace-files. Set it to
      *                    <code>true</code> if Event should show up in trace. Set it
-     *                    to <code>false</code> if Event should not be shown in
-     *                    trace.
+     *                    to <code>false</code> if Event should not be shown in trace.
      */
     public EventOf2Entities(Model owner, String name, boolean showInTrace) {
 
@@ -63,21 +53,19 @@ public abstract class EventOf2Entities<E extends Entity, F extends Entity> exten
     }
 
     /**
-     * Implement this abstract method to express the changes of state this event
-     * does to two entities (as <code>SimProcess</code> is a subclass of
+     * Implement this abstract method to express the changes of state this event does to two entities (as
+     * <code>SimProcess</code> is a subclass of
      * <code>Entity</code>, processes can be passed as well).
      * <p>
-     * For type safety, it is recommended to derive your events from the generic
-     * type <code>EventOf2Entities&lt;EntityType1,EntityType2&gt;</code> where
+     * For type safety, it is recommended to derive your events from the generic type
+     * <code>EventOf2Entities&lt;EntityType1,EntityType2&gt;</code> where
      * <code>EntityType1</code> and <code>EntityType2</code> (which are derived from
-     * class <code>Entity</code>) represent the entity types your event is supposed
-     * to operate on.
+     * class <code>Entity</code>) represent the entity types your event is supposed to operate on.
      * <p>
      * Should you decide to derive your event from the raw type
      * <code>EventOf2Entities</code> (which is not recommended), please take extra
-     * care in checking the given Entity parameters to your special eventRoutine
-     * since any subtype of Entity will be accepted! If your model uses several
-     * different entity types, chances are that while developing the model, wrong
+     * care in checking the given Entity parameters to your special eventRoutine since any subtype of Entity will be
+     * accepted! If your model uses several different entity types, chances are that while developing the model, wrong
      * entity types might be passed.
      *
      * @param who1 E : The first entity associated to this event.
@@ -86,8 +74,8 @@ public abstract class EventOf2Entities<E extends Entity, F extends Entity> exten
     public abstract void eventRoutine(E who1, F who2);
 
     /**
-     * Schedules this event to act the given entities now. No preemption, i.e. a
-     * process calling this method will continue until passivated or hold.
+     * Schedules this event to act the given entities now. No preemption, i.e. a process calling this method will
+     * continue until passivated or hold.
      *
      * @param who1 E : The first entity this event happens to
      * @param who2 F : The second entity this event happens to
@@ -138,16 +126,13 @@ public abstract class EventOf2Entities<E extends Entity, F extends Entity> exten
     }
 
     /**
-     * Schedules this event to act the given entities at the specified point in
-     * simulation time determined by a sample from the distribution provided to the
-     * method. The sample is interpreted as offset from the the present time in the
-     * reference time unit.
+     * Schedules this event to act the given entities at the specified point in simulation time determined by a sample
+     * from the distribution provided to the method. The sample is interpreted as offset from the the present time in
+     * the reference time unit.
      *
      * @param who1 E : The first entity this event happens to
      * @param who2 F : The second entity this event happens to
-     * @param dist NumericalDist<?> : Numerical distribution to sample the offset to
-     *             the current simulation time from
-     *
+     * @param dist NumericalDist<?> : Numerical distribution to sample the offset to the current simulation time from
      * @see SimClock
      */
     public void schedule(E who1, F who2, NumericalDist<?> dist) {
@@ -209,14 +194,12 @@ public abstract class EventOf2Entities<E extends Entity, F extends Entity> exten
     }
 
     /**
-     * Schedules this event to act on the given entities at a certain point in
-     * simulation time. No preemption, i.e. a process calling this method will
-     * continue until passivated or hold.
+     * Schedules this event to act on the given entities at a certain point in simulation time. No preemption, i.e. a
+     * process calling this method will continue until passivated or hold.
      *
      * @param who1    E : The first entity to be manipulated by this event
      * @param who2    F : The second entity to be manipulated by this event
-     * @param instant TimeInstant : The point in simulation time this event is
-     *                scheduled to happen.
+     * @param instant TimeInstant : The point in simulation time this event is scheduled to happen.
      */
     public void schedule(E who1, F who2, TimeInstant instant) {
 
@@ -270,15 +253,13 @@ public abstract class EventOf2Entities<E extends Entity, F extends Entity> exten
     }
 
     /**
-     * Schedules this event to act the given entities at the specified point in
-     * simulation time. The point of time is given as an offset to the current
-     * simulation time as displayed by the simulation clock. No preemption, i.e. a
+     * Schedules this event to act the given entities at the specified point in simulation time. The point of time is
+     * given as an offset to the current simulation time as displayed by the simulation clock. No preemption, i.e. a
      * process calling this method will continue until passivated or hold.
      *
      * @param who1 E : The first entity this event happens to
      * @param who2 F : The second entity this event happens to
-     * @param dt   TimeSpan : The offset to the current simulation time this Event
-     *             is to happen
+     * @param dt   TimeSpan : The offset to the current simulation time this Event is to happen
      * @see SimClock
      */
     public void schedule(E who1, F who2, TimeSpan dt) {
@@ -335,15 +316,12 @@ public abstract class EventOf2Entities<E extends Entity, F extends Entity> exten
     }
 
     /**
-     * Schedules this event to act on the given Entity directly after the given
-     * Schedulable is already set to be activated. Note that this event's point of
-     * simulation time will be set to be the same as the Schedulable's time. Thus
-     * this event will occur directly after the given Schedulable but the simulation
-     * clock will not change. Make sure that the Schedulable given as parameter is
-     * actually scheduled.
+     * Schedules this event to act on the given Entity directly after the given Schedulable is already set to be
+     * activated. Note that this event's point of simulation time will be set to be the same as the Schedulable's time.
+     * Thus this event will occur directly after the given Schedulable but the simulation clock will not change. Make
+     * sure that the Schedulable given as parameter is actually scheduled.
      *
-     * @param after Schedulable : The Schedulable this entity should be scheduled
-     *              after
+     * @param after Schedulable : The Schedulable this entity should be scheduled after
      * @param who1  E : The first entity to be manipulated by this event
      * @param who2  F : The second entity to be manipulated by this event
      */
@@ -406,22 +384,20 @@ public abstract class EventOf2Entities<E extends Entity, F extends Entity> exten
         getModel().getExperiment().getScheduler().scheduleAfter(after, who1, who2, this);
 
         if (currentlySendDebugNotes()) {
-            sendDebugNote("scheduleAfter " + after.getQuotedName() + " on EventList<br>"
-            + getModel().getExperiment().getScheduler().toString());
+            sendDebugNote("scheduleAfter " + after.getQuotedName() + " on EventList<br>" + getModel().getExperiment()
+                                                                                                     .getScheduler()
+                                                                                                     .toString());
         }
 
     }
 
     /**
-     * Schedules this event to act on the given Entity directly before the given
-     * Schedulable is already set to be activated. Note that this event's point of
-     * simulation time will be set to be the same as the Schedulable's time. Thus
-     * this event will occur directly before the given Schedulable but the
-     * simulation clock will not change. Make sure that the Schedulable given as
-     * parameter is actually scheduled.
+     * Schedules this event to act on the given Entity directly before the given Schedulable is already set to be
+     * activated. Note that this event's point of simulation time will be set to be the same as the Schedulable's time.
+     * Thus this event will occur directly before the given Schedulable but the simulation clock will not change. Make
+     * sure that the Schedulable given as parameter is actually scheduled.
      *
-     * @param before Schedulable : The Schedulable this entity should be scheduled
-     *               before
+     * @param before Schedulable : The Schedulable this entity should be scheduled before
      * @param who1   E : The first entity to be manipulated by this event
      * @param who2   F : The second entity to be manipulated by this event
      */
@@ -483,15 +459,15 @@ public abstract class EventOf2Entities<E extends Entity, F extends Entity> exten
         getModel().getExperiment().getScheduler().scheduleBefore(before, who1, who2, this);
 
         if (currentlySendDebugNotes()) {
-            sendDebugNote("scheduleBefore " + before.getQuotedName() + " on EventList<br>"
-            + getModel().getExperiment().getScheduler().toString());
+            sendDebugNote("scheduleBefore " + before.getQuotedName() + " on EventList<br>" + getModel().getExperiment()
+                                                                                                       .getScheduler()
+                                                                                                       .toString());
         }
 
     }
 
     /**
-     * Schedules this event to be executed immediately, preempting the process
-     * lifecycle executed at the moment.
+     * Schedules this event to be executed immediately, preempting the process lifecycle executed at the moment.
      *
      * @param who1 E : The first entity this event happens to
      * @param who2 F : The second entity this event happens to
@@ -549,12 +525,11 @@ public abstract class EventOf2Entities<E extends Entity, F extends Entity> exten
     }
 
     /**
-     * Creates and returns a copy of this event. Note that subclasses have to
-     * implement the interface <code>java.lang.Cloneable</code> to actually use this
-     * method as otherwise, a <code>CloneNotSupportedException</code> will be
-     * thrown.
+     * Creates and returns a copy of this event. Note that subclasses have to implement the interface
+     * <code>java.lang.Cloneable</code> to actually use this method as otherwise, a
+     * <code>CloneNotSupportedException</code> will be thrown.
      *
-     * @return EventOf2Entities<E,F> : A copy of this event.
+     * @return EventOf2Entities<E, F> : A copy of this event.
      */
     @Override
     @SuppressWarnings("unchecked")

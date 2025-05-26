@@ -1,27 +1,20 @@
 package desmoj.core.simulator;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
+import desmoj.implementation.TestEntity;
+import desmoj.implementation.TestModel;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import desmoj.implementation.TestEntity;
-import desmoj.implementation.TestModel;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Since it is not possible to generate an TestClass for SimProcessQueue and
- * Queue, this class tests the Queue only. The default implementation with with
- * the sort order fifo (first in first out) is used.
+ * Since it is not possible to generate an TestClass for SimProcessQueue and Queue, this class tests the Queue only. The
+ * default implementation with with the sort order fifo (first in first out) is used.
  * <p>
- * The methods of QueueBased are not tested here. Look at QueueBasedModulTest
- * for that.
- *
+ * The methods of QueueBased are not tested here. Look at QueueBasedModulTest for that.
  *
  * @author Clara Bluemm, Sascha Winde
- *
  * @see desmoj.core.simulator.Queue<E>
  * @see TestFramework.core.simultor.ProcessQueueModulTest
  * @see TestFramework.core.simulator.QueueBasedModulTest
@@ -38,7 +31,6 @@ public class QueueModulTest {
     protected Queue<TestEntity> queue;
 
     /**
-     *
      * @throws java.lang.Exception
      */
     @BeforeEach
@@ -90,9 +82,9 @@ public class QueueModulTest {
     public void testGet() {
         queue.insert(enty1);
         queue.insert(enty2);
-//		assertEquals(queue.get(0), enty2);
-//		queue.remove(0);
-//		assertEquals(queue.get(0), enty1);
+        //		assertEquals(queue.get(0), enty2);
+        //		queue.remove(0);
+        //		assertEquals(queue.get(0), enty1);
     }
 
     /**
@@ -103,7 +95,7 @@ public class QueueModulTest {
         assertTrue(queue.insert(enty1));
         assertTrue(queue.insert(enty2));
         // in ProcessQueue inserting twice the same Entity is not allowed
-//		assertFalse(queue.insert(enty1));
+        //		assertFalse(queue.insert(enty1));
         assertTrue(queue.insert(enty3));
         assertFalse(queue.insert(null));
     }
@@ -124,8 +116,7 @@ public class QueueModulTest {
     }
 
     /**
-     * Tests insertBefore. The first parameter is the one to be inserted before the
-     * second parameter.
+     * Tests insertBefore. The first parameter is the one to be inserted before the second parameter.
      */
     @Test
     public void testInsertBefore() {
@@ -159,7 +150,7 @@ public class QueueModulTest {
         queue.insert(enty2);
         assertEquals(queue.pred(enty2), enty1);
         // Bug? throws out of BounceException
-//		assertEquals(queue.pred(enty1), null);
+        //		assertEquals(queue.pred(enty1), null);
     }
 
     /**
@@ -181,8 +172,8 @@ public class QueueModulTest {
     }
 
     /**
-     * Resets the statistical counter in QueueBased. Minimum and Maximum length will
-     * be set to the current number of entrys.
+     * Resets the statistical counter in QueueBased. Minimum and Maximum length will be set to the current number of
+     * entrys.
      */
     @Test
     public void testReset() {
@@ -211,7 +202,7 @@ public class QueueModulTest {
         queue.remove(enty2);
         assertEquals(queue.succ(enty1), enty3);
         // Bug? throws OutOfBounceException
-//		assertEquals(queue.succ(enty3), null);
+        //		assertEquals(queue.succ(enty3), null);
     }
 
     // TODO QueueIterator???

@@ -5,20 +5,15 @@ import desmoj.core.simulator.Model;
 /**
  * Weibull-distributed stream of pseudo random numbers of type double.
  *
- * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  * @author Tim Lechler, Johannes G&ouml;bel
  *
- *         Licensed under the Apache License, Version 2.0 (the "License"); you
- *         may not use this file except in compliance with the License. You may
- *         obtain a copy of the License at
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
  *
- *         Unless required by applicable law or agreed to in writing, software
- *         distributed under the License is distributed on an "AS IS" BASIS,
- *         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- *         implied. See the License for the specific language governing
- *         permissions and limitations under the License.
- *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  */
 public class ContDistWeibull extends ContDistExponential {
 
@@ -28,9 +23,8 @@ public class ContDistWeibull extends ContDistExponential {
     protected double beta;
 
     /**
-     * Constructs a simple Weibull-distributed pseudo random generator with the
-     * given values as mean and beta of the distribution. Only positive values are
-     * allowed.
+     * Constructs a simple Weibull-distributed pseudo random generator with the given values as mean and beta of the
+     * distribution. Only positive values are allowed.
      *
      * @param owner        Model : The distribution's owner
      * @param name         java.lang.String : The distribution's name
@@ -57,12 +51,11 @@ public class ContDistWeibull extends ContDistExponential {
     }
 
     /**
-     * Abstract method to map a double <code>p</code> from 0...1 to the
-     * distribution's domain by determining the value x that satisfies
+     * Abstract method to map a double <code>p</code> from 0...1 to the distribution's domain by determining the value x
+     * that satisfies
      * <code>P(X &lt; x) = p</code>.
      *
      * @param p double: A value between 0 and 1
-     *
      * @return N : The value x that satisfies <code>P(X &lt; x) = p</code>
      */
     @Override

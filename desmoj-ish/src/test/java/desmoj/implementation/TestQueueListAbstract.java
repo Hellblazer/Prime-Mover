@@ -5,12 +5,12 @@ import desmoj.core.simulator.QueueListStandard;
 
 /**
  * For testing reasons. To provide the Typ QueueListStandard.
- * @author Clara Bluemm
  *
+ * @author Clara Bluemm
  */
-public class TestQueueListAbstract extends QueueListStandard{
+public class TestQueueListAbstract extends QueueListStandard {
 
-	@Override
-	public void insert(Entity e) {
-	}
+    @Override
+    public void insert(Entity e) {
+    }
 }

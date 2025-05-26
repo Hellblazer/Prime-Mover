@@ -1,22 +1,17 @@
 package desmoj.core.simulator;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
+import desmoj.implementation.TestModel;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import desmoj.implementation.TestModel;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * This class tests the experiment Class on it's own. Especially the
- * functionality to set values to model relevant instances.
+ * This class tests the experiment Class on it's own. Especially the functionality to set values to model relevant
+ * instances.
  *
  * @author Sascha
- *
  */
 public class ExperimentTest {
 
@@ -38,8 +33,7 @@ public class ExperimentTest {
     }
 
     /**
-     * The Debugmode is tested. Therefore it is tested off, and tested after being
-     * set on.
+     * The Debugmode is tested. Therefore it is tested off, and tested after being set on.
      */
     @Test
     public void testDebug() {
@@ -113,8 +107,7 @@ public class ExperimentTest {
     }
 
     /**
-     * This Test checks the start and stop function of the experiment. Starttime has
-     * to be 0 and stoptime is 100.
+     * This Test checks the start and stop function of the experiment. Starttime has to be 0 and stoptime is 100.
      *
      * @throws InterruptedException
      */

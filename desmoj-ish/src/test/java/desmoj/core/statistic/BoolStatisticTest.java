@@ -1,22 +1,17 @@
 package desmoj.core.statistic;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
+import desmoj.implementation.TestModel;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import desmoj.implementation.TestModel;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Tests the class BoolStatistic, which is supposed to make an statistic about
- * boolean values.
+ * Tests the class BoolStatistic, which is supposed to make an statistic about boolean values.
  *
- * @see core.statistic.BoolStatistic
  * @author Sascha Winde, Clara Bluemm
- *
+ * @see core.statistic.BoolStatistic
  */
 public class BoolStatisticTest {
 
@@ -61,9 +56,9 @@ public class BoolStatisticTest {
         assertNotNull(bool.getTrueRatio());
         assertTrue(1 == bool.getTrueObs());
         assertTrue(1 == bool.getTrueRatio());
-//      bool.reset(); //throws Nullpointer since no time is defined
-//      assertTrue(0 == bool.getTrueObs());
-//      assertTrue(0 == bool.getTrueRatio());
+        //      bool.reset(); //throws Nullpointer since no time is defined
+        //      assertTrue(0 == bool.getTrueObs());
+        //      assertTrue(0 == bool.getTrueRatio());
     }
 
     /**

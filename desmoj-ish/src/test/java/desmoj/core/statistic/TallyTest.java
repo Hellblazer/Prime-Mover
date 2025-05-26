@@ -1,13 +1,12 @@
 package desmoj.core.statistic;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
+import desmoj.core.simulator.Experiment;
+import desmoj.core.simulator.Model;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import desmoj.core.simulator.Experiment;
-import desmoj.core.simulator.Model;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TallyTest {
 

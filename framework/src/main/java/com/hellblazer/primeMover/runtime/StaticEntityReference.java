@@ -19,6 +19,8 @@
 
 package com.hellblazer.primeMover.runtime;
 
+import com.hellblazer.primeMover.api.EntityReference;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 

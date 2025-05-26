@@ -1,16 +1,14 @@
 package desmoj.core.dist;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import desmoj.core.simulator.Experiment;
 import desmoj.core.simulator.Model;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Temporary Class for testing purposes, will be deleted later on
  *
  * @author 8wueppen
- *
  */
 public class TestDistributions {
 

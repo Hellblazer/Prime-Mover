@@ -1,62 +1,40 @@
 package desmoj.core.advancedModellingFeatures;
 
+import desmoj.core.simulator.*;
+
 import java.util.HashSet;
 import java.util.Set;
 
-import desmoj.core.simulator.Condition;
-import desmoj.core.simulator.ProcessQueue;
-import desmoj.core.simulator.QueueBased;
-import desmoj.core.simulator.QueueList;
-import desmoj.core.simulator.QueueListFifo;
-import desmoj.core.simulator.QueueListLifo;
-import desmoj.core.simulator.QueueListRandom;
-import desmoj.core.simulator.SimProcess;
-import desmoj.core.simulator.TimeInstant;
-import desmoj.core.simulator.TimeOperations;
-import desmoj.core.simulator.TimeSpan;
-
 /**
- * The WaitQueue is used to synchronize the cooperation of two processes. One
- * process (the master) has the leading role and is performing the cooperation
- * while the other process (the slave) is passive during this period. The slave
- * will be activated again after the cooperation is done. The master process is
- * calling <code>cooperate()</code> to signal that it is willing to cooperate as
- * a master. Slaves are calling <code>waitOnCoop()</code>. The action performed
- * during the cooperation of the two processes has to be implemented in the
- * method <code>cooperation()</code> in the class <code>ProcessCoop</code>.
- * There are two waiting-queues, one for the masters and one for the slaves. If
- * there is no corresponding master or slave available, they are inserted in a
- * such a waiting-queue.
+ * The WaitQueue is used to synchronize the cooperation of two processes. One process (the master) has the leading role
+ * and is performing the cooperation while the other process (the slave) is passive during this period. The slave will
+ * be activated again after the cooperation is done. The master process is calling <code>cooperate()</code> to signal
+ * that it is willing to cooperate as a master. Slaves are calling <code>waitOnCoop()</code>. The action performed
+ * during the cooperation of the two processes has to be implemented in the method <code>cooperation()</code> in the
+ * class <code>ProcessCoop</code>. There are two waiting-queues, one for the masters and one for the slaves. If there is
+ * no corresponding master or slave available, they are inserted in a such a waiting-queue.
  *
- * The first sort criterion of the queues is highest queueing priorities first
- * (i.e. not using scheduling priorities - note that this is a somewhat
- * arbitrary choice, as the <ode>WaitQueue</code> combines queueing and
- * scheduling features). The second criterion, if a tie-breaker is needed, is
- * the queueing discipline of the underlying queues, e.g. FIFO. The capacity
- * limits can be determined by the user. <code>WaitQueue</code> is derived from
+ * The first sort criterion of the queues is highest queueing priorities first (i.e. not using scheduling priorities -
+ * note that this is a somewhat arbitrary choice, as the <ode>WaitQueue</code> combines queueing and scheduling
+ * features). The second criterion, if a tie-breaker is needed, is the queueing discipline of the underlying queues,
+ * e.g. FIFO. The capacity limits can be determined by the user. <code>WaitQueue</code> is derived from
  * <code>QueueBased</code>, which provides all the statistical functionality for
  * the masters' queue. The class holds a reference to a
  * <code>ProcessQueue</code> where the slaves are waiting.
  *
- * @see desmoj.core.simulator.QueueBased
- * @see desmoj.core.advancedModellingFeatures.ProcessCoop
- *
- * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  * @author Soenke Claassen
  * @author based on DESMO-C from Thomas Schniewind, 1998
  * @author edited by Lorna Slawski (process removing added)
  *
- *         Licensed under the Apache License, Version 2.0 (the "License"); you
- *         may not use this file except in compliance with the License. You may
- *         obtain a copy of the License at
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
  *
- *         Unless required by applicable law or agreed to in writing, software
- *         distributed under the License is distributed on an "AS IS" BASIS,
- *         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- *         implied. See the License for the specific language governing
- *         permissions and limitations under the License.
- *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
+ * @see desmoj.core.simulator.QueueBased
+ * @see desmoj.core.advancedModellingFeatures.ProcessCoop
  */
 
 public class WaitQueue<M extends SimProcess, S extends SimProcess> extends desmoj.core.simulator.QueueBased {
@@ -69,20 +47,19 @@ public class WaitQueue<M extends SimProcess, S extends SimProcess> extends desmo
     protected long cCompleted;
 
     /**
-     * The queue, actually storing the master processes waiting for slaves to
-     * cooperate with
+     * The queue, actually storing the master processes waiting for slaves to cooperate with
      */
     protected QueueList<M> masterQueue;
 
     /**
-     * Counter for the SimProcesses which are refused to be enqueued in the master
-     * queue, because the queue capacity is full.
+     * Counter for the SimProcesses which are refused to be enqueued in the master queue, because the queue capacity is
+     * full.
      */
     protected long mRefused;
 
     /**
-     * Counter for the SimProcesses which have been removed from the master queue
-     * because <code>cancelCoop(SimProcess)</code> has been called.
+     * Counter for the SimProcesses which have been removed from the master queue because
+     * <code>cancelCoop(SimProcess)</code> has been called.
      */
     protected long mRemoved;
 
@@ -92,20 +69,20 @@ public class WaitQueue<M extends SimProcess, S extends SimProcess> extends desmo
     protected ProcessQueue<S> slaveQueue;
 
     /**
-     * Counter for the SimProcesses which are refused to be enqueued in the slave
-     * queue, because the queue capacity is full.
+     * Counter for the SimProcesses which are refused to be enqueued in the slave queue, because the queue capacity is
+     * full.
      */
     protected long sRefused;
 
     /**
-     * Counter for the SimProcesses which have been removed from the slave queue
-     * because <code>cancelCoop(SimProcess)</code> has been called.
+     * Counter for the SimProcesses which have been removed from the slave queue because
+     * <code>cancelCoop(SimProcess)</code> has been called.
      */
     protected long sRemoved;
 
     /**
-     * Indicates the method where something has gone wrong. Is passed as a parameter
-     * to the methods <code>checkProcess()</code> and <code>checkCondition</code>.
+     * Indicates the method where something has gone wrong. Is passed as a parameter to the methods
+     * <code>checkProcess()</code> and <code>checkCondition</code>.
      */
     protected String where;
 
@@ -115,25 +92,22 @@ public class WaitQueue<M extends SimProcess, S extends SimProcess> extends desmo
     private Set<M> _mastersToBeRemoved;
 
     /**
-     * The sum of the cooperation times for all master and slaves pairs that have
-     * been served. Value is valid for the span of time since the last reset.
+     * The sum of the cooperation times for all master and slaves pairs that have been served. Value is valid for the
+     * span of time since the last reset.
      */
     private TimeSpan _sumWaitTime;
 
     // ****** methods ******
 
     /**
-     * Constructor for a WaitQueue. Actually there are two waiting-queues
-     * constructed, one internal <code>QueueList</code> for the masters and one
-     * separate <code>ProcessQueue</code> for the slave processes. Both queues have
-     * a FIFO sort order and no capacity limit.
+     * Constructor for a WaitQueue. Actually there are two waiting-queues constructed, one internal
+     * <code>QueueList</code> for the masters and one separate <code>ProcessQueue</code> for the slave processes. Both
+     * queues have a FIFO sort order and no capacity limit.
      *
      * @param owner        Model : The model this WaitQueue is associated to.
      * @param name         java.lang.String : The WaitQueue's name
-     * @param showInReport boolean : Flag, if WaitQueue should produce a report or
-     *                     not.
-     * @param showInTrace  boolean : Flag, if trace messages of this WaitQueue
-     *                     should be displayed in the trace file.
+     * @param showInReport boolean : Flag, if WaitQueue should produce a report or not.
+     * @param showInTrace  boolean : Flag, if trace messages of this WaitQueue should be displayed in the trace file.
      */
     public WaitQueue(desmoj.core.simulator.Model owner, String name, boolean showInReport, boolean showInTrace) {
         // construct QueueBased
@@ -157,30 +131,26 @@ public class WaitQueue<M extends SimProcess, S extends SimProcess> extends desmo
     // ****** methods ******
 
     /**
-     * Constructor for a WaitQueue. Actually there are two waiting-queues
-     * constructed, one internal <code>QueueList</code> for the masters and one
-     * separate <code>ProcessQueue</code> for the slave processes. The queueing
-     * discipline and the capacity limit of the underlying queues can be chosen.
-     * Highest priority are always first in the queues.
+     * Constructor for a WaitQueue. Actually there are two waiting-queues constructed, one internal
+     * <code>QueueList</code> for the masters and one separate <code>ProcessQueue</code> for the slave processes. The
+     * queueing discipline and the capacity limit of the underlying queues can be chosen. Highest priority are always
+     * first in the queues.
      *
      * @param owner        Model : The model this WaitQueue is associated to.
      * @param name         java.lang.String : The WaitQueue's name
-     * @param mSortOrder   int : determines the sort order of the underlying master
-     *                     queue implementation. Choose a constant from
+     * @param mSortOrder   int : determines the sort order of the underlying master queue implementation. Choose a
+     *                     constant from
      *                     <code>QueueBased</code> like <code>QueueBased.FIFO</code>
      *                     or <code>QueueBased.LIFO</code> or ...
-     * @param mQCapacity   int : The capacity of the master queue, that is how many
-     *                     processes can be enqueued. Zero (0) means unlimited
-     *                     capacity.
-     * @param sSortOrder   int : determines the sort order of the underlying slave
-     *                     queue implementation. Choose a constant from
+     * @param mQCapacity   int : The capacity of the master queue, that is how many processes can be enqueued. Zero (0)
+     *                     means unlimited capacity.
+     * @param sSortOrder   int : determines the sort order of the underlying slave queue implementation. Choose a
+     *                     constant from
      *                     <code>QueueBased</code> like <code>QueueBased.FIFO</code>
      *                     or <code>QueueBased.LIFO</code> or ...
-     * @param sQCapacity   int : The capacity of the slave queue, that is how many
-     *                     processes can be enqueued. Zero (0) means unlimited
-     *                     capacity.
-     * @param showInReport boolean : Flag, if WaitQueue should produce a report or
-     *                     not.
+     * @param sQCapacity   int : The capacity of the slave queue, that is how many processes can be enqueued. Zero (0)
+     *                     means unlimited capacity.
+     * @param showInReport boolean : Flag, if WaitQueue should produce a report or not.
      * @param showInTrace  boolean : Flag for trace to produce trace messages.
      */
     public WaitQueue(desmoj.core.simulator.Model owner, String name, int mSortOrder, int mQCapacity, int sSortOrder,
@@ -194,25 +164,25 @@ public class WaitQueue<M extends SimProcess, S extends SimProcess> extends desmo
         // check the parameters for the consumer queue
         // check if a valid sortOrder is given
         switch (mSortOrder) {
-        case QueueBased.FIFO:
-            masterQueue = new QueueListFifo<>();
-            break;
-        case QueueBased.LIFO:
-            masterQueue = new QueueListLifo<>();
-            break;
-        case QueueBased.RANDOM:
-            masterQueue = new QueueListRandom<>();
-            break;
-        default:
-            sendWarning("The given mSortOrder parameter " + mSortOrder + " is not valid! "
-            + "A queue with Fifo sort order will be created instead.",
-                        " Constructor of " + getClass().getName() + " : " + getQuotedName() + ".",
-                        "A valid positive integer number must be provided to "
-                        + "determine the sort order of the underlying queue.",
-                        "Make sure to provide a valid positive integer number "
-                        + "by using the constants in the class QueueBased, like "
-                        + "QueueBased.FIFO or QueueBased.LIFO.");
-            masterQueue = new QueueListFifo<>();
+            case QueueBased.FIFO:
+                masterQueue = new QueueListFifo<>();
+                break;
+            case QueueBased.LIFO:
+                masterQueue = new QueueListLifo<>();
+                break;
+            case QueueBased.RANDOM:
+                masterQueue = new QueueListRandom<>();
+                break;
+            default:
+                sendWarning("The given mSortOrder parameter " + mSortOrder + " is not valid! "
+                            + "A queue with Fifo sort order will be created instead.",
+                            " Constructor of " + getClass().getName() + " : " + getQuotedName() + ".",
+                            "A valid positive integer number must be provided to "
+                            + "determine the sort order of the underlying queue.",
+                            "Make sure to provide a valid positive integer number "
+                            + "by using the constants in the class QueueBased, like "
+                            + "QueueBased.FIFO or QueueBased.LIFO.");
+                masterQueue = new QueueListFifo<>();
         }
         // give the QueueList a reference to this QueueBased
         masterQueue.setQueueBased(this);
@@ -223,7 +193,7 @@ public class WaitQueue<M extends SimProcess, S extends SimProcess> extends desmo
         // check if the capacity does make sense
         if (mQCapacity < 0) {
             sendWarning("The given capacity of the master queue is negative! "
-            + "A master queue with unlimited capacity will be created " + "instead.",
+                        + "A master queue with unlimited capacity will be created " + "instead.",
                         " Constructor of " + getClass().getName() + " : " + getQuotedName() + ".",
                         "A negative capacity for a queue does not make sense.",
                         "Make sure to provide a valid positive capacity " + "for the underlying master queue.");
@@ -245,7 +215,7 @@ public class WaitQueue<M extends SimProcess, S extends SimProcess> extends desmo
         // check if a valid sortOrder is given for the slave queue
         if (sSortOrder < 0 || sSortOrder >= 3) {
             sendWarning("The given sSortOrder parameter is negative or too big! "
-            + "A slave queue with Fifo sort order will be created " + "instead.",
+                        + "A slave queue with Fifo sort order will be created " + "instead.",
                         " Constructor of " + getClass().getName() + " : " + getQuotedName() + ".",
                         "A valid positive integer number must be provided to "
                         + "determine the sort order of the underlying queue.",
@@ -262,7 +232,7 @@ public class WaitQueue<M extends SimProcess, S extends SimProcess> extends desmo
         // check if the capacity does make sense
         if (sQCapacity < 0) {
             sendWarning("The given capacity of the slave queue is negative! "
-            + "A slave queue with unlimited capacity will be created " + "instead.",
+                        + "A slave queue with unlimited capacity will be created " + "instead.",
                         " Constructor of " + getClass().getName() + " : " + getQuotedName() + ".",
                         "A negative capacity for a queue does not make sense.",
                         "Make sure to provide a valid positive capacity " + "for the underlying slave queue.");
@@ -282,16 +252,13 @@ public class WaitQueue<M extends SimProcess, S extends SimProcess> extends desmo
     }
 
     /**
-     * Returns the slave process waiting in the slave queue and complying to the
-     * given condition. If there is no such slave process waiting <code>null</code>
-     * is returned.
+     * Returns the slave process waiting in the slave queue and complying to the given condition. If there is no such
+     * slave process waiting <code>null</code> is returned.
      *
-     * @return SimProcess : Returns the first slave process in the slave queue which
-     *         complies to the given condition.
-     * @param cond Condition : The Condition <code>cond</code> is describing the
-     *             condition to which the slave process must comply to. This has to
-     *             be implemented by the user in the class: <code>Condition</code>
-     *             in the method: <code>check()</code>.
+     * @param cond Condition : The Condition <code>cond</code> is describing the condition to which the slave process
+     *             must comply to. This has to be implemented by the user in the class: <code>Condition</code> in the
+     *             method: <code>check()</code>.
+     * @return SimProcess : Returns the first slave process in the slave queue which complies to the given condition.
      */
     public S avail(Condition<S> cond) // different from DESMO-C !
     {
@@ -315,16 +282,13 @@ public class WaitQueue<M extends SimProcess, S extends SimProcess> extends desmo
     } // end method
 
     /**
-     * Returns the master process waiting in the master queue and complying to the
-     * given condition. If there is no such master process waiting <code>null</code>
-     * is returned.
+     * Returns the master process waiting in the master queue and complying to the given condition. If there is no such
+     * master process waiting <code>null</code> is returned.
      *
-     * @return SimProcess : Returns the first master process in the master queue
-     *         which complies to the given condition.
-     * @param cond Condition : The Condition <code>cond</code> is describing the
-     *             condition to which the master process must comply to. This has to
-     *             be implemented by the user in the class: <code>Condition</code>
-     *             in the method: <code>check()</code>.
+     * @param cond Condition : The Condition <code>cond</code> is describing the condition to which the master process
+     *             must comply to. This has to be implemented by the user in the class: <code>Condition</code> in the
+     *             method: <code>check()</code>.
+     * @return SimProcess : Returns the first master process in the master queue which complies to the given condition.
      */
     public M availMaster(Condition<M> cond) // different from DESMO-C !
     {
@@ -338,14 +302,15 @@ public class WaitQueue<M extends SimProcess, S extends SimProcess> extends desmo
         // return null
 
         if (!checkProcess(slave, where) || !checkCondition(cond, where) || masterQueue.isEmpty()) // nobody home to be
-                                                                                                  // checked
+        // checked
         {
             return null;
         } // return null
 
         for (M master = masterQueue.first(); master != null; master = masterQueue.succ(master)) {
-            if (cond.check(master))
+            if (cond.check(master)) {
                 return master;
+            }
         }
 
         // if no SimProcess complies to the condition just return null
@@ -354,13 +319,11 @@ public class WaitQueue<M extends SimProcess, S extends SimProcess> extends desmo
     } // end method
 
     /**
-     * Removes the given process from its queue and activates it. If the process is
-     * in either the master queue or the slave queue it can be removed from there
-     * and <code>true</code> is returned.
+     * Removes the given process from its queue and activates it. If the process is in either the master queue or the
+     * slave queue it can be removed from there and <code>true</code> is returned.
      *
-     * @return boolean : Is <code>true</code> if the process can be removed from its
-     *         queue, <code>false</code> otherwise
      * @param process SimProcess : The process to be removed.
+     * @return boolean : Is <code>true</code> if the process can be removed from its queue, <code>false</code> otherwise
      */
     @SuppressWarnings("unchecked")
     public boolean cancelCoop(SimProcess process) {
@@ -387,26 +350,22 @@ public class WaitQueue<M extends SimProcess, S extends SimProcess> extends desmo
     }
 
     /**
-     * This method is to be called from a <code>SimProcess</code> which wants to
-     * cooperate as a master. If no suitable slave process is available at the
-     * moment, the master process will be stored in the master waiting-queue (order
-     * is based on the master's queueing priorities with tie-breaking based on the
-     * queue's discipline as set in the constructor). until a suitable slave is
-     * available. If the capacity limit of the master queue is reached, the process
-     * will not be enqueued and <code>false</code> returned. When a suitable slave
-     * is available its <code>cooperate</code> method (in the class
+     * This method is to be called from a <code>SimProcess</code> which wants to cooperate as a master. If no suitable
+     * slave process is available at the moment, the master process will be stored in the master waiting-queue (order is
+     * based on the master's queueing priorities with tie-breaking based on the queue's discipline as set in the
+     * constructor). until a suitable slave is available. If the capacity limit of the master queue is reached, the
+     * process will not be enqueued and <code>false</code> returned. When a suitable slave is available its
+     * <code>cooperate</code> method (in the class
      * <code>SimProcess</code>) will be called. During the cooperation the master
-     * process is the only active one. The slave process is passive and will be
-     * reactivated after the cooperation is done.
+     * process is the only active one. The slave process is passive and will be reactivated after the cooperation is
+     * done.
      *
-     * @return boolean : Is <code>true</code> if the process can be enqueued
-     *         successfully, <code>false</code> otherwise (i.e. capacity limit of
-     *         the master queue is reached).
-     * @param coop ProcessCoop : The Process cooperation coop is describing the
-     *             joint action of the two processes. The action to be carried out
-     *             has to be implemented by the user in the class:
+     * @param coop ProcessCoop : The Process cooperation coop is describing the joint action of the two processes. The
+     *             action to be carried out has to be implemented by the user in the class:
      *             <code>ProcessCoop</code> in the method:
      *             <code>cooperation()</code>.
+     * @return boolean : Is <code>true</code> if the process can be enqueued successfully, <code>false</code> otherwise
+     * (i.e. capacity limit of the master queue is reached).
      */
     @SuppressWarnings("unchecked")
     public boolean cooperate(ProcessCoop<M, S> coop) {
@@ -414,11 +373,10 @@ public class WaitQueue<M extends SimProcess, S extends SimProcess> extends desmo
 
         // check the ProcessCoop
         if (!isModelCompatible(coop)) {
-            sendWarning("The given ProcessCoop object does not "
-            + "belong to this model. The attempted cooperation is ignored!",
-                        getClass().getName() + ": " + getQuotedName() + ", Method: " + where,
-                        "The ProcessCoop is not modelcompatible.",
-                        "Make sure that the process cooperation belongs to this model.");
+            sendWarning(
+            "The given ProcessCoop object does not " + "belong to this model. The attempted cooperation is ignored!",
+            getClass().getName() + ": " + getQuotedName() + ", Method: " + where,
+            "The ProcessCoop is not modelcompatible.", "Make sure that the process cooperation belongs to this model.");
 
             return false; // coop is not modelcompatible
         }
@@ -435,12 +393,13 @@ public class WaitQueue<M extends SimProcess, S extends SimProcess> extends desmo
         if (queueLimit <= length()) {
             if (currentlySendDebugNotes()) {
                 sendDebugNote("refuses to insert " + master.getQuotedName()
-                + " in master queue, because the capacity limit is reached.");
+                              + " in master queue, because the capacity limit is reached.");
             }
 
             if (currentlySendTraceNotes()) {
-                sendTraceNote("is refused to be enqueued in " + this.getQuotedName()
-                + "'s master queue because the capacity limit (" + getQueueLimit() + ") of the queue is reached");
+                sendTraceNote(
+                "is refused to be enqueued in " + this.getQuotedName() + "'s master queue because the capacity limit ("
+                + getQueueLimit() + ") of the queue is reached");
             }
 
             mRefused++; // count the refused ones
@@ -453,7 +412,7 @@ public class WaitQueue<M extends SimProcess, S extends SimProcess> extends desmo
 
         // check if the master has to wait in his queue
         if (slaveQueue.length() == 0 || // no slaves available OR
-            master != masterQueue.first()) // this master is
+        master != masterQueue.first()) // this master is
         // not
         { // the first to be served
             if (currentlySendTraceNotes()) {
@@ -527,29 +486,23 @@ public class WaitQueue<M extends SimProcess, S extends SimProcess> extends desmo
     }
 
     /**
-     * This method is called from a SimProcess which wants to cooperate as a master
-     * and is looking for a slave complying to a certain condition described in
+     * This method is called from a SimProcess which wants to cooperate as a master and is looking for a slave complying
+     * to a certain condition described in
      * <code>cond</code>. If no suitable slave process with this condition is
-     * available at the moment, the master process will be stored in the master
-     * waiting-queue, until a suitable slave is available. (order is based on the
-     * master's queueing priorities with tie-breaking based on the queue's
-     * discipline as set in the constructor). If the capacity limit of the master
-     * queue is reached, the process will not be enqueued and <code>false</code>
-     * returned. During the cooperation the master process is the only active one.
-     * The slave process is passive and will be reactivated after the cooperation is
-     * done.
+     * available at the moment, the master process will be stored in the master waiting-queue, until a suitable slave is
+     * available. (order is based on the master's queueing priorities with tie-breaking based on the queue's discipline
+     * as set in the constructor). If the capacity limit of the master queue is reached, the process will not be
+     * enqueued and <code>false</code> returned. During the cooperation the master process is the only active one. The
+     * slave process is passive and will be reactivated after the cooperation is done.
      *
-     * @return boolean : Is <code>true</code> if the process can be enqueued
-     *         successfully, <code>false</code> otherwise (i.e. capacity limit of
-     *         the master queue is reached).
-     * @param coop ProcessCoop : The Process cooperation coop is describing the
-     *             joint action of the two processes. This has to be implemented by
-     *             the user in the class: <code>ProcessCoop</code> in the method:
+     * @param coop ProcessCoop : The Process cooperation coop is describing the joint action of the two processes. This
+     *             has to be implemented by the user in the class: <code>ProcessCoop</code> in the method:
      *             <code>cooperation</code>.
-     * @param cond Condition : The Condition <code>cond</code> is describing the
-     *             condition to which the slave process must comply to. This has to
-     *             be implemented by the user in the class: <code>Condition</code>
-     *             in the method: <code>check()</code>.
+     * @param cond Condition : The Condition <code>cond</code> is describing the condition to which the slave process
+     *             must comply to. This has to be implemented by the user in the class: <code>Condition</code> in the
+     *             method: <code>check()</code>.
+     * @return boolean : Is <code>true</code> if the process can be enqueued successfully, <code>false</code> otherwise
+     * (i.e. capacity limit of the master queue is reached).
      */
     @SuppressWarnings("unchecked")
     public boolean cooperate(ProcessCoop<M, S> coop, Condition<S> cond) {
@@ -557,11 +510,10 @@ public class WaitQueue<M extends SimProcess, S extends SimProcess> extends desmo
 
         // check the ProcessCoop
         if (!isModelCompatible(coop)) {
-            sendWarning("The given ProcessCoop object does not "
-            + "belong to this model. The attempted cooperation is ignored!",
-                        getClass().getName() + ": " + getQuotedName() + ", Method: " + where,
-                        "The ProcessCoop is not modelcompatible.",
-                        "Make sure that the process cooperation belongs to this model.");
+            sendWarning(
+            "The given ProcessCoop object does not " + "belong to this model. The attempted cooperation is ignored!",
+            getClass().getName() + ": " + getQuotedName() + ", Method: " + where,
+            "The ProcessCoop is not modelcompatible.", "Make sure that the process cooperation belongs to this model.");
 
             return false; // coop is not modelcompatible
         }
@@ -580,12 +532,13 @@ public class WaitQueue<M extends SimProcess, S extends SimProcess> extends desmo
         if (queueLimit <= length()) {
             if (currentlySendDebugNotes()) {
                 sendDebugNote("refuses to insert " + master.getQuotedName()
-                + " in master queue, because the capacity limit is reached.");
+                              + " in master queue, because the capacity limit is reached.");
             }
 
             if (currentlySendTraceNotes()) {
-                sendTraceNote("is refused to be enqueued in " + this.getQuotedName()
-                + "'s master queue because the capacity limit (" + getQueueLimit() + ") of the queue is reached");
+                sendTraceNote(
+                "is refused to be enqueued in " + this.getQuotedName() + "'s master queue because the capacity limit ("
+                + getQueueLimit() + ") of the queue is reached");
             }
 
             mRefused++; // count the refused ones
@@ -607,10 +560,10 @@ public class WaitQueue<M extends SimProcess, S extends SimProcess> extends desmo
             if (currentlySendTraceNotes()) {
                 sendTraceNote("waits in '" + this.getName() + "' for '" + cond.getName() + "' ");
             } // tell in the trace where the master is waiting and
-              // on which condition
+            // on which condition
 
             if (slaveQueue.length() > 0 && // there are slaves waiting AND
-                master != masterQueue.first())
+            master != masterQueue.first())
             // this master is not the first one in the queue
             {
                 activateFirst(); // activate the first master in the
@@ -646,7 +599,7 @@ public class WaitQueue<M extends SimProcess, S extends SimProcess> extends desmo
                 {
                     activateAsNext(masterQueue.succ(master));
                 } // activate the next master in the queue to see what he can
-                  // do
+                // do
             } while (true); // end infinite loop
         }
 
@@ -670,8 +623,9 @@ public class WaitQueue<M extends SimProcess, S extends SimProcess> extends desmo
         if (currentlySendTraceNotes()) {
             // tell in the trace for which condition the master has found which
             // slave in which queue for which cooperation...
-            sendTraceNote("finds " + cond.getQuotedName() + " " + slave.getQuotedName() + " in "
-            + slaveQueue.getQuotedName() + " for " + coop.getQuotedName());
+            sendTraceNote(
+            "finds " + cond.getQuotedName() + " " + slave.getQuotedName() + " in " + slaveQueue.getQuotedName()
+            + " for " + coop.getQuotedName());
 
             skipTraceNote(); // skip the trace note from the following
             // cooperate()
@@ -706,8 +660,7 @@ public class WaitQueue<M extends SimProcess, S extends SimProcess> extends desmo
     /**
      * Returns a Reporter to produce a report about this WaitQueue.
      *
-     * @return desmoj.report.Reporter : The Reporter for the queues inside this
-     *         WaitQueue.
+     * @return desmoj.report.Reporter : The Reporter for the queues inside this WaitQueue.
      */
     @Override
     public desmoj.core.report.Reporter createDefaultReporter() {
@@ -726,8 +679,8 @@ public class WaitQueue<M extends SimProcess, S extends SimProcess> extends desmo
     }
 
     /**
-     * Returns the implemented queueing discipline of the underlying master queue as
-     * a String, so it can be displayed in the report.
+     * Returns the implemented queueing discipline of the underlying master queue as a String, so it can be displayed in
+     * the report.
      *
      * @return String : The String indicating the queueing discipline.
      */
@@ -737,11 +690,10 @@ public class WaitQueue<M extends SimProcess, S extends SimProcess> extends desmo
     }
 
     /**
-     * Returns the number of entities refused to be enqueued in the master queue,
-     * because the capacity limit is reached.
+     * Returns the number of entities refused to be enqueued in the master queue, because the capacity limit is
+     * reached.
      *
-     * @return long : The number of entities refused to be enqueued in the master
-     *         queue.
+     * @return long : The number of entities refused to be enqueued in the master queue.
      */
     public long getMRefused() {
 
@@ -749,8 +701,8 @@ public class WaitQueue<M extends SimProcess, S extends SimProcess> extends desmo
     }
 
     /**
-     * Returns the number of entities which have been removed from the master queue
-     * because <code>cancelCoop(SimProcess)</code> has been called.
+     * Returns the number of entities which have been removed from the master queue because
+     * <code>cancelCoop(SimProcess)</code> has been called.
      *
      * @return long : The number of entities removed from the master queue.
      */
@@ -760,18 +712,8 @@ public class WaitQueue<M extends SimProcess, S extends SimProcess> extends desmo
     }
 
     /**
-     * Returns the <code>ProcessQueue</code> where the waiting slaves are stored.
-     *
-     * @return ProcessQueue : The <code>ProcessQueue</code> where the slaves are
-     *         waiting on masters to cooperate with.
-     */
-    public ProcessQueue<S> getSlaveQueue() {
-        return this.slaveQueue;
-    }
-
-    /**
-     * Returns the implemented queueing discipline of the underlying slave queue as
-     * a String, so it can be displayed in the report.
+     * Returns the implemented queueing discipline of the underlying slave queue as a String, so it can be displayed in
+     * the report.
      *
      * @return String : The String indicating the queueing discipline.
      */
@@ -781,11 +723,10 @@ public class WaitQueue<M extends SimProcess, S extends SimProcess> extends desmo
     }
 
     /**
-     * Returns the number of entities refused to be enqueued in the slave's queue,
-     * because the capacity limit is reached.
+     * Returns the number of entities refused to be enqueued in the slave's queue, because the capacity limit is
+     * reached.
      *
-     * @return long : The number of entities refused to be enqueued in the slave's
-     *         queue.
+     * @return long : The number of entities refused to be enqueued in the slave's queue.
      */
     public long getSRefused() {
 
@@ -793,8 +734,8 @@ public class WaitQueue<M extends SimProcess, S extends SimProcess> extends desmo
     }
 
     /**
-     * Returns the number of entities which have been removed from the slave queue
-     * because <code>cancelCoop(SimProcess)</code> has been called.
+     * Returns the number of entities which have been removed from the slave queue because
+     * <code>cancelCoop(SimProcess)</code> has been called.
      *
      * @return long : The number of entities removed from the slave queue.
      */
@@ -804,53 +745,59 @@ public class WaitQueue<M extends SimProcess, S extends SimProcess> extends desmo
     }
 
     /**
-     * Returns the masters' (and slaves') time spent per cooperation (accounting
-     * only for the cooperation itself, excluding waiting). Value is valid for the
-     * time span since the last reset. Returns 0 (zero) if no cooperations were
-     * completed since the last reset.
+     * Returns the <code>ProcessQueue</code> where the waiting slaves are stored.
      *
-     * @return TimeSpan : Average cooperation time since last reset or 0 no
-     *         cooperations were completed since the last reset.
+     * @return ProcessQueue : The <code>ProcessQueue</code> where the slaves are waiting on masters to cooperate with.
      */
-    public TimeSpan mAverageCoopTime() {
-        if (this.getCooperationsCompleted() > 0)
-            return TimeOperations.divide(this._sumWaitTime, this.getCooperationsCompleted());
-        else
-            return new TimeSpan(0);
+    public ProcessQueue<S> getSlaveQueue() {
+        return this.slaveQueue;
     }
 
     /**
-     * Returns the average length of the underlying master queue since the last
-     * reset. If the time span since the last reset is smaller than the smallest
-     * distinguishable timespan epsilon, the current length of the master queue will
+     * Returns the masters' (and slaves') time spent per cooperation (accounting only for the cooperation itself,
+     * excluding waiting). Value is valid for the time span since the last reset. Returns 0 (zero) if no cooperations
+     * were completed since the last reset.
+     *
+     * @return TimeSpan : Average cooperation time since last reset or 0 no cooperations were completed since the last
+     * reset.
+     */
+    public TimeSpan mAverageCoopTime() {
+        if (this.getCooperationsCompleted() > 0) {
+            return TimeOperations.divide(this._sumWaitTime, this.getCooperationsCompleted());
+        } else {
+            return new TimeSpan(0);
+        }
+    }
+
+    /**
+     * Returns the average length of the underlying master queue since the last reset. If the time span since the last
+     * reset is smaller than the smallest distinguishable timespan epsilon, the current length of the master queue will
      * be returned.
      *
-     * @return double : The average master queue length since last reset or current
-     *         length of the master queue if no distinguishable periode of time has
-     *         passed.
+     * @return double : The average master queue length since last reset or current length of the master queue if no
+     * distinguishable periode of time has passed.
      */
     public double mAverageLength() {
         return averageLength(); // of the underlying QueueBased
     }
 
     /**
-     * Returns the average waiting time of all processes who have exited the master
-     * queue. Value is valid for the time span since the last reset. Returns 0
-     * (zero) if no process have exited the master queue after the last reset.
+     * Returns the average waiting time of all processes who have exited the master queue. Value is valid for the time
+     * span since the last reset. Returns 0 (zero) if no process have exited the master queue after the last reset.
      *
-     * @return TimeSpan : Average waiting time of all processes since last reset or
-     *         0 if no process has exited the master queue
+     * @return TimeSpan : Average waiting time of all processes since last reset or 0 if no process has exited the
+     * master queue
      */
     public TimeSpan mAverageWaitTime() {
         return averageWaitTime(); // of the underlying QueueBased
     }
 
     /**
-     * Returns a boolean value indicating if the master queue is empty or if any
-     * number of SimProcess is currently enqueued in it.
+     * Returns a boolean value indicating if the master queue is empty or if any number of SimProcess is currently
+     * enqueued in it.
      *
      * @return boolean : Is <code>true</code> if the master queue is empty,
-     *         <code>false</code> otherwise
+     * <code>false</code> otherwise
      */
     public boolean mIsEmpty() {
         return masterQueue.isEmpty(); // of the underlying QueueList
@@ -866,8 +813,7 @@ public class WaitQueue<M extends SimProcess, S extends SimProcess> extends desmo
     }
 
     /**
-     * Returns the maximum length of the underlying master queue since the last
-     * reset.
+     * Returns the maximum length of the underlying master queue since the last reset.
      *
      * @return long : The maximum master queue length since the last reset.
      */
@@ -876,12 +822,10 @@ public class WaitQueue<M extends SimProcess, S extends SimProcess> extends desmo
     }
 
     /**
-     * Returns the point of simulation time with the maximum number of processes
-     * waiting inside the underlying master queue. The value is valid for the period
-     * since the last reset.
+     * Returns the point of simulation time with the maximum number of processes waiting inside the underlying master
+     * queue. The value is valid for the period since the last reset.
      *
-     * @return desmoj.TimeInstant : Point of time with maximum master queue length
-     *         since the last reset.
+     * @return desmoj.TimeInstant : Point of time with maximum master queue length since the last reset.
      */
     public TimeInstant mMaxLengthAt() {
         return maxLengthAt(); // of the underlying QueueBased
@@ -890,32 +834,28 @@ public class WaitQueue<M extends SimProcess, S extends SimProcess> extends desmo
     // statistics of the underlying master queue
 
     /**
-     * Returns the maximum duration in simulation time that an process has spent
-     * waiting inside the underlying master queue. The value is valid for the period
-     * since the last reset.
+     * Returns the maximum duration in simulation time that an process has spent waiting inside the underlying master
+     * queue. The value is valid for the period since the last reset.
      *
-     * @return desmoj.TimeSpan : Longest waiting time of a process in the master
-     *         queue since the last reset.
+     * @return desmoj.TimeSpan : Longest waiting time of a process in the master queue since the last reset.
      */
     public TimeSpan mMaxWaitTime() {
         return maxWaitTime(); // of the underlying QueueBased
     }
 
     /**
-     * Returns the point of simulation time when the process with the maximum
-     * waiting time exited the underlying master queue. The value is valid for the
-     * period since the last reset.
+     * Returns the point of simulation time when the process with the maximum waiting time exited the underlying master
+     * queue. The value is valid for the period since the last reset.
      *
-     * @return desmoj.TimeInstant : The point of simulation time when the process
-     *         with the maximum waiting time exited the master queue.
+     * @return desmoj.TimeInstant : The point of simulation time when the process with the maximum waiting time exited
+     * the master queue.
      */
     public TimeInstant mMaxWaitTimeAt() {
         return maxWaitTimeAt(); // of the underlying QueueBased
     }
 
     /**
-     * Returns the minimumn length of the underlying master queue since the last
-     * reset.
+     * Returns the minimumn length of the underlying master queue since the last reset.
      *
      * @return long : The minimum master queue length since the last reset.
      */
@@ -924,23 +864,19 @@ public class WaitQueue<M extends SimProcess, S extends SimProcess> extends desmo
     }
 
     /**
-     * Returns the point of simulation time with the minimum number of processes
-     * waiting inside the underlying master queue. The value is valid for the period
-     * since the last reset.
+     * Returns the point of simulation time with the minimum number of processes waiting inside the underlying master
+     * queue. The value is valid for the period since the last reset.
      *
-     * @return desmoj.TimeInstant : Point of time with minimum master queue length
-     *         since the last reset.
+     * @return desmoj.TimeInstant : Point of time with minimum master queue length since the last reset.
      */
     public TimeInstant mMinLengthAt() {
         return minLengthAt(); // of the underlying QueueBased
     }
 
     /**
-     * Returns the standard deviation of the master queue's length. Value is
-     * weighted over time.
+     * Returns the standard deviation of the master queue's length. Value is weighted over time.
      *
-     * @return double : The standard deviation for the master queue's length
-     *         weighted over time.
+     * @return double : The standard deviation for the master queue's length weighted over time.
      */
     public double mStdDevLength() {
         return stdDevLength(); // of the underlying QueueBased
@@ -949,28 +885,24 @@ public class WaitQueue<M extends SimProcess, S extends SimProcess> extends desmo
     /**
      * Returns the standard deviation of the master queue's processes waiting times.
      *
-     * @return TimeSpan : The standard deviation for the master queue's processes
-     *         waiting times.
+     * @return TimeSpan : The standard deviation for the master queue's processes waiting times.
      */
     public TimeSpan mStdDevWaitTime() {
         return stdDevWaitTime(); // of the underlying QueueBased
     }
 
     /**
-     * Returns the number of processes that have passed through the master queue
-     * without spending time waiting.
+     * Returns the number of processes that have passed through the master queue without spending time waiting.
      *
-     * @return long : The number of processes who have passed the master queue
-     *         without waiting
+     * @return long : The number of processes who have passed the master queue without waiting
      */
     public long mZeroWaits() {
         return zeroWaits(); // of the underlying QueueBased
     }
 
     /**
-     * Resets all statistical counters to their default values. Both, master queue
-     * and slave queue are reset. The mininum and maximum length of the queues are
-     * set to the current number of queued objects.
+     * Resets all statistical counters to their default values. Both, master queue and slave queue are reset. The
+     * mininum and maximum length of the queues are set to the current number of queued objects.
      */
     @Override
     public void reset() {
@@ -987,36 +919,34 @@ public class WaitQueue<M extends SimProcess, S extends SimProcess> extends desmo
     }
 
     /**
-     * Returns the average length of the slave queue since the last reset. If the
-     * time span since the last reset is smaller than the smallest distinguishable
-     * timespan epsilon, the current length of the slave queue will be returned.
+     * Returns the average length of the slave queue since the last reset. If the time span since the last reset is
+     * smaller than the smallest distinguishable timespan epsilon, the current length of the slave queue will be
+     * returned.
      *
-     * @return double : The average slave queue length since last reset or current
-     *         length of the slave queue if no distinguishable periode of time has
-     *         passed.
+     * @return double : The average slave queue length since last reset or current length of the slave queue if no
+     * distinguishable periode of time has passed.
      */
     public double sAverageLength() {
         return slaveQueue.averageLength(); // of the slave ProcessQueue
     }
 
     /**
-     * Returns the average waiting time of all processes who have exited the slave
-     * queue. Value is valid for the time span since the last reset. Returns 0
-     * (zero) if no process have exited the slave queue after the last reset.
+     * Returns the average waiting time of all processes who have exited the slave queue. Value is valid for the time
+     * span since the last reset. Returns 0 (zero) if no process have exited the slave queue after the last reset.
      *
-     * @return TimeSpan : Average waiting time of all processes since last reset or
-     *         0 if no process has exited the slave queue
+     * @return TimeSpan : Average waiting time of all processes since last reset or 0 if no process has exited the slave
+     * queue
      */
     public TimeSpan sAverageWaitTime() {
         return slaveQueue.averageWaitTime(); // of the slave ProcessQueue
     }
 
     /**
-     * Returns a boolean value indicating if the slave queue is empty or if any
-     * number of SimProcess is currently enqueued in it.
+     * Returns a boolean value indicating if the slave queue is empty or if any number of SimProcess is currently
+     * enqueued in it.
      *
      * @return boolean : Is <code>true</code> if the slave queue is empty,
-     *         <code>false</code> otherwise
+     * <code>false</code> otherwise
      */
     public boolean sIsEmpty() {
         return slaveQueue.isEmpty(); // of the slave ProcessQueue
@@ -1041,12 +971,10 @@ public class WaitQueue<M extends SimProcess, S extends SimProcess> extends desmo
     }
 
     /**
-     * Returns the point of simulation time with the maximum number of processes
-     * waiting inside the slave queue. The value is valid for the period since the
-     * last reset.
+     * Returns the point of simulation time with the maximum number of processes waiting inside the slave queue. The
+     * value is valid for the period since the last reset.
      *
-     * @return desmoj.TimeInstant : Point of time with maximum slave queue length
-     *         since the last reset.
+     * @return desmoj.TimeInstant : Point of time with maximum slave queue length since the last reset.
      */
     public TimeInstant sMaxLengthAt() {
         return slaveQueue.maxLengthAt(); // of the slave ProcessQueue
@@ -1055,24 +983,21 @@ public class WaitQueue<M extends SimProcess, S extends SimProcess> extends desmo
     // statistics of the slave queue
 
     /**
-     * Returns the maximum duration in simulation time that an process has spent
-     * waiting inside the slave queue. The value is valid for the period since the
-     * last reset.
+     * Returns the maximum duration in simulation time that an process has spent waiting inside the slave queue. The
+     * value is valid for the period since the last reset.
      *
-     * @return desmoj.TimeSpan : Longest waiting time of a process in the slave
-     *         queue since the last reset.
+     * @return desmoj.TimeSpan : Longest waiting time of a process in the slave queue since the last reset.
      */
     public TimeSpan sMaxWaitTime() {
         return slaveQueue.maxWaitTime(); // of the slave ProcessQueue
     }
 
     /**
-     * Returns the point of simulation time when the process with the maximum
-     * waiting time exited the slave queue. The value is valid for the period since
-     * the last reset.
+     * Returns the point of simulation time when the process with the maximum waiting time exited the slave queue. The
+     * value is valid for the period since the last reset.
      *
-     * @return desmoj.TimeInstant : The point of simulation time when the process
-     *         with the maximum waiting time exited the slave queue.
+     * @return desmoj.TimeInstant : The point of simulation time when the process with the maximum waiting time exited
+     * the slave queue.
      */
     public TimeInstant sMaxWaitTimeAt() {
         return slaveQueue.maxWaitTimeAt(); // of the slave ProcessQueue
@@ -1088,23 +1013,19 @@ public class WaitQueue<M extends SimProcess, S extends SimProcess> extends desmo
     }
 
     /**
-     * Returns the point of simulation time with the minimum number of processes
-     * waiting inside the slave queue. The value is valid for the period since the
-     * last reset.
+     * Returns the point of simulation time with the minimum number of processes waiting inside the slave queue. The
+     * value is valid for the period since the last reset.
      *
-     * @return desmoj.TimeInstant : Point of time with minimum slave queue length
-     *         since the last reset.
+     * @return desmoj.TimeInstant : Point of time with minimum slave queue length since the last reset.
      */
     public TimeInstant sMinLengthAt() {
         return slaveQueue.minLengthAt(); // of the slave ProcessQueue
     }
 
     /**
-     * Returns the standard deviation of the slave queue's length. Value is weighted
-     * over time.
+     * Returns the standard deviation of the slave queue's length. Value is weighted over time.
      *
-     * @return double : The standard deviation for the slave queue's length weighted
-     *         over time.
+     * @return double : The standard deviation for the slave queue's length weighted over time.
      */
     public double sStdDevLength() {
         return slaveQueue.stdDevLength(); // of the slave ProcessQueue
@@ -1113,38 +1034,32 @@ public class WaitQueue<M extends SimProcess, S extends SimProcess> extends desmo
     /**
      * Returns the standard deviation of the slave queue's processes waiting times.
      *
-     * @return TimeSpan : The standard deviation for the slave queue's processes
-     *         waiting times.
+     * @return TimeSpan : The standard deviation for the slave queue's processes waiting times.
      */
     public TimeSpan sStdDevWaitTime() {
         return slaveQueue.stdDevWaitTime(); // of the slave ProcessQueue
     }
 
     /**
-     * Returns the number of processes that have passed through the slave queue
-     * without spending time waiting.
+     * Returns the number of processes that have passed through the slave queue without spending time waiting.
      *
-     * @return long : The number of processes who have passed the slave queue
-     *         without waiting
+     * @return long : The number of processes who have passed the slave queue without waiting
      */
     public long sZeroWaits() {
         return slaveQueue.zeroWaits(); // of the slave ProcessQueue
     }
 
     /**
-     * This method is called from a SimProcess which wants to cooperate as a slave.
-     * If no suitable master process is available at the moment, the slave process
-     * will be stored in the slave queue, until a suitable master is available
-     * (order is based on the slaves' queueing priorities with tie-breaking based on
-     * the queue's discipline as set in the constructor). If the capacity limit of
-     * the slave queue is reached, the process will not be enqueued and
+     * This method is called from a SimProcess which wants to cooperate as a slave. If no suitable master process is
+     * available at the moment, the slave process will be stored in the slave queue, until a suitable master is
+     * available (order is based on the slaves' queueing priorities with tie-breaking based on the queue's discipline as
+     * set in the constructor). If the capacity limit of the slave queue is reached, the process will not be enqueued
+     * and
      * <code>false</code> returned. During the cooperation the master process is the
-     * only active one. The slave process is passive and will be reactivated after
-     * the cooperation is done.
+     * only active one. The slave process is passive and will be reactivated after the cooperation is done.
      *
-     * @return boolean : Is <code>true</code> if the process can be enqueued
-     *         successfully, <code>false</code> otherwise (i.e. capacity limit of
-     *         the slave queue is reached).
+     * @return boolean : Is <code>true</code> if the process can be enqueued successfully, <code>false</code> otherwise
+     * (i.e. capacity limit of the slave queue is reached).
      */
     @SuppressWarnings("unchecked")
     public boolean waitOnCoop() // wait() is a final method in java.lang.Object
@@ -1162,11 +1077,12 @@ public class WaitQueue<M extends SimProcess, S extends SimProcess> extends desmo
 
         if (slave.getSlaveWaitQueue() != null) // the slave process is already
         { // waiting for a master
-            sendWarning("A slave process already waiting in the slave waiting " + "queue: "
-            + slave.getSlaveWaitQueue().getName() + " is trying to initiate a second cooperation. The attempted second "
-            + "cooperation is ignored!", getClass().getName() + ": " + getQuotedName() + ", Method: " + where,
-                        "The slave process can not wait in more than one waiting-queue.",
-                        "Make sure that slave processes are only cooperating with one master " + "at a time.");
+            sendWarning(
+            "A slave process already waiting in the slave waiting " + "queue: " + slave.getSlaveWaitQueue().getName()
+            + " is trying to initiate a second cooperation. The attempted second " + "cooperation is ignored!",
+            getClass().getName() + ": " + getQuotedName() + ", Method: " + where,
+            "The slave process can not wait in more than one waiting-queue.",
+            "Make sure that slave processes are only cooperating with one master " + "at a time.");
             return false; // ignore the second cooperation, just return false.
         }
 
@@ -1175,13 +1091,13 @@ public class WaitQueue<M extends SimProcess, S extends SimProcess> extends desmo
 
             if (currentlySendDebugNotes()) {
                 sendDebugNote("refuses to insert " + slave.getQuotedName()
-                + " in slave queue, because the capacity limit is reached.");
+                              + " in slave queue, because the capacity limit is reached.");
             }
 
             if (currentlySendTraceNotes()) {
-                sendTraceNote("is refused to be enqueued in " + this.getQuotedName()
-                + "'s slave queue because the capacity limit (" + slaveQueue.getQueueLimit()
-                + ") of the queue is reached");
+                sendTraceNote(
+                "is refused to be enqueued in " + this.getQuotedName() + "'s slave queue because the capacity limit ("
+                + slaveQueue.getQueueLimit() + ") of the queue is reached");
             }
 
             sRefused++; // count the refused ones
@@ -1214,12 +1130,10 @@ public class WaitQueue<M extends SimProcess, S extends SimProcess> extends desmo
     }
 
     /**
-     * Activates the SimProcess <code>process</code>, given as a parameter of this
-     * method, as the next process. This process should be a master process waiting
-     * in the master wait queue.
+     * Activates the SimProcess <code>process</code>, given as a parameter of this method, as the next process. This
+     * process should be a master process waiting in the master wait queue.
      *
-     * @param process SimProcess : The process that is to be activated as next.
-     *                Should be a master process.
+     * @param process SimProcess : The process that is to be activated as next. Should be a master process.
      */
     protected void activateAsNext(SimProcess process) {
         where = "protected void activateAsNext(SimProcess process)";
@@ -1297,25 +1211,25 @@ public class WaitQueue<M extends SimProcess, S extends SimProcess> extends desmo
     /**
      * Checks whether the given condition is valid and compatible with the model.
      *
-     * @return boolean : Returns whether the Condition is valid or not.
      * @param cond  Condition : Is this Condition a valid one?
-     * @param where String : The String representation of the method where this
-     *              check takes place.
+     * @param where String : The String representation of the method where this check takes place.
+     * @return boolean : Returns whether the Condition is valid or not.
      */
     protected boolean checkCondition(Condition<?> cond, String where) {
         if (cond == null) // if cond is a null pointer instead of a condition
         {
-            sendWarning("A non existing condition is used in a " + getClass().getName() + "."
-            + "The attempted action is ignored!", getClass().getName() + ": " + getQuotedName() + ", Method: " + where,
-                        "The condition is only a null pointer.",
-                        "Make sure that only real conditions are used to identify slave " + "processes.");
+            sendWarning(
+            "A non existing condition is used in a " + getClass().getName() + "." + "The attempted action is ignored!",
+            getClass().getName() + ": " + getQuotedName() + ", Method: " + where,
+            "The condition is only a null pointer.",
+            "Make sure that only real conditions are used to identify slave " + "processes.");
             return false;
         }
 
         if (!this.isModelCompatible(cond)) // if cond is not modelcompatible
         {
             sendWarning("The condition used to identify a slave process for a "
-            + "cooperation does not belong to this model. The attempted action is " + "ignored!",
+                        + "cooperation does not belong to this model. The attempted action is " + "ignored!",
                         getClass().getName() + ": " + getQuotedName() + ", Method: " + where,
                         "The condition is not modelcompatible.",
                         "Make sure that conditions used to identify slave processes for a "
@@ -1327,29 +1241,26 @@ public class WaitQueue<M extends SimProcess, S extends SimProcess> extends desmo
     }
 
     /**
-     * Checks whether the process trying to cooperate as a master or a slave is a
-     * valid SimProcess.
+     * Checks whether the process trying to cooperate as a master or a slave is a valid SimProcess.
      *
-     * @return boolean : Returns whether the SimProcess is valid or not.
      * @param p     SimProcess : Is this SimProcess a valid one?
-     * @param where String : The String representation of the method where this
-     *              check takes place.
+     * @param where String : The String representation of the method where this check takes place.
+     * @return boolean : Returns whether the SimProcess is valid or not.
      */
     protected boolean checkProcess(SimProcess p, String where) {
         if (p == null) // if p is a null pointer instead of a process
         {
-            sendWarning("A non existing process is trying to cooperate with "
-            + "another process. The attempted action is ignored!",
-                        getClass().getName() + ": " + getQuotedName() + ", Method: " + where,
-                        "The process is only a null pointer.",
-                        "Make sure that only real SimProcesses are trying to cooperate with " + "each other.");
+            sendWarning(
+            "A non existing process is trying to cooperate with " + "another process. The attempted action is ignored!",
+            getClass().getName() + ": " + getQuotedName() + ", Method: " + where, "The process is only a null pointer.",
+            "Make sure that only real SimProcesses are trying to cooperate with " + "each other.");
             return false;
         }
 
         if (!isModelCompatible(p)) // if p is not modelcompatible
         {
             sendWarning("The SimProcess trying to cooperate with another process"
-            + " does not belong to this model. The attempted action is ignored!",
+                        + " does not belong to this model. The attempted action is ignored!",
                         getClass().getName() + ": " + getQuotedName() + ", Method: " + where,
                         "The process is not modelcompatible.",
                         "Make sure that processes are cooperating only with processes "

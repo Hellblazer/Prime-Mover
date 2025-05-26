@@ -1,21 +1,19 @@
 package desmoj.core.statistic;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
+import desmoj.implementation.TestModel;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import desmoj.implementation.TestModel;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * This class is the test of class count, which is used to simple count
- * something (e.g. some kind of objects) during an experiment.
+ * This class is the test of class count, which is used to simple count something (e.g. some kind of objects) during an
+ * experiment.
  *
- * @see core.statistic.count
  * @author Sascha Winde, Clara Bluemm
- *
+ * @see core.statistic.count
  */
 public class CounterTest {
 
@@ -39,8 +37,7 @@ public class CounterTest {
     }
 
     /**
-     * Tests the method getMaximum, which is supposed to return the highest value of
-     * the count object so far.
+     * Tests the method getMaximum, which is supposed to return the highest value of the count object so far.
      */
     @Test
     public void testMax() {
@@ -54,8 +51,7 @@ public class CounterTest {
     }
 
     /**
-     * Tests the method getMinimum, which is supposed to return the lowest value of
-     * the count object so far.
+     * Tests the method getMinimum, which is supposed to return the lowest value of the count object so far.
      */
     @Test
     public void testMin() {

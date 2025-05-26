@@ -1,14 +1,13 @@
 package desmoj.core.simulator;
 
-import static org.junit.jupiter.api.Assertions.assertNull;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import desmoj.implementation.TestEntity;
 import desmoj.implementation.TestEventGeneric;
 import desmoj.implementation.TestModel;
 import desmoj.implementation.TestSimProcess;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class ModelComponentTest {
 

@@ -1,5 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>com.hellblazer.primeMover</groupId>
@@ -20,10 +20,14 @@
     <dependencies>
         <dependency>
             <groupId>com.hellblazer.primeMover</groupId>
-            <artifactId>runtime</artifactId>
+            <artifactId>api</artifactId>
         </dependency>
 
         <!-- Test Only Dependencies Below This Line-->
+        <dependency>
+            <groupId>com.hellblazer.primeMover</groupId>
+            <artifactId>runtime</artifactId>
+        </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
@@ -55,13 +59,13 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <argLine>-javaagent:${project.build.directory}/${sim.agent.jar}</argLine>
-                </configuration>
-            </plugin>
+            <!--            <plugin>-->
+            <!--                <groupId>org.apache.maven.plugins</groupId>-->
+            <!--                <artifactId>maven-surefire-plugin</artifactId>-->
+            <!--                <configuration>-->
+            <!--                    <argLine>-javaagent:${project.build.directory}/${sim.agent.jar}</argLine>-->
+            <!--                </configuration>-->
+            <!--            </plugin>-->
             <plugin>
                 <groupId>com.hellblazer.primeMover</groupId>
                 <artifactId>primemover-maven-plugin</artifactId>

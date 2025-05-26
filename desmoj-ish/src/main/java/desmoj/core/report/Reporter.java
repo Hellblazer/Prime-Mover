@@ -5,138 +5,47 @@ import desmoj.core.simulator.Reportable;
 import desmoj.core.simulator.Schedulable;
 
 /**
- * Declares the basic methods needed for reporter to be able to print reports
- * about a model component. Since individual components need individual reports
- * each component has to specify a special reporter to print its data. Derive
- * from this class to implement the reporter for the specific
+ * Declares the basic methods needed for reporter to be able to print reports about a model component. Since individual
+ * components need individual reports each component has to specify a special reporter to print its data. Derive from
+ * this class to implement the reporter for the specific
  * <code>Reportable</code> class.
  *
- * @see desmoj.core.simulator.Reportable
- *
- * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  * @author Tim Lechler
  *
- *         Licensed under the Apache License, Version 2.0 (the "License"); you
- *         may not use this file except in compliance with the License. You may
- *         obtain a copy of the License at
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
  *
- *         Unless required by applicable law or agreed to in writing, software
- *         distributed under the License is distributed on an "AS IS" BASIS,
- *         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- *         implied. See the License for the specific language governing
- *         permissions and limitations under the License.
- *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
+ * @see desmoj.core.simulator.Reportable
  */
 
 public abstract class Reporter {
 
     /**
-     * Compares the ID's of the two given reporters and returns <code>true</code> if
-     * both have the same ID, <code>false</code> if their ID's are different.
-     *
-     * @return boolean : Is <code>true</code> if both reporter's ID's are the same,
-     *         <code>false</code> if not
-     * @param a desmoj.report.Reporter : comparand a
-     * @param b desmoj.report.Reporter : comparand b
-     */
-    public static boolean isEqual(Reporter a, Reporter b) {
-
-        return (a.getGroupID() == b.getGroupID());
-
-    }
-
-    /**
-     * Compares the ID's of the two given reporters and returns <code>true</code> if
-     * reporter 'a' has a higher ID than reporter 'b', <code>false</code> if not.
-     *
-     * @return boolean : Is <code>true</code> if reporter 'a' has a higher ID than
-     *         reporter 'b', <code>false</code> if not
-     * @param a desmoj.report.Reporter : comparand a
-     * @param b desmoj.report.Reporter : comparand b
-     */
-    public static boolean isLarger(Reporter a, Reporter b) {
-
-        return (a.getGroupID() > b.getGroupID());
-
-    }
-
-    /**
-     * Compares the ID's of the two given reporters and returns <code>true</code> if
-     * reporter 'a' belongs to a different group of ID's than reporter 'b',
-     * <code>false</code> if not.
-     *
-     * @return boolean : Is <code>true</code> if reporter 'a' has an ID belonging to
-     *         a different group than reporter 'b', <code>false</code> if not
-     * @param a desmoj.report.Reporter : comparand a
-     * @param b desmoj.report.Reporter : comparand b
-     */
-    public static boolean isOtherGroup(Reporter a, Reporter b) {
-
-        return !isSameGroup(a, b);
-
-    }
-
-    /**
-     * Compares the ID's of the two given reporters and returns <code>true</code> if
-     * reporter 'a' belongs to the same group of ID's as reporter 'b',
-     * <code>false</code> if not.
-     *
-     * @return boolean : Is <code>true</code> if reporter 'a' has an ID belonging to
-     *         the same group as reporter 'b', <code>false</code> if not
-     * @param a desmoj.report.Reporter : comparand a
-     * @param b desmoj.report.Reporter : comparand b
-     */
-    public static boolean isSameGroup(Reporter a, Reporter b) {
-
-        // Different submodels always to be written into different groups
-        if (a.getModel() != b.getModel())
-            return false;
-
-        // Otherwise, consider group IDs
-        int groupStep = 100;
-
-        // Since 2.3.0: To provide additional groups for new
-        // statistics objects (BooleanStatistic, ConfidenceCalculator...),
-        // groups between 1300 and 1799 are considered different based on
-        // steps of 50 instead of 100 (default).
-        if (a.groupID >= 1300 && a.groupID < 1800 && b.groupID >= 1300 && b.groupID < 1800) {
-            groupStep = 50;
-        }
-
-        return (a.getGroupID() / groupStep == b.getGroupID() / groupStep);
-    }
-
-    /**
-     * The column headings of this reporter. Reporters of the same group always have
-     * the same column headings. Entries should contain in the elements in the same
-     * order as the <code>entries[]</code>.
+     * The column headings of this reporter. Reporters of the same group always have the same column headings. Entries
+     * should contain in the elements in the same order as the <code>entries[]</code>.
      */
     protected String[] columns;
-
     /**
-     * The data entries of this reporter. Reporters of the same group always have
-     * the same number of entries. Entries should contain in the data elements in
-     * the same order as defined in the <code>columns[]</code> array.
+     * The data entries of this reporter. Reporters of the same group always have the same number of entries. Entries
+     * should contain in the data elements in the same order as defined in the <code>columns[]</code> array.
      */
     protected String[] entries;
-
     /**
-     * The group's heading of this class of reporters. The String containe here is
-     * used as a table heading. All reporters of the same group must have the same
-     * group heading.
+     * The group's heading of this class of reporters. The String containe here is used as a table heading. All
+     * reporters of the same group must have the same group heading.
      */
     protected String groupHeading;
-
     /**
-     * The group-id of the reporters of this class. This ID resembles
-     * group-identification and ordering information inside a group. The HTML output
-     * classes order <code>Reporters</code> by groups of hundred ID numbers. So i.e.
-     * all <code>Distributions</code> have <code>Reporters</code> with GroupID's in
-     * the range between 100 and 199. Highest numbers are always listed first. If in
-     * a sequence of <code>Reporters</code> its GroupID is in another century range,
-     * the HTML output will automatically insert a horizontal ruler and a new
-     * heading to indicate the new group of <code>Reportable ModelComponents</code>.
+     * The group-id of the reporters of this class. This ID resembles group-identification and ordering information
+     * inside a group. The HTML output classes order <code>Reporters</code> by groups of hundred ID numbers. So i.e. all
+     * <code>Distributions</code> have <code>Reporters</code> with GroupID's in the range between 100 and 199. Highest
+     * numbers are always listed first. If in a sequence of <code>Reporters</code> its GroupID is in another century
+     * range, the HTML output will automatically insert a horizontal ruler and a new heading to indicate the new group
+     * of <code>Reportable ModelComponents</code>.
      * <p>
      * <DIV align=center> <TABLE BORDER > <CAPTION>Reserved GroupID ranges
      * </CAPTION>
@@ -147,8 +56,7 @@ public abstract class Reporter {
      * <TR>
      * <TD>2147483647</TD>
      * <TD>ModelReporter. Highest number possible, so always first in order. Ensures
-     * that SubModelReporter will be printed before other Reportables in the main
-     * model report.</TD>
+     * that SubModelReporter will be printed before other Reportables in the main model report.</TD>
      * </TR>
      * <TR>
      * <TD>2000000000</TD>
@@ -197,12 +105,10 @@ public abstract class Reporter {
      * </DIV>
      */
     protected int groupID;
-
     /**
      * The number of columns this reporter produces.
      */
     protected int numColumns;
-
     /**
      * The Reportable that this reporter generates the report about
      */
@@ -211,8 +117,7 @@ public abstract class Reporter {
     /**
      * Creates a reporter for the given reportable information source.
      *
-     * @param informationSource desmoj.core.simulator.Reportable : The source of
-     *                          information to report about
+     * @param informationSource desmoj.core.simulator.Reportable : The source of information to report about
      */
     public Reporter(Reportable informationSource) {
 
@@ -221,12 +126,11 @@ public abstract class Reporter {
     }
 
     /**
-     * Creates a reporter for the given Schedulable information source. This
-     * Schedulable must have a corresponding Reportable assigned via
+     * Creates a reporter for the given Schedulable information source. This Schedulable must have a corresponding
+     * Reportable assigned via
      * <code>setCorrespondingReportable(Reportable)</code>.
      *
-     * @param Schedulable desmoj.core.simulator.Schedulable : The Schedulable to
-     *                    report about
+     * @param Schedulable desmoj.core.simulator.Schedulable : The Schedulable to report about
      */
     public Reporter(Schedulable source) {
 
@@ -235,8 +139,8 @@ public abstract class Reporter {
     }
 
     /**
-     * Creates a reporter, preliminarily without information source. Internal
-     * framework use only, intended for refinement in subclasses.
+     * Creates a reporter, preliminarily without information source. Internal framework use only, intended for
+     * refinement in subclasses.
      */
     protected Reporter() {
 
@@ -245,8 +149,85 @@ public abstract class Reporter {
     }
 
     /**
-     * Returns an array of Strings each containing the title for the corresponding
-     * entry in array <code>entries[]</code>.
+     * Compares the ID's of the two given reporters and returns <code>true</code> if both have the same ID,
+     * <code>false</code> if their ID's are different.
+     *
+     * @param a desmoj.report.Reporter : comparand a
+     * @param b desmoj.report.Reporter : comparand b
+     * @return boolean : Is <code>true</code> if both reporter's ID's are the same,
+     * <code>false</code> if not
+     */
+    public static boolean isEqual(Reporter a, Reporter b) {
+
+        return (a.getGroupID() == b.getGroupID());
+
+    }
+
+    /**
+     * Compares the ID's of the two given reporters and returns <code>true</code> if reporter 'a' has a higher ID than
+     * reporter 'b', <code>false</code> if not.
+     *
+     * @param a desmoj.report.Reporter : comparand a
+     * @param b desmoj.report.Reporter : comparand b
+     * @return boolean : Is <code>true</code> if reporter 'a' has a higher ID than reporter 'b', <code>false</code> if
+     * not
+     */
+    public static boolean isLarger(Reporter a, Reporter b) {
+
+        return (a.getGroupID() > b.getGroupID());
+
+    }
+
+    /**
+     * Compares the ID's of the two given reporters and returns <code>true</code> if reporter 'a' belongs to a different
+     * group of ID's than reporter 'b',
+     * <code>false</code> if not.
+     *
+     * @param a desmoj.report.Reporter : comparand a
+     * @param b desmoj.report.Reporter : comparand b
+     * @return boolean : Is <code>true</code> if reporter 'a' has an ID belonging to a different group than reporter
+     * 'b', <code>false</code> if not
+     */
+    public static boolean isOtherGroup(Reporter a, Reporter b) {
+
+        return !isSameGroup(a, b);
+
+    }
+
+    /**
+     * Compares the ID's of the two given reporters and returns <code>true</code> if reporter 'a' belongs to the same
+     * group of ID's as reporter 'b',
+     * <code>false</code> if not.
+     *
+     * @param a desmoj.report.Reporter : comparand a
+     * @param b desmoj.report.Reporter : comparand b
+     * @return boolean : Is <code>true</code> if reporter 'a' has an ID belonging to the same group as reporter 'b',
+     * <code>false</code> if not
+     */
+    public static boolean isSameGroup(Reporter a, Reporter b) {
+
+        // Different submodels always to be written into different groups
+        if (a.getModel() != b.getModel()) {
+            return false;
+        }
+
+        // Otherwise, consider group IDs
+        int groupStep = 100;
+
+        // Since 2.3.0: To provide additional groups for new
+        // statistics objects (BooleanStatistic, ConfidenceCalculator...),
+        // groups between 1300 and 1799 are considered different based on
+        // steps of 50 instead of 100 (default).
+        if (a.groupID >= 1300 && a.groupID < 1800 && b.groupID >= 1300 && b.groupID < 1800) {
+            groupStep = 50;
+        }
+
+        return (a.getGroupID() / groupStep == b.getGroupID() / groupStep);
+    }
+
+    /**
+     * Returns an array of Strings each containing the title for the corresponding entry in array
+     * <code>entries[]</code>.
      *
      * @return java.lang.String[] : Array containing column titles
      */
@@ -257,8 +238,7 @@ public abstract class Reporter {
     }
 
     /**
-     * Get an optional description of this Reporter's Reportable to be included in
-     * the report. Default is null.
+     * Get an optional description of this Reporter's Reportable to be included in the report. Default is null.
      *
      * @return String : Description
      */
@@ -267,10 +247,9 @@ public abstract class Reporter {
     }
 
     /**
-     * Returns an array of strings each containing the data for the corresponding
-     * column in array <code>columns[]</code>. Implement this method the an array of
-     * the same length as the columntitles is produced containing the data at the
-     * point of time this method is called by someone else to produce up-to-date
+     * Returns an array of strings each containing the data for the corresponding column in array
+     * <code>columns[]</code>. Implement this method the an array of the same length as the columntitles is produced
+     * containing the data at the point of time this method is called by someone else to produce up-to-date
      * information.
      *
      * @return java.lang.String[] : Array containing the data for reporting
@@ -278,9 +257,8 @@ public abstract class Reporter {
     public abstract String[] getEntries();
 
     /**
-     * Returns the ID of the group this reporter belongs to. The group-ID is used to
-     * give reporters a key to be ordered by. This allows reporters of the same
-     * group to be printed together in one table in a report file.
+     * Returns the ID of the group this reporter belongs to. The group-ID is used to give reporters a key to be ordered
+     * by. This allows reporters of the same group to be printed together in one table in a report file.
      *
      * @return int : The reporter's group ID
      */
@@ -291,8 +269,8 @@ public abstract class Reporter {
     }
 
     /**
-     * Returns the heading for the group this reporter belongs to. This can easily
-     * be used as a heading in the reporter to introduce a new group of reporters.
+     * Returns the heading for the group this reporter belongs to. This can easily be used as a heading in the reporter
+     * to introduce a new group of reporters.
      *
      * @return java.lang.String : The group heading for this group of reporters
      */
@@ -303,8 +281,7 @@ public abstract class Reporter {
     }
 
     /**
-     * Returns the Model that the Reportable belongs to that this reporter produces
-     * a report about.
+     * Returns the Model that the Reportable belongs to that this reporter produces a report about.
      *
      * @return Model : The Model the reporter's reportable belongs to
      */
@@ -322,8 +299,7 @@ public abstract class Reporter {
     /**
      * Returns the reportable object that this reporter contains informations about.
      *
-     * @return desmoj.core.simulator.Reportable : The reportable this reporter
-     *         carries information about
+     * @return desmoj.core.simulator.Reportable : The reportable this reporter carries information about
      */
     public Reportable getReportable() {
 

@@ -1,24 +1,17 @@
 package desmoj.core.simulator;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
+import desmoj.implementation.TestModel;
+import desmoj.implementation.TestSimProcess;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import desmoj.implementation.TestModel;
-import desmoj.implementation.TestSimProcess;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- *
  * This Class tests the functionality provided by SImprocess.
  *
  * @author Sascha Winde, Clara Bluemm
- *
  */
 public abstract class SimprocessModulTest {
 
@@ -42,8 +35,7 @@ public abstract class SimprocessModulTest {
     }
 
     /**
-     * It is possible to set a simprocess blocked. This Test checks, if a a
-     * simprocess is blocked or not.
+     * It is possible to set a simprocess blocked. This Test checks, if a a simprocess is blocked or not.
      */
     @Test
     public void testBlocked() {
@@ -63,8 +55,7 @@ public abstract class SimprocessModulTest {
     }
 
     /**
-     * Two simprocesses can cooperate with one another, this test checks, if two
-     * simprocess actually cooperate.
+     * Two simprocesses can cooperate with one another, this test checks, if two simprocess actually cooperate.
      */
     @Test
     public void testCooperate() {

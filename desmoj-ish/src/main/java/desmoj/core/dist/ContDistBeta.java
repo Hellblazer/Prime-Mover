@@ -5,20 +5,15 @@ import desmoj.core.simulator.Model;
 /**
  * Distribution returning Beta distributed double values.
  *
- * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  * @author Peter Wueppen
  *
- *         Licensed under the Apache License, Version 2.0 (the "License"); you
- *         may not use this file except in compliance with the License. You may
- *         obtain a copy of the License at
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
  *
- *         Unless required by applicable law or agreed to in writing, software
- *         distributed under the License is distributed on an "AS IS" BASIS,
- *         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- *         implied. See the License for the specific language governing
- *         permissions and limitations under the License.
- *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  */
 
 public class ContDistBeta extends ContDist {
@@ -34,8 +29,8 @@ public class ContDistBeta extends ContDist {
     protected double beta;
 
     /**
-     * Creates a stream of pseudo random numbers following a Beta distribution. The
-     * specific parameters alpha and beta have to be given here at creation time.
+     * Creates a stream of pseudo random numbers following a Beta distribution. The specific parameters alpha and beta
+     * have to be given here at creation time.
      *
      * @param owner        Model : The distribution's owner
      * @param name         java.lang.String : The distribution's name
@@ -66,7 +61,6 @@ public class ContDistBeta extends ContDist {
     }
 
     /**
-     *
      * @return double : Distribution specific shape parameter alpha
      */
     public double getAlpha() {
@@ -75,7 +69,6 @@ public class ContDistBeta extends ContDist {
     }
 
     /**
-     *
      * @return double : Distribution specific scale parameter beta
      */
     public double getBeta() {
@@ -85,24 +78,22 @@ public class ContDistBeta extends ContDist {
     }
 
     /**
-     * Method to map a double <code>p</code> from 0...1 to the distribution's domain
-     * by determining the value x that satisfies <code>P(X &lt; x) = p</code>. Not
-     * supported, i.e. throwing an <code>UnsupportedOperationException</code>.
+     * Method to map a double <code>p</code> from 0...1 to the distribution's domain by determining the value x that
+     * satisfies <code>P(X &lt; x) = p</code>. Not supported, i.e. throwing an
+     * <code>UnsupportedOperationException</code>.
      *
      * @param p double: A value between 0 and 1
-     *
      * @return An <code>UnsupportedOperationException</code> exception
      */
     @Override
     public Double getInverseOfCumulativeProbabilityFunction(double p) {
-        throw new UnsupportedOperationException(this.getName()
-        + " does not support determined inverse cumulative probabilities.");
+        throw new UnsupportedOperationException(
+        this.getName() + " does not support determined inverse cumulative probabilities.");
     }
 
     /**
-     * Returns the next sample from this distribution. The value depends upon the
-     * seed, the number of values taken from the stream by using this method before
-     * and the alpha and beta parameters specified for this distribution.
+     * Returns the next sample from this distribution. The value depends upon the seed, the number of values taken from
+     * the stream by using this method before and the alpha and beta parameters specified for this distribution.
      *
      * @return Double : The next Beta distributed sample from this distribution.
      */
@@ -126,8 +117,9 @@ public class ContDistBeta extends ContDist {
             newSample = gammaval1 / (gammaval1 + gammaval2);
         }
 
-        if (this.currentlySendTraceNotes())
+        if (this.currentlySendTraceNotes()) {
             this.traceLastSample(Double.toString(newSample));
+        }
 
         return newSample;
     }

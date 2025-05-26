@@ -1,16 +1,15 @@
 package desmoj.core.simulator;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * This Test checks the Timeoperations of Timeinstants and Timespan
  *
  * @author Sascha Winde, Clara Bluemm
- *
  */
 public class TimeOperationsInteractionTest {
 
@@ -36,8 +35,8 @@ public class TimeOperationsInteractionTest {
     }
 
     /**
-     * Time classes can be added. This test checks the result if you add a
-     * TimeInstant/TimeSpan to another TimeInstant/TimeSpan.
+     * Time classes can be added. This test checks the result if you add a TimeInstant/TimeSpan to another
+     * TimeInstant/TimeSpan.
      */
     @Test
     public void testTimeAdd() {
@@ -50,8 +49,8 @@ public class TimeOperationsInteractionTest {
     }
 
     /**
-     * Time classes can be differed. This test checks the result if you differ a
-     * TimeInstant/TimeSpan with another TimeInstant/TimeSpan.
+     * Time classes can be differed. This test checks the result if you differ a TimeInstant/TimeSpan with another
+     * TimeInstant/TimeSpan.
      */
     @Test
     public void testTimeDiff() {
@@ -62,8 +61,8 @@ public class TimeOperationsInteractionTest {
     }
 
     /**
-     * Time classes can be divided. This test checks the result if you divide a
-     * TimeInstant/TimeSpan with another TimeInstant/TimeSpan.
+     * Time classes can be divided. This test checks the result if you divide a TimeInstant/TimeSpan with another
+     * TimeInstant/TimeSpan.
      */
     @Test
     public void testTimeDivide() {
@@ -73,8 +72,8 @@ public class TimeOperationsInteractionTest {
     }
 
     /**
-     * Time classes can be multiply. This test checks the result if you multiply a
-     * TimeInstant/TimeSpan with another TimeInstant/TimeSpan.
+     * Time classes can be multiply. This test checks the result if you multiply a TimeInstant/TimeSpan with another
+     * TimeInstant/TimeSpan.
      */
     @Test
     public void testTimeMultiply() {

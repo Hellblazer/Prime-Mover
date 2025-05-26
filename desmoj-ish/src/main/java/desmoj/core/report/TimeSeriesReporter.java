@@ -1,27 +1,22 @@
 package desmoj.core.report;
 
-import java.util.List;
-
 import desmoj.core.report.html5chart.ChartDataTimeSeries;
 import desmoj.core.statistic.StatisticObject;
+
+import java.util.List;
 
 /**
  * Captures all relevant information about the TimeSeries.
  *
- * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  * @author Soenke Claassen based on ideas from Tim Lechler
  *
- *         Licensed under the Apache License, Version 2.0 (the "License"); you
- *         may not use this file except in compliance with the License. You may
- *         obtain a copy of the License at
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
  *
- *         Unless required by applicable law or agreed to in writing, software
- *         distributed under the License is distributed on an "AS IS" BASIS,
- *         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- *         implied. See the License for the specific language governing
- *         permissions and limitations under the License.
- *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  */
 public class TimeSeriesReporter extends desmoj.core.report.Reporter {
 
@@ -64,10 +59,12 @@ public class TimeSeriesReporter extends desmoj.core.report.Reporter {
                 double min = dataListBuff.get(0);
                 double max = dataListBuff.get(0);
                 for (int i = 1; i < dataListBuff.size(); i++) {
-                    if (dataListBuff.get(i) > max)
+                    if (dataListBuff.get(i) > max) {
                         max = dataListBuff.get(i);
-                    if (dataListBuff.get(i) < min)
+                    }
+                    if (dataListBuff.get(i) < min) {
                         min = dataListBuff.get(i);
+                    }
                 }
                 entries[7] = Double.toString(min);
                 entries[8] = Double.toString(max);

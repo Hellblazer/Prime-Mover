@@ -1,14 +1,13 @@
 package desmoj.core.simulator;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
-
+import desmoj.core.report.Reporter;
+import desmoj.implementation.TestModel;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import desmoj.core.report.Reporter;
-import desmoj.implementation.TestModel;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 /**
  * This TestCase tests desmoj.core.simulator.QueueBased with a ModulTest.
@@ -23,6 +22,22 @@ public abstract class QueueBasedModulTest {
     protected Experiment experiment;
     protected TestModel  model;
     protected Scheduler  scheduler;
+
+    /**
+     * Returns the standard deviation of the queue's length. Value is weighted over time.
+     */
+    @Test
+    public void StdDevLength() {
+        // TODO
+    }
+
+    /**
+     * Returns the standard deviation of the queue's objects waiting times.
+     */
+    @Test
+    public void StdDevWaitTime() {
+        // TODO
+    }
 
     /**
      * Returns the maximum possible number of entities in the underlying queue.
@@ -48,9 +63,8 @@ public abstract class QueueBasedModulTest {
     }
 
     /**
-     * Returns the point of simulation time with the maximum number of objects
-     * waiting inside the underlying queue. The value is valid for the period since
-     * the last reset.
+     * Returns the point of simulation time with the maximum number of objects waiting inside the underlying queue. The
+     * value is valid for the period since the last reset.
      */
 
     public void maxLengthAt() {
@@ -58,9 +72,8 @@ public abstract class QueueBasedModulTest {
     }
 
     /**
-     * Returns the maximum duration in simulation time that an object has spent
-     * waiting inside the underlying queue. The value is valid for the period since
-     * the last reset.
+     * Returns the maximum duration in simulation time that an object has spent waiting inside the underlying queue. The
+     * value is valid for the period since the last reset.
      */
 
     public void maxWaitTime() {
@@ -68,9 +81,8 @@ public abstract class QueueBasedModulTest {
     }
 
     /**
-     * Returns the point of simulation time when the object with the maximum waiting
-     * time exited the underlying queue. The value is valid for the period since the
-     * last reset.
+     * Returns the point of simulation time when the object with the maximum waiting time exited the underlying queue.
+     * The value is valid for the period since the last reset.
      */
 
     public void maxWaitTimeAt() {
@@ -86,9 +98,8 @@ public abstract class QueueBasedModulTest {
     }
 
     /**
-     * Returns the point of simulation time with the minimum number of objects
-     * waiting inside the underlying queue. The value is valid for the period since
-     * the last reset.
+     * Returns the point of simulation time with the minimum number of objects waiting inside the underlying queue. The
+     * value is valid for the period since the last reset.
      */
 
     public void minLengthAt() {
@@ -96,17 +107,16 @@ public abstract class QueueBasedModulTest {
     }
 
     /**
-     * Returns a boolean flag telling if the underlying queue implementation should
-     * issue own warnings or not. The warnings from the queue implementation
-     * (<code>QueueList</code>) are needed for debugging purposes.
+     * Returns a boolean flag telling if the underlying queue implementation should issue own warnings or not. The
+     * warnings from the queue implementation (<code>QueueList</code>) are needed for debugging purposes.
      */
     public void qImpWarn() {
         // no need
     }
 
     /**
-     * Method switches on warnings issued from the underlying queue implementation
-     * if parameter given is <code>true</code>. Warnings are suppressed if
+     * Method switches on warnings issued from the underlying queue implementation if parameter given is
+     * <code>true</code>. Warnings are suppressed if
      * <code>false</code> is given. This method is used for internal debugging only.
      */
     public void setQueueImpWarning(boolean warnFlag) {
@@ -136,23 +146,6 @@ public abstract class QueueBasedModulTest {
     }
 
     /**
-     * Returns the standard deviation of the queue's length. Value is weighted over
-     * time.
-     */
-    @Test
-    public void StdDevLength() {
-        // TODO
-    }
-
-    /**
-     * Returns the standard deviation of the queue's objects waiting times.
-     */
-    @Test
-    public void StdDevWaitTime() {
-        // TODO
-    }
-
-    /**
      * @throws java.lang.Exception
      */
     @AfterEach
@@ -160,8 +153,7 @@ public abstract class QueueBasedModulTest {
     }
 
     /**
-     * This method updates the statistic value every time when an element is
-     * inserted in the queue underneath.
+     * This method updates the statistic value every time when an element is inserted in the queue underneath.
      */
     @Test
     public void testAddItem() {
@@ -205,8 +197,8 @@ public abstract class QueueBasedModulTest {
         basedQueue1.addItem();
         basedQueue1.addItem();
         assertEquals(basedQueue1.length(), 5);
-//		basedQueue1.deleteItem(experiment);
-//		assertEquals(basedQueue1.length(), 3);
+        //		basedQueue1.deleteItem(experiment);
+        //		assertEquals(basedQueue1.length(), 3);
     }
 
     /**
@@ -218,8 +210,8 @@ public abstract class QueueBasedModulTest {
     }
 
     /**
-     * Resets all statistical counters to their default values. The mininum and
-     * maximum length of the queue are set to the current number of queued objects.
+     * Resets all statistical counters to their default values. The mininum and maximum length of the queue are set to
+     * the current number of queued objects.
      */
     @Test
     public void testReset() {
@@ -227,8 +219,7 @@ public abstract class QueueBasedModulTest {
     }
 
     /**
-     * Returns the number of objects that have passed through the queue without
-     * spending time waiting.
+     * Returns the number of objects that have passed through the queue without spending time waiting.
      */
     public void zeroWaits() {
         // TODO
