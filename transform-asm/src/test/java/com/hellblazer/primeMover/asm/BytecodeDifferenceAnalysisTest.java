@@ -7,6 +7,7 @@ import java.io.StringWriter;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.objectweb.asm.ClassReader;
@@ -18,15 +19,15 @@ import io.github.classgraph.ClassInfo;
 import io.github.classgraph.MethodInfo;
 
 /**
- * Test to analyze differences between original and refactored EntityGenerator bytecode.
+ * Test to analyze differences between original and refactored EntityGeneratorOriginal bytecode.
  */
 public class BytecodeDifferenceAnalysisTest {
 
-    private SimulationTransform transform;
+    private SimulationTransformOriginal transform;
 
     @BeforeEach
     public void setUp() {
-        transform = new SimulationTransform(new ClassGraph().acceptPackages("com.hellblazer.primeMover.asm.testClasses"));
+        transform = new SimulationTransformOriginal(new ClassGraph().acceptPackages("com.hellblazer.primeMover.asm.testClasses"));
     }
 
     @AfterEach 
@@ -40,9 +41,9 @@ public class BytecodeDifferenceAnalysisTest {
     public void analyzeBytecodeStructuralDifferences() throws Exception {
         final var className = "com.hellblazer.primeMover.asm.testClasses.MyTest";
         
-        // Generate bytecode using original EntityGenerator
-        EntityGenerator originalGenerator = transform.generatorOf(className);
-        assertNotNull(originalGenerator, "Original generator should not be null");
+        // Generate bytecode using original EntityGeneratorOriginal
+        EntityGeneratorOriginal originalGenerator = transform.generatorOf(className);
+        Assertions.assertNotNull(originalGenerator, "Original generator should not be null");
         byte[] originalBytecode = originalGenerator.generate().toByteArray();
 
         // Get the entity and events for refactored generator
@@ -52,12 +53,12 @@ public class BytecodeDifferenceAnalysisTest {
             .findFirst()
             .orElse(null);
         
-        assertNotNull(matchingEntry, "Should find matching entity class");
+        Assertions.assertNotNull(matchingEntry, "Should find matching entity class");
         
         var entity = matchingEntry.getKey();
         
         // Create refactored generator using the same ClassInfo and events
-        var entIFaces = SimulationTransform.getEntityInterfaces(entity);
+        var entIFaces = SimulationTransformOriginal.getEntityInterfaces(entity);
         var allPublic = entIFaces.stream().anyMatch(c -> c.getName().equals("com.hellblazer.primeMover.annotations.AllMethodsMarker"));
         var interfaces = entity.getInterfaces();
         var implemented = new OpenAddressingSet.OpenSet<ClassInfo>();

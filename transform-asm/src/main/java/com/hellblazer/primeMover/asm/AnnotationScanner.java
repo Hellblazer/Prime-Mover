@@ -1,4 +1,4 @@
-package com.hellblazer.primeMover.agent;
+package com.hellblazer.primeMover.asm;
 
 import com.hellblazer.primeMover.annotations.*;
 import org.objectweb.asm.*;

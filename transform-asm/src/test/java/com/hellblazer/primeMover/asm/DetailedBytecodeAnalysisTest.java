@@ -5,10 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.Field;
-import java.util.Arrays;
-import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.objectweb.asm.ClassReader;
@@ -23,16 +22,16 @@ import io.github.classgraph.ClassInfo;
 import io.github.classgraph.MethodInfo;
 
 /**
- * Detailed analysis of bytecode differences between original and refactored EntityGenerator.
+ * Detailed analysis of bytecode differences between original and refactored EntityGeneratorOriginal.
  * This test examines constant pools, method bytecode, line numbers, and other potential sources of differences.
  */
 public class DetailedBytecodeAnalysisTest {
 
-    private SimulationTransform transform;
+    private SimulationTransformOriginal transform;
 
     @BeforeEach
     public void setUp() {
-        transform = new SimulationTransform(new ClassGraph().acceptPackages("com.hellblazer.primeMover.asm.testClasses"));
+        transform = new SimulationTransformOriginal(new ClassGraph().acceptPackages("com.hellblazer.primeMover.asm.testClasses"));
     }
 
     @AfterEach 
@@ -53,7 +52,7 @@ public class DetailedBytecodeAnalysisTest {
             .findFirst()
             .orElse(null);
         
-        assertNotNull(matchingEntry, "Should find matching entity class");
+        Assertions.assertNotNull(matchingEntry, "Should find matching entity class");
         
         var entity = matchingEntry.getKey();
         
@@ -63,7 +62,7 @@ public class DetailedBytecodeAnalysisTest {
         EntityGeneratorRefactored refactoredGenerator = new EntityGeneratorRefactored(entity, events, commonTimestamp);
         
         // Create new original generator with same timestamp
-        EntityGenerator originalGeneratorWithTimestamp = new EntityGenerator(entity, createEventSetFromMethodInfo(entity), commonTimestamp);
+        EntityGeneratorOriginal originalGeneratorWithTimestamp = new EntityGeneratorOriginal(entity, createEventSetFromMethodInfo(entity), commonTimestamp);
         
         byte[] originalBytecode = originalGeneratorWithTimestamp.generate().toByteArray();
         byte[] refactoredBytecode = refactoredGenerator.generate().toByteArray();
@@ -99,7 +98,7 @@ public class DetailedBytecodeAnalysisTest {
     }
 
     private OpenAddressingSet.OpenSet<MethodInfo> createEventSet(ClassInfo entity) {
-        var entIFaces = SimulationTransform.getEntityInterfaces(entity);
+        var entIFaces = SimulationTransformOriginal.getEntityInterfaces(entity);
         var allPublic = entIFaces.stream().anyMatch(c -> c.getName().equals("com.hellblazer.primeMover.annotations.AllMethodsMarker"));
         var interfaces = entity.getInterfaces();
         var implemented = new OpenAddressingSet.OpenSet<ClassInfo>();
@@ -136,7 +135,7 @@ public class DetailedBytecodeAnalysisTest {
     }
     
     private java.util.Set<MethodInfo> createEventSetFromMethodInfo(ClassInfo entity) {
-        var entIFaces = SimulationTransform.getEntityInterfaces(entity);
+        var entIFaces = SimulationTransformOriginal.getEntityInterfaces(entity);
         var allPublic = entIFaces.stream().anyMatch(c -> c.getName().equals("com.hellblazer.primeMover.annotations.AllMethodsMarker"));
         var interfaces = entity.getInterfaces();
         var implemented = new OpenAddressingSet.OpenSet<ClassInfo>();

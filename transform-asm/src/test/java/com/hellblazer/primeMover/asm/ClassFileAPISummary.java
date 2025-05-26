@@ -1,7 +1,6 @@
 package com.hellblazer.primeMover.asm;
 
 import java.lang.classfile.*;
-import java.lang.classfile.attribute.*;
 import java.lang.classfile.instruction.*;
 import java.lang.constant.*;
 
@@ -21,7 +20,7 @@ import java.lang.constant.*;
  * ===============================
  * 
  * CURRENT ASM APPROACH:
- * - EntityGenerator uses ClassWriter, MethodVisitor
+ * - EntityGeneratorOriginal uses ClassWriter, MethodVisitor
  * - Complex visitor pattern with state management
  * - Manual label and stack management
  * - Separate constant pool handling
@@ -33,7 +32,7 @@ import java.lang.constant.*;
  * - Simplified constant handling
  * 
  * BENEFITS FOR PRIME MOVER:
- * - Reduced complexity in EntityGenerator
+ * - Reduced complexity in EntityGeneratorOriginal
  * - Better maintainability and readability
  * - Automatic handling of complex bytecode details
  * - Future-proof against class file format changes
@@ -214,7 +213,7 @@ public class ClassFileAPISummary {
      * - Requires Java 24+ (final) or 22/23 with preview
      * - Team learning curve (though API is more intuitive)
      * - Need performance validation vs ASM
-     * - Migration effort for existing EntityGenerator/SimulationTransform
+     * - Migration effort for existing EntityGeneratorOriginal/SimulationTransformOriginal
      * 
      * MIGRATION STRATEGY:
      * 1. Start with new features using ClassFile API

@@ -51,7 +51,7 @@ import io.github.classgraph.MethodInfo;
 import io.github.classgraph.ScanResult;
 
 /**
- * Refactored SimulationTransform that provides a cleaner, more maintainable 
+ * Refactored SimulationTransformOriginal that provides a cleaner, more maintainable
  * interface for transforming entity classes in the Prime Mover simulation framework.
  * 
  * This class orchestrates the bytecode transformation process:
@@ -78,7 +78,7 @@ public class SimulationTransformRefactored implements Closeable {
     private String transformTimestamp;
 
     /**
-     * Creates a new SimulationTransform with the given ClassGraph configuration.
+     * Creates a new SimulationTransformOriginal with the given ClassGraph configuration.
      * 
      * @param graph ClassGraph instance configured for the desired packages
      */
@@ -91,7 +91,7 @@ public class SimulationTransformRefactored implements Closeable {
     }
 
     /**
-     * Creates a new SimulationTransform with an existing scan result.
+     * Creates a new SimulationTransformOriginal with an existing scan result.
      * 
      * @param scan Pre-computed scan result from ClassGraph
      */
@@ -128,21 +128,21 @@ public class SimulationTransformRefactored implements Closeable {
     }
 
     /**
-     * Creates an EntityGenerator for the specified class name.
+     * Creates an EntityGeneratorOriginal for the specified class name.
      * 
      * @param classname Fully qualified class name of the entity
-     * @return EntityGenerator instance or null if class not found
+     * @return EntityGeneratorOriginal instance or null if class not found
      */
     public EntityGeneratorRefactored generatorOf(String classname) {
         return generatorOf(classname, ACCEPT_ALL_FILTER);
     }
 
     /**
-     * Creates an EntityGenerator for the specified class name with filtering.
+     * Creates an EntityGeneratorOriginal for the specified class name with filtering.
      * 
      * @param classname Fully qualified class name of the entity
      * @param selector Filter to apply to entity classes
-     * @return EntityGenerator instance or null if class not found
+     * @return EntityGeneratorOriginal instance or null if class not found
      */
     public EntityGeneratorRefactored generatorOf(String classname, ClassInfoFilter selector) {
         var entities = findEntityClasses(selector);
@@ -156,7 +156,7 @@ public class SimulationTransformRefactored implements Closeable {
     /**
      * Creates EntityGenerators for all entity classes.
      * 
-     * @return Map of ClassInfo to EntityGenerator for all entities
+     * @return Map of ClassInfo to EntityGeneratorOriginal for all entities
      */
     public Map<ClassInfo, EntityGeneratorRefactored> generators() {
         return generators(ACCEPT_ALL_FILTER);
@@ -166,7 +166,7 @@ public class SimulationTransformRefactored implements Closeable {
      * Creates EntityGenerators for filtered entity classes.
      * 
      * @param selector Filter to apply to entity classes
-     * @return Map of ClassInfo to EntityGenerator for filtered entities
+     * @return Map of ClassInfo to EntityGeneratorOriginal for filtered entities
      */
     public Map<ClassInfo, EntityGeneratorRefactored> generators(ClassInfoFilter selector) {
         var entities = findEntityClasses(selector);
@@ -177,7 +177,7 @@ public class SimulationTransformRefactored implements Closeable {
      * Creates EntityGenerators for the provided entity class list.
      * 
      * @param entities List of entity ClassInfo objects
-     * @return Map of ClassInfo to EntityGenerator
+     * @return Map of ClassInfo to EntityGeneratorOriginal
      */
     public Map<ClassInfo, EntityGeneratorRefactored> generators(ClassInfoList entities) {
         return entities.filter(EXCLUDE_TRANSFORMED_FILTER)
@@ -266,7 +266,7 @@ public class SimulationTransformRefactored implements Closeable {
     }
 
     /**
-     * Creates an EntityGenerator for the given entity class by analyzing its
+     * Creates an EntityGeneratorOriginal for the given entity class by analyzing its
      * event methods and interfaces.
      * 
      * @param entityClass The entity class to create a generator for
@@ -293,7 +293,7 @@ public class SimulationTransformRefactored implements Closeable {
         try {
             return new EntityGeneratorRefactored(entityClass, eventMethods, transformTimestamp);
         } catch (Exception e) {
-            throw new IllegalStateException("Failed to create EntityGenerator for " + entityClass.getName(), e);
+            throw new IllegalStateException("Failed to create EntityGeneratorOriginal for " + entityClass.getName(), e);
         }
     }
 
@@ -466,7 +466,7 @@ public class SimulationTransformRefactored implements Closeable {
         return !packageName.equals(Kairos.class.getPackageName()) &&
                !packageName.equals(Kronos.class.getPackageName()) &&
                !packageName.equals(Entity.class.getPackageName()) &&
-               !packageName.equals(EntityGenerator.class.getPackageName()) &&
+               !packageName.equals(EntityGeneratorOriginal.class.getPackageName()) &&
                !packageName.startsWith(ClassVisitor.class.getPackageName()) &&
                !packageName.startsWith("org.junit") &&
                !packageName.startsWith(ClassInfo.class.getPackageName());

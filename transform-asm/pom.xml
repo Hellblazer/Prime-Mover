@@ -1,16 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>primeMover.app</artifactId>
         <groupId>com.hellblazer.primeMover</groupId>
+        <artifactId>primeMover.app</artifactId>
         <version>0.1.0-SNAPSHOT</version>
     </parent>
-    <artifactId>transform</artifactId>
-    <name>Transformation Framework</name>
-    <description>Prime Mover transformation framework</description>
-    <packaging>jar</packaging>
+
+    <artifactId>transform-asm</artifactId>
     <licenses>
         <license>
             <name>GNU Affero General Public License V3</name>
@@ -26,11 +25,19 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>runtime</artifactId>
+            <artifactId>transform</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.github.classgraph</groupId>
-            <artifactId>classgraph</artifactId>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm-commons</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm-util</artifactId>
         </dependency>
 
         <!-- Test Only Dependencies Below This Line-->
@@ -42,21 +49,6 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.ow2.asm</groupId>
-            <artifactId>asm</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.ow2.asm</groupId>
-            <artifactId>asm-commons</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.ow2.asm</groupId>
-            <artifactId>asm-util</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -84,4 +76,5 @@
             </plugin>
         </plugins>
     </build>
+
 </project>

@@ -17,7 +17,7 @@
 
 package com.hellblazer.primeMover.maven;
 
-import com.hellblazer.primeMover.asm.SimulationTransformRefactored;
+import com.hellblazer.primeMover.asm.SimulationTransform;
 import io.github.classgraph.ClassGraph;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -44,7 +44,7 @@ public abstract class AbstractTransform extends AbstractMojo {
     @Override
     public void execute() throws MojoExecutionException {
         var classpath = getCompileClasspath();
-        logger.info(String.format("Using transform classpath: %s", Arrays.asList(classpath)));
+        logger.info(String.format("Using ClassFile API transform classpath: %s", Arrays.asList(classpath)));
         var graph = new ClassGraph();
         final var cpFile = new File(classpath);
         final URL cpUrl;
@@ -55,14 +55,14 @@ public abstract class AbstractTransform extends AbstractMojo {
         }
         graph.addClassLoader(new URLClassLoader(new URL[] { cpUrl }));
         var failed = new ArrayList<String>();
-        try (var txfm = new SimulationTransformRefactored(graph)) {
+        try (var txfm = new SimulationTransform(graph)) {
             var out = getOutputDirectory();
             txfm.transformed(_ -> true).forEach((ci, bytes) -> {
                 final var file = new File(out, ci.getName().replace('.', '/') + ".class");
                 file.getParentFile().mkdirs();
                 try (var fos = new FileOutputStream(file)) {
                     fos.write(bytes);
-                    logger.info(String.format("Transformed: %s, written: %s", ci.getName(), file.getAbsoluteFile()));
+                    logger.info(String.format("ClassFile API Transformed: %s, written: %s", ci.getName(), file.getAbsoluteFile()));
                 } catch (IOException e) {
                     failed.add(file.getAbsolutePath());
                 }

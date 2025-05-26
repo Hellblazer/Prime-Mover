@@ -53,18 +53,18 @@ import io.github.classgraph.ClassGraph;
 public class EntityGeneratorTest {
     @Test
     public void smokin() throws Exception {
-        var transform = new SimulationTransformRefactored(new ClassGraph().acceptPackages("com.hellblazer.primeMover.asm.testClasses",
+        var transform = new SimulationTransform(new ClassGraph().acceptPackages("com.hellblazer.primeMover.asm.testClasses",
                                                                                 "testClasses"));
 
 //        final var name = "testClasses.ContinuationThroughputImpl";
 //        final var name = "testClasses.HelloWorld";
 //        final var name = "testClasses.SubEntity";
         final var name = "com.hellblazer.primeMover.asm.testClasses.MyTest";
-        EntityGeneratorRefactored generator = transform.generatorOf(name);
+        var generator = transform.generatorOf(name);
         assertNotNull(generator);
         var cw = generator.generate();
         assertNotNull(cw);
-        final var bytes = cw.toByteArray();
+        final var bytes = cw;
         assertNotNull(bytes);
 
         ClassReader reader = new ClassReader(bytes);

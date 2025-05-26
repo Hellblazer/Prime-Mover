@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.objectweb.asm.ClassReader;
@@ -13,23 +14,23 @@ import org.objectweb.asm.tree.MethodNode;
 import io.github.classgraph.ClassGraph;
 
 /**
- * Comprehensive three-way comparison test for SimulationTransform implementations.
+ * Comprehensive three-way comparison test for SimulationTransformOriginal implementations.
  * Validates that Original ASM, Refactored ASM, and ClassFile API implementations
  * all produce structurally equivalent bytecode transformations.
  */
 public class ThreeWaySimulationTransformComparisonTest {
 
-    private SimulationTransform originalTransform;
+    private SimulationTransformOriginal   originalTransform;
     private SimulationTransformRefactored refactoredTransform;
-    private SimulationTransformClassFileAPI classFileTransform;
+    private SimulationTransform           classFileTransform;
 
     @BeforeEach
     public void setUp() {
         var classGraph = new ClassGraph().acceptPackages("com.hellblazer.primeMover.asm.testClasses", 
                                                          "com.hellblazer.primeMover");
-        originalTransform = new SimulationTransform(classGraph);
+        originalTransform = new SimulationTransformOriginal(classGraph);
         refactoredTransform = new SimulationTransformRefactored(classGraph);
-        classFileTransform = new SimulationTransformClassFileAPI(classGraph);
+        classFileTransform = new SimulationTransform(classGraph);
     }
 
     @AfterEach
@@ -54,9 +55,9 @@ public class ThreeWaySimulationTransformComparisonTest {
         refactoredTransform.setTransformTimestamp(timestamp);
         classFileTransform.setTransformTimestamp(timestamp);
         
-        // Generate bytecode using original SimulationTransform
-        EntityGenerator originalGenerator = originalTransform.generatorOf(className);
-        assertNotNull(originalGenerator, "Original generator should not be null");
+        // Generate bytecode using original SimulationTransformOriginal
+        EntityGeneratorOriginal originalGenerator = originalTransform.generatorOf(className);
+        Assertions.assertNotNull(originalGenerator, "Original generator should not be null");
         
         // Create with fixed timestamp for comparison
         var originalTransformGenerators = originalTransform.generators();
@@ -67,17 +68,17 @@ public class ThreeWaySimulationTransformComparisonTest {
         
         // Create an original generator with the fixed timestamp
         // Note: We can't access extractEventMethods directly, so we'll use a different approach
-        EntityGenerator originalGeneratorWithTimestamp = originalGenerator;
+        EntityGeneratorOriginal originalGeneratorWithTimestamp = originalGenerator;
         byte[] originalBytecode = originalGeneratorWithTimestamp.generate().toByteArray();
 
-        // Generate bytecode using refactored SimulationTransform  
+        // Generate bytecode using refactored SimulationTransformOriginal
         EntityGeneratorRefactored refactoredGenerator = refactoredTransform.generatorOf(className);
-        assertNotNull(refactoredGenerator, "Refactored generator should not be null");
+        Assertions.assertNotNull(refactoredGenerator, "Refactored generator should not be null");
         byte[] refactoredBytecode = refactoredGenerator.generate().toByteArray();
 
-        // Generate bytecode using ClassFile API SimulationTransform
-        EntityGeneratorClassFileAPI classFileGenerator = classFileTransform.generatorOf(className);
-        assertNotNull(classFileGenerator, "ClassFile API generator should not be null");
+        // Generate bytecode using ClassFile API SimulationTransformOriginal
+        EntityGenerator classFileGenerator = classFileTransform.generatorOf(className);
+        Assertions.assertNotNull(classFileGenerator, "ClassFile API generator should not be null");
         byte[] classFileBytecode = classFileGenerator.generate();
 
         // Compare structural equivalence across all three
@@ -89,7 +90,7 @@ public class ThreeWaySimulationTransformComparisonTest {
         boolean allIdentical = java.util.Arrays.equals(originalBytecode, refactoredBytecode) &&
                               java.util.Arrays.equals(refactoredBytecode, classFileBytecode);
         
-        System.out.println("=== Three-Way SimulationTransform Comparison Results ===");
+        System.out.println("=== Three-Way SimulationTransformOriginal Comparison Results ===");
         System.out.println("Original size: " + originalBytecode.length + " bytes");
         System.out.println("Refactored size: " + refactoredBytecode.length + " bytes");
         System.out.println("ClassFile API size: " + classFileBytecode.length + " bytes");
@@ -141,10 +142,10 @@ public class ThreeWaySimulationTransformComparisonTest {
                 .findFirst()
                 .orElse(null);
 
-            assertNotNull(refactoredBytecode, 
-                "Should have refactored bytecode for " + classInfo.getName());
-            assertNotNull(classFileBytecode, 
-                "Should have ClassFile API bytecode for " + classInfo.getName());
+            Assertions.assertNotNull(refactoredBytecode,
+                                     "Should have refactored bytecode for " + classInfo.getName());
+            Assertions.assertNotNull(classFileBytecode,
+                                     "Should have ClassFile API bytecode for " + classInfo.getName());
 
             try {
                 validateStructuralEquivalence("Original vs Refactored for " + classInfo.getName(), 
@@ -190,10 +191,10 @@ public class ThreeWaySimulationTransformComparisonTest {
                 .findFirst()
                 .orElse(null);
 
-            assertNotNull(refactoredGenerator, 
-                "Should have refactored generator for " + classInfo.getName());
-            assertNotNull(classFileGenerator, 
-                "Should have ClassFile API generator for " + classInfo.getName());
+            Assertions.assertNotNull(refactoredGenerator,
+                                     "Should have refactored generator for " + classInfo.getName());
+            Assertions.assertNotNull(classFileGenerator,
+                                     "Should have ClassFile API generator for " + classInfo.getName());
 
             // All generators should be able to produce valid bytecode
             try {
@@ -225,16 +226,16 @@ public class ThreeWaySimulationTransformComparisonTest {
         reader2.accept(class2, 0);
 
         // Compare structural elements with detailed messages
-        assertEquals(class1.name, class2.name, 
-            comparison + ": Class names should match");
-        assertEquals(class1.superName, class2.superName, 
-            comparison + ": Super class names should match");
-        assertEquals(class1.interfaces, class2.interfaces, 
-            comparison + ": Interfaces should match");
-        assertEquals(class1.fields.size(), class2.fields.size(), 
-            comparison + ": Field count should match");
-        assertEquals(class1.methods.size(), class2.methods.size(), 
-            comparison + ": Method count should match");
+        Assertions.assertEquals(class1.name, class2.name,
+                                comparison + ": Class names should match");
+        Assertions.assertEquals(class1.superName, class2.superName,
+                                comparison + ": Super class names should match");
+        Assertions.assertEquals(class1.interfaces, class2.interfaces,
+                                comparison + ": Interfaces should match");
+        Assertions.assertEquals(class1.fields.size(), class2.fields.size(),
+                                comparison + ": Field count should match");
+        Assertions.assertEquals(class1.methods.size(), class2.methods.size(),
+                                comparison + ": Method count should match");
 
         // Compare method signatures - handle Template class specially due to method ordering differences
         if (class1.name.contains("Template")) {
@@ -245,20 +246,20 @@ public class ThreeWaySimulationTransformComparisonTest {
             var methods2Set = class2.methods.stream()
                 .map(m -> m.name + m.desc + m.access)
                 .collect(java.util.stream.Collectors.toSet());
-            assertEquals(methods1Set, methods2Set, 
-                comparison + ": Method sets should match for Template class");
+            Assertions.assertEquals(methods1Set, methods2Set,
+                                    comparison + ": Method sets should match for Template class");
         } else {
             // For other classes, maintain strict ordering
             for (int i = 0; i < class1.methods.size(); i++) {
                 MethodNode method1 = class1.methods.get(i);
                 MethodNode method2 = class2.methods.get(i);
                 
-                assertEquals(method1.name, method2.name, 
-                    comparison + ": Method name should match at index " + i);
-                assertEquals(method1.desc, method2.desc, 
-                    comparison + ": Method descriptor should match for method " + method1.name);
-                assertEquals(method1.access, method2.access, 
-                    comparison + ": Method access flags should match for method " + method1.name);
+                Assertions.assertEquals(method1.name, method2.name,
+                                        comparison + ": Method name should match at index " + i);
+                Assertions.assertEquals(method1.desc, method2.desc,
+                                        comparison + ": Method descriptor should match for method " + method1.name);
+                Assertions.assertEquals(method1.access, method2.access,
+                                        comparison + ": Method access flags should match for method " + method1.name);
             }
         }
     }
@@ -323,7 +324,7 @@ public class ThreeWaySimulationTransformComparisonTest {
         ClassNode classNode = new ClassNode();
         reader.accept(classNode, 0);
         
-        assertNotNull(classNode.name, description + " should have a valid class name");
-        assertNotNull(classNode.methods, description + " should have methods");
+        Assertions.assertNotNull(classNode.name, description + " should have a valid class name");
+        Assertions.assertNotNull(classNode.methods, description + " should have methods");
     }
 }

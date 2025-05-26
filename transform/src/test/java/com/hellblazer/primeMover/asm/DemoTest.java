@@ -6,19 +6,17 @@
  */
 package com.hellblazer.primeMover.asm;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import com.hellblazer.primeMover.runtime.SimulationEnd;
+import io.github.classgraph.ClassGraph;
+import org.junit.jupiter.api.Test;
+import testClasses.LocalLoader;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.junit.jupiter.api.Test;
-
-import com.hellblazer.primeMover.runtime.SimulationEnd;
-
-import io.github.classgraph.ClassGraph;
-import testClasses.LocalLoader;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class DemoTest {
 
@@ -41,12 +39,10 @@ public class DemoTest {
     }
 
     private Map<String, byte[]> getTransformed() throws Exception {
-        try (var transform = new SimulationTransformRefactored(new ClassGraph().acceptPackages("testClasses",
-                                                                                     "com.hellblazer.*"))) {
-            return transform.transformed()
-                            .entrySet()
-                            .stream()
-                            .collect(Collectors.toMap(e -> e.getKey().getName().replace('.', '/'), e -> e.getValue()));
+        try (var transform = new SimulationTransform(
+        new ClassGraph().acceptPackages("testClasses", "com.hellblazer.*"))) {
+            return transform.transformed().entrySet().stream().collect(
+            Collectors.toMap(e -> e.getKey().getName().replace('.', '/'), e -> e.getValue()));
         }
     }
 }

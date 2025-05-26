@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 import io.github.classgraph.ClassGraph;
 
 /**
- * Test that verifies timestamp control functionality in SimulationTransform classes.
+ * Test that verifies timestamp control functionality in SimulationTransformOriginal classes.
  * 
  * @author hal.hildebrand
  */
@@ -33,8 +33,8 @@ public class TimestampTest {
 
     @Test
     public void testTimestampControl() throws Exception {
-        // Test original SimulationTransform
-        try (var transform = new SimulationTransform(new ClassGraph().acceptPackages("testClasses"))) {
+        // Test original SimulationTransformOriginal
+        try (var transform = new SimulationTransformOriginal(new ClassGraph().acceptPackages("testClasses"))) {
             var originalTimestamp = transform.getTransformTimestamp();
             
             // Set a custom timestamp
@@ -45,7 +45,7 @@ public class TimestampTest {
             assertEquals(customTimestamp, transform.getTransformTimestamp());
         }
         
-        // Test refactored SimulationTransform
+        // Test refactored SimulationTransformOriginal
         try (var transform = new SimulationTransformRefactored(new ClassGraph().acceptPackages("testClasses"))) {
             var originalTimestamp = transform.getTransformTimestamp();
             

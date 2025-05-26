@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.stream.Collectors;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.ClassNode;
@@ -14,8 +15,8 @@ import io.github.classgraph.ClassInfo;
 import io.github.classgraph.MethodInfo;
 
 /**
- * Test that compares bytecode generation between the original EntityGenerator,
- * EntityGeneratorRefactored, and EntityGeneratorClassFileAPI to ensure they 
+ * Test that compares bytecode generation between the original EntityGeneratorOriginal,
+ * EntityGeneratorRefactored, and EntityGenerator to ensure they
  * produce structurally equivalent results.
  */
 public class ThreeWayBytecodeComparisonTest {
@@ -33,24 +34,24 @@ public class ThreeWayBytecodeComparisonTest {
             .findFirst()
             .orElse(null);
         
-        assertNotNull(matchingEntry, "Should find MyTest entity class");
+        Assertions.assertNotNull(matchingEntry, "Should find MyTest entity class");
         
         var entity = matchingEntry.getKey();
         var refactoredGenerator = matchingEntry.getValue();
         
-        // Get event methods using same logic as SimulationTransform.generateEntity
+        // Get event methods using same logic as SimulationTransformOriginal.generateEntity
         var events = extractEventMethods(entity);
         
-        // Generate bytecode using original EntityGenerator
-        EntityGenerator originalGenerator = new EntityGenerator(entity, events, timestamp);
+        // Generate bytecode using original EntityGeneratorOriginal
+        EntityGeneratorOriginal originalGenerator = new EntityGeneratorOriginal(entity, events, timestamp);
         byte[] originalBytecode = originalGenerator.generate().toByteArray();
 
-        // Generate bytecode using refactored EntityGenerator  
+        // Generate bytecode using refactored EntityGeneratorOriginal
         EntityGeneratorRefactored refactoredGeneratorWithTimestamp = new EntityGeneratorRefactored(entity, events, timestamp);
         byte[] refactoredBytecode = refactoredGeneratorWithTimestamp.generate().toByteArray();
 
-        // Generate bytecode using ClassFile API EntityGenerator
-        EntityGeneratorClassFileAPI classFileGenerator = new EntityGeneratorClassFileAPI(entity, events, timestamp);
+        // Generate bytecode using ClassFile API EntityGeneratorOriginal
+        EntityGenerator classFileGenerator = new EntityGenerator(entity, events, timestamp);
         byte[] classFileBytecode = classFileGenerator.generate();
 
         // Compare structural equivalence
@@ -77,7 +78,7 @@ public class ThreeWayBytecodeComparisonTest {
     }
     
     /**
-     * Extract event methods using the same logic as SimulationTransform
+     * Extract event methods using the same logic as SimulationTransformOriginal
      */
     private java.util.Set<MethodInfo> extractEventMethods(ClassInfo entity) {
         var entIFaces = SimulationTransformRefactored.getEntityInterfaces(entity);
@@ -130,23 +131,23 @@ public class ThreeWayBytecodeComparisonTest {
         reader2.accept(class2, 0);
 
         // Verify structural equivalence
-        assertEquals(class1.name, class2.name, comparison + ": Class names should match");
-        assertEquals(class1.superName, class2.superName, comparison + ": Super class names should match");
-        assertEquals(class1.interfaces, class2.interfaces, comparison + ": Interfaces should match");
-        assertEquals(class1.fields.size(), class2.fields.size(), comparison + ": Field count should match");
-        assertEquals(class1.methods.size(), class2.methods.size(), comparison + ": Method count should match");
+        Assertions.assertEquals(class1.name, class2.name, comparison + ": Class names should match");
+        Assertions.assertEquals(class1.superName, class2.superName, comparison + ": Super class names should match");
+        Assertions.assertEquals(class1.interfaces, class2.interfaces, comparison + ": Interfaces should match");
+        Assertions.assertEquals(class1.fields.size(), class2.fields.size(), comparison + ": Field count should match");
+        Assertions.assertEquals(class1.methods.size(), class2.methods.size(), comparison + ": Method count should match");
 
         // Compare method signatures
         for (int i = 0; i < class1.methods.size(); i++) {
             MethodNode method1 = class1.methods.get(i);
             MethodNode method2 = class2.methods.get(i);
             
-            assertEquals(method1.name, method2.name, 
-                comparison + ": Method name should match at index " + i);
-            assertEquals(method1.desc, method2.desc, 
-                comparison + ": Method descriptor should match for method " + method1.name);
-            assertEquals(method1.access, method2.access, 
-                comparison + ": Method access flags should match for method " + method1.name);
+            Assertions.assertEquals(method1.name, method2.name,
+                                    comparison + ": Method name should match at index " + i);
+            Assertions.assertEquals(method1.desc, method2.desc,
+                                    comparison + ": Method descriptor should match for method " + method1.name);
+            Assertions.assertEquals(method1.access, method2.access,
+                                    comparison + ": Method access flags should match for method " + method1.name);
         }
     }
     

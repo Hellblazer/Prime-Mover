@@ -178,7 +178,7 @@ public class EntityGeneratorRefactored {
     }
 
     /**
-     * Creates a new EntityGenerator for the specified class and events.
+     * Creates a new EntityGeneratorOriginal for the specified class and events.
      * 
      * @param clazz The class to transform
      * @param events The set of methods to transform into events
@@ -188,7 +188,7 @@ public class EntityGeneratorRefactored {
     }
     
     /**
-     * Creates a new EntityGenerator for the specified class and events with a specific timestamp.
+     * Creates a new EntityGeneratorOriginal for the specified class and events with a specific timestamp.
      * 
      * @param clazz The class to transform
      * @param events The set of methods to transform into events

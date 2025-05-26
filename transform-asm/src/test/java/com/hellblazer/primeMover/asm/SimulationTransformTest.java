@@ -1,11 +1,6 @@
 package com.hellblazer.primeMover.asm;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.util.stream.Collectors;
-
+import io.github.classgraph.ClassGraph;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,26 +8,28 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 
-import io.github.classgraph.ClassGraph;
+import java.util.stream.Collectors;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Test suite for SimulationTransformClassFileAPI to ensure it produces
- * structurally equivalent results to both the original SimulationTransform
+ * Test suite for SimulationTransform to ensure it produces
+ * structurally equivalent results to both the original SimulationTransformOriginal
  * and SimulationTransformRefactored implementations.
  */
-public class SimulationTransformClassFileAPITest {
+public class SimulationTransformTest {
 
-    private SimulationTransform originalTransform;
+    private SimulationTransformOriginal   originalTransform;
     private SimulationTransformRefactored refactoredTransform;
-    private SimulationTransformClassFileAPI classFileTransform;
+    private SimulationTransform           classFileTransform;
 
     @BeforeEach
     public void setUp() {
         var classGraph = new ClassGraph().acceptPackages("com.hellblazer.primeMover.asm.testClasses", 
                                                          "com.hellblazer.primeMover");
-        originalTransform = new SimulationTransform(classGraph);
+        originalTransform = new SimulationTransformOriginal(classGraph);
         refactoredTransform = new SimulationTransformRefactored(classGraph);
-        classFileTransform = new SimulationTransformClassFileAPI(classGraph);
+        classFileTransform = new SimulationTransform(classGraph);
     }
 
     @AfterEach
@@ -53,7 +50,7 @@ public class SimulationTransformClassFileAPITest {
         final var className = "com.hellblazer.primeMover.asm.testClasses.MyTest";
         
         // Generate using original transform
-        EntityGenerator originalGenerator = originalTransform.generatorOf(className);
+        EntityGeneratorOriginal originalGenerator = originalTransform.generatorOf(className);
         assertNotNull(originalGenerator, "Original generator should not be null");
         byte[] originalBytecode = originalGenerator.generate().toByteArray();
 
@@ -63,7 +60,7 @@ public class SimulationTransformClassFileAPITest {
         byte[] refactoredBytecode = refactoredGenerator.generate().toByteArray();
 
         // Generate using ClassFile API transform
-        EntityGeneratorClassFileAPI classFileGenerator = classFileTransform.generatorOf(className);
+        EntityGenerator classFileGenerator = classFileTransform.generatorOf(className);
         assertNotNull(classFileGenerator, "ClassFile API generator should not be null");
         byte[] classFileBytecode = classFileGenerator.generate();
 
@@ -168,9 +165,9 @@ public class SimulationTransformClassFileAPITest {
         var generators = originalTransform.generators();
         
         generators.keySet().forEach(classInfo -> {
-            var originalInterfaces = SimulationTransform.getEntityInterfaces(classInfo);
+            var originalInterfaces = SimulationTransformOriginal.getEntityInterfaces(classInfo);
             var refactoredInterfaces = SimulationTransformRefactored.getEntityInterfaces(classInfo);
-            var classFileInterfaces = SimulationTransformClassFileAPI.getEntityInterfaces(classInfo);
+            var classFileInterfaces = SimulationTransform.getEntityInterfaces(classInfo);
             
             assertEquals(originalInterfaces.size(), refactoredInterfaces.size(),
                 "Original and refactored should extract same number of entity interfaces for " + classInfo.getName());
@@ -303,10 +300,10 @@ public class SimulationTransformClassFileAPITest {
             // For Template class, compare method sets rather than ordered lists
             var methods1Set = class1.methods.stream()
                 .map(m -> m.name + m.desc + m.access)
-                .collect(java.util.stream.Collectors.toSet());
+                .collect(Collectors.toSet());
             var methods2Set = class2.methods.stream()
                 .map(m -> m.name + m.desc + m.access)
-                .collect(java.util.stream.Collectors.toSet());
+                .collect(Collectors.toSet());
             assertEquals(methods1Set, methods2Set, 
                 comparison + ": Method sets should match for " + className);
         } else {
