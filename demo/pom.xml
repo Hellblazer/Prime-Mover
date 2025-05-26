@@ -20,10 +20,14 @@
     <dependencies>
         <dependency>
             <groupId>com.hellblazer.primeMover</groupId>
-            <artifactId>runtime</artifactId>
+            <artifactId>api</artifactId>
         </dependency>
 
         <!-- Test Only Dependencies Below This Line-->
+        <dependency>
+            <groupId>com.hellblazer.primeMover</groupId>
+            <artifactId>runtime</artifactId>
+        </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
