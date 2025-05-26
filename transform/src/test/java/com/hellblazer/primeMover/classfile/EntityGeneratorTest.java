@@ -45,8 +45,7 @@ import static org.objectweb.asm.Opcodes.ACC_STATIC;
 public class EntityGeneratorTest {
     @Test
     public void smokin() throws Exception {
-        var transform = new SimulationTransform(
-        new ClassGraph().acceptPackages("com.hellblazer"));
+        var transform = new SimulationTransform(new ClassGraph().acceptPackages("com.hellblazer"));
 
         //        final var name = "testClasses.ContinuationThroughputImpl";
         //        final var name = "testClasses.HelloWorld";

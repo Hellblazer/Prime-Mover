@@ -1,129 +1,27 @@
 package desmoj.core.simulator;
 
-import java.util.Map.Entry;
-import java.util.TreeMap;
-
 import desmoj.core.exception.SimAbortedException;
 import desmoj.core.report.ErrorMessage;
 
+import java.util.Map.Entry;
+import java.util.TreeMap;
+
 /**
- * An {@link EventList} implementation that is based on a sorted map (TreeMap).
- * The map's keys are time+priority (using the fact that EventNote.compareTo is
- * only based on these two fields). Every value is a singly linked list with all
+ * An {@link EventList} implementation that is based on a sorted map (TreeMap). The map's keys are time+priority (using
+ * the fact that EventNote.compareTo is only based on these two fields). Every value is a singly linked list with all
  * {@link EventNote}s having the same time and priority, in order.
  *
- * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  * @author Tobias Baum
  *
- *         Licensed under the Apache License, Version 2.0 (the "License"); you
- *         may not use this file except in compliance with the License. You may
- *         obtain a copy of the License at
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
  *
- *         Unless required by applicable law or agreed to in writing, software
- *         distributed under the License is distributed on an "AS IS" BASIS,
- *         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- *         implied. See the License for the specific language governing
- *         permissions and limitations under the License.
- *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  */
 public class SortedMapEventList extends EventList {
-
-    /**
-     * Wrapper around an {@link EventNote} and node in a linked list at the same
-     * time.
-     */
-    private static final class EventNoteWrapper {
-
-        private EventNoteWrapper next;
-        private final EventNote  note;
-
-        public EventNoteWrapper(EventNote newNote) {
-            this.note = newNote;
-        }
-
-        public EventNoteWrapper(EventNote newNote, EventNoteWrapper next) {
-            assert next == null || newNote.compareTo(next.note) == 0;
-            this.note = newNote;
-            this.next = next;
-        }
-
-        /**
-         * Add the given {@link EventNote} to the end of the linked list.
-         */
-        public void addAtEnd(EventNote newNote) {
-
-//          if (next == null) {
-//              assert this.note.compareTo(newNote) == 0;
-//              next = new EventNoteWrapper(newNote);
-//          } else {
-//              next.addAtEnd(newNote);
-//          }
-
-            EventNoteWrapper w = this;
-            while (w.next != null)
-                w = w.next;
-            assert w.note.compareTo(newNote) == 0;
-            w.next = new EventNoteWrapper(newNote);
-
-        }
-
-        /**
-         * Return the event note wrapper that lies before the wrapper with the given
-         * {@link EventNote} in the linked list.
-         *
-         * @return The found node, or null if the note is not contained or is the first
-         *         in the list.
-         */
-        public EventNoteWrapper findWrapperBefore(EventNote beforeNote) {
-            if (this.next != null) {
-                if (this.next.note == beforeNote) {
-                    return this;
-                } else {
-                    return this.next.findWrapperBefore(beforeNote);
-                }
-            }
-            return null;
-        }
-
-        /**
-         * Return the event note wrapper that contains the given {@link EventNote} in
-         * the linked list.
-         *
-         * @return The found node, or null if the note is not contained.
-         */
-        public EventNoteWrapper findWrapperWith(EventNote noteToFind) {
-            if (this.note == noteToFind) {
-                return this;
-            } else if (this.next != null) {
-                return this.next.findWrapperWith(noteToFind);
-            } else {
-                return null;
-            }
-        }
-
-        /**
-         * Returns the last note in the linked list.
-         */
-        public EventNote getLastNote() {
-            return this.next == null ? this.note : this.next.getLastNote();
-        }
-
-        /**
-         * Insert the given {@link EventNote} after this node in the linked list.
-         */
-        public void insertSucc(EventNote newNote) {
-            this.next = new EventNoteWrapper(newNote, this.next);
-        }
-
-        /**
-         * Remove the successor of this node from the linked list.
-         */
-        public void removeSucc() {
-            this.next = this.next.next;
-        }
-
-    }
 
     private TreeMap<EventNote, EventNoteWrapper> queue = new TreeMap<>();
 
@@ -405,8 +303,8 @@ public class SortedMapEventList extends EventList {
     }
 
     /**
-     * Creates (but does not throw) an exception saying that an {@link EventNote}
-     * that should be used as a reference point could not be found.
+     * Creates (but does not throw) an exception saying that an {@link EventNote} that should be used as a reference
+     * point could not be found.
      */
     private SimAbortedException referenceNotFoundException(EventNote newNote, String method) {
         Model mBuffer = null; // buffer current model
@@ -445,5 +343,98 @@ public class SortedMapEventList extends EventList {
         if (note.getEvent() != null) { // if an event exists
             note.getEvent().removeEventNote(note); // remove EventNote
         }
+    }
+
+    /**
+     * Wrapper around an {@link EventNote} and node in a linked list at the same time.
+     */
+    private static final class EventNoteWrapper {
+
+        private final EventNote        note;
+        private       EventNoteWrapper next;
+
+        public EventNoteWrapper(EventNote newNote) {
+            this.note = newNote;
+        }
+
+        public EventNoteWrapper(EventNote newNote, EventNoteWrapper next) {
+            assert next == null || newNote.compareTo(next.note) == 0;
+            this.note = newNote;
+            this.next = next;
+        }
+
+        /**
+         * Add the given {@link EventNote} to the end of the linked list.
+         */
+        public void addAtEnd(EventNote newNote) {
+
+            //          if (next == null) {
+            //              assert this.note.compareTo(newNote) == 0;
+            //              next = new EventNoteWrapper(newNote);
+            //          } else {
+            //              next.addAtEnd(newNote);
+            //          }
+
+            EventNoteWrapper w = this;
+            while (w.next != null)
+                w = w.next;
+            assert w.note.compareTo(newNote) == 0;
+            w.next = new EventNoteWrapper(newNote);
+
+        }
+
+        /**
+         * Return the event note wrapper that lies before the wrapper with the given {@link EventNote} in the linked
+         * list.
+         *
+         * @return The found node, or null if the note is not contained or is the first in the list.
+         */
+        public EventNoteWrapper findWrapperBefore(EventNote beforeNote) {
+            if (this.next != null) {
+                if (this.next.note == beforeNote) {
+                    return this;
+                } else {
+                    return this.next.findWrapperBefore(beforeNote);
+                }
+            }
+            return null;
+        }
+
+        /**
+         * Return the event note wrapper that contains the given {@link EventNote} in the linked list.
+         *
+         * @return The found node, or null if the note is not contained.
+         */
+        public EventNoteWrapper findWrapperWith(EventNote noteToFind) {
+            if (this.note == noteToFind) {
+                return this;
+            } else if (this.next != null) {
+                return this.next.findWrapperWith(noteToFind);
+            } else {
+                return null;
+            }
+        }
+
+        /**
+         * Returns the last note in the linked list.
+         */
+        public EventNote getLastNote() {
+            return this.next == null ? this.note : this.next.getLastNote();
+        }
+
+        /**
+         * Insert the given {@link EventNote} after this node in the linked list.
+         */
+        public void insertSucc(EventNote newNote) {
+            this.next = new EventNoteWrapper(newNote, this.next);
+        }
+
+        /**
+         * Remove the successor of this node from the linked list.
+         */
+        public void removeSucc() {
+            this.next = this.next.next;
+        }
+
     }
 }

@@ -1,11 +1,6 @@
 package com.hellblazer.primeMover.asm;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.util.stream.Collectors;
-
+import io.github.classgraph.ClassGraph;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,11 +9,13 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 
-import io.github.classgraph.ClassGraph;
+import java.util.stream.Collectors;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * Test suite for SimulationTransformRefactored to ensure it produces
- * structurally equivalent results to the original SimulationTransformOriginal.
+ * Test suite for SimulationTransformRefactored to ensure it produces structurally equivalent results to the original
+ * SimulationTransformOriginal.
  */
 public class SimulationTransformRefactoredTest {
 
@@ -27,7 +24,7 @@ public class SimulationTransformRefactoredTest {
 
     @BeforeEach
     public void setUp() {
-        var classGraph = new ClassGraph().acceptPackages("com.hellblazer.primeMover.asm.testClasses", 
+        var classGraph = new ClassGraph().acceptPackages("com.hellblazer.primeMover.asm.testClasses",
                                                          "com.hellblazer.primeMover");
         originalTransform = new SimulationTransformOriginal(classGraph);
         refactoredTransform = new SimulationTransformRefactored(classGraph);
@@ -44,9 +41,29 @@ public class SimulationTransformRefactoredTest {
     }
 
     @Test
+    public void testEntityInterfacesExtraction() {
+        // Test the static utility method
+        var generators = originalTransform.generators();
+
+        generators.keySet().forEach(classInfo -> {
+            var originalInterfaces = SimulationTransformOriginal.getEntityInterfaces(classInfo);
+            var refactoredInterfaces = SimulationTransformRefactored.getEntityInterfaces(classInfo);
+
+            assertEquals(originalInterfaces.size(), refactoredInterfaces.size(),
+                         "Should extract same number of entity interfaces for " + classInfo.getName());
+
+            var originalNames = originalInterfaces.stream().map(ci -> ci.getName()).collect(Collectors.toSet());
+            var refactoredNames = refactoredInterfaces.stream().map(ci -> ci.getName()).collect(Collectors.toSet());
+
+            assertEquals(originalNames, refactoredNames,
+                         "Should extract same entity interfaces for " + classInfo.getName());
+        });
+    }
+
+    @Test
     public void testGeneratorOfStructuralEquivalence() throws Exception {
         final var className = "com.hellblazer.primeMover.asm.testClasses.MyTest";
-        
+
         // Generate using original transform
         EntityGeneratorOriginal originalGenerator = originalTransform.generatorOf(className);
         Assertions.assertNotNull(originalGenerator, "Original generator should not be null");
@@ -69,15 +86,17 @@ public class SimulationTransformRefactoredTest {
 
         // Should have same number of generators
         assertEquals(originalGenerators.size(), refactoredGenerators.size(),
-            "Should have same number of entity generators");
+                     "Should have same number of entity generators");
 
         // Compare each entity
         originalGenerators.forEach((classInfo, originalGenerator) -> {
-            var refactoredGenerator = refactoredGenerators.entrySet().stream()
-                .filter(entry -> entry.getKey().getName().equals(classInfo.getName()))
-                .map(entry -> entry.getValue())
-                .findFirst()
-                .orElse(null);
+            var refactoredGenerator = refactoredGenerators.entrySet()
+                                                          .stream()
+                                                          .filter(
+                                                          entry -> entry.getKey().getName().equals(classInfo.getName()))
+                                                          .map(entry -> entry.getValue())
+                                                          .findFirst()
+                                                          .orElse(null);
 
             Assertions.assertNotNull(refactoredGenerator,
                                      "Should have refactored generator for " + classInfo.getName());
@@ -85,12 +104,43 @@ public class SimulationTransformRefactoredTest {
             try {
                 byte[] originalBytecode = originalGenerator.generate().toByteArray();
                 byte[] refactoredBytecode = refactoredGenerator.generate().toByteArray();
-                
+
                 assertStructuralEquivalence(originalBytecode, refactoredBytecode, classInfo.getName());
             } catch (Exception e) {
                 throw new RuntimeException("Failed to generate bytecode for " + classInfo.getName(), e);
             }
         });
+    }
+
+    @Test
+    public void testRefactoredTransformFunctionality() throws Exception {
+        // Test that refactored transform provides all expected functionality
+        final var className = "com.hellblazer.primeMover.asm.testClasses.MyTest";
+
+        // Test generatorOf
+        var generator = refactoredTransform.generatorOf(className);
+        Assertions.assertNotNull(generator, "Should create generator for known entity class");
+
+        // Test generators
+        var generators = refactoredTransform.generators();
+        Assertions.assertTrue(generators.size() > 0, "Should find entity classes");
+
+        // Test transformed
+        var transformed = refactoredTransform.transformed();
+        Assertions.assertTrue(transformed.size() > 0, "Should transform classes");
+
+        // Test that generated bytecode is valid
+        byte[] bytecode = generator.generate().toByteArray();
+        Assertions.assertTrue(bytecode.length > 0, "Should generate non-empty bytecode");
+
+        // Test that bytecode is valid by parsing it
+        ClassReader reader = new ClassReader(bytecode);
+        ClassNode classNode = new ClassNode();
+        reader.accept(classNode, 0);
+
+        Assertions.assertEquals(className.replace('.', '/'), classNode.name,
+                                "Generated class should have correct name");
+        Assertions.assertTrue(classNode.methods.size() > 0, "Generated class should have methods");
     }
 
     @Test
@@ -101,18 +151,19 @@ public class SimulationTransformRefactoredTest {
 
         // Should have same number of transformed classes
         assertEquals(originalTransformed.size(), refactoredTransformed.size(),
-            "Should have same number of transformed classes");
+                     "Should have same number of transformed classes");
 
         // Compare each transformed class
         originalTransformed.forEach((classInfo, originalBytecode) -> {
-            var refactoredBytecode = refactoredTransformed.entrySet().stream()
-                .filter(entry -> entry.getKey().getName().equals(classInfo.getName()))
-                .map(entry -> entry.getValue())
-                .findFirst()
-                .orElse(null);
+            var refactoredBytecode = refactoredTransformed.entrySet()
+                                                          .stream()
+                                                          .filter(
+                                                          entry -> entry.getKey().getName().equals(classInfo.getName()))
+                                                          .map(entry -> entry.getValue())
+                                                          .findFirst()
+                                                          .orElse(null);
 
-            Assertions.assertNotNull(refactoredBytecode,
-                                     "Should have refactored bytecode for " + classInfo.getName());
+            Assertions.assertNotNull(refactoredBytecode, "Should have refactored bytecode for " + classInfo.getName());
 
             try {
                 assertStructuralEquivalence(originalBytecode, refactoredBytecode, classInfo.getName());
@@ -122,64 +173,9 @@ public class SimulationTransformRefactoredTest {
         });
     }
 
-    @Test
-    public void testEntityInterfacesExtraction() {
-        // Test the static utility method
-        var generators = originalTransform.generators();
-        
-        generators.keySet().forEach(classInfo -> {
-            var originalInterfaces = SimulationTransformOriginal.getEntityInterfaces(classInfo);
-            var refactoredInterfaces = SimulationTransformRefactored.getEntityInterfaces(classInfo);
-            
-            assertEquals(originalInterfaces.size(), refactoredInterfaces.size(),
-                "Should extract same number of entity interfaces for " + classInfo.getName());
-            
-            var originalNames = originalInterfaces.stream()
-                .map(ci -> ci.getName())
-                .collect(Collectors.toSet());
-            var refactoredNames = refactoredInterfaces.stream()
-                .map(ci -> ci.getName())
-                .collect(Collectors.toSet());
-            
-            assertEquals(originalNames, refactoredNames,
-                "Should extract same entity interfaces for " + classInfo.getName());
-        });
-    }
-
-    @Test
-    public void testRefactoredTransformFunctionality() throws Exception {
-        // Test that refactored transform provides all expected functionality
-        final var className = "com.hellblazer.primeMover.asm.testClasses.MyTest";
-        
-        // Test generatorOf
-        var generator = refactoredTransform.generatorOf(className);
-        Assertions.assertNotNull(generator, "Should create generator for known entity class");
-        
-        // Test generators
-        var generators = refactoredTransform.generators();
-        Assertions.assertTrue(generators.size() > 0, "Should find entity classes");
-        
-        // Test transformed
-        var transformed = refactoredTransform.transformed();
-        Assertions.assertTrue(transformed.size() > 0, "Should transform classes");
-        
-        // Test that generated bytecode is valid
-        byte[] bytecode = generator.generate().toByteArray();
-        Assertions.assertTrue(bytecode.length > 0, "Should generate non-empty bytecode");
-        
-        // Test that bytecode is valid by parsing it
-        ClassReader reader = new ClassReader(bytecode);
-        ClassNode classNode = new ClassNode();
-        reader.accept(classNode, 0);
-        
-        Assertions.assertEquals(className.replace('.', '/'), classNode.name,
-                                "Generated class should have correct name");
-        Assertions.assertTrue(classNode.methods.size() > 0, "Generated class should have methods");
-    }
-
     /**
-     * Asserts that two bytecode arrays are structurally equivalent
-     * (same class structure, methods, interfaces) even if not byte-identical.
+     * Asserts that two bytecode arrays are structurally equivalent (same class structure, methods, interfaces) even if
+     * not byte-identical.
      */
     private void assertStructuralEquivalence(byte[] originalBytecode, byte[] refactoredBytecode, String className) {
         // Parse both bytecode arrays
@@ -192,8 +188,7 @@ public class SimulationTransformRefactoredTest {
         refactoredReader.accept(refactoredClass, 0);
 
         // Compare structural elements
-        Assertions.assertEquals(originalClass.name, refactoredClass.name,
-                                "Class names should match for " + className);
+        Assertions.assertEquals(originalClass.name, refactoredClass.name, "Class names should match for " + className);
         Assertions.assertEquals(originalClass.superName, refactoredClass.superName,
                                 "Super class names should match for " + className);
         Assertions.assertEquals(originalClass.interfaces, refactoredClass.interfaces,
@@ -207,13 +202,15 @@ public class SimulationTransformRefactoredTest {
         for (int i = 0; i < originalClass.methods.size(); i++) {
             MethodNode originalMethod = originalClass.methods.get(i);
             MethodNode refactoredMethod = refactoredClass.methods.get(i);
-            
+
             Assertions.assertEquals(originalMethod.name, refactoredMethod.name,
                                     "Method name should match at index " + i + " for " + className);
             Assertions.assertEquals(originalMethod.desc, refactoredMethod.desc,
-                                    "Method descriptor should match for method " + originalMethod.name + " in " + className);
+                                    "Method descriptor should match for method " + originalMethod.name + " in "
+                                    + className);
             Assertions.assertEquals(originalMethod.access, refactoredMethod.access,
-                                    "Method access flags should match for method " + originalMethod.name + " in " + className);
+                                    "Method access flags should match for method " + originalMethod.name + " in "
+                                    + className);
         }
     }
 }

@@ -1,59 +1,36 @@
 package desmoj.core.advancedModellingFeatures;
 
-import desmoj.core.simulator.Model;
-import desmoj.core.simulator.ProcessQueue;
-import desmoj.core.simulator.QueueBased;
-import desmoj.core.simulator.QueueList;
-import desmoj.core.simulator.QueueListFifo;
-import desmoj.core.simulator.QueueListLifo;
-import desmoj.core.simulator.QueueListRandom;
-import desmoj.core.simulator.SimProcess;
-import desmoj.core.simulator.TimeInstant;
-import desmoj.core.simulator.TimeOperations;
-import desmoj.core.simulator.TimeSpan;
+import desmoj.core.simulator.*;
 import desmoj.core.statistic.StatisticObject;
 
 /**
- * Stock is the place where a certain kind of product can be stored by producers
- * and retrieved by consumers. There is no difference between the units of one
- * kind of product, the units are indistinguishable. Producers are producing
- * products and store them using <code>store()</code> in the Stock. Consumers
- * make the Stock <code>retrieve()</code> the products to use them up. A Stock
- * is also providing a process synchronization between producers and consumers.
- * If no or not enough units of a product are available for the consumers, they
- * have to wait in a queue until new units are delivered by a producer. The
- * Stock has a certain capacity. If the Stock is filled to it's capacity
- * producers have to wait in a queue until consumers are arriving and taking
- * units out of the Stock. Then the producers can fill up the freed space. This
- * is the major difference to the Bin.
+ * Stock is the place where a certain kind of product can be stored by producers and retrieved by consumers. There is no
+ * difference between the units of one kind of product, the units are indistinguishable. Producers are producing
+ * products and store them using <code>store()</code> in the Stock. Consumers make the Stock <code>retrieve()</code> the
+ * products to use them up. A Stock is also providing a process synchronization between producers and consumers. If no
+ * or not enough units of a product are available for the consumers, they have to wait in a queue until new units are
+ * delivered by a producer. The Stock has a certain capacity. If the Stock is filled to it's capacity producers have to
+ * wait in a queue until consumers are arriving and taking units out of the Stock. Then the producers can fill up the
+ * freed space. This is the major difference to the Bin.
  *
- * The first sort criterion of the queues is highest queueing priorities first
- * (i.e. not using scheduling priorities - note that this is a somewhat
- * arbitrary choice, as the <ode>Stock</code> combines queueing and scheduling
- * features). The second criterion, if a tie-breaker is needed, is the queueing
- * discipline of the underlying queues, e.g. FIFO. The capacity limits can be
- * determined by the user. <code>Stock</code> is derived from
+ * The first sort criterion of the queues is highest queueing priorities first (i.e. not using scheduling priorities -
+ * note that this is a somewhat arbitrary choice, as the <ode>Stock</code> combines queueing and scheduling features).
+ * The second criterion, if a tie-breaker is needed, is the queueing discipline of the underlying queues, e.g. FIFO. The
+ * capacity limits can be determined by the user. <code>Stock</code> is derived from
  * <code>QueueBased</code>, which provides all the statistical functionality for
- * the consumer queue. The producer queue is managed by an internal
- * ProcessQueue.
+ * the consumer queue. The producer queue is managed by an internal ProcessQueue.
  *
- *
- * @see QueueBased
- * @see Bin
- *
- * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  * @author Soenke Claassen
  *
- *         Licensed under the Apache License, Version 2.0 (the "License"); you
- *         may not use this file except in compliance with the License. You may
- *         obtain a copy of the License at
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
  *
- *         Unless required by applicable law or agreed to in writing, software
- *         distributed under the License is distributed on an "AS IS" BASIS,
- *         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- *         implied. See the License for the specific language governing
- *         permissions and limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
+ * @see QueueBased
+ * @see Bin
  */
 public class Stock extends QueueBased {
 
@@ -63,8 +40,7 @@ public class Stock extends QueueBased {
     protected transient QueueList<SimProcess> _consumerQueue;
 
     /**
-     * The queue, actually storing the producer processes waiting to store their
-     * units in the stock
+     * The queue, actually storing the producer processes waiting to store their units in the stock
      */
     protected transient ProcessQueue<SimProcess> _producerQueue;
 
@@ -76,9 +52,8 @@ public class Stock extends QueueBased {
     private long _fieldAvail = 0;
 
     /**
-     * The capacity of this stock. That is the number of units this stock can hold
-     * at max. If set to zero the capacity is almost unlimited (=
-     * 9223372036854775807).
+     * The capacity of this stock. That is the number of units this stock can hold at max. If set to zero the capacity
+     * is almost unlimited (= 9223372036854775807).
      */
     private long _fieldCapacity;
 
@@ -108,14 +83,13 @@ public class Stock extends QueueBased {
     private long _fieldProducers = 0;
 
     /**
-     * Counter for the consumer SimProcesses which are refused to be enqueued,
-     * because the queue capacity is full.
+     * Counter for the consumer SimProcesses which are refused to be enqueued, because the queue capacity is full.
      */
     private long _fieldRefused = 0;
 
     /**
-     * Indicates the method where something has gone wrong. Is passed as a parameter
-     * to the method <code>checkProcess()</code>.
+     * Indicates the method where something has gone wrong. Is passed as a parameter to the method
+     * <code>checkProcess()</code>.
      */
     private transient java.lang.String _fieldWhere;
 
@@ -125,60 +99,51 @@ public class Stock extends QueueBased {
     private TimeInstant _lastUsage;
 
     /**
-     * Flag to indicate whether an entity can pass by other entities which are
-     * enqueued before that entity in the consumer queue. Is <code>false</code> as
-     * default value.
+     * Flag to indicate whether an entity can pass by other entities which are enqueued before that entity in the
+     * consumer queue. Is <code>false</code> as default value.
      */
     private boolean _passByCons = false;
 
     /**
-     * Flag to indicate whether an entity can pass by other entities which are
-     * enqueued before that entity in the producer queue. Is <code>false</code> as
-     * default value.
+     * Flag to indicate whether an entity can pass by other entities which are enqueued before that entity in the
+     * producer queue. Is <code>false</code> as default value.
      */
     private boolean _passByProds = false;
 
     /**
-     * Weighted sum of available units in the Stock over the time (must be divided
-     * by the total time to get the average available units!)
+     * Weighted sum of available units in the Stock over the time (must be divided by the total time to get the average
+     * available units!)
      */
     private transient double _wSumAvail = 0.0;
 
     /**
-     * Constructor for a <code>Stock</code> with a certain capacity and a certain
-     * number of initial units of a product in it. Waiting producer and consumer
-     * processes are sorted (and thus activated) according to their queueing
-     * priorities (highest first) and (if equal) by a queuing discipline as defined
-     * by <code>QueueBased</code>, e.g. <code>QueueBased.FIFO</code> or
+     * Constructor for a <code>Stock</code> with a certain capacity and a certain number of initial units of a product
+     * in it. Waiting producer and consumer processes are sorted (and thus activated) according to their queueing
+     * priorities (highest first) and (if equal) by a queuing discipline as defined by <code>QueueBased</code>, e.g.
+     * <code>QueueBased.FIFO</code> or
      * <code>QueueBased.LIFO</code>. The capacities of the underlying queues for
      * waiting processes can be chosen, too.
      *
-     *
      * @param owner         desmoj.Model : The model this Stock is associated to.
-     * @param name          java.lang.String : The Stock's name, should indicate the
-     *                      kind of product stored in this Stock.
-     * @param prodSortOrder int : determines the sort order of the underlying queue
-     *                      implementation for the producers. Choose a constant from
+     * @param name          java.lang.String : The Stock's name, should indicate the kind of product stored in this
+     *                      Stock.
+     * @param prodSortOrder int : determines the sort order of the underlying queue implementation for the producers.
+     *                      Choose a constant from
      *                      <code>QueueBased</code> like
      *                      <code>QueueBased.FIFO</code> or
      *                      <code>QueueBased.LIFO</code> or ...
-     * @param prodQCapacity int : The capacity of the producers queue, that is how
-     *                      many processes can be enqueued. Zero (0) means unlimited
-     *                      capacity.
-     * @param consSortOrder int : determines the sort order of the underlying queue
-     *                      implementation for the consumers. Choose a constant from
+     * @param prodQCapacity int : The capacity of the producers queue, that is how many processes can be enqueued. Zero
+     *                      (0) means unlimited capacity.
+     * @param consSortOrder int : determines the sort order of the underlying queue implementation for the consumers.
+     *                      Choose a constant from
      *                      <code>QueueBased</code> like
      *                      <code>QueueBased.FIFO</code> or
      *                      <code>QueueBased.LIFO</code> or ...
-     * @param consQCapacity int : The capacity of the consumers queue, that is how
-     *                      many processes can be enqueued. Zero (0) means unlimited
-     *                      capacity.
-     * @param initialUnits  long : The units of a product the Stock starts with.
-     *                      Must be positive!
-     * @param capacity      long : The maximum capacity of products this Stock can
-     *                      hold.
-     * @param showInReport  boolean : Flag, if this Stock should produce a report or
-     *                      not.
+     * @param consQCapacity int : The capacity of the consumers queue, that is how many processes can be enqueued. Zero
+     *                      (0) means unlimited capacity.
+     * @param initialUnits  long : The units of a product the Stock starts with. Must be positive!
+     * @param capacity      long : The maximum capacity of products this Stock can hold.
+     * @param showInReport  boolean : Flag, if this Stock should produce a report or not.
      * @param showInTrace   boolean : Flag for trace to produce trace messages.
      */
     public Stock(Model owner, String name, int prodSortOrder, int prodQCapacity, int consSortOrder, int consQCapacity,
@@ -193,7 +158,7 @@ public class Stock extends QueueBased {
         // check if a valid sortOrder is given
         if (prodSortOrder < 0 || prodSortOrder >= 3) {
             sendWarning("The given prodSortOrder parameter is negative or " + "to big! "
-            + "A queue with Fifo sort order will be created instead.",
+                        + "A queue with Fifo sort order will be created instead.",
                         "Stock : " + getName() + " Constructor: Stock(Model owner, String name, int "
                         + "prodSortOrder, long prodQCapacity, int consSortOrder, "
                         + "long consQCapacity, long initialUnits, long capacity, "
@@ -210,7 +175,7 @@ public class Stock extends QueueBased {
         // check if it the queue capacity does make sense
         if (prodQCapacity < 0) {
             sendWarning("The given capacity of the producer queue is negative! "
-            + "A queue with unlimited capacity will be created instead.",
+                        + "A queue with unlimited capacity will be created instead.",
                         "Stock : " + getName() + " Constructor: Stock(Model owner, String name, int "
                         + "prodSortOrder, long prodQCapacity, int consSortOrder, "
                         + "long consQCapacity, long initialUnits, long capacity, "
@@ -230,28 +195,28 @@ public class Stock extends QueueBased {
         // check the parameters for the consumer queue
         // check if a valid sortOrder is given
         switch (consSortOrder) {
-        case QueueBased.FIFO:
-            _consumerQueue = new QueueListFifo<>();
-            break;
-        case QueueBased.LIFO:
-            _consumerQueue = new QueueListLifo<>();
-            break;
-        case QueueBased.RANDOM:
-            _consumerQueue = new QueueListRandom<>();
-            break;
-        default:
-            sendWarning("The given consSortOrder parameter " + consSortOrder + " is not valid! "
-            + "A queue with Fifo sort order will be created instead.",
-                        "Stock : " + getName() + " Constructor: Stock(Model owner, String name, int "
-                        + "prodSortOrder, long prodQCapacity, int consSortOrder, "
-                        + "long consQCapacity, long initialUnits, long capacity, "
-                        + "boolean showInReport, boolean showInTrace)",
-                        "A valid positive integer number must be provided to "
-                        + "determine the sort order of the underlying queue.",
-                        "Make sure to provide a valid positive integer number "
-                        + "by using the constants in the class QueueBased, like "
-                        + "QueueBased.FIFO or QueueBased.LIFO.");
-            _consumerQueue = new QueueListFifo<>();
+            case QueueBased.FIFO:
+                _consumerQueue = new QueueListFifo<>();
+                break;
+            case QueueBased.LIFO:
+                _consumerQueue = new QueueListLifo<>();
+                break;
+            case QueueBased.RANDOM:
+                _consumerQueue = new QueueListRandom<>();
+                break;
+            default:
+                sendWarning("The given consSortOrder parameter " + consSortOrder + " is not valid! "
+                            + "A queue with Fifo sort order will be created instead.",
+                            "Stock : " + getName() + " Constructor: Stock(Model owner, String name, int "
+                            + "prodSortOrder, long prodQCapacity, int consSortOrder, "
+                            + "long consQCapacity, long initialUnits, long capacity, "
+                            + "boolean showInReport, boolean showInTrace)",
+                            "A valid positive integer number must be provided to "
+                            + "determine the sort order of the underlying queue.",
+                            "Make sure to provide a valid positive integer number "
+                            + "by using the constants in the class QueueBased, like "
+                            + "QueueBased.FIFO or QueueBased.LIFO.");
+                _consumerQueue = new QueueListFifo<>();
         }
         // give the QueueList a reference to this QueueBased
         _consumerQueue.setQueueBased(this);
@@ -265,7 +230,7 @@ public class Stock extends QueueBased {
         // check if it the capacity does make sense
         if (consQCapacity < 0) {
             sendWarning("The given capacity of the consumer queue is negative! "
-            + "A queue with unlimited capacity will be created instead.",
+                        + "A queue with unlimited capacity will be created instead.",
                         "Stock : " + getName() + " Constructor: Stock(Model owner, String name, int "
                         + "prodSortOrder, long prodQCapacity, int consSortOrder, "
                         + "long consQCapacity, long initialUnits, long capacity, "
@@ -285,12 +250,13 @@ public class Stock extends QueueBased {
         // set the capacity of the Stock
         _fieldCapacity = capacity;
 
-        if (capacity == 0)
+        if (capacity == 0) {
             _fieldCapacity = Long.MAX_VALUE;
+        }
 
         if (capacity < 0) {
             sendWarning("Attempt to construct a Stock with a negativ capacity."
-            + " The capacity will be converted to the positive value!",
+                        + " The capacity will be converted to the positive value!",
                         "Stock: " + getName() + " Constructor: Stock(Model owner, String name, "
                         + "int prodSortOrder, long prodQCapacity, int consSortOrder, "
                         + "long consQCapacity, long initialUnits, long capacity, "
@@ -308,7 +274,7 @@ public class Stock extends QueueBased {
         if (initialUnits < 0) // there can't be less than nothing
         {
             sendWarning("Attempt to construct a Stock with a negativ number of"
-            + " units. Initial number of units will be set to zero!",
+                        + " units. Initial number of units will be set to zero!",
                         "Stock: " + getName() + " Constructor: Stock(Model owner, String name, "
                         + "int prodSortOrder, long prodQCapacity, int consSortOrder, "
                         + "long consQCapacity, long initialUnits, long capacity, "
@@ -323,8 +289,8 @@ public class Stock extends QueueBased {
         // check if there should be more units stored than the capacity can hold
         if (_fieldInitial > _fieldCapacity) {
             sendWarning("Attempt to construct a Stock with initially more units"
-            + " in stock than the capacity can hold. The capacity will be increased "
-            + "to hold all the initial units!",
+                        + " in stock than the capacity can hold. The capacity will be increased "
+                        + "to hold all the initial units!",
                         "Stock: " + getName() + " Constructor: Stock(Model owner, String name, "
                         + "int prodSortOrder, long prodQCapacity, int consSortOrder, "
                         + "long consQCapacity, long initialUnits, long capacity, "
@@ -348,21 +314,17 @@ public class Stock extends QueueBased {
     }
 
     /**
-     * Constructor for a <code>Stock</code> with a certain capacity and a certain
-     * number of initial units of a product in it. Waiting producer and consumer
-     * processes are sorted (and thus activated) according to their queueing
-     * priorities (highest first) and (if equal) by FIFO. The capacities of the
-     * underlying queues for waiting processes are unlimited.
+     * Constructor for a <code>Stock</code> with a certain capacity and a certain number of initial units of a product
+     * in it. Waiting producer and consumer processes are sorted (and thus activated) according to their queueing
+     * priorities (highest first) and (if equal) by FIFO. The capacities of the underlying queues for waiting processes
+     * are unlimited.
      *
      * @param owner        desmoj.Model : The model this Stock is associated to.
-     * @param name         java.lang.String : The Stock's name, should indicate the
-     *                     kind of product stored in this Stock.
-     * @param initialUnits long : The units of a product the Stock starts with. Must
-     *                     be positive!
-     * @param capacity     long : The maximum capacity of products this Stock can
-     *                     hold.
-     * @param showInReport boolean : Flag, if this Stock should produce a report or
-     *                     not.
+     * @param name         java.lang.String : The Stock's name, should indicate the kind of product stored in this
+     *                     Stock.
+     * @param initialUnits long : The units of a product the Stock starts with. Must be positive!
+     * @param capacity     long : The maximum capacity of products this Stock can hold.
+     * @param showInReport boolean : Flag, if this Stock should produce a report or not.
      * @param showInTrace  boolean : Flag for trace to produce trace messages.
      */
     public Stock(Model owner, String name, long initialUnits, long capacity, boolean showInReport,
@@ -387,12 +349,13 @@ public class Stock extends QueueBased {
         // set the capacity
         _fieldCapacity = capacity;
 
-        if (capacity == 0)
+        if (capacity == 0) {
             _fieldCapacity = Long.MAX_VALUE;
+        }
 
         if (capacity < 0) {
             sendWarning("Attempt to construct a Stock with a negativ capacity."
-            + " The capacity will be converted to the positive value!",
+                        + " The capacity will be converted to the positive value!",
                         "Stock: " + getName() + " Constructor: Stock(Model owner, String name, "
                         + "long initialUnits, long capacity, boolean showInReport, " + "boolean showInTrace)",
                         "A negative capacity does not make sense for a stock.",
@@ -408,7 +371,7 @@ public class Stock extends QueueBased {
         if (initialUnits < 0) // there can't be less than nothing
         {
             sendWarning("Attempt to construct a Stock with a negativ number of"
-            + " units. Initial number of units will be set to zero!",
+                        + " units. Initial number of units will be set to zero!",
                         "Stock: " + getName() + " Constructor: Stock(Model owner, String name, "
                         + "long initialUnits, long capacity, boolean showInReport, " + "boolean showInTrace)",
                         "A negative number of units does not make sense here.",
@@ -421,8 +384,8 @@ public class Stock extends QueueBased {
         // check if there should be more units stored than the capacity can hold
         if (_fieldInitial > _fieldCapacity) {
             sendWarning("Attempt to construct a Stock with initially more units"
-            + " in stock than the capacity can hold. The capacity will be increased "
-            + "to hold all the initial units!",
+                        + " in stock than the capacity can hold. The capacity will be increased "
+                        + "to hold all the initial units!",
                         "Stock: " + getName() + " Constructor: Stock(Model owner, String name, "
                         + "long initialUnits, long capacity, boolean showInReport, " + "boolean showInTrace)",
                         "A capacity lower than the initial number of units in the stock does not " + "make sense.",
@@ -442,16 +405,14 @@ public class Stock extends QueueBased {
     }
 
     /**
-     * The addPropertyChangeListener method was generated to support the
-     * propertyChange field.
+     * The addPropertyChangeListener method was generated to support the propertyChange field.
      */
     public synchronized void addPropertyChangeListener(java.beans.PropertyChangeListener listener) {
         getPropertyChange().addPropertyChangeListener(listener);
     }
 
     /**
-     * The addPropertyChangeListener method was generated to support the
-     * propertyChange field.
+     * The addPropertyChangeListener method was generated to support the propertyChange field.
      */
     public synchronized void addPropertyChangeListener(String propertyName,
                                                        java.beans.PropertyChangeListener listener) {
@@ -459,11 +420,10 @@ public class Stock extends QueueBased {
     }
 
     /**
-     * Returning the average number of units available in the Stock over the time
-     * since the last reset of the Stock.
+     * Returning the average number of units available in the Stock over the time since the last reset of the Stock.
      *
-     * @return double : The average number of units available in the Stock over the
-     *         time since the last reset of the Stock.
+     * @return double : The average number of units available in the Stock over the time since the last reset of the
+     * Stock.
      */
     public double avgAvail() {
         /* Perform the avgAvail method. */
@@ -476,9 +436,10 @@ public class Stock extends QueueBased {
         double wSumAvl = _wSumAvail + ((double) _fieldAvail * TimeOperations.diff(now, _lastUsage).getTimeInEpsilon());
         if (diff.isZero()) // diff is not long enough
         {
-            sendWarning("A Division-by-Zero error occured in a calculation. "
-            + "The UNDEFINED Value: -1.0 is returned as result.", "Stock: " + getName() + " Method: double avgAvail ()",
-                        "The Time difference is zero.", "Make sure not to use avgAvail() right after a reset.");
+            sendWarning(
+            "A Division-by-Zero error occured in a calculation. " + "The UNDEFINED Value: -1.0 is returned as result.",
+            "Stock: " + getName() + " Method: double avgAvail ()", "The Time difference is zero.",
+            "Make sure not to use avgAvail() right after a reset.");
             return UNDEFINED; // see QueueBased: UNDEFINED = -1
         }
         // return the rounded average
@@ -488,8 +449,8 @@ public class Stock extends QueueBased {
     /**
      * Returns a Reporter to produce a report about this Stock.
      *
-     * @return desmoj.report.Reporter : The Reporter reporting about the statistics
-     *         of the two queues (producer and consumer) of this Stock.
+     * @return desmoj.report.Reporter : The Reporter reporting about the statistics of the two queues (producer and
+     * consumer) of this Stock.
      */
     @Override
     public desmoj.core.report.Reporter createDefaultReporter() {
@@ -498,32 +459,28 @@ public class Stock extends QueueBased {
     }
 
     /**
-     * The firePropertyChange method was generated to support the propertyChange
-     * field.
+     * The firePropertyChange method was generated to support the propertyChange field.
      */
     public void firePropertyChange(java.beans.PropertyChangeEvent evt) {
         getPropertyChange().firePropertyChange(evt);
     }
 
     /**
-     * The firePropertyChange method was generated to support the propertyChange
-     * field.
+     * The firePropertyChange method was generated to support the propertyChange field.
      */
     public void firePropertyChange(String propertyName, boolean oldValue, boolean newValue) {
         getPropertyChange().firePropertyChange(propertyName, oldValue, newValue);
     }
 
     /**
-     * The firePropertyChange method was generated to support the propertyChange
-     * field.
+     * The firePropertyChange method was generated to support the propertyChange field.
      */
     public void firePropertyChange(String propertyName, int oldValue, int newValue) {
         getPropertyChange().firePropertyChange(propertyName, oldValue, newValue);
     }
 
     /**
-     * The firePropertyChange method was generated to support the propertyChange
-     * field.
+     * The firePropertyChange method was generated to support the propertyChange field.
      */
     public void firePropertyChange(String propertyName, Object oldValue, Object newValue) {
         getPropertyChange().firePropertyChange(propertyName, oldValue, newValue);
@@ -539,19 +496,17 @@ public class Stock extends QueueBased {
     }
 
     /**
-     * Gets the capacity property (long) value of this Stock, that is the number of
-     * units this stock can hold at max.
+     * Gets the capacity property (long) value of this Stock, that is the number of units this stock can hold at max.
      *
-     * @return long : The capacity property value, that is the number of units this
-     *         stock can hold at max.
+     * @return long : The capacity property value, that is the number of units this stock can hold at max.
      */
     public long getCapacity() {
         return _fieldCapacity;
     }
 
     /**
-     * Returns the implemented queueing discipline of the underlying consumer queue
-     * as a String, so it can be displayed in the report.
+     * Returns the implemented queueing discipline of the underlying consumer queue as a String, so it can be displayed
+     * in the report.
      *
      * @return String : The String indicating the queueing discipline.
      */
@@ -562,11 +517,9 @@ public class Stock extends QueueBased {
     }
 
     /**
-     * Returns the number of consumers that were refused to be enqueued because the
-     * queue for consumers was full.
+     * Returns the number of consumers that were refused to be enqueued because the queue for consumers was full.
      *
-     * @return long : The number of consumers that were refused to be enqueued
-     *         because the queue for consumers was full.
+     * @return long : The number of consumers that were refused to be enqueued because the queue for consumers was full.
      */
     public long getConsRefused() {
         /* Perform the getConsRefused method. */
@@ -610,30 +563,28 @@ public class Stock extends QueueBased {
     }
 
     /**
-     * Returns whether entities can pass by other entities which are enqueued before
-     * them in the queue.
+     * Returns whether entities can pass by other entities which are enqueued before them in the queue.
      *
-     * @return boolean : Indicates whether entities can pass by other entities which
-     *         are enqueued before them in the queue.
+     * @return boolean : Indicates whether entities can pass by other entities which are enqueued before them in the
+     * queue.
      */
     public boolean getPassByConsumers() {
         return _passByCons;
     }
 
     /**
-     * Returns whether entities can pass by other entities which are enqueued before
-     * them in the queue.
+     * Returns whether entities can pass by other entities which are enqueued before them in the queue.
      *
-     * @return boolean : Indicates whether entities can pass by other entities which
-     *         are enqueued before them in the queue.
+     * @return boolean : Indicates whether entities can pass by other entities which are enqueued before them in the
+     * queue.
      */
     public boolean getPassByProducers() {
         return _passByProds;
     }
 
     /**
-     * Returns the implemented queueing discipline of the underlying queue for
-     * producers as a String, so it can be displayed in the report.
+     * Returns the implemented queueing discipline of the underlying queue for producers as a String, so it can be
+     * displayed in the report.
      *
      * @return String : The String indicating the queueing discipline.
      */
@@ -644,11 +595,9 @@ public class Stock extends QueueBased {
     }
 
     /**
-     * Returns the number of producers that were refused to be enqueued because the
-     * queue for producers was full.
+     * Returns the number of producers that were refused to be enqueued because the queue for producers was full.
      *
-     * @return long : The number of producers that were refused to be enqueued
-     *         because the queue for producers was full.
+     * @return long : The number of producers that were refused to be enqueued because the queue for producers was full.
      */
     public long getProdRefused() {
         /* Perform the getProdRefused method. */
@@ -658,8 +607,7 @@ public class Stock extends QueueBased {
     /**
      * Returns the queue where the producers are waiting to deliver their units.
      *
-     * @return desmoj.ProcessQueue : the queue where the producers are waiting to
-     *         deliver their units.
+     * @return desmoj.ProcessQueue : the queue where the producers are waiting to deliver their units.
      */
     public ProcessQueue<SimProcess> getProducerQueue() {
         /* Perform the getProducerQueue method. */
@@ -686,11 +634,9 @@ public class Stock extends QueueBased {
     }
 
     /**
-     * Gets the where property (String) value denoting the method, where something
-     * has gone wrong.
+     * Gets the where property (String) value denoting the method, where something has gone wrong.
      *
-     * @return java.lang.String : The where property value denoting the method,
-     *         where something has gone wrong.
+     * @return java.lang.String : The where property value denoting the method, where something has gone wrong.
      */
     public String getWhere() {
         return _fieldWhere;
@@ -704,16 +650,14 @@ public class Stock extends QueueBased {
     }
 
     /**
-     * The removePropertyChangeListener method was generated to support the
-     * propertyChange field.
+     * The removePropertyChangeListener method was generated to support the propertyChange field.
      */
     public synchronized void removePropertyChangeListener(java.beans.PropertyChangeListener listener) {
         getPropertyChange().removePropertyChangeListener(listener);
     }
 
     /**
-     * The removePropertyChangeListener method was generated to support the
-     * propertyChange field.
+     * The removePropertyChangeListener method was generated to support the propertyChange field.
      */
     public synchronized void removePropertyChangeListener(String propertyName,
                                                           java.beans.PropertyChangeListener listener) {
@@ -721,11 +665,9 @@ public class Stock extends QueueBased {
     }
 
     /**
-     * Resets all statistical counters of this Stock to their default values. Both,
-     * producer queue and consumer queue are reset. The number of available units at
-     * this moment and the consumer and producer processes waiting in their queues
-     * remain unchanged. The maximum length of the queues are set to the current
-     * number of enqueued processes.
+     * Resets all statistical counters of this Stock to their default values. Both, producer queue and consumer queue
+     * are reset. The number of available units at this moment and the consumer and producer processes waiting in their
+     * queues remain unchanged. The maximum length of the queues are set to the current number of enqueued processes.
      */
     @Override
     public void reset() {
@@ -743,21 +685,17 @@ public class Stock extends QueueBased {
     }
 
     /**
-     * Method for consumers to make the Stock retrieve a number of n units. When
-     * there are not enough units available or another consumer is first in the
-     * queue to be served (and it is not possible to pass by), the current consumer
+     * Method for consumers to make the Stock retrieve a number of n units. When there are not enough units available or
+     * another consumer is first in the queue to be served (and it is not possible to pass by), the current consumer
      * process will be blocked and inserted in the waiting-queue (for consumers).
      *
-     * The order of retrieving (and, thus, process re-activation) depends on the
-     * order of the internal queue, which is based on the consumer processes'
-     * queueing priorities and (if queueing priorities are equal, requiring a
+     * The order of retrieving (and, thus, process re-activation) depends on the order of the internal queue, which is
+     * based on the consumer processes' queueing priorities and (if queueing priorities are equal, requiring a
      * tie-breaker) by FIFO or a different discipline as defined in the constructor.
      *
-     * @return boolean : Is <code>true</code> if the specified number of units can
-     *         been retrieved successfully, <code>false</code> otherwise (i.e.
-     *         capacity limit of the queue is reached).
-     * @param n long : The number of units the Stock is retrieving for the consumer;
-     *          must be positive.
+     * @param n long : The number of units the Stock is retrieving for the consumer; must be positive.
+     * @return boolean : Is <code>true</code> if the specified number of units can been retrieved successfully,
+     * <code>false</code> otherwise (i.e. capacity limit of the queue is reached).
      */
     public boolean retrieve(long n) {
         /* Perform the retrieve method. */
@@ -775,7 +713,8 @@ public class Stock extends QueueBased {
         if (n <= 0) // if the process is taking nothing or less
         {
             sendWarning("Attempt to take nothing or a negative number of units"
-            + " out of a Stock. The attempted action is ignored!", "Stock: " + getName() + " Method: " + _fieldWhere,
+                        + " out of a Stock. The attempted action is ignored!",
+                        "Stock: " + getName() + " Method: " + _fieldWhere,
                         "It does not make sense to take nothing or less out of a Stock. "
                         + "The statistic will be corrupted with negative numbers!",
                         "Make sure to take at least one unit out of the Stock.");
@@ -787,7 +726,8 @@ public class Stock extends QueueBased {
         // capacity
         {
             sendWarning("Attempt to take more units than the capacity of this Stock"
-            + " can ever hold. The attempted action is ignored!", "Stock: " + getName() + " Method: " + _fieldWhere,
+                        + " can ever hold. The attempted action is ignored!",
+                        "Stock: " + getName() + " Method: " + _fieldWhere,
                         "The Stock can never retrieve more units than its capacity can hold.",
                         "Make sure not to take more units out of the Stock than its capacity.");
             return false; // go to where you came from; ignore that rubbish
@@ -797,12 +737,12 @@ public class Stock extends QueueBased {
         if (queueLimit <= length()) {
             if (currentlySendDebugNotes()) {
                 sendDebugNote("refuses to insert " + currentProcess.getQuotedName()
-                + " in consumer waiting-queue, because the capacity limit is reached. ");
+                              + " in consumer waiting-queue, because the capacity limit is reached. ");
             }
 
             if (currentlySendTraceNotes()) {
                 sendTraceNote("is refused to be enqueued in " + this.getQuotedName() + "because the capacity limit ("
-                + getQueueLimit() + ") of the " + "consumer queue is reached");
+                              + getQueueLimit() + ") of the " + "consumer queue is reached");
             }
 
             _fieldRefused++; // count the refused ones
@@ -826,7 +766,7 @@ public class Stock extends QueueBased {
                 // for debugging purposes
                 if (currentlySendDebugNotes()) {
                     sendDebugNote("can not retrieve " + n + " units for " + currentProcess.getQuotedName() + "<br>"
-                    + "because stock (" + getAvail() + " units) is too low.");
+                                  + "because stock (" + getAvail() + " units) is too low.");
                 }
 
                 do { // the process is stuck in here
@@ -874,7 +814,7 @@ public class Stock extends QueueBased {
                     // for debugging purposes
                     if (currentlySendDebugNotes()) {
                         sendDebugNote("can not retrieve " + n + " units for " + currentProcess.getQuotedName() + "<br>"
-                        + "because stock (" + getAvail() + " units) is too low.");
+                                      + "because stock (" + getAvail() + " units) is too low.");
                     }
                 } // end if not enough products are available
 
@@ -917,58 +857,53 @@ public class Stock extends QueueBased {
 
         // for debugging purposes
         if (currentlySendDebugNotes()) {
-            sendDebugNote("retrieves " + n + " units for " + currentProcess.getQuotedName() + "<br>" + "and has now "
-            + getAvail() + " units on stock.");
+            sendDebugNote(
+            "retrieves " + n + " units for " + currentProcess.getQuotedName() + "<br>" + "and has now " + getAvail()
+            + " units on stock.");
         }
 
         return true;
     }
 
     /**
-     * Sets the flag passBy to a new value. PassBy is indicating whether entities
-     * can pass by other entities which are enqueued before them in the queue.
+     * Sets the flag passBy to a new value. PassBy is indicating whether entities can pass by other entities which are
+     * enqueued before them in the queue.
      *
      * @param newPassBy boolean : The new value of passBy. Set it to
      *                  <code>true</code> if you want entities to pass by other
-     *                  entities which are enqueued before them in the queue. Set it
-     *                  to <code>false</code> if you don't want entities to overtake
-     *                  other entities in the queue.
+     *                  entities which are enqueued before them in the queue. Set it to <code>false</code> if you don't
+     *                  want entities to overtake other entities in the queue.
      */
     public void setPassByConsumers(boolean newPassBy) {
         this._passByCons = newPassBy; // that's all!
     }
 
     /**
-     * Sets the flag passBy to a new value. PassBy is indicating whether entities
-     * can pass by other entities which are enqueued before them in the queue.
+     * Sets the flag passBy to a new value. PassBy is indicating whether entities can pass by other entities which are
+     * enqueued before them in the queue.
      *
      * @param newPassBy boolean : The new value of passBy. Set it to
      *                  <code>true</code> if you want entities to pass by other
-     *                  entities which are enqueued before them in the queue. Set it
-     *                  to <code>false</code> if you don't want entities to overtake
-     *                  other entities in the queue.
+     *                  entities which are enqueued before them in the queue. Set it to <code>false</code> if you don't
+     *                  want entities to overtake other entities in the queue.
      */
     public void setPassByProducers(boolean newPassBy) {
         this._passByProds = newPassBy; // that's all!
     }
 
     /**
-     * Method for producers to make the Stock store a number of n units. When the
-     * capacity of the stock can not hold the additional incoming units or another
-     * producer is already waiting at first position in the queue (and it is not
-     * possible to pass by), the current producer process will be blocked and
-     * inserted in the queue (for producers).
+     * Method for producers to make the Stock store a number of n units. When the capacity of the stock can not hold the
+     * additional incoming units or another producer is already waiting at first position in the queue (and it is not
+     * possible to pass by), the current producer process will be blocked and inserted in the queue (for producers).
      *
-     * The order of storing (and, thus, process re-activation) depends on the order
-     * of the internal queue, which is based on the producers processes' queueing
-     * priorities and (if queueing priorities are equal, requiring a tie-breaker) by
-     * FIFO or a different discipline as defined in the constructor.
+     * The order of storing (and, thus, process re-activation) depends on the order of the internal queue, which is
+     * based on the producers processes' queueing priorities and (if queueing priorities are equal, requiring a
+     * tie-breaker) by FIFO or a different discipline as defined in the constructor.
      *
-     * @return boolean : Is <code>true</code> if the specified number of units can
-     *         been stored successfully, <code>false</code> otherwise (i.e. capacity
-     *         limit of the queue is reached).
-     * @param n long : The number of units the Stock is receiving from the producer
-     *          to store. n must be positive.
+     * @param n long : The number of units the Stock is receiving from the producer to store. n must be positive.
+     * @return boolean : Is <code>true</code> if the specified number of units can been stored successfully,
+     * <code>false</code> otherwise (i.e. capacity
+     * limit of the queue is reached).
      */
     public boolean store(long n) {
         /* Perform the store method. */
@@ -985,17 +920,19 @@ public class Stock extends QueueBased {
 
         if (n <= 0) // if the process is giving nothing or less
         {
-            sendWarning("Attempt to store nothing or a negative number of units"
-            + " in a Stock. The attempted action is ignored!", "Stock: " + getName() + " Method: " + _fieldWhere,
-                        "It does not make sense to store nothing or less in a Stock.",
-                        "Make sure to store at least one unit in the Stock.");
+            sendWarning(
+            "Attempt to store nothing or a negative number of units" + " in a Stock. The attempted action is ignored!",
+            "Stock: " + getName() + " Method: " + _fieldWhere,
+            "It does not make sense to store nothing or less in a Stock.",
+            "Make sure to store at least one unit in the Stock.");
             return false; // go to where you came from; ignore that rubbish
         }
 
         // is the process trying to store more than the capacity can ever hold?
         if (n > _fieldCapacity) {
             sendWarning("Attempt to store more units than the capacity of this Stock"
-            + " can hold. The attempted action is ignored!", "Stock: " + getName() + " Method: " + _fieldWhere,
+                        + " can hold. The attempted action is ignored!",
+                        "Stock: " + getName() + " Method: " + _fieldWhere,
                         "The Stock can never store more units than its capacity. " + "Units to store: " + n
                         + " exceeds the capacity of: " + getCapacity(),
                         "Make sure not to store more units in a Stock than its capacity " + "can hold.");
@@ -1006,12 +943,12 @@ public class Stock extends QueueBased {
         if (_producerQueue.getQueueLimit() <= _producerQueue.length()) {
             if (currentlySendDebugNotes()) {
                 sendDebugNote("refuses to insert " + currentProcess.getQuotedName()
-                + " in producer waiting-queue, because the capacity limit is reached. ");
+                              + " in producer waiting-queue, because the capacity limit is reached. ");
             }
 
             if (currentlySendTraceNotes()) {
                 sendTraceNote("is refused to be enqueued in " + this.getQuotedName() + "because the capacity limit ("
-                + getQueueLimit() + ") of the " + "producer queue is reached");
+                              + getQueueLimit() + ") of the " + "producer queue is reached");
             }
 
             // count the refused producers
@@ -1037,7 +974,7 @@ public class Stock extends QueueBased {
                 // for debugging purposes
                 if (currentlySendDebugNotes()) {
                     sendDebugNote("can not store " + n + " units from " + currentProcess.getQuotedName() + "<br>"
-                    + "because capacity limit (" + getCapacity() + ") is reached.");
+                                  + "because capacity limit (" + getCapacity() + ") is reached.");
                 }
 
                 do { // the process is stuck in here
@@ -1085,7 +1022,7 @@ public class Stock extends QueueBased {
                     // for debugging purposes
                     if (currentlySendDebugNotes()) {
                         sendDebugNote("can not store " + n + " units from " + currentProcess.getQuotedName() + "<br>"
-                        + "because capacity limit (" + getCapacity() + ") is reached.");
+                                      + "because capacity limit (" + getCapacity() + ") is reached.");
                     }
                 } // end if not enough space is left for the units
 
@@ -1124,17 +1061,17 @@ public class Stock extends QueueBased {
 
         // for debugging purposes
         if (currentlySendDebugNotes()) {
-            sendDebugNote("stores " + n + " units from " + currentProcess.getQuotedName() + "<br>" + "and has now "
-            + getAvail() + " units on stock.");
+            sendDebugNote(
+            "stores " + n + " units from " + currentProcess.getQuotedName() + "<br>" + "and has now " + getAvail()
+            + " units on stock.");
         }
 
         return true;
     }
 
     /**
-     * Activates the SimProcess <code>process</code>, given as a parameter of this
-     * method, as the next process. This process should be a SimProcess waiting in a
-     * queue for some products.
+     * Activates the SimProcess <code>process</code>, given as a parameter of this method, as the next process. This
+     * process should be a SimProcess waiting in a queue for some products.
      *
      * @param process SimProcess : The process that is to be activated as next.
      */
@@ -1176,13 +1113,11 @@ public class Stock extends QueueBased {
     }
 
     /**
-     * Activates the first process waiting in the consumer queue. That is a process
-     * which was trying to take products, but it could not get any because there
-     * were not enough products for it or another process was first in the queue to
-     * be served. This method is called every time a consumer is arriving at the
-     * waiting-queue and it is possible for him to pass other processes in front of
-     * him in the queue. Then we have to check if one of the other process first in
-     * the queue could be satisfied before the newly arrived one.
+     * Activates the first process waiting in the consumer queue. That is a process which was trying to take products,
+     * but it could not get any because there were not enough products for it or another process was first in the queue
+     * to be served. This method is called every time a consumer is arriving at the waiting-queue and it is possible for
+     * him to pass other processes in front of him in the queue. Then we have to check if one of the other process first
+     * in the queue could be satisfied before the newly arrived one.
      */
     protected void activateFirstConsumer() {
         String where = "protected void activateFirstConsumer()";
@@ -1224,13 +1159,11 @@ public class Stock extends QueueBased {
     }
 
     /**
-     * Activates the first process waiting in the producer queue. That is a process
-     * which was trying to store products, but it could store them because the
-     * capacity limit of this stock is reached. This method is called every time a
-     * producer is arriving at the waiting-queue and it is possible for him to pass
-     * other processes in front of him in the queue. Then we have to check if one of
-     * the other process first in the queue could store his units before the newly
-     * arrived one.
+     * Activates the first process waiting in the producer queue. That is a process which was trying to store products,
+     * but it could store them because the capacity limit of this stock is reached. This method is called every time a
+     * producer is arriving at the waiting-queue and it is possible for him to pass other processes in front of him in
+     * the queue. Then we have to check if one of the other process first in the queue could store his units before the
+     * newly arrived one.
      */
     protected void activateFirstProducer() {
         String where = "protected void activateFirstProducer()";
@@ -1274,8 +1207,8 @@ public class Stock extends QueueBased {
     /**
      * Checks whether the SimProcess using the Stock is a valid process.
      *
-     * @return boolean : Returns whether the SimProcess is valid or not.
      * @param p SimProcess : Is this SimProcess a valid one?
+     * @return boolean : Returns whether the SimProcess is valid or not.
      */
     protected boolean checkProcess(SimProcess p, String where) {
         if (p == null) // if p is a null pointer instead of a process
@@ -1289,8 +1222,8 @@ public class Stock extends QueueBased {
         if (!isModelCompatible(p)) // if p is not modelcompatible
         {
             sendWarning("The process trying to use a Stock object does not "
-            + "belong to this model. The attempted action is ignored!", "Stock: " + getName() + " Method: " + where,
-                        "The process is not modelcompatible.",
+                        + "belong to this model. The attempted action is ignored!",
+                        "Stock: " + getName() + " Method: " + where, "The process is not modelcompatible.",
                         "Make sure that processes are using only Stocks within their model.");
             return false;
         }
@@ -1309,12 +1242,11 @@ public class Stock extends QueueBased {
     }
 
     /**
-     * Updates the statistics when producers or consumers access the Stock. Changes
-     * the fieldAvail and fires the PropertyChangeEvent(s).
+     * Updates the statistics when producers or consumers access the Stock. Changes the fieldAvail and fires the
+     * PropertyChangeEvent(s).
      *
-     * @param n long : Is positive when producers <code>store()</code> new units in
-     *          the Stock and negative when the Stock <code>retrieve()</code>'s
-     *          units for the consumer process.
+     * @param n long : Is positive when producers <code>store()</code> new units in the Stock and negative when the
+     *          Stock <code>retrieve()</code>'s units for the consumer process.
      */
     protected void updateStatistics(long n) {
         TimeInstant now = presentTime(); // what's the time?

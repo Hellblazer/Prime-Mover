@@ -27,8 +27,8 @@ import static com.hellblazer.primeMover.runtime.SimulationEnd.END_SIMULATION_MET
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
-import com.hellblazer.primeMover.Controller;
-import com.hellblazer.primeMover.SynchronousQueue;
+import com.hellblazer.primeMover.api.Controller;
+import com.hellblazer.primeMover.api.SynchronousQueue;
 import com.hellblazer.primeMover.annotations.Blocking;
 
 /**

@@ -3,32 +3,26 @@ package desmoj.core.dist;
 import java.util.Random;
 
 /**
- * Mersenne twister uniform pseudo random generator configured such that a
- * stream of [0,1] double values is produced. Implements the
+ * Mersenne twister uniform pseudo random generator configured such that a stream of [0,1] double values is produced.
+ * Implements the
  * <code>desmoj.dist.UniformRandomGenerator</code> interface. The algorithm for
- * pseudo random number generation is based on the Mersenne twister variant
- * MT19937 and has a period of 2<sup>19937</sup> - 1; see
+ * pseudo random number generation is based on the Mersenne twister variant MT19937 and has a period of
+ * 2<sup>19937</sup> - 1; see
  * <a href="http://en.wikipedia.org/wiki/Mersenne_twister">the Mersenne twister
  * wikipedia entry</a> for details.
  *
+ * @author Tim Lechler, Johannes G&ouml;bel
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  * @see desmoj.core.dist.UniformRandomGenerator
  * @see desmoj.core.dist.Distribution
  * @see java.util.Random
- *
- * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
- * @author Tim Lechler, Johannes G&ouml;bel
- *
- *         Licensed under the Apache License, Version 2.0 (the "License"); you
- *         may not use this file except in compliance with the License. You may
- *         obtain a copy of the License at
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
- *         Unless required by applicable law or agreed to in writing, software
- *         distributed under the License is distributed on an "AS IS" BASIS,
- *         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- *         implied. See the License for the specific language governing
- *         permissions and limitations under the License.
- *
  */
 public class MersenneTwisterRandomGenerator implements desmoj.core.dist.UniformRandomGenerator {
 
@@ -44,15 +38,13 @@ public class MersenneTwisterRandomGenerator implements desmoj.core.dist.UniformR
     protected Random javaAPIRandomGenerator; // the random generator used
 
     /**
-     * The repository for storing random numbers (which also denote the state of the
-     * generator)
+     * The repository for storing random numbers (which also denote the state of the generator)
      */
     protected int[] mersenneTwister;
 
     /**
-     * Creates a MersenneTwisterRandomGenerator with seed 42. The value 42 has been
-     * taken by pure coincidence. It is not really related to Douglas Adams'
-     * "Hitchhikers Guide to the Galaxy" trilogy of five books (so far).
+     * Creates a MersenneTwisterRandomGenerator with seed 42. The value 42 has been taken by pure coincidence. It is not
+     * really related to Douglas Adams' "Hitchhikers Guide to the Galaxy" trilogy of five books (so far).
      */
     public MersenneTwisterRandomGenerator() {
         this(42);
@@ -71,11 +63,10 @@ public class MersenneTwisterRandomGenerator implements desmoj.core.dist.UniformR
     }
 
     /**
-     * Returns the next pseudo random uniform [0,1] distributed double value from
-     * the stream produced by the underlying pseudo random number generator.
+     * Returns the next pseudo random uniform [0,1] distributed double value from the stream produced by the underlying
+     * pseudo random number generator.
      *
-     * @return double : The next pseudo random uniform [0,1] distributed double
-     *         value
+     * @return double : The next pseudo random uniform [0,1] distributed double value
      */
     @Override
     public double nextDouble() {
@@ -87,7 +78,6 @@ public class MersenneTwisterRandomGenerator implements desmoj.core.dist.UniformR
      * Returns the next pseudo random integer of a given bit length.
      *
      * @param bits int : Bit length of the integer to be returned
-     *
      * @return double : The next pseudo random integer of a given bit length
      */
     public int nextInt(int bits) {
@@ -96,8 +86,9 @@ public class MersenneTwisterRandomGenerator implements desmoj.core.dist.UniformR
         currentIndex++;
 
         // re-determine random numbers if pool exhausted
-        if (currentIndex > 623)
+        if (currentIndex > 623) {
             this.twistNumbers();
+        }
 
         // determine tempered random number
         y = y ^ y >>> 11;
@@ -110,8 +101,8 @@ public class MersenneTwisterRandomGenerator implements desmoj.core.dist.UniformR
     }
 
     /**
-     * Returns the next pseudo random uniform distributed long value from the stream
-     * produced by the underlying pseudo random number generator.
+     * Returns the next pseudo random uniform distributed long value from the stream produced by the underlying pseudo
+     * random number generator.
      */
     public long nextLong() {
         return ((long) (nextInt(32)) << 32) + nextInt(32);
@@ -120,8 +111,7 @@ public class MersenneTwisterRandomGenerator implements desmoj.core.dist.UniformR
     /**
      * Sets the seed for the pseudo random number generator.
      *
-     * @param newSeed long : The new initial seed value for the pseudo random number
-     *                generator
+     * @param newSeed long : The new initial seed value for the pseudo random number generator
      */
     @Override
     public void setSeed(long newSeed) {
@@ -138,8 +128,8 @@ public class MersenneTwisterRandomGenerator implements desmoj.core.dist.UniformR
     }
 
     /**
-     * Internal procedure to create ("twist") 624 new pseudo random numbers based on
-     * the last 624 pseudo random numbers.
+     * Internal procedure to create ("twist") 624 new pseudo random numbers based on the last 624 pseudo random
+     * numbers.
      */
     public void twistNumbers() {
 

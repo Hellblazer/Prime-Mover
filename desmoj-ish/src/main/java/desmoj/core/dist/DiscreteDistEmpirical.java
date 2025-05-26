@@ -3,78 +3,40 @@ package desmoj.core.dist;
 import desmoj.core.simulator.Model;
 
 /**
- * Empirically distributed stream of pseudo random numbers of a custom type.
- * Values produced by this distribution follow an empirical distribution which
- * is specified by entries consisting of the observed value and the frequency
- * (probability) this value has been observed to occur. These entries are made
- * by using the <code>addEntry()</code> method.
+ * Empirically distributed stream of pseudo random numbers of a custom type. Values produced by this distribution follow
+ * an empirical distribution which is specified by entries consisting of the observed value and the frequency
+ * (probability) this value has been observed to occur. These entries are made by using the <code>addEntry()</code>
+ * method.
  *
- * @see desmoj.core.dist.Distribution
- *
- * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  * @author Tim Lechler
  *
- *         Licensed under the Apache License, Version 2.0 (the "License"); you
- *         may not use this file except in compliance with the License. You may
- *         obtain a copy of the License at
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
  *
- *         Unless required by applicable law or agreed to in writing, software
- *         distributed under the License is distributed on an "AS IS" BASIS,
- *         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- *         implied. See the License for the specific language governing
- *         permissions and limitations under the License.
- *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
+ * @see desmoj.core.dist.Distribution
  */
 public class DiscreteDistEmpirical<N extends Number> extends DiscreteDist<N> {
-
-    /**
-     * Inner class for entries
-     */
-    private class Entry {
-
-        /**
-         * The cumulative frequency of the empirical entry.
-         */
-        private double entryFrequency;
-
-        /**
-         * The value of the empirical entry.
-         */
-        private N entryValue;
-
-        /**
-         * Constructs a simple entry pair with the given value and cumulative frequency.
-         *
-         * @param val  double : The value of the empirical sample
-         * @param freq double : The cumulative frequency of the empirical sample
-         */
-        private Entry(N val, double freq) {
-            entryValue = val;
-            entryFrequency = freq;
-        }
-
-    }
 
     /**
      * Shows if the empirical distribution has been properly initialized.
      */
     private boolean _isInitialized;
-
     /**
      * Sum of the probabilities of all added entries.
      */
     private double _totalProbabilities;
-
     /**
      * Vector to store the entries of Value/cumulative frequency pairs.
      */
     private java.util.ArrayList<Entry> _values;
 
     /**
-     * Constructs an empirical distribution producing double values. Empirical
-     * distributions have to be initialized manually before use. This is done by
-     * calling the <code>addEntry(double, double)</code> method to add values
+     * Constructs an empirical distribution producing double values. Empirical distributions have to be initialized
+     * manually before use. This is done by calling the <code>addEntry(double, double)</code> method to add values
      * defining the behaviour of the desired distribution.s
      *
      * @param owner        Model : The distribution's owner
@@ -129,12 +91,11 @@ public class DiscreteDistEmpirical<N extends Number> extends DiscreteDist<N> {
     }
 
     /**
-     * Abstract method to map a double <code>p</code> from 0...1 to the
-     * distribution's domain by determining the value x that satisfies
+     * Abstract method to map a double <code>p</code> from 0...1 to the distribution's domain by determining the value x
+     * that satisfies
      * <code>P(X &lt; x) = p</code>.
      *
      * @param p double: A value between 0 and 1
-     *
      * @return N : The value x that satisfies <code>P(X &lt; x) = p</code>
      */
     @Override
@@ -156,8 +117,9 @@ public class DiscreteDistEmpirical<N extends Number> extends DiscreteDist<N> {
 
         while (true) {
             currentCumProbability += (_values.get(i).entryFrequency) / _totalProbabilities;
-            if (currentCumProbability >= p)
+            if (currentCumProbability >= p) {
                 break;
+            }
             i++;
         }
 
@@ -166,7 +128,7 @@ public class DiscreteDistEmpirical<N extends Number> extends DiscreteDist<N> {
         double parseDouble = Double.parseDouble(newSample.toString());
         if (nonNegative && parseDouble < 0) {
             sendWarning("You get a sample from a DiscreteDistEmpirical distribution which "
-            + "is set to nonNegative. But the sample is negative!",
+                        + "is set to nonNegative. But the sample is negative!",
                         "DiscreteDistEmpirical: " + this.getName() + " Method: public double sample() ",
                         "The given distribution has negative values but all negative values " + "should be ignored.",
                         "Make sure not to set a DiscreteDistEmpirical distribution with "
@@ -178,8 +140,8 @@ public class DiscreteDistEmpirical<N extends Number> extends DiscreteDist<N> {
     }
 
     /**
-     * Shows if the EmpiricalDiscreteDist distribution already is initialized. Being
-     * initialized means that at least one value has already been added via the
+     * Shows if the EmpiricalDiscreteDist distribution already is initialized. Being initialized means that at least one
+     * value has already been added via the
      * <code>addEntry(double, double)</code> method.
      *
      * @return boolean
@@ -212,15 +174,13 @@ public class DiscreteDistEmpirical<N extends Number> extends DiscreteDist<N> {
     }
 
     /**
-     * Removes all entries of all empirical values close to a given value. This
-     * method is useful for removing floating point values whose internal precision
-     * may be subject to rounding errors and depend on the JVM in use.<br/>
+     * Removes all entries of all empirical values close to a given value. This method is useful for removing floating
+     * point values whose internal precision may be subject to rounding errors and depend on the JVM in use.<br/>
      * Example: In a DiscreteDistEmprirical<Double> after calling
      * <code>addEntriy(42.42, 5)</code>, you might find the value actually stored is
-     * 42.42000000000001. To remove this entry independently of its precise internal
-     * representation, use e.g. <code>removeEntry(42.42, 0.0001)</code>. (This
-     * assumes all other values stored in this distribution differ by more than
-     * 0.001 from 42.42.)
+     * 42.42000000000001. To remove this entry independently of its precise internal representation, use e.g.
+     * <code>removeEntry(42.42, 0.0001)</code>. (This assumes all other values stored in this distribution differ by
+     * more than 0.001 from 42.42.)
      *
      * @param value     N : The value to be removed
      * @param tolerance double : The value to be removed
@@ -242,16 +202,43 @@ public class DiscreteDistEmpirical<N extends Number> extends DiscreteDist<N> {
     }
 
     /**
-     * Returns the next sample specified by the empirical distribution. In contrast
-     * to RealDistEmpirical here is no interpolation needed.
+     * Returns the next sample specified by the empirical distribution. In contrast to RealDistEmpirical here is no
+     * interpolation needed.
      *
-     * @return N : The next sample for this empirical distribution or returns zero
-     *         (0) with a warning if the distribution has not been properly
-     *         initialized yet
+     * @return N : The next sample for this empirical distribution or returns zero (0) with a warning if the
+     * distribution has not been properly initialized yet
      */
     @Override
     public N sample() {
 
         return super.sample();
+    }
+
+    /**
+     * Inner class for entries
+     */
+    private class Entry {
+
+        /**
+         * The cumulative frequency of the empirical entry.
+         */
+        private double entryFrequency;
+
+        /**
+         * The value of the empirical entry.
+         */
+        private N entryValue;
+
+        /**
+         * Constructs a simple entry pair with the given value and cumulative frequency.
+         *
+         * @param val  double : The value of the empirical sample
+         * @param freq double : The cumulative frequency of the empirical sample
+         */
+        private Entry(N val, double freq) {
+            entryValue = val;
+            entryFrequency = freq;
+        }
+
     }
 }

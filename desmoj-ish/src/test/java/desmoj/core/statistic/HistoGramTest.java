@@ -1,21 +1,18 @@
 package desmoj.core.statistic;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
+import desmoj.implementation.TestModel;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import desmoj.implementation.TestModel;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Tests the class Histogramm. It is supposed to make a statistic about one
- * value.
+ * Tests the class Histogramm. It is supposed to make a statistic about one value.
  *
- * @see core.statistic.Histogramm
  * @author Sascha Winde, Clara Bluemm
- *
+ * @see core.statistic.Histogramm
  */
 public class HistoGramTest {
 
@@ -49,11 +46,11 @@ public class HistoGramTest {
         assertTrue(10 == histo.getCells());
         histo.update(1);
         assertTrue(1 == histo.getLastValue());
-//      doesn't work since no time is defined in the testfixture
-//      Histogram.changeParameters works fine anyway, since a change
-//      is allowed after construction or reset
-//      histo.changeParameters(0, 100, 20);
-//      assertFalse(20 == histo.getCells());
+        //      doesn't work since no time is defined in the testfixture
+        //      Histogram.changeParameters works fine anyway, since a change
+        //      is allowed after construction or reset
+        //      histo.changeParameters(0, 100, 20);
+        //      assertFalse(20 == histo.getCells());
     }
 
     /**

@@ -1,21 +1,16 @@
 package desmoj.core.simulator;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
+import desmoj.implementation.TestEntity;
+import desmoj.implementation.TestModel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import desmoj.implementation.TestEntity;
-import desmoj.implementation.TestModel;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * This class tests the methods derived of the abstract class Entity.
  *
  * @author Sascha Winde, Clara Bluemm
- *
  */
 public abstract class EntityModulTest {
 
@@ -40,8 +35,7 @@ public abstract class EntityModulTest {
     }
 
     /**
-     * To compare different entities, they need to be comparable. This is tested in
-     * this method.
+     * To compare different entities, they need to be comparable. This is tested in this method.
      */
     @Test
     public void testEntityEquals() {
@@ -74,9 +68,8 @@ public abstract class EntityModulTest {
     }
 
     /**
-     * A priority can be set to an entity. So it is possible to make an entity more
-     * important than an other. Depending on this priority the entities are getting
-     * scheduled in the Queue. This method tests whether the method sets the
+     * A priority can be set to an entity. So it is possible to make an entity more important than an other. Depending
+     * on this priority the entities are getting scheduled in the Queue. This method tests whether the method sets the
      * priority right.
      */
     @Test

@@ -1,21 +1,27 @@
 package desmoj.implementation;
 
-import java.util.concurrent.TimeUnit;
-
 import desmoj.core.simulator.Experiment;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * A simple testmodel to provide a reference for the modultest implementations
- *
- * @author Sascha Winde
  *
  * @param owner       model
  * @param name        java.lang.String
  * @param showInTrace
+ * @author Sascha Winde
  */
 public class TestModel extends Model {
+
+    // define model components here
+    TestSimProcess process;
+
+    public TestModel() {
+        super(null, "<Test Model>", true, true);
+    }
 
     /** runs the model */
     public static void main(String[] args) {
@@ -38,13 +44,6 @@ public class TestModel extends Model {
         // generate report and shut everything off
         exp.report();
         exp.finish();
-    }
-
-    // define model components here
-    TestSimProcess process;
-
-    public TestModel() {
-        super(null, "<Test Model>", true, true);
     }
 
     /** returns a description of this model to be used in the report */

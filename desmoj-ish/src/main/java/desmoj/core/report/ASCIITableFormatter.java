@@ -3,54 +3,49 @@ package desmoj.core.report;
 import desmoj.core.simulator.Experiment;
 
 /**
- * A table formatter class for writing simulation output to tab delimited ASCII
- * (e.g. for import into statistics tools or spreadsheet software).
+ * A table formatter class for writing simulation output to tab delimited ASCII (e.g. for import into statistics tools
+ * or spreadsheet software).
  *
- * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  * @author Nicolas Knaak
  *
- *         Licensed under the Apache License, Version 2.0 (the "License"); you
- *         may not use this file except in compliance with the License. You may
- *         obtain a copy of the License at
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
  *
- *         Unless required by applicable law or agreed to in writing, software
- *         distributed under the License is distributed on an "AS IS" BASIS,
- *         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- *         implied. See the License for the specific language governing
- *         permissions and limitations under the License.
- *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  */
 public class ASCIITableFormatter extends AbstractTableFormatter {
 
     /**
-     * Allows to disable the table footer. The footer can be problematic for
-     * comparisons because it contains information that will change between runs.
+     * Allows to disable the table footer. The footer can be problematic for comparisons because it contains information
+     * that will change between runs.
      */
     private static boolean disableFooter = false;
 
     /**
-     * Disables the table footer (for all ASCII tables). The footer can be
-     * problematic for comparisons because it contains information that will change
-     * between runs.
+     * Disables the table footer (for all ASCII tables). The footer can be problematic for comparisons because it
+     * contains information that will change between runs.
      */
     public static void disableFooter() {
         disableFooter = true;
     }
 
     /**
-     * Closes the document by closing open rows and tables and writing the Desmo-J
-     * version footer
+     * Closes the document by closing open rows and tables and writing the Desmo-J version footer
      */
     @Override
     public void close() {
-        if (rowOpen)
+        if (rowOpen) {
             closeRow();
-        if (tableOpen)
+        }
+        if (tableOpen) {
             closeTable();
+        }
         if (!disableFooter) {
             out.write("Created using DESMO-J Version " + Experiment.getDesmoJVersion() + " at " + new java.util.Date()
-            + " - DESMO-J is licensed under " + Experiment.getDesmoJLicense(false));
+                      + " - DESMO-J is licensed under " + Experiment.getDesmoJLicense(false));
         }
     }
 
@@ -137,8 +132,8 @@ public class ASCIITableFormatter extends AbstractTableFormatter {
     }
 
     /**
-     * Writes the given heading enclosed in asterisks followed by a newline
-     * character. The integer parameter's value has no effect on ASCII tables.
+     * Writes the given heading enclosed in asterisks followed by a newline character. The integer parameter's value has
+     * no effect on ASCII tables.
      *
      * @param i heading size (without effect)
      * @param s heading to write
@@ -151,8 +146,7 @@ public class ASCIITableFormatter extends AbstractTableFormatter {
     }
 
     /**
-     * Writes a heading cell. Heading cells are not formatted in a special way in
-     * ASCII tables.
+     * Writes a heading cell. Heading cells are not formatted in a special way in ASCII tables.
      *
      * @param s heading to write
      * @see desmoj.core.report.TableFormatter#writeHeadingCell(java.lang.String)

@@ -1,28 +1,22 @@
 package desmoj.core.dist;
 
-import org.apache.commons.math3.distribution.GammaDistribution;
-import org.apache.commons.math3.exception.OutOfRangeException;
-
 import desmoj.core.simulator.Model;
 import desmoj.core.statistic.StatisticObject;
+import org.apache.commons.math3.distribution.GammaDistribution;
+import org.apache.commons.math3.exception.OutOfRangeException;
 
 /**
  * Distribution returning gamma distributed double values.
  *
- * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  * @author Peter Wueppen
  *
- *         Licensed under the Apache License, Version 2.0 (the "License"); you
- *         may not use this file except in compliance with the License. You may
- *         obtain a copy of the License at
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
  *
- *         Unless required by applicable law or agreed to in writing, software
- *         distributed under the License is distributed on an "AS IS" BASIS,
- *         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- *         implied. See the License for the specific language governing
- *         permissions and limitations under the License.
- *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  */
 
 public class ContDistGamma extends ContDist {
@@ -43,8 +37,8 @@ public class ContDistGamma extends ContDist {
     private GammaDistribution gammadist;
 
     /**
-     * Creates a stream of pseudo random numbers following a gamma distribution. The
-     * specific parameters alpha and beta have to be given here at creation time.
+     * Creates a stream of pseudo random numbers following a gamma distribution. The specific parameters alpha and beta
+     * have to be given here at creation time.
      *
      * @param owner        Model : The distribution's owner
      * @param name         java.lang.String : The distribution's name
@@ -75,7 +69,6 @@ public class ContDistGamma extends ContDist {
     }
 
     /**
-     *
      * @return double : Distribution specific shape parameter alpha
      */
     public double getAlpha() {
@@ -84,7 +77,6 @@ public class ContDistGamma extends ContDist {
     }
 
     /**
-     *
      * @return double : Distribution specific scale parameter beta
      */
     public double getBeta() {
@@ -94,12 +86,11 @@ public class ContDistGamma extends ContDist {
     }
 
     /**
-     * Abstract method to map a double <code>p</code> from 0...1 to the
-     * distribution's domain by determining the value x that satisfies
+     * Abstract method to map a double <code>p</code> from 0...1 to the distribution's domain by determining the value x
+     * that satisfies
      * <code>P(X &lt; x) = p</code>.
      *
      * @param p double: A value between 0 and 1
-     *
      * @return Double : The value x that satisfies <code>P(X &lt; x) = p</code>
      */
     @Override
@@ -115,9 +106,8 @@ public class ContDistGamma extends ContDist {
     }
 
     /**
-     * Returns the next sample from this distribution. The value depends upon the
-     * seed, the number of values taken from the stream by using this method before
-     * and the alpha and beta parameters specified for this distribution.
+     * Returns the next sample from this distribution. The value depends upon the seed, the number of values taken from
+     * the stream by using this method before and the alpha and beta parameters specified for this distribution.
      *
      * @return Double : The next gamma distributed sample from this distribution.
      */

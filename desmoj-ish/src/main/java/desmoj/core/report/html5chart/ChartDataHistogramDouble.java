@@ -3,31 +3,25 @@ package desmoj.core.report.html5chart;
 import desmoj.core.simulator.Model;
 
 /**
- * A chart data for a Text Histogram.<br>
- * Data of a chart, which display a relationship between two variables: Strings
+ * A chart data for a Text Histogram.<br> Data of a chart, which display a relationship between two variables: Strings
  * and values from type <code>Double</code>.
  *
- * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  * @author Johanna Djimandjaja
  *
- *         Licensed under the Apache License, Version 2.0 (the "License"); you
- *         may not use this file except in compliance with the License. You may
- *         obtain a copy of the License at
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
  *
- *         Unless required by applicable law or agreed to in writing, software
- *         distributed under the License is distributed on an "AS IS" BASIS,
- *         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- *         implied. See the License for the specific language governing
- *         permissions and limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  */
 public class ChartDataHistogramDouble extends AbstractChartDataTable<Double> {
 
     private String[] _observedStrings;
 
     /**
-     * Create an Object to represent the chart data with data values from type long
-     * and data classes from type String.
+     * Create an Object to represent the chart data with data values from type long and data classes from type String.
      *
      * @param ownerModel Model : The owner model this chart data is associated to.
      * @param strings    String[] : The Strings representing the cells.
@@ -65,8 +59,9 @@ public class ChartDataHistogramDouble extends AbstractChartDataTable<Double> {
      * @return String: the String at the given index
      */
     public String getObservedString(int index) {
-        if (index < 0 || index >= _observedStrings.length)
+        if (index < 0 || index >= _observedStrings.length) {
             return "";
+        }
         return _observedStrings[index];
     }
 }

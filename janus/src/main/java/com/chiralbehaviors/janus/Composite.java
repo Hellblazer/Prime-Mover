@@ -1,45 +1,30 @@
 /**
  * (C) Copyright 2023 Hal Hildebrand. All Rights Reserved
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
  */
 package com.chiralbehaviors.janus;
 
-import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
-import static org.objectweb.asm.Opcodes.ACC_ABSTRACT;
-import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
-import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
-import static org.objectweb.asm.Opcodes.V1_5;
+import org.objectweb.asm.*;
+import org.objectweb.asm.commons.GeneratorAdapter;
+import org.objectweb.asm.commons.Method;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
-import org.objectweb.asm.commons.GeneratorAdapter;
-import org.objectweb.asm.commons.Method;
+import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
+import static org.objectweb.asm.Opcodes.*;
 
 /**
  * Function to construct and assemble composites
@@ -48,68 +33,7 @@ import org.objectweb.asm.commons.Method;
  */
 public interface Composite {
 
-    class CompositeClassLoader extends ClassLoader {
-        public CompositeClassLoader(ClassLoader parent) {
-            super(parent);
-        }
-
-        Class<?> define(String compositeName, byte[] definition) {
-            return defineClass(compositeName, definition, 0, definition.length);
-        }
-    }
-
-    class Visitor extends ClassVisitor {
-        class MVisitor extends MethodVisitor {
-            final private int      access;
-            final private String[] exceptions;
-            final private String   name, desc, signature;
-
-            public MVisitor(int access, String name, String desc, String signature, String[] exceptions,
-                            MethodVisitor mv) {
-                super(Opcodes.ASM5, mv);
-                this.access = access;
-                this.name = name;
-                this.desc = desc;
-                this.signature = signature;
-                this.exceptions = exceptions;
-            }
-
-            @Override
-            public void visitEnd() {
-                super.visitEnd();
-                composite.visitMethod(mixIn, fieldName, access, name, desc, signature, exceptions, generatedType,
-                                      writer);
-            }
-        }
-
-        final private Composite composite;
-
-        final private String      fieldName;
-        final private Type        generatedType;
-        final private Type        mixIn;
-        final private ClassWriter writer;
-
-        public Visitor(Type mixIn, String fieldName, Type generatedType, ClassWriter writer, Composite composite) {
-            super(Opcodes.ASM5);
-            this.mixIn = mixIn;
-            this.fieldName = fieldName;
-            this.generatedType = generatedType;
-            this.writer = writer;
-            this.composite = composite;
-        }
-
-        @Override
-        public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
-            if (access == Opcodes.ACC_STATIC) {
-                return super.visitMethod(access, name, desc, signature, exceptions);
-            }
-            MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
-            return new MVisitor(access, name, desc, signature, exceptions, mv);
-        }
-    }
-
     static final String GENERATED_COMPOSITE_TEMPLATE = "%s$composite";
-
     static final String MIX_IN_VAR_PREFIX = "mixIn_";
 
     public static ClassReader getClassReader(Class<?> clazz) {
@@ -146,9 +70,9 @@ public interface Composite {
             mixInMap.put(in, i++);
         }
         if (parameters.size() != mixInMap.size()) {
-            throw new IllegalArgumentException("Supplied composite: %s parameters is the wrong size: %s expected: %s".formatted(composite.getCanonicalName(),
-                                                                                                                                parameters.size(),
-                                                                                                                                mixInMap.size()));
+            throw new IllegalArgumentException(
+            "Supplied composite: %s parameters is the wrong size: %s expected: %s".formatted(
+            composite.getCanonicalName(), parameters.size(), mixInMap.size()));
         }
         Object[] arguments = new Object[mixInMap.size()];
         for (Map.Entry<Class<?>, Object> pe : parameters.entrySet()) {
@@ -165,7 +89,7 @@ public interface Composite {
     /**
      * Assemble a Composite instance implementing the supplied interface using the
      * supplied mix in instances as the constructor arguments
-     * 
+     *
      * @param composite      - the composite interface to implement
      * @param loader         - the class loader to load the generated composite
      * @param mixInInstances - the constructor mixin parameters for the new instance
@@ -204,8 +128,8 @@ public interface Composite {
      */
     default byte[] generateClassBits(Class<?> composite) {
         Type compositeType = Type.getType(composite);
-        Type generatedType = Type.getObjectType(GENERATED_COMPOSITE_TEMPLATE.formatted(composite.getName()
-                                                                                                .replace('.', '/')));
+        Type generatedType = Type.getObjectType(
+        GENERATED_COMPOSITE_TEMPLATE.formatted(composite.getName().replace('.', '/')));
         ClassWriter writer;
         Map<Class<?>, Integer> mixInTypeMapping = new HashMap<Class<?>, Integer>();
         var mixInTypes = mixInTypesFor(composite);
@@ -384,6 +308,64 @@ public interface Composite {
         Set<Class<?>> mixInTypes = new TreeSet<Class<?>>(comparator);
         addMixInTypesTo(composite, mixInTypes);
         return mixInTypes.toArray(new Class<?>[mixInTypes.size()]);
+    }
+
+    class CompositeClassLoader extends ClassLoader {
+        public CompositeClassLoader(ClassLoader parent) {
+            super(parent);
+        }
+
+        Class<?> define(String compositeName, byte[] definition) {
+            return defineClass(compositeName, definition, 0, definition.length);
+        }
+    }
+
+    class Visitor extends ClassVisitor {
+        final private Composite composite;
+        final private String      fieldName;
+        final private Type        generatedType;
+        final private Type        mixIn;
+        final private ClassWriter writer;
+        public Visitor(Type mixIn, String fieldName, Type generatedType, ClassWriter writer, Composite composite) {
+            super(Opcodes.ASM5);
+            this.mixIn = mixIn;
+            this.fieldName = fieldName;
+            this.generatedType = generatedType;
+            this.writer = writer;
+            this.composite = composite;
+        }
+
+        @Override
+        public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
+            if (access == Opcodes.ACC_STATIC) {
+                return super.visitMethod(access, name, desc, signature, exceptions);
+            }
+            MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
+            return new MVisitor(access, name, desc, signature, exceptions, mv);
+        }
+
+        class MVisitor extends MethodVisitor {
+            final private int      access;
+            final private String[] exceptions;
+            final private String   name, desc, signature;
+
+            public MVisitor(int access, String name, String desc, String signature, String[] exceptions,
+                            MethodVisitor mv) {
+                super(Opcodes.ASM5, mv);
+                this.access = access;
+                this.name = name;
+                this.desc = desc;
+                this.signature = signature;
+                this.exceptions = exceptions;
+            }
+
+            @Override
+            public void visitEnd() {
+                super.visitEnd();
+                composite.visitMethod(mixIn, fieldName, access, name, desc, signature, exceptions, generatedType,
+                                      writer);
+            }
+        }
     }
 
 }

@@ -1,40 +1,32 @@
 package desmoj.core.simulator;
 
-import java.util.List;
-
 import desmoj.core.report.DebugNote;
 import desmoj.core.report.ErrorMessage;
 import desmoj.core.report.Message;
 import desmoj.core.report.TraceNote;
 
+import java.util.List;
+
 /**
- * Encapsulates all information relevant to each component of a model. Its basic
- * intention is to connect each modelcomponent to a single Model object as the
- * owner of this modelcomponent. Through this connection all relevant
- * information about that Model can be retrieved. It is part of the composite
- * design pattern as described in [Gamm97] page 163 in which it represents the
- * component class.
+ * Encapsulates all information relevant to each component of a model. Its basic intention is to connect each
+ * modelcomponent to a single Model object as the owner of this modelcomponent. Through this connection all relevant
+ * information about that Model can be retrieved. It is part of the composite design pattern as described in [Gamm97]
+ * page 163 in which it represents the component class.
  *
- * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  * @author Tim Lechler
  *
- *         Licensed under the Apache License, Version 2.0 (the "License"); you
- *         may not use this file except in compliance with the License. You may
- *         obtain a copy of the License at
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
  *
- *         Unless required by applicable law or agreed to in writing, software
- *         distributed under the License is distributed on an "AS IS" BASIS,
- *         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- *         implied. See the License for the specific language governing
- *         permissions and limitations under the License.
- *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  */
 public class ModelComponent extends NamedObject {
 
     /**
-     * Flag indicating if this modelcomponent should be listed in the debug output
-     * file.
+     * Flag indicating if this modelcomponent should be listed in the debug output file.
      */
     private boolean _debugMode;
 
@@ -44,15 +36,13 @@ public class ModelComponent extends NamedObject {
     private Model _owner;
 
     /**
-     * Flag indicating if this modelcomponent should be listed in the trace output
-     * file.
+     * Flag indicating if this modelcomponent should be listed in the trace output file.
      */
     private boolean _traceMode;
 
     /**
-     * Constructs a modelcomponent with the given String as name and the given model
-     * as the associated owner of this component. Components can only be created
-     * after the corresponding model object has been instantiated. The default
+     * Constructs a modelcomponent with the given String as name and the given model as the associated owner of this
+     * component. Components can only be created after the corresponding model object has been instantiated. The default
      * preset for the showInTrace option is <code>false</code>.
      *
      * @param name       java.lang.String : The name of the component
@@ -65,16 +55,14 @@ public class ModelComponent extends NamedObject {
     }
 
     /**
-     * Constructs a modelcomponent with the given String as name and the given model
-     * as the associated owner of this component. Components can thus only be
-     * created after the corresponding model object has been instantiated.
+     * Constructs a modelcomponent with the given String as name and the given model as the associated owner of this
+     * component. Components can thus only be created after the corresponding model object has been instantiated.
      *
      * @param name        java.lang.String : The name of the component
      * @param ownerModel  Model : The model this component is associated to
-     * @param showInTrace boolean : Flag for showing component in trace-files. Set
-     *                    it to <code>true</code> if component should show up in
-     *                    trace. Set it to <code>false</code> if component should
-     *                    not be shown in trace.
+     * @param showInTrace boolean : Flag for showing component in trace-files. Set it to <code>true</code> if component
+     *                    should show up in trace. Set it to <code>false</code> if component should not be shown in
+     *                    trace.
      */
     public ModelComponent(Model ownerModel, String name, boolean showInTrace) {
 
@@ -85,8 +73,7 @@ public class ModelComponent extends NamedObject {
     }
 
     /**
-     * Returns the currently active Schedulable object that is handled by the
-     * scheduler.
+     * Returns the currently active Schedulable object that is handled by the scheduler.
      *
      * @return Schedulable : The current Schedulable object.
      */
@@ -97,16 +84,14 @@ public class ModelComponent extends NamedObject {
     }
 
     /**
-     * Returns the currently active Entity. Returns <code>null</code> if the current
-     * Schedulable happens to be an external event or a SimProcess. Note that in
-     * case the current Event refers to more than one entity
-     * (<code>EventTwoEntitties</code>, <code>EventThreeEntitties</code>), only the
-     * first entity is returned; to obtain all such entities, use
+     * Returns the currently active Entity. Returns <code>null</code> if the current Schedulable happens to be an
+     * external event or a SimProcess. Note that in case the current Event refers to more than one entity
+     * (<code>EventTwoEntitties</code>, <code>EventThreeEntitties</code>), only the first entity is returned; to obtain
+     * all such entities, use
      * <code>getAllCurrentEntities()</code> instead.
      *
-     * @return Entity : The currently active Entity or <code>null</code> in case of
-     *         an external event or a SimProcess being the currently active
-     *         Schedulable
+     * @return Entity : The currently active Entity or <code>null</code> in case of an external event or a SimProcess
+     * being the currently active Schedulable
      */
     public Entity currentEntity() {
 
@@ -115,8 +100,8 @@ public class ModelComponent extends NamedObject {
     }
 
     /**
-     * Returns the currently active entities. Returns an empty list if the current
-     * Schedulable happens to be an external event or a SimProcess.
+     * Returns the currently active entities. Returns an empty list if the current Schedulable happens to be an external
+     * event or a SimProcess.
      *
      * @return List<Entity> : A list containing the currently active entities
      */
@@ -127,13 +112,10 @@ public class ModelComponent extends NamedObject {
     }
 
     /**
-     * Returns the currently active Event that is handled by the scheduler. It
-     * returns <code>null</code> if a process Event is the current active
-     * Schedulable, thus no Event is active.
+     * Returns the currently active Event that is handled by the scheduler. It returns <code>null</code> if a process
+     * Event is the current active Schedulable, thus no Event is active.
      *
-     * @return Event : The current active Event or <code>null</code> if the current
-     *         active Schedulable is a process
-     *
+     * @return Event : The current active Event or <code>null</code> if the current active Schedulable is a process
      */
     public EventAbstract currentEvent() {
 
@@ -142,21 +124,21 @@ public class ModelComponent extends NamedObject {
     }
 
     /**
-     * Returns the model that the currently active Event or Entity handled by the
-     * scheduler belongs to or the main model connected to the experiment, if no
-     * model can be returned by the scheduler.
+     * Returns the model that the currently active Event or Entity handled by the scheduler belongs to or the main model
+     * connected to the experiment, if no model can be returned by the scheduler.
      *
-     * @return Model : The current active or the main model connected to the
-     *         experiment, if no model can be returned by the scheduler
+     * @return Model : The current active or the main model connected to the experiment, if no model can be returned by
+     * the scheduler
      */
     public Model currentModel() {
 
         Model mBuff = _owner.getExperiment().getScheduler().getCurrentModel();
 
-        if (mBuff != null)
+        if (mBuff != null) {
             return mBuff;
-        else
+        } else {
             return _owner.getExperiment().getModel();
+        }
 
     }
 
@@ -183,8 +165,7 @@ public class ModelComponent extends NamedObject {
     }
 
     /**
-     * Switches off debug output for this modelcomponent. Does nothing if trace is
-     * already switched off.
+     * Switches off debug output for this modelcomponent. Does nothing if trace is already switched off.
      */
     public void debugOff() {
 
@@ -193,8 +174,7 @@ public class ModelComponent extends NamedObject {
     }
 
     /**
-     * Switches on debug output for this modelcomponent. Does nothing if debug is
-     * already switched on.
+     * Switches on debug output for this modelcomponent. Does nothing if debug is already switched on.
      */
     public void debugOn() {
 
@@ -216,13 +196,11 @@ public class ModelComponent extends NamedObject {
     }
 
     /**
-     * Tests if the modelcomponent given as parameter is a component of the same
-     * experiment as this modelcomponent.
+     * Tests if the modelcomponent given as parameter is a component of the same experiment as this modelcomponent.
      *
-     * @return boolean : true, if this modelcomponent belongs to the same experiment
-     *         as this modelcomponent, false otherwise
-     * @param other ModelComponent : the other modelcomponent to check compatibility
-     *              with
+     * @param other ModelComponent : the other modelcomponent to check compatibility with
+     * @return boolean : true, if this modelcomponent belongs to the same experiment as this modelcomponent, false
+     * otherwise
      */
     public boolean isExperimentCompatible(ModelComponent other) {
 
@@ -233,13 +211,11 @@ public class ModelComponent extends NamedObject {
     }
 
     /**
-     * Tests if the modelcomponent given as parameter is a component of the same
-     * model as this modelcomponent.
+     * Tests if the modelcomponent given as parameter is a component of the same model as this modelcomponent.
      *
-     * @return boolean :<code>true</code>, if this modelcomponent belongs to the
-     *         same model as the given modelcomponent, <code>false</code> otherwise
-     * @param other ModelComponent : the other modelcomponent to check compatibility
-     *              with
+     * @param other ModelComponent : the other modelcomponent to check compatibility with
+     * @return boolean :<code>true</code>, if this modelcomponent belongs to the same model as the given modelcomponent,
+     * <code>false</code> otherwise
      */
     public boolean isModelCompatible(ModelComponent other) {
 
@@ -250,8 +226,7 @@ public class ModelComponent extends NamedObject {
     }
 
     /**
-     * Returns the current simulation time as displayed by the simulation clock
-     * responsible for this modelcomponent.
+     * Returns the current simulation time as displayed by the simulation clock responsible for this modelcomponent.
      *
      * @return TimeInstant : The current point of simulation time
      */
@@ -260,15 +235,14 @@ public class ModelComponent extends NamedObject {
     }
 
     /**
-     * Creates and sends a debugnote to the experiment's messagedistributor.
-     * Debugnotes express the internal state of a modelcomponent to visualize the
-     * changes of state to help find bugs. Classes <code>Scheduler</code> and
+     * Creates and sends a debugnote to the experiment's messagedistributor. Debugnotes express the internal state of a
+     * modelcomponent to visualize the changes of state to help find bugs. Classes <code>Scheduler</code> and
      * <code>Queue</code> both produce debugnotes if set to do so representing the
-     * data stored inside them. The information about the simulation time is
-     * extracted from the experiment and must not be given as a parameter.
+     * data stored inside them. The information about the simulation time is extracted from the experiment and must not
+     * be given as a parameter.
      *
-     * @param description java.lang.String : The description of a modelcomponent's
-     *                    internal state to be passed with this debugnote
+     * @param description java.lang.String : The description of a modelcomponent's internal state to be passed with this
+     *                    debugnote
      */
     public void sendDebugNote(String description) {
         // send debug message only if debug mode of this model component
@@ -280,16 +254,14 @@ public class ModelComponent extends NamedObject {
     }
 
     /**
-     * Sends a message to the messagedistributor handled by the experiment. This
-     * modelcomponent must already be connected to an experiment in order to have a
-     * messagedistributor available to send this message to and an appropriate
-     * messagereceiver must already be registered at the messagedistributor to
-     * receive that type of message passed on to it. If no messaging subsystem is
-     * available to this modelcomponent, then the mesage is printed to the standard
+     * Sends a message to the messagedistributor handled by the experiment. This modelcomponent must already be
+     * connected to an experiment in order to have a messagedistributor available to send this message to and an
+     * appropriate messagereceiver must already be registered at the messagedistributor to receive that type of message
+     * passed on to it. If no messaging subsystem is available to this modelcomponent, then the mesage is printed to the
+     * standard
      * <code>out</code> printstream as configured in the local Java runtime
-     * environment of the computer this simulation is running on. Note that there
-     * are shorthands for sending the standard DESMO-J messages. These methods
-     * create and send the appropriate Message on-the-fly:
+     * environment of the computer this simulation is running on. Note that there are shorthands for sending the
+     * standard DESMO-J messages. These methods create and send the appropriate Message on-the-fly:
      * <ul>
      * <li><code>sendTraceNote()</clode> to send a tracenote</li>
      * <li><code>sendDebugNote()</code> to send the data needed to debug models</li>
@@ -327,9 +299,8 @@ public class ModelComponent extends NamedObject {
     }
 
     /**
-     * Creates and sends a tracenote to the experiment's messagedistributor. The
-     * information about the simulation time, model and component producing this
-     * tracenote is extracted from the experiment and must not be given as
+     * Creates and sends a tracenote to the experiment's messagedistributor. The information about the simulation time,
+     * model and component producing this tracenote is extracted from the experiment and must not be given as
      * parameters.
      *
      * @param description java.lang.String : The description of the tracenote
@@ -341,31 +312,26 @@ public class ModelComponent extends NamedObject {
 
         String mode = ""; // no special mode
 
-        if (currentModel().isConnected() && currentModel().getExperiment().isPreparing())
+        if (currentModel().isConnected() && currentModel().getExperiment().isPreparing()) {
             mode = "initially ";
+        }
 
         if (currentlySendTraceNotes()) {
-            sendMessage(new TraceNote(currentModel(), mode + description, presentTime(), currentEntityAll(),
-                                      currentEvent()));
+            sendMessage(
+            new TraceNote(currentModel(), mode + description, presentTime(), currentEntityAll(), currentEvent()));
         }
     }
 
     /**
-     * Creates and sends an error message to warn about a erroneous condition in the
-     * DESMO-J framework to the experiment's messagedistributor. Be sure to have a
-     * correct location, since the object and method that the error becomes apparent
-     * is not necessary the location it was produced in. The information about the
-     * simulation time is extracted from the Experiment and must not be given as a
-     * parameter.
+     * Creates and sends an error message to warn about a erroneous condition in the DESMO-J framework to the
+     * experiment's messagedistributor. Be sure to have a correct location, since the object and method that the error
+     * becomes apparent is not necessary the location it was produced in. The information about the simulation time is
+     * extracted from the Experiment and must not be given as a parameter.
      *
-     * @param description java.lang.String : The description of the error that
-     *                    occured
-     * @param location    java.lang.String : The class and method the error occured
-     *                    in
-     * @param reason      java.lang.String : The reason most probably responsible
-     *                    for the error to occur
-     * @param prevention  java.lang.String : The measures a user should take to
-     *                    prevent this warning to be issued again
+     * @param description java.lang.String : The description of the error that occured
+     * @param location    java.lang.String : The class and method the error occured in
+     * @param reason      java.lang.String : The reason most probably responsible for the error to occur
+     * @param prevention  java.lang.String : The measures a user should take to prevent this warning to be issued again
      */
     public void sendWarning(String description, String location, String reason, String prevention) {
 
@@ -375,10 +341,9 @@ public class ModelComponent extends NamedObject {
     }
 
     /**
-     * Skips the next tracenote. The next tracenote produced by any object in the
-     * DESMO-J framework will not be distributed by the experiment's messagemanager.
-     * This is necessary for some operations to hide the framework's actions and
-     * thus not confuse the modeller.
+     * Skips the next tracenote. The next tracenote produced by any object in the DESMO-J framework will not be
+     * distributed by the experiment's messagemanager. This is necessary for some operations to hide the framework's
+     * actions and thus not confuse the modeller.
      */
     public void skipTraceNote() {
 
@@ -387,9 +352,8 @@ public class ModelComponent extends NamedObject {
     }
 
     /**
-     * Skips the next number of tracenotes. The next -numSkipped - number of
-     * tracenotes produced by any object in the DESMO-J framework will not be
-     * distributed by the experiment's messagemanager. This is necessary for some
+     * Skips the next number of tracenotes. The next -numSkipped - number of tracenotes produced by any object in the
+     * DESMO-J framework will not be distributed by the experiment's messagemanager. This is necessary for some
      * operations to hide the framework's actions and thus not confuse the modeller.
      *
      * @param numSkipped int : The number of future tracenotes to be skipped
@@ -398,23 +362,20 @@ public class ModelComponent extends NamedObject {
 
         // nothing to do or negative (illegal) param.
 
-        if ((numSkipped < 1) || !currentlySendTraceNotes())
+        if ((numSkipped < 1) || !currentlySendTraceNotes()) {
             return; // not sending trance notes anyway
+        }
 
         try {
-            getModel().getExperiment()
-                      .getMessageManager()
-                      .skip(Class.forName("desmoj.core.report.TraceNote"), numSkipped);
+            getModel().getExperiment().getMessageManager().skip(Class.forName("desmoj.core.report.TraceNote"),
+                                                                numSkipped);
         } catch (ClassNotFoundException cnfx) {
-            throw new desmoj.core.exception.SimAbortedException(new ErrorMessage(getModel(),
-                                                                                 "Can not skip tracenotes! Simulation aborted.",
-                                                                                 "ModelComponent : " + getName()
-                                                                                 + " Method : skipTraceNote()",
-                                                                                 "The file for class desmoj.report.TraceNote can not be found by "
-                                                                                 + "the Java runtime. Following exception was caught : "
-                                                                                 + cnfx.toString(),
-                                                                                 "Check that all pathnames for DESMOJ are set in your environment.",
-                                                                                 presentTime()));
+            throw new desmoj.core.exception.SimAbortedException(
+            new ErrorMessage(getModel(), "Can not skip tracenotes! Simulation aborted.",
+                             "ModelComponent : " + getName() + " Method : skipTraceNote()",
+                             "The file for class desmoj.report.TraceNote can not be found by "
+                             + "the Java runtime. Following exception was caught : " + cnfx.toString(),
+                             "Check that all pathnames for DESMOJ are set in your environment.", presentTime()));
 
         }
 
@@ -432,8 +393,7 @@ public class ModelComponent extends NamedObject {
     }
 
     /**
-     * Switches off trace output for this modelcomponent. Does nothing if trace is
-     * already switched off.
+     * Switches off trace output for this modelcomponent. Does nothing if trace is already switched off.
      */
     public void traceOff() {
 
@@ -442,8 +402,7 @@ public class ModelComponent extends NamedObject {
     }
 
     /**
-     * Switches on trace output for this modelcomponent. Does nothing if trace is
-     * already switched on.
+     * Switches on trace output for this modelcomponent. Does nothing if trace is already switched on.
      */
     public void traceOn() {
 
@@ -452,8 +411,8 @@ public class ModelComponent extends NamedObject {
     }
 
     /**
-     * returns true if this model component should currently send debug notes (i.e.
-     * experiment and the component are both in debug mode).
+     * returns true if this model component should currently send debug notes (i.e. experiment and the component are
+     * both in debug mode).
      *
      * @return
      */
@@ -462,8 +421,8 @@ public class ModelComponent extends NamedObject {
     }
 
     /**
-     * returns true if this model component should currently send trace notes (i.e.
-     * experiment and the component are both in trace mode).
+     * returns true if this model component should currently send trace notes (i.e. experiment and the component are
+     * both in trace mode).
      *
      * @return
      */
@@ -472,10 +431,9 @@ public class ModelComponent extends NamedObject {
     }
 
     /**
-     * Sets the owner of a modelcomponent to the given reference. This is
-     * exclusively needed to build a self-reference for the main model of an
-     * experiment. Has to be delegated to class <code>modelcomponent</code> since
-     * the owner attribute is encapsulated in this class.
+     * Sets the owner of a modelcomponent to the given reference. This is exclusively needed to build a self-reference
+     * for the main model of an experiment. Has to be delegated to class <code>modelcomponent</code> since the owner
+     * attribute is encapsulated in this class.
      *
      * @param newOwner desmoj.Model : The modelcomponent's new owner
      */

@@ -1,6 +1,6 @@
 package com.hellblazer.primeMover.agent;
 
-import com.hellblazer.primeMover.Kronos;
+import com.hellblazer.primeMover.api.Kronos;
 import com.hellblazer.primeMover.asm.AnnotationScanner;
 import com.hellblazer.primeMover.classfile.ClassRemapper;
 import com.hellblazer.primeMover.classfile.SimulationTransform;
@@ -54,7 +54,7 @@ public class SimulationTransformerClassFileAPI implements ClassFileTransformer {
             log.severe("Unable to read class " + className);
             return null;
         }
-        
+
         if (!annotationScanner.isTransform()) {
             if (annotationScanner.isPreviouslyTransformed()) {
                 log.info("Previously transformed " + className);
@@ -63,10 +63,10 @@ public class SimulationTransformerClassFileAPI implements ClassFileTransformer {
             // Apply API remapping using ClassFile API
             ClassFile cf = ClassFile.of();
             var classModel = cf.parse(classfileBuffer);
-            
-            byte[] remappedBytes = cf.build(classModel.thisClass().asSymbol(), 
-                classBuilder -> classBuilder.transform(classModel, apiRemapper));
-            
+
+            byte[] remappedBytes = cf.build(classModel.thisClass().asSymbol(),
+                                            classBuilder -> classBuilder.transform(classModel, apiRemapper));
+
             return remappedBytes;
         }
 

@@ -6,29 +6,22 @@ import desmoj.core.simulator.Model;
 /**
  * Empirically distributed stream of pseudo random numbers of type
  * <code>double</code>. Values produced by this distribution follow an empirical
- * distribution which is specified by entries consisting of the observed value
- * and the frequency (probability) this value has been observed to occur. These
- * entries are made by using the <code>addEntry()</code> method. There are a few
- * conditions a user has to meet before actually being allowed to take a sample
- * of this distribution.
- *
- * @see desmoj.core.dist.Distribution
+ * distribution which is specified by entries consisting of the observed value and the frequency (probability) this
+ * value has been observed to occur. These entries are made by using the <code>addEntry()</code> method. There are a few
+ * conditions a user has to meet before actually being allowed to take a sample of this distribution.
  *
  * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  * @author Tim Lechler
  *
- *         Licensed under the Apache License, Version 2.0 (the "License"); you
- *         may not use this file except in compliance with the License. You may
- *         obtain a copy of the License at
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
  *
- *         Unless required by applicable law or agreed to in writing, software
- *         distributed under the License is distributed on an "AS IS" BASIS,
- *         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- *         implied. See the License for the specific language governing
- *         permissions and limitations under the License.
- *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ * @see desmoj.core.dist.Distribution
  */
+
 /**
  * @author JohannesGoebel
  *
@@ -36,53 +29,17 @@ import desmoj.core.simulator.Model;
 public class ContDistEmpirical extends ContDist {
 
     /**
-     * Entries in the Vector for RealDistEmpirical. In order to keep tightly coupled
-     * classes in one location, this class is a member class of RealDistEmpirical
-     *
-     * @author Tim Lechler
-     * @see desmoj.core.dist.ContDistEmpirical
-     */
-    private static class Entry {
-
-        /**
-         * Holds the cumulative frequency of a value/frequency pair.
-         */
-        private double entryFrequency;
-
-        /**
-         * Holds the value of a value/frequency pair.
-         */
-        private double entryValue;
-
-        /**
-         * Creates an Entry for the RealDistEmpirical distribution with the actual value
-         * and cumulative frequency given as parameters.
-         *
-         * @param val  double : The value of the empirical sample
-         * @param freq double : The cumulative frequency of the empirical sample
-         */
-        private Entry(double val, double freq) {
-            entryValue = val;
-            entryFrequency = freq;
-        }
-
-    }
-
-    /**
      * Shows if a value with cumulative probability of one has been added yet.
      */
     private boolean _cumProOneInitialized;
-
     /**
      * Shows if a value with cumulative probability of zero has been added yet.
      */
     private boolean _cumProZeroInitialized;
-
     /**
      * Shows if the empirical distribution has been properly initialized.
      */
     private boolean _isInitialized;
-
     /**
      * Vector to store the entries of Value/cumulative frequency pairs.
      */
@@ -139,8 +96,7 @@ public class ContDistEmpirical extends ContDist {
         for (int i = 0; i < _values.size(); i++) {
 
             if (_values.get(i).entryValue == value) {
-                sendWarning("Can't add empirical entry! Command ignored.",
-                            "ContDistEmpirical : " + getName()
+                sendWarning("Can't add empirical entry! Command ignored.", "ContDistEmpirical : " + getName()
                             + " Method: void addEntry(double value, double frequency)",
                             "The entry given is invalid because its value is already in the list.",
                             "Be sure not to add entries with duplicate values.");
@@ -149,12 +105,9 @@ public class ContDistEmpirical extends ContDist {
                 if (i == 0 && _values.get(i).entryFrequency >= frequency) {
                     addEntryToList(i, value, frequency);
                     return;
-                }
-
-                else if (i == 0 || _values.get(i).entryFrequency < frequency ||
-                         _values.get(i - 1).entryFrequency > frequency) {
-                    sendWarning("Can't add empirical entry! Command ignored.",
-                                "ContDistEmpirical : " + getName()
+                } else if (i == 0 || _values.get(i).entryFrequency < frequency || _values.get(i - 1).entryFrequency
+                > frequency) {
+                    sendWarning("Can't add empirical entry! Command ignored.", "ContDistEmpirical : " + getName()
                                 + " Method: void addEntry(double value, double frequency)",
                                 "The entry given is invalid because it does not fit into the list of already added entries",
                                 "Be sure to add entries that fit into the empirical distribution function.");
@@ -272,6 +225,39 @@ public class ContDistEmpirical extends ContDist {
         }
 
         _values.add(position, new Entry(value, frequency));
+
+    }
+
+    /**
+     * Entries in the Vector for RealDistEmpirical. In order to keep tightly coupled
+     * classes in one location, this class is a member class of RealDistEmpirical
+     *
+     * @author Tim Lechler
+     * @see desmoj.core.dist.ContDistEmpirical
+     */
+    private static class Entry {
+
+        /**
+         * Holds the cumulative frequency of a value/frequency pair.
+         */
+        private double entryFrequency;
+
+        /**
+         * Holds the value of a value/frequency pair.
+         */
+        private double entryValue;
+
+        /**
+         * Creates an Entry for the RealDistEmpirical distribution with the actual value
+         * and cumulative frequency given as parameters.
+         *
+         * @param val  double : The value of the empirical sample
+         * @param freq double : The cumulative frequency of the empirical sample
+         */
+        private Entry(double val, double freq) {
+            entryValue = val;
+            entryFrequency = freq;
+        }
 
     }
 }

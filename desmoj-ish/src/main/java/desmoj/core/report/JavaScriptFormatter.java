@@ -1,31 +1,23 @@
 package desmoj.core.report;
 
-import java.awt.Color;
-import java.util.HashSet;
-
+import desmoj.core.report.html5chart.*;
 import desmoj.core.report.html5chart.Canvas;
-import desmoj.core.report.html5chart.CanvasCoordinateChart;
-import desmoj.core.report.html5chart.CanvasCoordinateChartInterval;
-import desmoj.core.report.html5chart.CanvasHistogramDouble;
-import desmoj.core.report.html5chart.CanvasHistogramLong;
-import desmoj.core.report.html5chart.CanvasTimeSeries;
+
+import java.awt.*;
+import java.util.HashSet;
 
 /**
  * This class helps writing the JavaScript codes to draw charts.
  *
- * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  * @author Johanna Djimandjaja
  *
- *         Licensed under the Apache License, Version 2.0 (the "License"); you
- *         may not use this file except in compliance with the License. You may
- *         obtain a copy of the License at
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
  *
- *         Unless required by applicable law or agreed to in writing, software
- *         distributed under the License is distributed on an "AS IS" BASIS,
- *         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- *         implied. See the License for the specific language governing
- *         permissions and limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  */
 public class JavaScriptFormatter {
 
@@ -33,8 +25,7 @@ public class JavaScriptFormatter {
     private Canvas _canvas;
 
     /**
-     * A set containing Strings, that represents the functions that should be
-     * written on the script.
+     * A set containing Strings, that represents the functions that should be written on the script.
      */
     private HashSet<String> _functionsToWrite;
 
@@ -68,9 +59,9 @@ public class JavaScriptFormatter {
             this.drawXAxis();
             this.drawYAxis();
 
-            if (_canvas instanceof CanvasTimeSeries)
+            if (_canvas instanceof CanvasTimeSeries) {
                 this.drawTimeSeries();
-            else {
+            } else {
                 if (_canvas instanceof CanvasHistogramLong || _canvas instanceof CanvasHistogramDouble) {
                     this.drawVerticalBars();
                     this.drawTextLabels();
@@ -116,8 +107,7 @@ public class JavaScriptFormatter {
     }
 
     /**
-     * Writes the code to draw the x-axis and to put the label for the x-axis into
-     * the JavaScript.
+     * Writes the code to draw the x-axis and to put the label for the x-axis into the JavaScript.
      */
     private void drawXAxis() {
         _out.writeln("drawXAxis();");
@@ -125,8 +115,7 @@ public class JavaScriptFormatter {
     }
 
     /**
-     * Writes the code to draw the scales of the x-axis and to write the labels for
-     * the scales into the JavaScript.
+     * Writes the code to draw the scales of the x-axis and to write the labels for the scales into the JavaScript.
      */
     private void drawXScale() {
         _out.writeln("drawXScale();");
@@ -134,8 +123,7 @@ public class JavaScriptFormatter {
     }
 
     /**
-     * Writes the code to draw the y-axis and to put the label for the y-axis into
-     * the JavaScript.
+     * Writes the code to draw the y-axis and to put the label for the y-axis into the JavaScript.
      */
     private void drawYAxis() {
         _out.writeln("drawYAxis();");
@@ -143,8 +131,7 @@ public class JavaScriptFormatter {
     }
 
     /**
-     * Writes the code to draw the scales of the y-axis and to write the labels for
-     * the scales into the JavaScript.
+     * Writes the code to draw the scales of the y-axis and to write the labels for the scales into the JavaScript.
      */
     private void drawYScale() {
         _out.writeln("drawYScale();");
@@ -152,18 +139,19 @@ public class JavaScriptFormatter {
     }
 
     /**
-     * Changes a given number into a 2-digit hexadecimal string.<br>
-     * Numbers less then 0 will be changed to the String 00 and numbers higher then
-     * 255 will be changed to FF.
+     * Changes a given number into a 2-digit hexadecimal string.<br> Numbers less then 0 will be changed to the String
+     * 00 and numbers higher then 255 will be changed to FF.
      *
      * @param number The number, that should be changed into hexadecimal.
      * @return String : The given number as a 2-digit hexadecimal string.
      */
     private String intToHexString(int number) {
-        if (number <= 0)
+        if (number <= 0) {
             return "00";
-        if (number >= 255)
+        }
+        if (number >= 255) {
             return "FF";
+        }
         String hex;
         if (number < 16) {
             hex = "0" + Integer.toHexString(number);
@@ -188,20 +176,18 @@ public class JavaScriptFormatter {
     }
 
     /**
-     * Returns the hexadecimal notation for the given color.<br>
-     * The notation combines the red, green, and blue color values (RGB) in
-     * hexadecimal form. The lowest value that can be given to one of the light
-     * sources is 0 (hex 00). The highest value is 255 (hex FF).<br>
-     * When the given color is <code>null</code> returns <code>#000000</code>.
+     * Returns the hexadecimal notation for the given color.<br> The notation combines the red, green, and blue color
+     * values (RGB) in hexadecimal form. The lowest value that can be given to one of the light sources is 0 (hex 00).
+     * The highest value is 255 (hex FF).<br> When the given color is <code>null</code> returns <code>#000000</code>.
      *
      * @param color The color to be coded.
      * @return String : The hexadecimal notation for the given color.
      */
     private String toHexString(Color color) {
         String hex = "";
-        if (color == null)
+        if (color == null) {
             hex = "#000000";
-        else {
+        } else {
             int r = color.getRed();
             int g = color.getGreen();
             int b = color.getBlue();
@@ -232,17 +218,18 @@ public class JavaScriptFormatter {
                         dataValue = (double) (canvas.getChartHeight() + canvas.getTopGap()) / canvas.getChartHeight()
                         * canvas.getNumOfYScale() * canvas.getYScale();
                     }
-                    if (i == 0)
+                    if (i == 0) {
                         dataString = "" + dataValue;
-                    else
+                    } else {
                         dataString = dataString + ", " + dataValue;
+                    }
                 }
             } // end else
 
             // write all data values into an array
             _out.writeln("	var dataValues = [" + dataString + "];");
         } // end (_canvas instanceof AbstractLongCoorChartCanvas || _canvas instanceof
-          // AbstractDoubleCoorChartCanvas)
+        // AbstractDoubleCoorChartCanvas)
 
         if (_canvas instanceof CanvasCoordinateChartInterval) {
             CanvasCoordinateChartInterval<?> intervalCanvas = (CanvasCoordinateChartInterval<?>) _canvas;
@@ -252,11 +239,13 @@ public class JavaScriptFormatter {
                 double lowerLimit = intervalCanvas.getLowerLimit(i);
                 double upperLimit = intervalCanvas.getUpperLimit(i);
 
-                if (lowerLimit == Double.NEGATIVE_INFINITY)
+                if (lowerLimit == Double.NEGATIVE_INFINITY) {
                     lowerLimit = intervalCanvas.getStartXScale().doubleValue();
-                if (upperLimit == Double.POSITIVE_INFINITY)
+                }
+                if (upperLimit == Double.POSITIVE_INFINITY) {
                     upperLimit = intervalCanvas.getXScale().doubleValue() * intervalCanvas.getNumOfXScale()
                     + intervalCanvas.getStartXScale().doubleValue();
+                }
 
                 if (i == 0) {
                     lowerLimitsString = lowerLimitsString + lowerLimit;
@@ -293,10 +282,11 @@ public class JavaScriptFormatter {
                 timeValueBuff = tsCanvas.getTimeValues(i);
 
                 int numOfPair;
-                if (dataValueBuff.length <= timeValueBuff.length)
+                if (dataValueBuff.length <= timeValueBuff.length) {
                     numOfPair = dataValueBuff.length;
-                else
+                } else {
                     numOfPair = timeValueBuff.length;
+                }
 
                 // write data and time for one TimeSeries
                 for (int j = 0; j < numOfPair; j++) {
@@ -442,9 +432,8 @@ public class JavaScriptFormatter {
     }
 
     /**
-     * Write the code to draw vertical bars.<br>
-     * This method should be used after the codes to draw the scales on the y-axis
-     * are written.
+     * Write the code to draw vertical bars.<br> This method should be used after the codes to draw the scales on the
+     * y-axis are written.
      */
     private void writeFuncDrawVerticalBars() {
         _out.writeln("");
@@ -478,7 +467,8 @@ public class JavaScriptFormatter {
                 _out.writeln("		var barWidth = endX-startX");
                 _out.writeln("		var barHeight = dataValues[i]/(yScale*numOfYScale) * chartHeight;");
                 _out.writeln("		myContext.fillStyle = colors[i];");
-                _out.writeln("		myContext.fillRect(xToCanvasCoordinate(startX), yToCanvasCoordinate(0), barWidth, 0-barHeight);");
+                _out.writeln(
+                "		myContext.fillRect(xToCanvasCoordinate(startX), yToCanvasCoordinate(0), barWidth, 0-barHeight);");
                 _out.writeln("	}");
                 _out.writeln("	myContext.restore();");
 
@@ -498,7 +488,8 @@ public class JavaScriptFormatter {
                     _out.writeln("		var startX = (i+1)*barGap + i*barWidth;");
                     _out.writeln("		var barHeight = dataValues[i]/(yScale*numOfYScale) * chartHeight;");
                     _out.writeln("		myContext.fillStyle = colors[i];");
-                    _out.writeln("		myContext.fillRect(xToCanvasCoordinate(startX), yToCanvasCoordinate(0), barWidth, 0-barHeight);");
+                    _out.writeln(
+                    "		myContext.fillRect(xToCanvasCoordinate(startX), yToCanvasCoordinate(0), barWidth, 0-barHeight);");
                     _out.writeln("	}");
                     _out.writeln("	myContext.restore();");
 
@@ -525,10 +516,11 @@ public class JavaScriptFormatter {
 
             // draw x-axis
             _out.writeln("	myContext.beginPath();");
-            _out.writeln("	myContext.moveTo(" + canvas.getLeftGap() + ", myCanvas.height-" + canvas.getBottomGap()
+            _out.writeln(
+            "	myContext.moveTo(" + canvas.getLeftGap() + ", myCanvas.height-" + canvas.getBottomGap() + ");");
+            _out.writeln(
+            "	myContext.lineTo(myCanvas.width-" + canvas.getRightGap() + ", myCanvas.height-" + canvas.getBottomGap()
             + ");");
-            _out.writeln("	myContext.lineTo(myCanvas.width-" + canvas.getRightGap() + ", myCanvas.height-"
-            + canvas.getBottomGap() + ");");
             _out.writeln("	myContext.stroke();");
             _out.writeln("	myContext.closePath();");
 
@@ -548,8 +540,8 @@ public class JavaScriptFormatter {
     }
 
     /**
-     * Writes the function to draw the scales on the x-axis if it is a
-     * CanvasCoordinateChart and the number of scales aren't 0.
+     * Writes the function to draw the scales on the x-axis if it is a CanvasCoordinateChart and the number of scales
+     * aren't 0.
      */
     private void writeFuncDrawXScale() {
         _out.writeln("");
@@ -588,8 +580,10 @@ public class JavaScriptFormatter {
                 _out.writeln("	myContext.strokeStyle = '" + scaleColor + "';");
                 _out.writeln("	for (var i=0; numOfXScale>=i; i++) {");
                 _out.writeln("		myContext.beginPath();");
-                _out.writeln("		myContext.moveTo(xToCanvasCoordinate(i*chartWidth/numOfXScale), yToCanvasCoordinate(0-5));");
-                _out.writeln("		myContext.lineTo(xToCanvasCoordinate(i*chartWidth/numOfXScale),  yToCanvasCoordinate(chartHeight));");
+                _out.writeln(
+                "		myContext.moveTo(xToCanvasCoordinate(i*chartWidth/numOfXScale), yToCanvasCoordinate(0-5));");
+                _out.writeln(
+                "		myContext.lineTo(xToCanvasCoordinate(i*chartWidth/numOfXScale),  yToCanvasCoordinate(chartHeight));");
                 _out.writeln("		myContext.stroke();");
                 _out.writeln("		myContext.closePath();");
                 _out.writeln("	}");
@@ -602,8 +596,9 @@ public class JavaScriptFormatter {
                 _out.writeln("	myContext.textBaseline = 'top';");
                 _out.writeln("	for (var i=0; numOfXScale>=i; i++) {");
                 _out.writeln("		var scaleText = i*xScale + startXScale;");
-                _out.writeln("		myContext.fillText(scaleText, xToCanvasCoordinate(i*chartWidth/numOfXScale), "
-                + verTextPos + ");");
+                _out.writeln(
+                "		myContext.fillText(scaleText, xToCanvasCoordinate(i*chartWidth/numOfXScale), " + verTextPos
+                + ");");
                 _out.writeln("	}");
                 _out.writeln("	myContext.restore();");
 
@@ -630,14 +625,14 @@ public class JavaScriptFormatter {
             // draw y-axis
             _out.writeln("	myContext.beginPath();");
             _out.writeln("	myContext.moveTo(" + canvas.getLeftGap() + ", " + canvas.getTopGap() + ");");
-            _out.writeln("	myContext.lineTo(" + canvas.getLeftGap() + ", myCanvas.height-" + canvas.getBottomGap()
-            + ");");
+            _out.writeln(
+            "	myContext.lineTo(" + canvas.getLeftGap() + ", myCanvas.height-" + canvas.getBottomGap() + ");");
             _out.writeln("	myContext.stroke();");
             _out.writeln("	myContext.closePath();");
 
             String yAxisTitle = canvas.getYAxisTitle();
             int horTitlePos = canvas.getBottomGap() + canvas.getChartHeight() / 2;// The horizontal position of the
-                                                                                  // title.
+            // title.
             int verTitlePos = 10;// The vertical position of the title.
             _out.writeln("");
             _out.writeln("	myContext.save();");
@@ -658,8 +653,8 @@ public class JavaScriptFormatter {
     }
 
     /**
-     * Writes the function to draw the scales on the y-axis if it is a
-     * CanvasCoordinateChart and the number of scales aren't 0.
+     * Writes the function to draw the scales on the y-axis if it is a CanvasCoordinateChart and the number of scales
+     * aren't 0.
      */
     private void writeFuncDrawYScale() {
         _out.writeln("");
@@ -681,8 +676,10 @@ public class JavaScriptFormatter {
                 _out.writeln("	myContext.strokeStyle = '" + this.toHexString(canvas.getScaleLineColor()) + "';");
                 _out.writeln("	for (var i=1; numOfYScale>=i; i++) {");
                 _out.writeln("		myContext.beginPath();");
-                _out.writeln("		myContext.moveTo(xToCanvasCoordinate(0-5), yToCanvasCoordinate(i*chartHeight/numOfYScale));");
-                _out.writeln("		myContext.lineTo(xToCanvasCoordinate(chartWidth),  yToCanvasCoordinate(i*chartHeight/numOfYScale));");
+                _out.writeln(
+                "		myContext.moveTo(xToCanvasCoordinate(0-5), yToCanvasCoordinate(i*chartHeight/numOfYScale));");
+                _out.writeln(
+                "		myContext.lineTo(xToCanvasCoordinate(chartWidth),  yToCanvasCoordinate(i*chartHeight/numOfYScale));");
                 _out.writeln("		myContext.stroke();");
                 _out.writeln("		myContext.closePath();");
                 _out.writeln("	}");
@@ -696,7 +693,7 @@ public class JavaScriptFormatter {
                 _out.writeln("	for (var i=0; numOfYScale>=i; i++) {");
                 _out.writeln("		var scaleText = i*yScale;");
                 _out.writeln("		myContext.fillText(scaleText, " + (canvas.getLeftGap() - 10)
-                + ", yToCanvasCoordinate(i*chartHeight/numOfYScale));");
+                             + ", yToCanvasCoordinate(i*chartHeight/numOfYScale));");
                 _out.writeln("	}");
                 _out.writeln("	myContext.restore();");
 
@@ -710,59 +707,7 @@ public class JavaScriptFormatter {
     }
 
     /**
-     * Writes the functions needed to display the chart in the canvas.
-     */
-    private void writeFunctions() {
-        HashSet<String> writtenSet = new HashSet<>();
-        while (!writtenSet.equals(_functionsToWrite)) {
-
-            HashSet<String> buffFunctionsToWrite = new HashSet<>();
-            for (String func : _functionsToWrite) {
-                buffFunctionsToWrite.add(func);
-            }
-
-            for (String func : buffFunctionsToWrite) {
-                if (!writtenSet.contains(func)) {
-                    switch (func) {
-                    case "drawVBars":
-                        this.writeFuncDrawVerticalBars();
-                        break;
-                    case "drawXAxis":
-                        this.writeFuncDrawXAxis();
-                        break;
-                    case "drawYAxis":
-                        this.writeFuncDrawYAxis();
-                        break;
-                    case "drawXScale":
-                        this.writeFuncDrawXScale();
-                        break;
-                    case "drawYScale":
-                        this.writeFuncDrawYScale();
-                        break;
-                    case "toCanvCoor":
-                        this.writeFuncToGetCanvasCoordinate();
-                        break;
-                    case "toRad":
-                        this.writeFuncToRad();
-                        break;
-                    case "drawTextLabels":
-                        this.writeFuncDrawTextLabels();
-                        break;
-                    case "drawTimeSeries":
-                        this.writeFuncDrawTimeSeries();
-                        break;
-                    default:
-                        break;
-                    } // end switch
-                    writtenSet.add(func);
-                } // end if
-            } // end for
-        } // end while
-    }
-
-    /**
-     * Write the functions to get the canvas-coordinate from a given x-coordinate or
-     * y-coordinate into the JavaScript.
+     * Write the functions to get the canvas-coordinate from a given x-coordinate or y-coordinate into the JavaScript.
      */
     private void writeFuncToGetCanvasCoordinate() {
         if (_canvas instanceof CanvasCoordinateChart) {
@@ -797,6 +742,57 @@ public class JavaScriptFormatter {
         _out.writeln("function toRad(x) {");
         _out.writeln("	return (x*Math.PI)/180;");
         _out.writeln("};");
+    }
+
+    /**
+     * Writes the functions needed to display the chart in the canvas.
+     */
+    private void writeFunctions() {
+        HashSet<String> writtenSet = new HashSet<>();
+        while (!writtenSet.equals(_functionsToWrite)) {
+
+            HashSet<String> buffFunctionsToWrite = new HashSet<>();
+            for (String func : _functionsToWrite) {
+                buffFunctionsToWrite.add(func);
+            }
+
+            for (String func : buffFunctionsToWrite) {
+                if (!writtenSet.contains(func)) {
+                    switch (func) {
+                        case "drawVBars":
+                            this.writeFuncDrawVerticalBars();
+                            break;
+                        case "drawXAxis":
+                            this.writeFuncDrawXAxis();
+                            break;
+                        case "drawYAxis":
+                            this.writeFuncDrawYAxis();
+                            break;
+                        case "drawXScale":
+                            this.writeFuncDrawXScale();
+                            break;
+                        case "drawYScale":
+                            this.writeFuncDrawYScale();
+                            break;
+                        case "toCanvCoor":
+                            this.writeFuncToGetCanvasCoordinate();
+                            break;
+                        case "toRad":
+                            this.writeFuncToRad();
+                            break;
+                        case "drawTextLabels":
+                            this.writeFuncDrawTextLabels();
+                            break;
+                        case "drawTimeSeries":
+                            this.writeFuncDrawTimeSeries();
+                            break;
+                        default:
+                            break;
+                    } // end switch
+                    writtenSet.add(func);
+                } // end if
+            } // end for
+        } // end while
     }
 
 }

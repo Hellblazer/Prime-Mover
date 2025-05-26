@@ -21,8 +21,8 @@ package demo;
 
 import java.util.Map;
 
-import com.hellblazer.primeMover.Kronos;
-import com.hellblazer.primeMover.SimulationException;
+import com.hellblazer.primeMover.api.Kronos;
+import com.hellblazer.primeMover.api.SimulationException;
 import com.hellblazer.primeMover.controllers.SimulationController;
 
 import testClasses.DriverImpl;

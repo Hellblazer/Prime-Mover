@@ -1,31 +1,27 @@
 package desmoj.core.dist;
 
-import java.util.ArrayList;
-
 import desmoj.core.report.EntityDistUniformReporter;
 import desmoj.core.simulator.Entity;
 import desmoj.core.simulator.Model;
 
+import java.util.ArrayList;
+
 // TODO: Auto-generated Javadoc
+
 /**
  * Uniformly distributed stream of entities.
  *
  * @param <E> the element type
- * @see desmoj.core.dist.Distribution
- *
- * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  * @author Tim Lechler, Philip Joschko, Johannes G&ouml;bel
  *
- *         Licensed under the Apache License, Version 2.0 (the "License"); you
- *         may not use this file except in compliance with the License. You may
- *         obtain a copy of the License at
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
  *
- *         Unless required by applicable law or agreed to in writing, software
- *         distributed under the License is distributed on an "AS IS" BASIS,
- *         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- *         implied. See the License for the specific language governing
- *         permissions and limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
+ * @see desmoj.core.dist.Distribution
  */
 public class EntityDistUniform<E extends Entity> extends EntityDist<E> {
 
@@ -33,8 +29,7 @@ public class EntityDistUniform<E extends Entity> extends EntityDist<E> {
     private ArrayList<E> _entities;
 
     /**
-     * Shows if the empirical distribution has been properly initialized (i.e. at
-     * least one entity has been assigned).
+     * Shows if the empirical distribution has been properly initialized (i.e. at least one entity has been assigned).
      */
     private boolean _isInitialized;
 
@@ -54,13 +49,11 @@ public class EntityDistUniform<E extends Entity> extends EntityDist<E> {
     }
 
     /**
-     * Adds an entity (type E) to the range of this distribution, unless it is
-     * already present.
+     * Adds an entity (type E) to the range of this distribution, unless it is already present.
      *
      * @param e E : The entity to be added to the range of this distribution.
-     *
-     * @return boolean : True, if the entity has been added to the range of this
-     *         distribution (false, if it was already present).
+     * @return boolean : True, if the entity has been added to the range of this distribution (false, if it was already
+     * present).
      */
     public boolean add(E e) {
 
@@ -81,13 +74,10 @@ public class EntityDistUniform<E extends Entity> extends EntityDist<E> {
     }
 
     /**
-     * Checks whether an entity is present (i.e. potentially sampled) by this
-     * distribution
+     * Checks whether an entity is present (i.e. potentially sampled) by this distribution
      *
      * @param e E : The entity to be checked.
-     *
-     * @return boolean : True, if the entity is included in the range of this
-     *         distribution and false otherwise.
+     * @return boolean : True, if the entity is included in the range of this distribution and false otherwise.
      */
     public boolean contains(E e) {
         return this._entities.contains(e);
@@ -107,18 +97,17 @@ public class EntityDistUniform<E extends Entity> extends EntityDist<E> {
     }
 
     /**
-     * Removes an entity (type E) from the range of this distribution, if it is
-     * included.
+     * Removes an entity (type E) from the range of this distribution, if it is included.
      *
      * @param e E : The entity to be removed from the range of this distribution.
-     *
-     * @return boolean : True, if the entity has been removed from the range of this
-     *         distribution (false, if it was not present).
+     * @return boolean : True, if the entity has been removed from the range of this distribution (false, if it was not
+     * present).
      */
     public boolean remove(E e) {
         boolean result = this._entities.remove(e);
-        if (this._entities.isEmpty())
+        if (this._entities.isEmpty()) {
             this._isInitialized = false;
+        }
         return result;
     }
 
@@ -148,18 +137,19 @@ public class EntityDistUniform<E extends Entity> extends EntityDist<E> {
 
         do {
             if (isAntithetic()) // check if antithetic mode is on
+            {
                 index = (int) (Math.floor(max + 1) * (1 - randomGenerator.nextDouble()));
-            else
+            } else {
                 index = (int) (Math.floor(max + 1) * randomGenerator.nextDouble());
+            }
         } while (nonNegative && index < 0 || index == (max + 1)); // get
 
         return this._entities.get(index);
     }
 
     /**
-     * Overrides the same method of <code>desmoj.dist.Distribution</code>. A warning
-     * that it makes no sense to set a <code>EntityDistUniform</code> to be (not)
-     * negative is printed since the distribution samples are not numerical.
+     * Overrides the same method of <code>desmoj.dist.Distribution</code>. A warning that it makes no sense to set a
+     * <code>EntityDistUniform</code> to be (not) negative is printed since the distribution samples are not numerical.
      *
      * @param newValue boolean : No effect. A warning is issued.
      */
@@ -167,7 +157,7 @@ public class EntityDistUniform<E extends Entity> extends EntityDist<E> {
     public void setNonNegative(boolean newValue) {
         this.nonNegative = newValue;
         sendWarning("Attempt to set a EntityDistUniform to " + (newValue ? "" : "not ")
-        + "nonNegative. This will be done, but doesn't make sense!",
+                    + "nonNegative. This will be done, but doesn't make sense!",
                     "EntityDistUniform: " + this.getName() + " Method: public void "
                     + "setNonNegative(boolean newValue)", "The given distribution does not return numerical samples.",
                     "No necessity to set a non-numerical distribution to nonNegative.");

@@ -1,35 +1,29 @@
 package desmoj.core.statistic;
 
+import desmoj.core.simulator.Model;
+import desmoj.core.simulator.SimClock;
+
 import java.util.Map;
 import java.util.Observable;
 import java.util.TreeMap;
 
-import desmoj.core.simulator.Model;
-import desmoj.core.simulator.SimClock;
-
 /**
- * The <code>TextHistogram</code> class is providing a statistic analysis about
- * text values. Given Strings are counted and the report will show the amount of
- * every given text. If the given parameter is a null pointer it will not be
+ * The <code>TextHistogram</code> class is providing a statistic analysis about text values. Given Strings are counted
+ * and the report will show the amount of every given text. If the given parameter is a null pointer it will not be
  * counted.
  *
- * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  * @author Lorna Slawski
  * @author based on the classes <code>Histogram</code> and
- *         <code>ValueStatistics</code> from Soenke Claassen
+ * <code>ValueStatistics</code> from Soenke Claassen
  * @author based on DESMO-C from Thomas Schniewind, 1998
  *
- *         Licensed under the Apache License, Version 2.0 (the "License"); you
- *         may not use this file except in compliance with the License. You may
- *         obtain a copy of the License at
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
  *
- *         Unless required by applicable law or agreed to in writing, software
- *         distributed under the License is distributed on an "AS IS" BASIS,
- *         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- *         implied. See the License for the specific language governing
- *         permissions and limitations under the License.
- *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  */
 @SuppressWarnings("deprecation")
 public class TextHistogram extends desmoj.core.simulator.Reportable implements java.util.Observer {
@@ -42,8 +36,7 @@ public class TextHistogram extends desmoj.core.simulator.Reportable implements j
     private String _lastString;
 
     /**
-     * The alphabetically sorted map. The keys are given by the Strings and their
-     * values are their amount.
+     * The alphabetically sorted map. The keys are given by the Strings and their values are their amount.
      */
     private Map<String, Long> _map;
 
@@ -58,10 +51,8 @@ public class TextHistogram extends desmoj.core.simulator.Reportable implements j
      *
      * @param ownerModel   Model : The model this TextHistogram is associated to.
      * @param name         java.lang.String : The name of this TextHistogram object.
-     * @param showInReport boolean : Flag for showing the report about this
-     *                     Histogram.
-     * @param showInTrace  boolean : Flag for showing the trace output of this
-     *                     Histogram.
+     * @param showInReport boolean : Flag for showing the report about this Histogram.
+     * @param showInTrace  boolean : Flag for showing the trace output of this Histogram.
      */
     public TextHistogram(Model ownerModel, String name, boolean showInReport, boolean showInTrace) {
         // call the constructor of StatisticObject
@@ -80,13 +71,10 @@ public class TextHistogram extends desmoj.core.simulator.Reportable implements j
      *
      * @param ownerModel   Model : The model this TextHistogram is associated to.
      * @param name         java.lang.String : The name of this TextHistogram object.
-     * @param textValSup   TextSupplier : The TextSupplier providing the String for
-     *                     this TextHistogram. The given TextValueSupplier will be
-     *                     observed by this TextHistogram object.
-     * @param showInReport boolean : Flag for showing the report about this
-     *                     TextHistogram.
-     * @param showInTrace  boolean : Flag for showing the trace output of this
-     *                     TextHistogram.
+     * @param textValSup   TextSupplier : The TextSupplier providing the String for this TextHistogram. The given
+     *                     TextValueSupplier will be observed by this TextHistogram object.
+     * @param showInReport boolean : Flag for showing the report about this TextHistogram.
+     * @param showInTrace  boolean : Flag for showing the trace output of this TextHistogram.
      */
     public TextHistogram(Model ownerModel, String name, TextSupplier textSup, boolean showInReport,
                          boolean showInTrace) {
@@ -96,7 +84,7 @@ public class TextHistogram extends desmoj.core.simulator.Reportable implements j
         // textSup is no valid TextSupplier
         if (textSup == null) {
             sendWarning("Attempt to produce a TextHistogram about a non existing "
-            + "TextValueSupplier. The command will be ignored!",
+                        + "TextValueSupplier. The command will be ignored!",
                         "TextHistogram: " + this.getName() + " Constructor: TextHistogram"
                         + " (Model ownerModel, String name, TextSupplier textSup, "
                         + "boolean showInReport, boolean showInTrace)",
@@ -116,9 +104,7 @@ public class TextHistogram extends desmoj.core.simulator.Reportable implements j
     /**
      * Returns a Reporter to produce a report about this TextHistogram.
      *
-     * @return desmoj.report.TextHistogramReporter : The Reporter for this
-     *         TextHistogram.
-     *
+     * @return desmoj.report.TextHistogramReporter : The Reporter for this TextHistogram.
      */
     @Override
     public desmoj.core.report.Reporter createDefaultReporter() {
@@ -135,9 +121,8 @@ public class TextHistogram extends desmoj.core.simulator.Reportable implements j
     }
 
     /**
-     * Returns the String with the least number of entries. Several Strings are
-     * separated by a comma. If there are no entries yet an empty String ("") is
-     * being returned.
+     * Returns the String with the least number of entries. Several Strings are separated by a comma. If there are no
+     * entries yet an empty String ("") is being returned.
      *
      * @return java.lang.String: The String with the least number of entries.
      */
@@ -158,9 +143,8 @@ public class TextHistogram extends desmoj.core.simulator.Reportable implements j
     }
 
     /**
-     * Returns the String with the largest number of entries. Several Strings are
-     * separated by a comma. If there are no entries yet an empty String ("") is
-     * being returned.
+     * Returns the String with the largest number of entries. Several Strings are separated by a comma. If there are no
+     * entries yet an empty String ("") is being returned.
      *
      * @return java.lang.String: The String with the highest number of entries.
      */
@@ -192,8 +176,7 @@ public class TextHistogram extends desmoj.core.simulator.Reportable implements j
     /**
      * Returns the number of observations for the given String.
      *
-     * @param obsStr java.lang.String: The String of which want to get the number of
-     *               observations made for.
+     * @param obsStr java.lang.String: The String of which want to get the number of observations made for.
      * @return long : The number of observations for the given String.
      */
     public long getObservationsOfString(String obsStr) {
@@ -230,18 +213,17 @@ public class TextHistogram extends desmoj.core.simulator.Reportable implements j
     }
 
     /**
-     * Updates this <code>TextHistogram</code> object by fetching the actual value
-     * of the <code>TextSupplier</code> and processing it. If the actual value is a
+     * Updates this <code>TextHistogram</code> object by fetching the actual value of the <code>TextSupplier</code> and
+     * processing it. If the actual value is a
      * <code>null</code> pointer it will not be counted and an error is given out in
-     * the error report. The <code>TextSupplier</code> is passed in the constructor
-     * of this <code>TextHistogram</code> object. This <code>update()</code> method
-     * complies with the one described in DESMO, see [Page91].
+     * the error report. The <code>TextSupplier</code> is passed in the constructor of this <code>TextHistogram</code>
+     * object. This <code>update()</code> method complies with the one described in DESMO, see [Page91].
      */
     public void update() {
         if (this._textSuppl == null) {
             sendWarning("Attempt to update a TextHistogram that is not "
-            + "connected to a TextSupplier. No String is provided with which "
-            + "the histogram could be updated. The command will be ignored!",
+                        + "connected to a TextSupplier. No String is provided with which "
+                        + "the histogram could be updated. The command will be ignored!",
                         "TextHistogram: " + this.getName() + " Method: update()",
                         "The given TextSupplier is only a null pointer.",
                         "Make sure to update a TextHistogram only when it is connected "
@@ -251,9 +233,10 @@ public class TextHistogram extends desmoj.core.simulator.Reportable implements j
         }
         this._lastString = this._textSuppl.text();
         if (this._lastString == null) {
-            sendWarning("Attempt to insert a null pointer to the TextHistogram. "
-            + "The null pointer will not be counted! ", "update(): ", "Invalid reference. ",
-                        "Make sure to pass a valid String when calling the " + "update method.");
+            sendWarning(
+            "Attempt to insert a null pointer to the TextHistogram. " + "The null pointer will not be counted! ",
+            "update(): ", "Invalid reference. ",
+            "Make sure to pass a valid String when calling the " + "update method.");
             return; // that's it
         } else {
             incrementObservations();
@@ -267,20 +250,18 @@ public class TextHistogram extends desmoj.core.simulator.Reportable implements j
     }
 
     /**
-     * Implementation of the virtual <code>update(Observable, Object)</code> method
-     * of the <code>Observer</code> interface. This method will be called
-     * automatically from an <code>Observable</code> object within its
+     * Implementation of the virtual <code>update(Observable, Object)</code> method of the <code>Observer</code>
+     * interface. This method will be called automatically from an <code>Observable</code> object within its
      * <code>notifyObservers()</code> method. <br>
-     * If no Object (a<code>null</code> value) is passed as arg, the actual value of
-     * the TextSupplier will be fetched with the <code>text()</code> method of the
-     * TextSupplier. Otherwise it is expected that the actual text is passed in the
-     * Object arg. If the the actual value is a <code>null</code> pointer it will
-     * not be counted and an error is given out in the error report.
+     * If no Object (a<code>null</code> value) is passed as arg, the actual value of the TextSupplier will be fetched
+     * with the <code>text()</code> method of the TextSupplier. Otherwise it is expected that the actual text is passed
+     * in the Object arg. If the the actual value is a <code>null</code> pointer it will not be counted and an error is
+     * given out in the error report.
      *
-     * @param o   java.util.Observable : The Observable calling this method within
-     *            its own <code>notifyObservers()</code> method.
-     * @param arg Object : The Object with which this <code>Statistic Object</code>
-     *            is updated. Normally a String which is added to the statistics or
+     * @param o   java.util.Observable : The Observable calling this method within its own
+     *            <code>notifyObservers()</code> method.
+     * @param arg Object : The Object with which this <code>Statistic Object</code> is updated. Normally a String which
+     *            is added to the statistics or
      *            <code>null</code> when there is an actual text to be given with
      *            the <code>text()</code> method.
      */
@@ -290,8 +271,8 @@ public class TextHistogram extends desmoj.core.simulator.Reportable implements j
         if (arg == null || o instanceof SimClock) {
             if (_textSuppl == null) {
                 sendWarning("Attempt to update a TextHistogram that is not "
-                + "connected to a TextValueSupplier. No value is provided with which "
-                + "the statistic could be updated. The command will be ignored!",
+                            + "connected to a TextValueSupplier. No value is provided with which "
+                            + "the statistic could be updated. The command will be ignored!",
                             "TextHistogram: " + this.getName() + " Method: update " + "(Observable o, Object arg)",
                             "The given TextValueSupplier: TextValSuppl is only a null pointer.",
                             "Make sure to update a TextHistogram only when it is connected "
@@ -304,20 +285,19 @@ public class TextHistogram extends desmoj.core.simulator.Reportable implements j
             this._lastString = this._textSuppl.text();
 
             if (this._lastString == null) {
-                sendWarning("Attempt to insert a null pointer to the TextHistogram. "
-                + "The null pointer will not be counted! ", "update(): ", "Invalid reference. ",
-                            "Make sure to pass a valid String when calling the " + "update method.");
+                sendWarning(
+                "Attempt to insert a null pointer to the TextHistogram. " + "The null pointer will not be counted! ",
+                "update(): ", "Invalid reference. ",
+                "Make sure to pass a valid String when calling the " + "update method.");
                 return; // that's it
             }
-        }
-
-        else {
+        } else {
             if (arg instanceof String) {
                 // get the value out of the Object arg
                 this._lastString = arg.toString();
             } else {
                 sendWarning("Attempt to update a TextHistogram with an argument "
-                + "arg, that can not be recognized. The attempted action is ignored!",
+                            + "arg, that can not be recognized. The attempted action is ignored!",
                             "TextHistogram: " + this.getName() + " Method: update (Observable " + "o, Object arg)",
                             "The passed Object in the argument arg could not be recognized.",
                             "Make sure to pass null or a String object as the arg argument.");
@@ -334,11 +314,10 @@ public class TextHistogram extends desmoj.core.simulator.Reportable implements j
     }
 
     /**
-     * Updates this <code>TextHistogram</code> object with the String value given as
-     * parameter. If the parameter is a <code>null</code> pointer it will not be
-     * counted and an error is given out in the error report. In some cases it might
-     * be more convenient to pass the String value this <code>TextHistogram</code>
-     * will be updated with directly within the
+     * Updates this <code>TextHistogram</code> object with the String value given as parameter. If the parameter is a
+     * <code>null</code> pointer it will not be counted and an error is given out in the error report. In some cases it
+     * might be more convenient to pass the String value this <code>TextHistogram</code> will be updated with directly
+     * within the
      * <code>update(String updateStr)</code> method instead of going via the
      * <code>TextSupplier</code>.
      *
@@ -347,9 +326,10 @@ public class TextHistogram extends desmoj.core.simulator.Reportable implements j
      */
     public void update(String updateStr) {
         if (updateStr == null) {
-            sendWarning("Attempt to insert a null pointer to the TextHistogram. "
-            + "The null pointer will not be counted! ", "update(): ", "Invalid reference. ",
-                        "Make sure to pass a valid String when calling the " + "update method.");
+            sendWarning(
+            "Attempt to insert a null pointer to the TextHistogram. " + "The null pointer will not be counted! ",
+            "update(): ", "Invalid reference. ",
+            "Make sure to pass a valid String when calling the " + "update method.");
             return; // that's it
         } else {
             this._lastString = updateStr;
@@ -366,8 +346,7 @@ public class TextHistogram extends desmoj.core.simulator.Reportable implements j
     /**
      * Returns the TextSupplier object providing all the Strings.
      *
-     * @return TextSupplier : The TextSupplier object providing the Strings for this
-     *         TextHistogram.
+     * @return TextSupplier : The TextSupplier object providing the Strings for this TextHistogram.
      */
     protected TextSupplier getTextSupplier() {
         return this._textSuppl;

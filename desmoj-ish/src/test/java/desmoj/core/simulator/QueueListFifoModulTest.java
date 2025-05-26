@@ -1,27 +1,29 @@
 package desmoj.core.simulator;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
+import desmoj.implementation.TestEntity;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import desmoj.implementation.TestEntity;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * This Class tests the implementation of QueueListStandard with the Fifo (first
- * in first out) method. It contains only one test but derives many others from
- * the classes and the test classes of the classes named below.
+ * This Class tests the implementation of QueueListStandard with the Fifo (first in first out) method. It contains only
+ * one test but derives many others from the classes and the test classes of the classes named below.
  *
  * @author Clara Bluemm, Sascha Winde
- *
  * @see QueueListStandard
  * @see QueueList
  * @see QueueBased
- *
  */
 public class QueueListFifoModulTest extends QueueListStandardModulTest {
+
+    private TestEntity enty1;
+    private TestEntity enty2;
+    private TestEntity enty3;
+    private TestEntity enty4;
+    private QueueListFifo queue;
 
     /**
      * @throws java.lang.Exception
@@ -29,13 +31,6 @@ public class QueueListFifoModulTest extends QueueListStandardModulTest {
     @AfterAll
     public static void tearDownAfterClass() throws Exception {
     }
-
-    private TestEntity enty1;
-    private TestEntity enty2;
-    private TestEntity enty3;
-    private TestEntity enty4;
-
-    private QueueListFifo queue;
 
     @Override
     public QueueListStandard getTyp() {
@@ -75,7 +70,7 @@ public class QueueListFifoModulTest extends QueueListStandardModulTest {
         queue.insert(enty2);
         queue.insert(enty3);
         queue.insert(enty4);
-//		System.out.println(queue.get(0));
+        //		System.out.println(queue.get(0));
         assertEquals(queue.get(0), enty3);
         assertEquals(queue.get(1), enty2);
         assertEquals(queue.get(2), enty1);

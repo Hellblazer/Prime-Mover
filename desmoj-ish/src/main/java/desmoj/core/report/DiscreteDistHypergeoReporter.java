@@ -3,27 +3,22 @@ package desmoj.core.report;
 /**
  * Reports all information about a DiscreteDistHypergeo distribution.
  *
- * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  * @author Peter Wueppen
  *
- *         Licensed under the Apache License, Version 2.0 (the "License"); you
- *         may not use this file except in compliance with the License. You may
- *         obtain a copy of the License at
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
  *
- *         Unless required by applicable law or agreed to in writing, software
- *         distributed under the License is distributed on an "AS IS" BASIS,
- *         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- *         implied. See the License for the specific language governing
- *         permissions and limitations under the License.
- *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  */
 public class DiscreteDistHypergeoReporter extends DistributionReporter {
     /**
      * Creates a new DiscreteDistHypergeoReporter.
      *
-     * @param informationSource desmoj.core.simulator.Reportable : The
-     *                          DiscreteDistHypergeo distribution to report about
+     * @param informationSource desmoj.core.simulator.Reportable : The DiscreteDistHypergeo distribution to report
+     *                          about
      */
     public DiscreteDistHypergeoReporter(desmoj.core.simulator.Reportable informationSource) {
 
@@ -34,11 +29,10 @@ public class DiscreteDistHypergeoReporter extends DistributionReporter {
     }
 
     /**
-     * Returns the array of strings containing all information about the
-     * DiscreteDistHypergeo distribution.
+     * Returns the array of strings containing all information about the DiscreteDistHypergeo distribution.
      *
-     * @return java.lang.String[] : The array of Strings containing all information
-     *         about the DiscreteDistHypergeo distribution
+     * @return java.lang.String[] : The array of Strings containing all information about the DiscreteDistHypergeo
+     * distribution
      */
     @Override
     public java.lang.String[] getEntries() {

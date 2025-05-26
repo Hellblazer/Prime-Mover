@@ -5,102 +5,55 @@ import java.util.Iterator;
 /**
  * ProcessQueue provides models with a ready-to-use element to enqueue
  * <code>SimProcess</code>es in. The sort order of the ProcessQueue is
- * determined first by the priorities of the enqueued SimProcesses and second by
- * the given sort order. The default sort order is FIFO (first in, first out)
- * but others like LIFO (last in, first out) can be chosen, too. See the
- * constants in class <code>QueueBased</code> and the derived classes from
+ * determined first by the priorities of the enqueued SimProcesses and second by the given sort order. The default sort
+ * order is FIFO (first in, first out) but others like LIFO (last in, first out) can be chosen, too. See the constants
+ * in class <code>QueueBased</code> and the derived classes from
  * <code>QueueList</code>. The capacity of the ProcessQueue, that is the maximum
- * number of SimProcesses enqueued, can be chosen, too. Note that in contrast to
- * the 'plain' queue, this ProcessQueue always expects and returns objects that
- * are derived from class <code>SimProcess</code>. When modelling using the
- * process-, activity-, or transaction-oriented paradigm where SimProcesses are
- * used to represent the model's entities, this ProcessQueue can be used instead
- * of the standard Queue to reduce the amount of casts needed otherwise.
+ * number of SimProcesses enqueued, can be chosen, too. Note that in contrast to the 'plain' queue, this ProcessQueue
+ * always expects and returns objects that are derived from class <code>SimProcess</code>. When modelling using the
+ * process-, activity-, or transaction-oriented paradigm where SimProcesses are used to represent the model's entities,
+ * this ProcessQueue can be used instead of the standard Queue to reduce the amount of casts needed otherwise.
  *
+ * @author Tim Lechler
+ * @author modified by Soenke Claassen
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  * @see QueueBased
  * @see QueueList
  * @see QueueListFifo
  * @see QueueListLifo
- *
- * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
- * @author Tim Lechler
- * @author modified by Soenke Claassen
- *
- *         Licensed under the Apache License, Version 2.0 (the "License"); you
- *         may not use this file except in compliance with the License. You may
- *         obtain a copy of the License at
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
- *         Unless required by applicable law or agreed to in writing, software
- *         distributed under the License is distributed on an "AS IS" BASIS,
- *         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- *         implied. See the License for the specific language governing
- *         permissions and limitations under the License.
- *
  */
 public class ProcessQueue<P extends SimProcess> extends QueueBased implements Iterable<P> {
-
-    /**
-     * Private queue iterator, e.g. required for processing all queue elements in a
-     * for-each-loop.
-     */
-    private class ProcessQueueIterator implements Iterator<P> {
-
-        ProcessQueue<P> clientQ;
-        P               next, lastReturned;
-
-        public ProcessQueueIterator(ProcessQueue<P> clientQ) {
-            this.clientQ = clientQ;
-            next = clientQ.first();
-            lastReturned = null;
-        }
-
-        @Override
-        public boolean hasNext() {
-            return next != null;
-        }
-
-        @Override
-        public P next() {
-            lastReturned = next;
-            next = clientQ.succ(next);
-            return lastReturned;
-        }
-
-        @Override
-        public void remove() {
-            clientQ.remove(lastReturned);
-        }
-    }
 
     /**
      * The queue implementation that actually stores the entities
      */
     private QueueList<P> _ql;
-
     /**
-     * Counter for the SimProcesses which are refused to be enqueued, because the
-     * queue capacity is full.
+     * Counter for the SimProcesses which are refused to be enqueued, because the queue capacity is full.
      */
     private long _refused;
 
     /**
-     * Constructs a simple priority and FIFO based waiting-queue for SimProcesses
-     * with a maximum capacity of 2,147,483,647 waiting processes, which should
-     * serve as an approximation of infinite queues sufficiently well for most
-     * purposes.
+     * Constructs a simple priority and FIFO based waiting-queue for SimProcesses with a maximum capacity of
+     * 2,147,483,647 waiting processes, which should serve as an approximation of infinite queues sufficiently well for
+     * most purposes.
      * <p>
      * The usage of the generic version <code>ProcessQueue&lt;Type&gt;</code> where
      * <code>Type</code> is derived from <code>SimProcess</code> is recommended for
-     * type safety. Using the raw type <code>ProcessQueue</code> yields a queue in
-     * which any <code>SimProcess</code> can be enqueued, potentially requiring type
-     * casting on accessing processes enqueued.
+     * type safety. Using the raw type <code>ProcessQueue</code> yields a queue in which any <code>SimProcess</code> can
+     * be enqueued, potentially requiring type casting on accessing processes enqueued.
      *
      * @param owner        Model : The model this process-queue is associated to
      * @param name         java.lang.String : The process-queue's name
      * @param showInReport boolean : Flag if process-queue should produce a report
-     * @param showInTrace  boolean : Flag for process-queue to produce trace
-     *                     messages
+     * @param showInTrace  boolean : Flag for process-queue to produce trace messages
      */
     public ProcessQueue(Model owner, String name, boolean showInReport, boolean showInTrace) {
         super(owner, name, showInReport, showInTrace); // create the QBased
@@ -114,31 +67,26 @@ public class ProcessQueue<P extends SimProcess> extends QueueBased implements It
     }
 
     /**
-     * Constructs a simple priority based waiting-queue for SimProcesses, the kind
-     * of queue implementation (FIFO or LIFO) and the capacity of the queue can be
-     * chosen.
+     * Constructs a simple priority based waiting-queue for SimProcesses, the kind of queue implementation (FIFO or
+     * LIFO) and the capacity of the queue can be chosen.
      * <p>
      * The usage of the generic version <code>ProcessQueue&lt;Type&gt;</code> where
      * <code>Type</code> is derived from <code>SimProcess</code> is recommended for
-     * type safety. Using the raw type <code>ProcessQueue</code> yields a queue in
-     * which any <code>SimProcess</code> can be enqueued, potentially requiring type
-     * casting on accessing processes enqueued.
+     * type safety. Using the raw type <code>ProcessQueue</code> yields a queue in which any <code>SimProcess</code> can
+     * be enqueued, potentially requiring type casting on accessing processes enqueued.
      *
      * @param owner        Model : The model this ProcessQueue is associated to
      * @param name         java.lang.String : The process-queue's name
-     * @param sortOrder    int : determines the sort order of the underlying queue
-     *                     implementation. Choose a constant from
+     * @param sortOrder    int : determines the sort order of the underlying queue implementation. Choose a constant
+     *                     from
      *                     <code>QueueBased</code>: <code>QueueBased.FIFO</code>,
      *                     <code>QueueBased.LIFO</code> or QueueBased.Random.
-     * @param qCapacity    int : The capacity of the Queue, that is how many
-     *                     processes can be enqueued. Zero (0) can be used as
-     *                     shortcut for for a capacity of
+     * @param qCapacity    int : The capacity of the Queue, that is how many processes can be enqueued. Zero (0) can be
+     *                     used as shortcut for for a capacity of
      *                     <code>Integer.MAX_VALUE</code> = 2,147,483,647, which
-     *                     should approximate an infinite queue sufficiently well
-     *                     for most purposes.
+     *                     should approximate an infinite queue sufficiently well for most purposes.
      * @param showInReport boolean : Flag if process-queue should produce a report
-     * @param showInTrace  boolean : Flag for process-queue to produce trace
-     *                     messages
+     * @param showInTrace  boolean : Flag for process-queue to produce trace messages
      */
     public ProcessQueue(Model owner, String name, int sortOrder, int qCapacity, boolean showInReport,
                         boolean showInTrace) {
@@ -149,26 +97,26 @@ public class ProcessQueue<P extends SimProcess> extends QueueBased implements It
 
         // determine the queueing strategy
         switch (sortOrder) {
-        case QueueBased.FIFO:
-            _ql = new QueueListFifo<>();
-            break;
-        case QueueBased.LIFO:
-            _ql = new QueueListLifo<>();
-            break;
-        case QueueBased.RANDOM:
-            _ql = new QueueListRandom<>();
-            break;
-        default:
-            sendWarning("The given sortOrder parameter " + sortOrder + " is not valid! "
-            + "A queue with Fifo sort order will be created.",
-                        "ProcessQueueQueue : " + getName() + " Constructor: ProcessQueue(Model owner, String name, "
-                        + "int sortOrder, long qCapacity, boolean showInReport, " + "boolean showInTrace)",
-                        "A valid positive integer number must be provided to "
-                        + "determine the sort order of the queue.",
-                        "Make sure to provide a valid positive integer number "
-                        + "by using the constants in the class QueueBased, like "
-                        + "QueueBased.FIFO, QueueBased.LIFO or QueueBased.RANDOM.");
-            _ql = new QueueListFifo<>();
+            case QueueBased.FIFO:
+                _ql = new QueueListFifo<>();
+                break;
+            case QueueBased.LIFO:
+                _ql = new QueueListLifo<>();
+                break;
+            case QueueBased.RANDOM:
+                _ql = new QueueListRandom<>();
+                break;
+            default:
+                sendWarning("The given sortOrder parameter " + sortOrder + " is not valid! "
+                            + "A queue with Fifo sort order will be created.",
+                            "ProcessQueueQueue : " + getName() + " Constructor: ProcessQueue(Model owner, String name, "
+                            + "int sortOrder, long qCapacity, boolean showInReport, " + "boolean showInTrace)",
+                            "A valid positive integer number must be provided to "
+                            + "determine the sort order of the queue.",
+                            "Make sure to provide a valid positive integer number "
+                            + "by using the constants in the class QueueBased, like "
+                            + "QueueBased.FIFO, QueueBased.LIFO or QueueBased.RANDOM.");
+                _ql = new QueueListFifo<>();
         }
 
         // give the QueueList a reference to this QueueBased
@@ -180,7 +128,7 @@ public class ProcessQueue<P extends SimProcess> extends QueueBased implements It
         // check if it the capacity does make sense
         if (qCapacity < 0) {
             sendWarning("The given capacity of the queue is negative! "
-            + "A queue with maximum capacity (2,147,483,647) will be created instead.",
+                        + "A queue with maximum capacity (2,147,483,647) will be created instead.",
                         "ProcessQueue : " + getName() + " Constructor: ProcessQueue(Model owner, String name, "
                         + "int sortOrder, long qCapacity, boolean showInReport, " + "boolean showInTrace)",
                         "A negative capacity for a queue does not make sense.",
@@ -198,12 +146,12 @@ public class ProcessQueue<P extends SimProcess> extends QueueBased implements It
     }
 
     /**
-     * Returns <code>true</code> if the given <code>SimProcess</code> is contained
-     * in the queue; <code>false</code> otherwise.
+     * Returns <code>true</code> if the given <code>SimProcess</code> is contained in the queue; <code>false</code>
+     * otherwise.
      *
-     * @return boolean : <code>True</code> if the given <code>SimProcess</code> is
-     *         contained in the queue; <code>false</code> otherwise.
      * @param e E : The <code>Entity</code> we are looking for in the queue.
+     * @return boolean : <code>True</code> if the given <code>SimProcess</code> is contained in the queue;
+     * <code>false</code> otherwise.
      */
     public boolean contains(P p) {
 
@@ -211,8 +159,7 @@ public class ProcessQueue<P extends SimProcess> extends QueueBased implements It
     }
 
     /**
-     * Returns a process-queue-reporter to produce a report about this
-     * process-queue.
+     * Returns a process-queue-reporter to produce a report about this process-queue.
      *
      * @return desmoj.report.Reporter : The reporter for this process-queue
      */
@@ -227,8 +174,7 @@ public class ProcessQueue<P extends SimProcess> extends QueueBased implements It
      * Returns the first SimProcess queued in this process-queue or
      * <code>null</code> in case the queue is empty.
      *
-     * @return P : The first SimProcess in the process-queue or <code>null</code> if
-     *         the process-queue is empty
+     * @return P : The first SimProcess in the process-queue or <code>null</code> if the process-queue is empty
      */
     public P first() {
 
@@ -237,15 +183,13 @@ public class ProcessQueue<P extends SimProcess> extends QueueBased implements It
     }
 
     /**
-     * Returns the first SimProcess queued in this process-queue that applies to the
-     * given condition. The process-queue is searched from front to end and the
-     * first SimProcess that returns <code>true</code> when the condition is applied
-     * to it is returned by this method. If no SimProcess applies to the given
-     * condition or the process-queue is empty, <code>null</code> will be returned.
+     * Returns the first SimProcess queued in this process-queue that applies to the given condition. The process-queue
+     * is searched from front to end and the first SimProcess that returns <code>true</code> when the condition is
+     * applied to it is returned by this method. If no SimProcess applies to the given condition or the process-queue is
+     * empty, <code>null</code> will be returned.
      *
-     * @return P :The first process queued in this process-queue applying to the
-     *         given condition or <code>null</code>
      * @param c Condition : The condition that the SimProcess returned must confirm
+     * @return P :The first process queued in this process-queue applying to the given condition or <code>null</code>
      */
     public P first(Condition<P> c) {
 
@@ -256,11 +200,13 @@ public class ProcessQueue<P extends SimProcess> extends QueueBased implements It
                         "Check to always have valid references when querying Queues.");
             return null; // no proper parameter
         }
-        if (_ql.isEmpty())
+        if (_ql.isEmpty()) {
             return null; // nobody home to be checked
+        }
         for (P tmp = _ql.first(); tmp != null; tmp = _ql.succ(tmp)) {
-            if (c.check(tmp))
+            if (c.check(tmp)) {
                 return tmp;
+            }
         }
 
         // if no SimProcess fulfills the condition just return null
@@ -269,11 +215,11 @@ public class ProcessQueue<P extends SimProcess> extends QueueBased implements It
     }
 
     /**
-     * Returns the <code>SimProcess</code> queued at the named position. The first
-     * position is 0, the last one size()-1.
+     * Returns the <code>SimProcess</code> queued at the named position. The first position is 0, the last one
+     * size()-1.
      *
      * @return P :The <code>SimProcess</code> at the position of <code>int</code> or
-     *         <code>null</code> if no such position exists.
+     * <code>null</code> if no such position exists.
      */
     public P get(int index) {
         return _ql.get(index);
@@ -282,8 +228,7 @@ public class ProcessQueue<P extends SimProcess> extends QueueBased implements It
     /**
      * Returns the queue index of a given <code>SimProcess</code>.
      *
-     * @return int :The position of the process as an <code>int</code>. Returns -1
-     *         if no such position exists.
+     * @return int :The position of the process as an <code>int</code>. Returns -1 if no such position exists.
      */
     public int get(P p) {
 
@@ -292,11 +237,10 @@ public class ProcessQueue<P extends SimProcess> extends QueueBased implements It
     }
 
     /**
-     * Returns the waiting time of a process present in the queue. If the process
-     * given is not queued, <code>null</code> will be returned.
+     * Returns the waiting time of a process present in the queue. If the process given is not queued, <code>null</code>
+     * will be returned.
      *
      * @param p P : The process whose waiting time is looked for
-     *
      * @return TimeSpan : The waiting time of the process or <code>null</code>.
      */
     public TimeSpan getCurrentWaitTime(P p) {
@@ -312,9 +256,9 @@ public class ProcessQueue<P extends SimProcess> extends QueueBased implements It
 
         if (i == null) {
             sendWarning("Cannot query waiting time!",
-                        "Queue : " + getName() + " Method:  void getCurrentWaitTime(SimProcess p)", "The Process 'p' ("
-                        + p.getQuotedName() + ") given as parameter is not enqueued in this " + "queue!",
-                        "Make sure the process is inside the queue you want it to " + "be queried.");
+                        "Queue : " + getName() + " Method:  void getCurrentWaitTime(SimProcess p)",
+                        "The Process 'p' (" + p.getQuotedName() + ") given as parameter is not enqueued in this "
+                        + "queue!", "Make sure the process is inside the queue you want it to " + "be queried.");
             return null; // not enqueued here
         }
 
@@ -322,8 +266,8 @@ public class ProcessQueue<P extends SimProcess> extends QueueBased implements It
     }
 
     /**
-     * Returns the underlying queue implementation, providing access to the
-     * QueueList implementation, e.g. to add PropertyChangeListeners.
+     * Returns the underlying queue implementation, providing access to the QueueList implementation, e.g. to add
+     * PropertyChangeListeners.
      *
      * @return QueueList : The underlying queue implementation of this ProcessQueue.
      */
@@ -333,8 +277,8 @@ public class ProcessQueue<P extends SimProcess> extends QueueBased implements It
     }
 
     /**
-     * Returns the implemented queueing discipline of the underlying queue as a
-     * String, so it can be displayed in the report.
+     * Returns the implemented queueing discipline of the underlying queue as a String, so it can be displayed in the
+     * report.
      *
      * @return String : The String indicating the queueing discipline.
      */
@@ -345,8 +289,7 @@ public class ProcessQueue<P extends SimProcess> extends QueueBased implements It
     }
 
     /**
-     * Returns the number of entities refused to be enqueued in the queue, because
-     * the capacity limit is reached.
+     * Returns the number of entities refused to be enqueued in the queue, because the capacity limit is reached.
      *
      * @return long : The number of entities refused to be enqueued in the queue.
      */
@@ -356,19 +299,16 @@ public class ProcessQueue<P extends SimProcess> extends QueueBased implements It
     }
 
     /**
-     * Enters a new SimProcess into the ProcessQueue. If the capacity of the
-     * ProcessQueue is full, the entity will not be enqueued and <code>false</code>
-     * will be returned. The SimProcess will be stored in the ProcessQueue until
-     * method <code>remove(SimProcess p)</code> is called with this specific
-     * SimProcess. Simprocesses are ordered according to their priority. Higher
-     * priorities are sorted in front of lower priorities. Simprocesses with same
-     * priority are orderer according to the strategy specified in the constructor.
-     * The first SimProcess inside the process-queue will always be the one with the
-     * highest priority.
+     * Enters a new SimProcess into the ProcessQueue. If the capacity of the ProcessQueue is full, the entity will not
+     * be enqueued and <code>false</code> will be returned. The SimProcess will be stored in the ProcessQueue until
+     * method <code>remove(SimProcess p)</code> is called with this specific SimProcess. Simprocesses are ordered
+     * according to their priority. Higher priorities are sorted in front of lower priorities. Simprocesses with same
+     * priority are orderer according to the strategy specified in the constructor. The first SimProcess inside the
+     * process-queue will always be the one with the highest priority.
      *
-     * @return boolean : Is <code>true</code> if insertion was successful,
-     *         <code>false</code> otherwise (i.e. capacity limit is reached).
      * @param P p : The SimProcess to be added to the ProcessQueue
+     * @return boolean : Is <code>true</code> if insertion was successful,
+     * <code>false</code> otherwise (i.e. capacity limit is reached).
      */
     public boolean insert(P p) {
 
@@ -393,12 +333,12 @@ public class ProcessQueue<P extends SimProcess> extends QueueBased implements It
 
             if (currentlySendDebugNotes()) {
                 sendDebugNote("refuses to insert " + p.getQuotedName() + " because the "
-                + "capacity limit is reached. ProcessQueue:<br>" + _ql.toString());
+                              + "capacity limit is reached. ProcessQueue:<br>" + _ql.toString());
             }
 
             if (currentlySendTraceNotes()) {
                 sendTraceNote("is refused to be enqueued in " + this.getQuotedName() + "because the capacity limit ("
-                + getQueueLimit() + ") of this " + "ProcessQueue is reached");
+                              + getQueueLimit() + ") of this " + "ProcessQueue is reached");
             }
 
             _refused++; // count the refused ones
@@ -425,18 +365,16 @@ public class ProcessQueue<P extends SimProcess> extends QueueBased implements It
     }
 
     /**
-     * Enters a new SimProcess into the process-queue and places it after the given
-     * SimProcess. If the capacity of the ProcessQueue is full, the entity will not
-     * be enqueued and <code>false</code> will be returned. Make sure that the
-     * SimProcess given as reference is already queued inside the process-queue,
-     * else the SimProcess will not be enqueued and <code>false</code> will be
-     * returned. The SimProcess will be stored in the ProcessQueue until method
+     * Enters a new SimProcess into the process-queue and places it after the given SimProcess. If the capacity of the
+     * ProcessQueue is full, the entity will not be enqueued and <code>false</code> will be returned. Make sure that the
+     * SimProcess given as reference is already queued inside the process-queue, else the SimProcess will not be
+     * enqueued and <code>false</code> will be returned. The SimProcess will be stored in the ProcessQueue until method
      * <code>remove(SimProcess p)</code> is called with this specific SimProcess.
      *
-     * @return boolean : Is <code>true</code> if insertion was successful,
-     *         <code>false</code> otherwise (i.e. capacity limit is reached).
      * @param p     P :The SimProcess to be added to the process-queue
      * @param after P :The SimProcess after which SimProcess 'p' is to be inserted
+     * @return boolean : Is <code>true</code> if insertion was successful,
+     * <code>false</code> otherwise (i.e. capacity limit is reached).
      */
     public boolean insertAfter(P p, P after) {
 
@@ -469,12 +407,12 @@ public class ProcessQueue<P extends SimProcess> extends QueueBased implements It
 
             if (currentlySendDebugNotes()) {
                 sendDebugNote("refuses to insert " + p.getQuotedName() + " because the "
-                + "capacity limit is reached. ProcessQueue:<br>" + _ql.toString());
+                              + "capacity limit is reached. ProcessQueue:<br>" + _ql.toString());
             }
 
             if (currentlySendTraceNotes()) {
                 sendTraceNote("is refused to be enqueued in " + this.getQuotedName() + "because the capacity limit ("
-                + getQueueLimit() + ") of this " + "ProcessQueue is reached");
+                              + getQueueLimit() + ") of this " + "ProcessQueue is reached");
             }
 
             _refused++; // count the refused ones
@@ -485,8 +423,9 @@ public class ProcessQueue<P extends SimProcess> extends QueueBased implements It
         boolean successful = _ql.insertAfter(p, after); // elegantly done...
 
         if (currentlySendDebugNotes()) {
-            sendDebugNote("inserts " + p.getQuotedName() + " after " + after.getQuotedName()
-            + " in the ProcessQueue:<br>" + _ql.toString());
+            sendDebugNote(
+            "inserts " + p.getQuotedName() + " after " + after.getQuotedName() + " in the ProcessQueue:<br>"
+            + _ql.toString());
         }
 
         // produce trace output
@@ -503,19 +442,16 @@ public class ProcessQueue<P extends SimProcess> extends QueueBased implements It
     }
 
     /**
-     * Enters a new SimProcess into the ProcessQueue and places it in front of the
-     * given SimProcess. If the capacity of the ProcessQueue is full, the Entity
-     * will not be enqueued and <code>false</code> will be returned. Make sure that
-     * the SimProcess given as reference is already queued inside the ProcessQueue,
-     * else the SimProcess will not be enqueued and <code>false</code> will be
-     * returned. The SimProcess will be stored in the ProcessQueue until method
+     * Enters a new SimProcess into the ProcessQueue and places it in front of the given SimProcess. If the capacity of
+     * the ProcessQueue is full, the Entity will not be enqueued and <code>false</code> will be returned. Make sure that
+     * the SimProcess given as reference is already queued inside the ProcessQueue, else the SimProcess will not be
+     * enqueued and <code>false</code> will be returned. The SimProcess will be stored in the ProcessQueue until method
      * <code>remove(SimProcess p)</code> is called with this specific SimProcess.
      *
-     * @return boolean : Is <code>true</code> if insertion was successful,
-     *         <code>false</code> otherwise (i.e. capacity limit is reached).
      * @param p      P : The SimProcess to be added to the processqQueue
-     * @param before P : The SimProcess before which the SimProcess 'p' is to be
-     *               inserted
+     * @param before P : The SimProcess before which the SimProcess 'p' is to be inserted
+     * @return boolean : Is <code>true</code> if insertion was successful,
+     * <code>false</code> otherwise (i.e. capacity limit is reached).
      */
     public boolean insertBefore(P p, P before) {
 
@@ -548,12 +484,12 @@ public class ProcessQueue<P extends SimProcess> extends QueueBased implements It
 
             if (currentlySendDebugNotes()) {
                 sendDebugNote("refuses to insert " + p.getQuotedName() + " because the "
-                + "capacity limit is reached. ProcessQueue:<br>" + _ql.toString());
+                              + "capacity limit is reached. ProcessQueue:<br>" + _ql.toString());
             }
 
             if (currentlySendTraceNotes()) {
                 sendTraceNote("is refused to be enqueued in " + this.getQuotedName() + "because the capacity limit ("
-                + getQueueLimit() + ") of this " + "ProcessQueue is reached");
+                              + getQueueLimit() + ") of this " + "ProcessQueue is reached");
             }
 
             _refused++; // count the refused ones
@@ -564,8 +500,9 @@ public class ProcessQueue<P extends SimProcess> extends QueueBased implements It
         boolean successful = _ql.insertBefore(p, before); // elegantly done...
 
         if (currentlySendDebugNotes()) {
-            sendDebugNote("inserts " + p.getQuotedName() + " before " + before.getQuotedName()
-            + " in the ProcessQueue:<br>" + _ql.toString());
+            sendDebugNote(
+            "inserts " + p.getQuotedName() + " before " + before.getQuotedName() + " in the ProcessQueue:<br>"
+            + _ql.toString());
         }
 
         // produce trace output
@@ -573,8 +510,8 @@ public class ProcessQueue<P extends SimProcess> extends QueueBased implements It
             if (p == currentEntity() && currentEntityAll().size() == 1) {
                 sendTraceNote("inserts itself into " + this.getQuotedName() + " before " + before.getName());
             } else {
-                sendTraceNote("inserts " + p.getName() + " into " + this.getQuotedName() + " before "
-                + before.getName());
+                sendTraceNote(
+                "inserts " + p.getName() + " into " + this.getQuotedName() + " before " + before.getName());
             }
         }
 
@@ -582,11 +519,11 @@ public class ProcessQueue<P extends SimProcess> extends QueueBased implements It
     }
 
     /**
-     * Returns a boolean value indicating if the process-queue is empty or if any
-     * number of SimProcess is currently enqueued in it.
+     * Returns a boolean value indicating if the process-queue is empty or if any number of SimProcess is currently
+     * enqueued in it.
      *
      * @return boolean : Is <code>true</code> if the process-queue is empty,
-     *         <code>false</code> otherwise
+     * <code>false</code> otherwise
      */
     public boolean isEmpty() {
 
@@ -597,8 +534,7 @@ public class ProcessQueue<P extends SimProcess> extends QueueBased implements It
     /**
      * Returns an iterator over the processes enqueued.
      *
-     * @return java.lang.Iterator&lt;P&gt; : An iterator over the processes
-     *         enqueued.
+     * @return java.lang.Iterator&lt;P&gt; : An iterator over the processes enqueued.
      */
     @Override
     public Iterator<P> iterator() {
@@ -606,11 +542,10 @@ public class ProcessQueue<P extends SimProcess> extends QueueBased implements It
     }
 
     /**
-     * Returns the last SimProcess queued in this process-queue or <code>null</code>
-     * in case the process-queue is empty.
+     * Returns the last SimProcess queued in this process-queue or <code>null</code> in case the process-queue is
+     * empty.
      *
-     * @return P : The last SimProcess in the process-queue or <code>null</code> if
-     *         the process-queue is empty
+     * @return P : The last SimProcess in the process-queue or <code>null</code> if the process-queue is empty
      */
     public P last() {
 
@@ -619,15 +554,13 @@ public class ProcessQueue<P extends SimProcess> extends QueueBased implements It
     }
 
     /**
-     * Returns the last SimProcess queued in this process-queue that applies to the
-     * given condition. The process-queue is searched from end to front and the
-     * first SimProcess that returns <code>true</code> when the condition is applied
-     * to it is returned by this method. If no SimProcess applies to the given
-     * condition or the process-queue is empty, <code>null</code> will be returned.
+     * Returns the last SimProcess queued in this process-queue that applies to the given condition. The process-queue
+     * is searched from end to front and the first SimProcess that returns <code>true</code> when the condition is
+     * applied to it is returned by this method. If no SimProcess applies to the given condition or the process-queue is
+     * empty, <code>null</code> will be returned.
      *
-     * @return P : The last SimProcess queued in this process-queue applying to the
-     *         given condition or <code>null</code>
      * @param c Condition : The condition that the SimProcess returned must fulfill
+     * @return P : The last SimProcess queued in this process-queue applying to the given condition or <code>null</code>
      */
     public P last(Condition<P> c) {
 
@@ -639,12 +572,14 @@ public class ProcessQueue<P extends SimProcess> extends QueueBased implements It
             return null; // no proper parameter
         }
 
-        if (_ql.isEmpty())
+        if (_ql.isEmpty()) {
             return null; // nobody home to be checked
+        }
 
         for (P tmp = _ql.last(); tmp != null; tmp = _ql.pred(tmp)) {
-            if (c.check(tmp))
+            if (c.check(tmp)) {
                 return tmp;
+            }
         }
 
         // if no SimProcess fulfills the condition just return null
@@ -653,14 +588,13 @@ public class ProcessQueue<P extends SimProcess> extends QueueBased implements It
     }
 
     /**
-     * Returns the SimProcess enqueued directly before the given SimProcess in the
-     * process-queue. If the given SimProcess is not contained in this process-queue
-     * or is at the first position thus having no possible predecessor,
+     * Returns the SimProcess enqueued directly before the given SimProcess in the process-queue. If the given
+     * SimProcess is not contained in this process-queue or is at the first position thus having no possible
+     * predecessor,
      * <code>null</code> is returned.
      *
-     * @return P : The SimProcess directly before the given SimProcess in the
-     *         process-queue or <code>null</code>.
      * @param p P : An SimProcess in the process-queue
+     * @return P : The SimProcess directly before the given SimProcess in the process-queue or <code>null</code>.
      */
     public P pred(P p) {
 
@@ -677,18 +611,15 @@ public class ProcessQueue<P extends SimProcess> extends QueueBased implements It
     }
 
     /**
-     * Returns the SimProcess enqueued before the given SimProcess in the
-     * process-queue that also fulfills the condition given. If the given SimProcess
-     * is not contained in this process-queue or is at the first position thus
-     * having no possible predecessor, <code>null</code> is returned. If no other
-     * SimProcess before the given one fulfills the condition, <code>null</code> is
-     * returned, too.
+     * Returns the SimProcess enqueued before the given SimProcess in the process-queue that also fulfills the condition
+     * given. If the given SimProcess is not contained in this process-queue or is at the first position thus having no
+     * possible predecessor, <code>null</code> is returned. If no other SimProcess before the given one fulfills the
+     * condition, <code>null</code> is returned, too.
      *
-     * @return P : The SimProcess before the given SimProcess in the process-queue
-     *         fulfilling to the condition or <code>null</code>.
      * @param p P : A SimProcess in the process-queue
-     * @param c Condition : The condition that the preceeding SimProcess has to
-     *          fulfill
+     * @param c Condition : The condition that the preceeding SimProcess has to fulfill
+     * @return P : The SimProcess before the given SimProcess in the process-queue fulfilling to the condition or
+     * <code>null</code>.
      */
     public P pred(P p, Condition<P> c) {
 
@@ -709,8 +640,9 @@ public class ProcessQueue<P extends SimProcess> extends QueueBased implements It
         }
 
         for (P tmp = pred(p); tmp != null; tmp = pred(tmp)) {
-            if (c.check(tmp))
+            if (c.check(tmp)) {
                 return tmp;
+            }
         }
 
         return null; // obviously not found here, empty or doesn't fulfill
@@ -718,15 +650,15 @@ public class ProcessQueue<P extends SimProcess> extends QueueBased implements It
     }
 
     /**
-     * Removes the process queued at the given position. The first position is 0,
-     * the last one length()-1.
+     * Removes the process queued at the given position. The first position is 0, the last one length()-1.
      *
-     * @return : The method returns <code>true</code> if a <code>SimProcess</code>
-     *         exists at the given position or <code>false></code> if otherwise.
+     * @return : The method returns <code>true</code> if a <code>SimProcess</code> exists at the given position or
+     * <code>false></code> if otherwise.
      */
     public boolean remove(int index) {
-        if (index < 0 || index >= this.length())
+        if (index < 0 || index >= this.length()) {
             return false;
+        }
 
         P p = get(index);
         if (p == null) {
@@ -738,9 +670,8 @@ public class ProcessQueue<P extends SimProcess> extends QueueBased implements It
     }
 
     /**
-     * Removes the given SimProcess from the process-queue. If the given SimProcess
-     * is not in the process-queue, a warning will be issued but nothing else will
-     * be changed.
+     * Removes the given SimProcess from the process-queue. If the given SimProcess is not in the process-queue, a
+     * warning will be issued but nothing else will be changed.
      *
      * @param p P :The SimProcess to be removed from the process-queue
      */
@@ -755,7 +686,7 @@ public class ProcessQueue<P extends SimProcess> extends QueueBased implements It
         }
 
         if (!_ql.remove((P) p)) { // watch out, removes SimProcess as a side
-                                  // effect!!!
+            // effect!!!
             sendWarning("Can not remove SimProcess from Queue!",
                         "ProcessQueue : " + getName() + " Method:  void remove(SimProcess p)",
                         "The SimProcess 'p' (" + p.getQuotedName() + ") given as parameter is not enqueued in "
@@ -793,11 +724,11 @@ public class ProcessQueue<P extends SimProcess> extends QueueBased implements It
     }
 
     /**
-     * Removes the first process from the queue and provides a reference to this
-     * process. If the queue is empty, null is returned.
+     * Removes the first process from the queue and provides a reference to this process. If the queue is empty, null is
+     * returned.
      *
      * @return P : The first process in this queue, which has been removed, or
-     *         <code>null</code> in case the queue was empty
+     * <code>null</code> in case the queue was empty
      */
     public P removeFirst() {
 
@@ -822,16 +753,13 @@ public class ProcessQueue<P extends SimProcess> extends QueueBased implements It
     }
 
     /**
-     * Removes the first process from the queue that fulfills to the given
-     * condition. Also provides a reference to this process. If the queue does not
-     * contain a process that fulfills the condition (e.g. if the queue is empty),
-     * null is returned.
+     * Removes the first process from the queue that fulfills to the given condition. Also provides a reference to this
+     * process. If the queue does not contain a process that fulfills the condition (e.g. if the queue is empty), null
+     * is returned.
      *
      * @param c Condition : The condition that the process returned must fulfill
-     *
-     * @return P : The first process in this queue fulfilling the condition, which
-     *         has been removed from the queue. <code>Null</code> in case no process
-     *         fulfills the condition.
+     * @return P : The first process in this queue fulfilling the condition, which has been removed from the queue.
+     * <code>Null</code> in case no process fulfills the condition.
      */
     public P removeFirst(Condition<P> c) {
 
@@ -864,11 +792,11 @@ public class ProcessQueue<P extends SimProcess> extends QueueBased implements It
     }
 
     /**
-     * Removes the last process from the queue and provides a reference to this
-     * process. If the queue is empty, <code>null</code> is returned.
+     * Removes the last process from the queue and provides a reference to this process. If the queue is empty,
+     * <code>null</code> is returned.
      *
      * @return E : The last process in this queue, which has been removed, or
-     *         <code>null</code> in case the queue was empty
+     * <code>null</code> in case the queue was empty
      */
     public P removeLast() {
 
@@ -893,17 +821,14 @@ public class ProcessQueue<P extends SimProcess> extends QueueBased implements It
     }
 
     /**
-     * Removes the last process from the queue that fulfills to the given condition,
-     * determined by traversing the queue from last to first until a process
-     * fulfilling the condition is found. Also provides a reference to this process.
-     * If the queue does not contain a process that fulfills the condition (e.g. if
-     * the queue is empty), <code>null</code> is returned.
+     * Removes the last process from the queue that fulfills to the given condition, determined by traversing the queue
+     * from last to first until a process fulfilling the condition is found. Also provides a reference to this process.
+     * If the queue does not contain a process that fulfills the condition (e.g. if the queue is empty),
+     * <code>null</code> is returned.
      *
      * @param c Condition : The condition that the entity returned must fulfill
-     *
-     * @return P : The last process in this queue fulfilling the condition, which
-     *         has been removed from the queue. <code>Null</code> in case no process
-     *         fulfills the condition.
+     * @return P : The last process in this queue fulfilling the condition, which has been removed from the queue.
+     * <code>Null</code> in case no process fulfills the condition.
      */
     public P removeLast(Condition<P> c) {
 
@@ -936,9 +861,8 @@ public class ProcessQueue<P extends SimProcess> extends QueueBased implements It
     }
 
     /**
-     * Resets all statistical counters to their default values. The mininum and
-     * maximum length of the queue are set to the current number of queued objects.
-     * The counter for the entities refused to be enqueued will be reset.
+     * Resets all statistical counters to their default values. The mininum and maximum length of the queue are set to
+     * the current number of queued objects. The counter for the entities refused to be enqueued will be reset.
      */
     @Override
     public void reset() {
@@ -950,8 +874,8 @@ public class ProcessQueue<P extends SimProcess> extends QueueBased implements It
     }
 
     /**
-     * Sets the queue capacity to a new value. Only if the new capacity is equal or
-     * larger than the current length of the queue!
+     * Sets the queue capacity to a new value. Only if the new capacity is equal or larger than the current length of
+     * the queue!
      *
      * @param newCapacity int : The new capacity of this ProcessQueue.
      */
@@ -962,8 +886,8 @@ public class ProcessQueue<P extends SimProcess> extends QueueBased implements It
         // of the queue
         if (newCapacity < length() || newCapacity < 0) {
             sendWarning("The new capacity is negative or would be smaller than the "
-            + "number of entities already enqueued in this ProcessQueue. The capacity " + "will remain unchanged!",
-                        getClass().getName() + ": " + getQuotedName() + ", Method: "
+                        + "number of entities already enqueued in this ProcessQueue. The capacity "
+                        + "will remain unchanged!", getClass().getName() + ": " + getQuotedName() + ", Method: "
                         + "void setQueueCapacity(int newCapacity)",
                         "The ProcessQueue already contains more entities than the new capacity "
                         + "could hold. What should happen to the remaining entities?",
@@ -979,24 +903,22 @@ public class ProcessQueue<P extends SimProcess> extends QueueBased implements It
     }
 
     /**
-     * Sets the sort order of this ProcessQueue to a new value and makes this
-     * ProcessQueue use another <code>QueueList</code> with the specified queueing
-     * discipline. Please choose a constant from <code>QueueBased</code>
-     * (<code>QueueBased.FIFO</code>, <code>QueueBased.FIFO</code> or
+     * Sets the sort order of this ProcessQueue to a new value and makes this ProcessQueue use another
+     * <code>QueueList</code> with the specified queueing discipline. Please choose a constant from
+     * <code>QueueBased</code> (<code>QueueBased.FIFO</code>, <code>QueueBased.FIFO</code> or
      * <code>QueueBased.Random</code>) The sort order of a ProcessQueue can only be
      * changed if the queue is empty.
      *
      * @param sortOrder int : determines the sort order of the underlying
      *                  <code>QueueList</code> implementation
-     *                  (<code>QueueBased.FIFO</code>, <code>QueueBased.FIFO</code>
-     *                  or <code>QueueBased.Random</code>)
+     *                  (<code>QueueBased.FIFO</code>, <code>QueueBased.FIFO</code> or <code>QueueBased.Random</code>)
      */
     public void setQueueStrategy(int sortOrder) {
 
         // check if the queue is empty
         if (!isEmpty()) {
             sendWarning("The ProcessQueue for which the queueing discipline should be "
-            + "changed is not empty. The queueing discipline will remain unchanged!",
+                        + "changed is not empty. The queueing discipline will remain unchanged!",
                         getClass().getName() + ": " + getQuotedName() + ", Method: "
                         + "void setQueueStrategy(int sortOrder)",
                         "The ProcessQueue already contains some processes ordered according a " + "certain order.",
@@ -1007,43 +929,43 @@ public class ProcessQueue<P extends SimProcess> extends QueueBased implements It
 
         // determine the queueing strategy
         switch (sortOrder) {
-        case QueueBased.FIFO:
-            _ql = new QueueListFifo<>();
-            break;
-        case QueueBased.LIFO:
-            _ql = new QueueListLifo<>();
-            break;
-        case QueueBased.RANDOM:
-            _ql = new QueueListRandom<>();
-            break;
-        default:
-            sendWarning("The given sortOrder parameter is negative or too big! "
-            + "The sort order of the ProcessQueue will remain unchanged!",
-                        getClass().getName() + ": " + getQuotedName() + ", Method: "
-                        + "void setQueueStrategy(int sortOrder)",
-                        "A valid positive integer number must be provided to "
-                        + "determine the sort order of the queue.",
-                        "Make sure to provide a valid positive integer number "
-                        + "by using the constants in the class QueueBased, like "
-                        + "QueueBased.FIFO, QueueBased.LIFO or QueueBased.RANDOM.");
-            return;
+            case QueueBased.FIFO:
+                _ql = new QueueListFifo<>();
+                break;
+            case QueueBased.LIFO:
+                _ql = new QueueListLifo<>();
+                break;
+            case QueueBased.RANDOM:
+                _ql = new QueueListRandom<>();
+                break;
+            default:
+                sendWarning("The given sortOrder parameter is negative or too big! "
+                            + "The sort order of the ProcessQueue will remain unchanged!",
+                            getClass().getName() + ": " + getQuotedName() + ", Method: "
+                            + "void setQueueStrategy(int sortOrder)",
+                            "A valid positive integer number must be provided to "
+                            + "determine the sort order of the queue.",
+                            "Make sure to provide a valid positive integer number "
+                            + "by using the constants in the class QueueBased, like "
+                            + "QueueBased.FIFO, QueueBased.LIFO or QueueBased.RANDOM.");
+                return;
         }
         _ql.setQueueBased(this);
 
     }
 
     /**
-     * Sets the number of entities refused to be enqueued in the queue because the
-     * capacity limit is reached to a new value.
+     * Sets the number of entities refused to be enqueued in the queue because the capacity limit is reached to a new
+     * value.
      *
-     * @param n long : the new number of entities refused to be enqueued in the
-     *          queue because the capacity limit is reached.
+     * @param n long : the new number of entities refused to be enqueued in the queue because the capacity limit is
+     *          reached.
      */
     public void setRefused(long n) {
         // check if n is negative
         if (n < 0) {
             sendWarning("Attempt to set the number of entities refused to enqueue in "
-            + "the ProcessQueue to a negative value. The attempted action " + "is ignored!",
+                        + "the ProcessQueue to a negative value. The attempted action " + "is ignored!",
                         "ProcessQueue : " + getName() + " Method: void setRefused(long n)",
                         "The number given as parameter n is negative! That makes no " + "sense!",
                         "Make sure to provide only positive numbers as parameter n.");
@@ -1064,14 +986,12 @@ public class ProcessQueue<P extends SimProcess> extends QueueBased implements It
     }
 
     /**
-     * Returns the SimProcess enqueued directly after the given SimProcess in the
-     * process-queue. If the given SimProcess is not contained in this process-queue
-     * or is at the last position thus having no possible successor,
+     * Returns the SimProcess enqueued directly after the given SimProcess in the process-queue. If the given SimProcess
+     * is not contained in this process-queue or is at the last position thus having no possible successor,
      * <code>null</code> is returned.
      *
-     * @return P : The SimProcess directly after the given SimProcess in the
-     *         ProcessQueue or <code>null</code>
      * @param p P : A SimProcess in the process-queue
+     * @return P : The SimProcess directly after the given SimProcess in the ProcessQueue or <code>null</code>
      */
     public P succ(P p) {
 
@@ -1088,18 +1008,15 @@ public class ProcessQueue<P extends SimProcess> extends QueueBased implements It
     }
 
     /**
-     * Returns the SimProcess enqueued after the given SimProcess in the
-     * process-queue that also fulfills the condition given. If the given SimProcess
-     * is not contained in this process-queue or is at the last position thus having
-     * no possible successor, <code>null</code> is returned. If no other SimProcess
-     * after the given one fulfills the condition, <code>null</code> is returned,
-     * too.
+     * Returns the SimProcess enqueued after the given SimProcess in the process-queue that also fulfills the condition
+     * given. If the given SimProcess is not contained in this process-queue or is at the last position thus having no
+     * possible successor, <code>null</code> is returned. If no other SimProcess after the given one fulfills the
+     * condition, <code>null</code> is returned, too.
      *
-     * @return P : The SimProcess after the given SimProcess in the process-queue
-     *         fulfilling the condition or <code>null</code>.
      * @param p P : A SimProcess in the process-queue
-     * @param c Condition : The condition that the succeeding SimProcess has to
-     *          fulfill
+     * @param c Condition : The condition that the succeeding SimProcess has to fulfill
+     * @return P : The SimProcess after the given SimProcess in the process-queue fulfilling the condition or
+     * <code>null</code>.
      */
     public P succ(P p, Condition<P> c) {
 
@@ -1120,11 +1037,44 @@ public class ProcessQueue<P extends SimProcess> extends QueueBased implements It
         }
 
         for (P tmp = succ(p); tmp != null; tmp = succ(tmp)) {
-            if (c.check(tmp))
+            if (c.check(tmp)) {
                 return tmp;
+            }
         }
 
         return null; // obviously not found here, empty or doesn't fulfill
 
+    }
+
+    /**
+     * Private queue iterator, e.g. required for processing all queue elements in a for-each-loop.
+     */
+    private class ProcessQueueIterator implements Iterator<P> {
+
+        ProcessQueue<P> clientQ;
+        P               next, lastReturned;
+
+        public ProcessQueueIterator(ProcessQueue<P> clientQ) {
+            this.clientQ = clientQ;
+            next = clientQ.first();
+            lastReturned = null;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return next != null;
+        }
+
+        @Override
+        public P next() {
+            lastReturned = next;
+            next = clientQ.succ(next);
+            return lastReturned;
+        }
+
+        @Override
+        public void remove() {
+            clientQ.remove(lastReturned);
+        }
     }
 }

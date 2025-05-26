@@ -3,26 +3,20 @@ package desmoj.core.report;
 import java.io.File;
 
 /**
- * An output for tables containing simulation results. The table formatting is
- * done by an assigned TableFormatter (e.g. a HTMLTableFormatter or an
- * ASCIITableFormatter). Realizes the output functionality of the deprecated
- * class desmoj.report.HTMLFileOut. This class is the new base class for the
- * different Desmo-J output channels (ReportFileOut, etc.)
+ * An output for tables containing simulation results. The table formatting is done by an assigned TableFormatter (e.g.
+ * a HTMLTableFormatter or an ASCIITableFormatter). Realizes the output functionality of the deprecated class
+ * desmoj.report.HTMLFileOut. This class is the new base class for the different Desmo-J output channels (ReportFileOut,
+ * etc.)
  *
- * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  * @author Nicolas Knaak edited by Gunnar Kiesel, 5.1.2004
  *
- *         Licensed under the Apache License, Version 2.0 (the "License"); you
- *         may not use this file except in compliance with the License. You may
- *         obtain a copy of the License at
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
  *
- *         Unless required by applicable law or agreed to in writing, software
- *         distributed under the License is distributed on an "AS IS" BASIS,
- *         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- *         implied. See the License for the specific language governing
- *         permissions and limitations under the License.
- *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  */
 public class TableOutput extends FileOutput {
 
@@ -73,28 +67,29 @@ public class TableOutput extends FileOutput {
     protected String createFileName(String pathname, String name, String type) {
 
         // check for proper path and filename
-        if ((pathname == null) || (pathname.length() == 0))
+        if ((pathname == null) || (pathname.length() == 0)) {
             pathname = System.getProperty("user.dir", ".");
-        if ((name == null) || (name.length() == 0))
+        }
+        if ((name == null) || (name.length() == 0)) {
             name = "DESMOJ";
+        }
 
         // check for proper suffix of the filename
         String appendix = "." + formatter.getFileFormat().toLowerCase();
-        if ((!name.endsWith(appendix)) || (!name.endsWith(appendix.toUpperCase())))
+        if ((!name.endsWith(appendix)) || (!name.endsWith(appendix.toUpperCase()))) {
             return pathname + File.separator + name + "_" + type + appendix;
-        else
+        } else {
             return pathname + File.separator + name;
+        }
     }
 
     /**
-     * Tries creating a TableFormatter from the given class name. If creation fails
-     * (e.g. because the class name does not exist) the assigned experiments default
-     * table formatter is created
+     * Tries creating a TableFormatter from the given class name. If creation fails (e.g. because the class name does
+     * not exist) the assigned experiments default table formatter is created
      *
      * @param formatter fully qualified class name of TableFormatter subclass.
-     * @return created TableFormatter object Since the Experiment class no longer
-     *         contains a default formater, the default formatter is now located in
-     *         this class
+     * @return created TableFormatter object Since the Experiment class no longer contains a default formater, the
+     * default formatter is now located in this class
      */
     protected TableFormatter createFormatter(String formatter) {
         TableFormatter t;

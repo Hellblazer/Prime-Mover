@@ -1,18 +1,16 @@
 /**
  * Copyright (C) 2010 Hal Hildebrand. All rights reserved.
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- * 
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General
+ * Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
+ * later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Affero General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU Affero General Public License along with this program.  If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 package com.hellblazer.primeMover.classfile;
@@ -23,37 +21,14 @@ import java.util.NoSuchElementException;
 
 /**
  * @author <a href="mailto:hal.hildebrand@gmail.com">Hal Hildebrand</a>
- * 
  */
 public abstract class OpenAddressingSet<T> extends AbstractSet<T> {
-    public static class OpenSet<T> extends OpenAddressingSet<T> {
-
-        public OpenSet() {
-            super();
-        }
-
-        public OpenSet(int initialCapacity) {
-            super(initialCapacity);
-        }
-
-        @Override
-        protected boolean equals(Object key, Object ob) {
-            return key.equals(ob);
-        }
-
-        @Override
-        protected int getHash(Object key) {
-            return key.hashCode();
-        }
-
-    }
-
     private static final Object DELETED   = new Object();
     private static final int    PRIME     = -1640531527;
     private static final float  THRESHOLD = 0.75f;
-    int                         load;
-    int                         size      = 0;
-    Object                      table[];
+    int    load;
+    int    size = 0;
+    Object table[];
 
     public OpenAddressingSet() {
         this(4);
@@ -88,7 +63,7 @@ public abstract class OpenAddressingSet<T> extends AbstractSet<T> {
             IdentitySet<?> t = (IdentitySet<?>) super.clone();
             if (table != null) {
                 t.table = new Object[table.length];
-                for (int i = table.length; i-- > 0;) {
+                for (int i = table.length; i-- > 0; ) {
                     t.table[i] = table[i];
                 }
             }
@@ -237,6 +212,28 @@ public abstract class OpenAddressingSet<T> extends AbstractSet<T> {
                 insert(ob);
             }
         }
+    }
+
+    public static class OpenSet<T> extends OpenAddressingSet<T> {
+
+        public OpenSet() {
+            super();
+        }
+
+        public OpenSet(int initialCapacity) {
+            super(initialCapacity);
+        }
+
+        @Override
+        protected boolean equals(Object key, Object ob) {
+            return key.equals(ob);
+        }
+
+        @Override
+        protected int getHash(Object key) {
+            return key.hashCode();
+        }
+
     }
 
 }

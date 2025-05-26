@@ -18,15 +18,12 @@
  */
 package com.hellblazer.primeMover.asm;
 
-import com.hellblazer.primeMover.runtime.EntityReference;
+import com.hellblazer.primeMover.api.EntityReference;
 import io.github.classgraph.ClassGraph;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
-
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Test for the refactored EntityGeneratorOriginal to verify clarity improvements
@@ -105,9 +102,7 @@ public class EntityGeneratorRefactoredTest {
 
             System.out.println("✅ Refactored EntityGeneratorOriginal provides complete EntityReference interface!");
             System.out.println("Generated class: " + clazz.getName());
-            System.out.println(
-            "Implements EntityReference: " + EntityReference.class.isAssignableFrom(
-            clazz));
+            System.out.println("Implements EntityReference: " + EntityReference.class.isAssignableFrom(clazz));
         }
     }
 }

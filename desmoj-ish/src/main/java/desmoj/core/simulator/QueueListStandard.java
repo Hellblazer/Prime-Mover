@@ -5,41 +5,32 @@ import java.util.HashMap;
 import java.util.LinkedList;
 
 /**
- * Is the class summing up all the collective implementation of different
- * queueing strategies for a queue list. It provides all the basic methods for
- * inserting objects in a queue, retrieving objects from a queue and getting
- * basic informations about the queue. It is used in many kinds of queue
- * implementations e.g. in the classes <code>QueueListFifo</code> and
+ * Is the class summing up all the collective implementation of different queueing strategies for a queue list. It
+ * provides all the basic methods for inserting objects in a queue, retrieving objects from a queue and getting basic
+ * informations about the queue. It is used in many kinds of queue implementations e.g. in the classes
+ * <code>QueueListFifo</code> and
  * <code>QueueListLifo</code>.
  *
+ * @author Justin Neumann
+ * @author based upon ideas from Tim Lechler, Soenke Claassen, Johannes G&ouml;bel
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  * @see QueueBased
  * @see Queue
  * @see ProcessQueue
  * @see QueueListFifo
  * @see QueueListLifo
- *
- * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
- * @author Justin Neumann
- * @author based upon ideas from Tim Lechler, Soenke Claassen, Johannes
- *         G&ouml;bel
- *
- *         Licensed under the Apache License, Version 2.0 (the "License"); you
- *         may not use this file except in compliance with the License. You may
- *         obtain a copy of the License at
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
- *         Unless required by applicable law or agreed to in writing, software
- *         distributed under the License is distributed on an "AS IS" BASIS,
- *         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- *         implied. See the License for the specific language governing
- *         permissions and limitations under the License.
- *
  */
 public abstract class QueueListStandard<E extends Entity> extends QueueList<E> implements PropertyChangeListener {
 
     /**
-     * An abbreviation to identify the sort of queueing discipline (like FIFO or
-     * LIFO or ...)
+     * An abbreviation to identify the sort of queueing discipline (like FIFO or LIFO or ...)
      */
     protected java.lang.String abbreviation;
 
@@ -49,12 +40,10 @@ public abstract class QueueListStandard<E extends Entity> extends QueueList<E> i
     protected java.util.LinkedList<E> queuelist;
 
     /**
-     * Constructs an empty <code>QueueList</code> with no reference to its client
-     * QueueBased. This no-arg constructor is necessary to instantiate an object of
-     * this class by calling the <code>java.lang.Class.newInstance()</code> method.
-     * The reference to the QueueBased object making use of this queue-functionality
-     * must be provided later by calling the setQueueBased() method. The initial
-     * length is always zero.
+     * Constructs an empty <code>QueueList</code> with no reference to its client QueueBased. This no-arg constructor is
+     * necessary to instantiate an object of this class by calling the <code>java.lang.Class.newInstance()</code>
+     * method. The reference to the QueueBased object making use of this queue-functionality must be provided later by
+     * calling the setQueueBased() method. The initial length is always zero.
      */
     public QueueListStandard() {
 
@@ -71,18 +60,17 @@ public abstract class QueueListStandard<E extends Entity> extends QueueList<E> i
     /**
      * Returns true if the given Entity is contained in the list, false otherwise.
      *
-     * @return boolean : True if the given Entity is contained in the list, false
-     *         otherwise
      * @param e Entity : The Entity assumed to be in the list
+     * @return boolean : True if the given Entity is contained in the list, false otherwise
      */
     @Override
     public boolean contains(E e) {
 
         if (e == null) { // check for nullreference
-            sendWarning("Can not check if the given Entity is contained in QueueListStandardFifo. "
-            + "Command ignored!", "Class: QueueListStandardFifo Method: boolean contains(Entity e).",
-                        "The Entity reference given as parameter is a null reference.",
-                        "Be sure to only use valid references.");
+            sendWarning(
+            "Can not check if the given Entity is contained in QueueListStandardFifo. " + "Command ignored!",
+            "Class: QueueListStandardFifo Method: boolean contains(Entity e).",
+            "The Entity reference given as parameter is a null reference.", "Be sure to only use valid references.");
             return false;
         }
 
@@ -94,8 +82,7 @@ public abstract class QueueListStandard<E extends Entity> extends QueueList<E> i
      * Returns the first entity stored in the list. If the queue is empty,
      * <code>null</code> is returned.
      *
-     * @return Entity : The first entity in the list or <code>null</code> if list is
-     *         empty
+     * @return Entity : The first entity in the list or <code>null</code> if list is empty
      */
     @Override
     public E first() {
@@ -107,11 +94,9 @@ public abstract class QueueListStandard<E extends Entity> extends QueueList<E> i
     }
 
     /**
-     * Returns the position of the named <code>Entity</code>. The first position is
-     * 0, the last one size()-1.
+     * Returns the position of the named <code>Entity</code>. The first position is 0, the last one size()-1.
      *
-     * @return : The position of the <code>Entity</code> or <code>-1</code> if no
-     *         such exists.
+     * @return : The position of the <code>Entity</code> or <code>-1</code> if no such exists.
      */
     @Override
     public int get(E element) {
@@ -121,11 +106,10 @@ public abstract class QueueListStandard<E extends Entity> extends QueueList<E> i
     }
 
     /**
-     * Returns the <code>Entity</code> queued at the named position. The first
-     * position is 0, the last one size()-1.
+     * Returns the <code>Entity</code> queued at the named position. The first position is 0, the last one size()-1.
      *
-     * @return Entity : The <code>Entity</code> at the position of <code>int</code>
-     *         or <code>null</code> if no such position exists.
+     * @return Entity : The <code>Entity</code> at the position of <code>int</code> or <code>null</code> if no such
+     * position exists.
      */
     @Override
     public E get(int index) {
@@ -151,12 +135,10 @@ public abstract class QueueListStandard<E extends Entity> extends QueueList<E> i
     }
 
     /**
-     * Returns an abbreviation as a String to identify the sort of queueing
-     * discipline (like FIFO or LIFO or ...). Is used to display the queueing
-     * discipline in the report of the QueueBased objects.
+     * Returns an abbreviation as a String to identify the sort of queueing discipline (like FIFO or LIFO or ...). Is
+     * used to display the queueing discipline in the report of the QueueBased objects.
      *
-     * @return java.lang.String : An abbreviation to identify the sort of queueing
-     *         discipline (like FIFO or LIFO or ...)
+     * @return java.lang.String : An abbreviation to identify the sort of queueing discipline (like FIFO or LIFO or ...)
      */
     @Override
     public String getAbbreviation() {
@@ -165,13 +147,12 @@ public abstract class QueueListStandard<E extends Entity> extends QueueList<E> i
     }
 
     /**
-     * Adds a new Entity to the QueueList. Entities are inserted according to their
-     * priority in descending order. The highest priority Entity will always be
-     * first in the queue. Entities with same priority are inserted in specified
+     * Adds a new Entity to the QueueList. Entities are inserted according to their priority in descending order. The
+     * highest priority Entity will always be first in the queue. Entities with same priority are inserted in specified
      * order.
      *
-     * Do not forget to call the <code>statisticalInsert()</code> and to set the
-     * queue for each entity as you define this method.
+     * Do not forget to call the <code>statisticalInsert()</code> and to set the queue for each entity as you define
+     * this method.
      *
      * @param e Entity : The Entity to add to the QueueList
      */
@@ -182,8 +163,7 @@ public abstract class QueueListStandard<E extends Entity> extends QueueList<E> i
      * Returns <code>true</code>, if no elements are inside the
      * <code>QueueList</code>,<code>false</code> otherwise
      *
-     * @return boolean : true, if no elements are inside the <code>QueueList</code>,
-     *         false otherwise
+     * @return boolean : true, if no elements are inside the <code>QueueList</code>, false otherwise
      */
     @Override
     public boolean isEmpty() {
@@ -196,8 +176,7 @@ public abstract class QueueListStandard<E extends Entity> extends QueueList<E> i
      * Returns the last Entity stored in the QueueList. If the QueueList is empty,
      * <code>null</code> is returned.
      *
-     * @return Entity : The last Entity in the list or <code>null</code> if
-     *         QueueList is empty
+     * @return Entity : The last Entity in the list or <code>null</code> if QueueList is empty
      */
     @Override
     public E last() {
@@ -209,11 +188,10 @@ public abstract class QueueListStandard<E extends Entity> extends QueueList<E> i
     }
 
     /**
-     * This method will be called every time the Stock (the number of available
-     * units) has changed.
+     * This method will be called every time the Stock (the number of available units) has changed.
      *
-     * @param evt java.beans.PropertyChangeEvent : The event specifying the property
-     *            that has changed ans its old and new value.
+     * @param evt java.beans.PropertyChangeEvent : The event specifying the property that has changed ans its old and
+     *            new value.
      */
     @Override
     public void propertyChange(java.beans.PropertyChangeEvent evt) {
@@ -261,9 +239,8 @@ public abstract class QueueListStandard<E extends Entity> extends QueueList<E> i
     }
 
     /**
-     * Removes the first occurrence of the given Entity from the QueueList. Checks
-     * if the given Entity to be removed does apply to all restrictions on this
-     * operation. These are :
+     * Removes the first occurrence of the given Entity from the QueueList. Checks if the given Entity to be removed
+     * does apply to all restrictions on this operation. These are :
      * <ul>
      * <li>The given reference to an entity must not be <code>null</code></li>
      * <li>This QueueList must not be empty, otherwise there's nothing to
@@ -272,9 +249,9 @@ public abstract class QueueListStandard<E extends Entity> extends QueueList<E> i
      * because the given Entity could not be removed since one of the restrictions
      * above was not met.
      *
-     * @return boolean : Is <code>true</code> if the given Entity is contained in
-     *         the QueueList, <code>false</code> otherwise
      * @param e Entity : The Entity to be removed from the QueueList
+     * @return boolean : Is <code>true</code> if the given Entity is contained in the QueueList, <code>false</code>
+     * e</code> otherwise
      */
     @Override
     public boolean remove(E e) {
@@ -315,11 +292,10 @@ public abstract class QueueListStandard<E extends Entity> extends QueueList<E> i
     }
 
     /**
-     * Removes the <code>Entity</code> queued at the named position. The first
-     * position is 0, the last one size()-1.
+     * Removes the <code>Entity</code> queued at the named position. The first position is 0, the last one size()-1.
      *
-     * @return : The method returns <code>true</code> as the <code>Entity</code> was
-     *         deleted or <code>false></code> if otherwise.
+     * @return : The method returns <code>true</code> as the <code>Entity</code> was deleted or <code>false></code> if
+     * otherwise.
      */
     @Override
     public boolean remove(int index) {
@@ -346,13 +322,13 @@ public abstract class QueueListStandard<E extends Entity> extends QueueList<E> i
     }
 
     /**
-     * Returns the successor to the given Entity in the QueueList. If there is no
-     * successor or no Entity in the QueueList, <code>null</code> is returned.
+     * Returns the successor to the given Entity in the QueueList. If there is no successor or no Entity in the
+     * QueueList, <code>null</code> is returned.
      *
-     * @return Entity : The Entity before the given parameter in the QueueList or
-     *         <code>null</code> if the given Entity parameter 'e' has no successor
-     *         in the QueueList or e itself is not contained in the QueueList
      * @param e Entity : The Entity contained in the QueueList
+     * @return Entity : The Entity before the given parameter in the QueueList or
+     * <code>null</code> if the given Entity parameter 'e' has no successor
+     * in the QueueList or e itself is not contained in the QueueList
      */
     @Override
     public E succ(E e) {
@@ -376,9 +352,8 @@ public abstract class QueueListStandard<E extends Entity> extends QueueList<E> i
     }
 
     /**
-     * Returns a string representation of the QueueList. The string is built by
-     * concatenating all string representations of the contained entities, calling
-     * their <code>toString()</code> methods.
+     * Returns a string representation of the QueueList. The string is built by concatenating all string representations
+     * of the contained entities, calling their <code>toString()</code> methods.
      *
      * @return java.lang.String : The string representation of the QueueList
      */
@@ -402,8 +377,8 @@ public abstract class QueueListStandard<E extends Entity> extends QueueList<E> i
     /**
      * Checks whether the process using the QueueList is a valid SimProcess.
      *
-     * @return boolean : Returns whether the SimProcess is valid or not.
      * @param proc SimProcess : Is this SimProcess a valid one?
+     * @return boolean : Returns whether the SimProcess is valid or not.
      */
     protected boolean checkProcess(SimProcess proc) {
 
@@ -420,7 +395,7 @@ public abstract class QueueListStandard<E extends Entity> extends QueueList<E> i
         // modelcompatible
         {
             sendWarning("The process trying to use a QueueList object does not "
-            + "belong to this model. The attempted action is ignored!",
+                        + "belong to this model. The attempted action is ignored!",
                         "QueueListStandardFifo, Method: first(); called by Class: Stock, Method: "
                         + "store(long n) or retrieve(long n)", "The process is not modelcompatible.",
                         "Make sure that processes are using only queues within their model.");
@@ -431,16 +406,14 @@ public abstract class QueueListStandard<E extends Entity> extends QueueList<E> i
     }
 
     /**
-     * Inserts the given "e" after the position of "which" in the QueueList. Returns
-     * true if "e" is inserted correctly after "which". If the list is empty or the
-     * referenced "which" is not contained, the "e" will not be inserted and false
-     * is returned.
+     * Inserts the given "e" after the position of "which" in the QueueList. Returns true if "e" is inserted correctly
+     * after "which". If the list is empty or the referenced "which" is not contained, the "e" will not be inserted and
+     * false is returned.
      *
-     * @return boolean : Is <code>true</code> if inserted correctly,
-     *         <code>false</code> otherwise
      * @param e     Entity : The Entity to be inserted
-     * @param which Entity : The referenced Entity that the given "e" has to be
-     *              inserted after
+     * @param which Entity : The referenced Entity that the given "e" has to be inserted after
+     * @return boolean : Is <code>true</code> if inserted correctly,
+     * <code>false</code> otherwise
      */
     @Override
     boolean insertAfter(E e, E which) {
@@ -479,16 +452,14 @@ public abstract class QueueListStandard<E extends Entity> extends QueueList<E> i
     }
 
     /**
-     * Inserts the given "e" before the position of "which" in the QueueList.
-     * Returns true if "e" is inserted correctly after "which". If the list is empty
-     * or the referenced "which" is not contained, the "e" will not be inserted and
+     * Inserts the given "e" before the position of "which" in the QueueList. Returns true if "e" is inserted correctly
+     * after "which". If the list is empty or the referenced "which" is not contained, the "e" will not be inserted and
      * false is returned.
      *
-     * @return boolean : Is <code>true</code> if inserted correctly,
-     *         <code>false</code> otherwise
      * @param e     Entity : The Entity to be inserted
-     * @param which Entity : The referenced Entity that the given "e" has to be
-     *              inserted before
+     * @param which Entity : The referenced Entity that the given "e" has to be inserted before
+     * @return boolean : Is <code>true</code> if inserted correctly,
+     * <code>false</code> otherwise
      */
     @Override
     boolean insertBefore(E e, E which) {
@@ -527,14 +498,13 @@ public abstract class QueueListStandard<E extends Entity> extends QueueList<E> i
     }
 
     /**
-     * Returns the predecessor to the given Entity in the QueueList. If there is no
-     * predecessor or no Entity, <code>null</code> is returned.
+     * Returns the predecessor to the given Entity in the QueueList. If there is no predecessor or no Entity,
+     * <code>null</code> is returned.
      *
+     * @param e Entity : The Entity contained in the QueueList whose predecessor will be returned.
      * @return Entity : The Entity before the given parameter in the QueueList or
-     *         <code>null</code> if e has no predecessor in the QueueList or Entity
-     *         parameter 'e' itself is not contained
-     * @param e Entity : The Entity contained in the QueueList whose predecessor
-     *          will be returned.
+     * <code>null</code> if e has no predecessor in the QueueList or Entity
+     * parameter 'e' itself is not contained
      */
     @Override
     E pred(E e) {
@@ -558,13 +528,11 @@ public abstract class QueueListStandard<E extends Entity> extends QueueList<E> i
     }
 
     /**
-     * Removes the first entity from this QueueList and returns <code>true</code> if
-     * it was removed successfully. If the QueueList is empty, <code>false</code> is
-     * returned.
+     * Removes the first entity from this QueueList and returns <code>true</code> if it was removed successfully. If the
+     * QueueList is empty, <code>false</code> is returned.
      *
-     * @return boolean : Is <code>true</code>, if the first element has been removed
-     *         successfully, <code>false</code> if the QueueList happened to be
-     *         empty.
+     * @return boolean : Is <code>true</code>, if the first element has been removed successfully, <code>false</code> if
+     * the QueueList happened to be empty.
      */
     @Override
     boolean removeFirst() {
@@ -582,13 +550,11 @@ public abstract class QueueListStandard<E extends Entity> extends QueueList<E> i
     }
 
     /**
-     * Removes the last Entity from the QueueList and returns <code>true</code> if
-     * it was removed successfully. If the QueueList is empty, <code>false</code> is
-     * returned.
+     * Removes the last Entity from the QueueList and returns <code>true</code> if it was removed successfully. If the
+     * QueueList is empty, <code>false</code> is returned.
      *
-     * @return boolean : Is <code>true</code>, if the last element has been removed
-     *         successfully, <code>false</code> if the QueueList happened to be
-     *         empty
+     * @return boolean : Is <code>true</code>, if the last element has been removed successfully, <code>false</code> if
+     * the QueueList happened to be empty
      */
     @Override
     boolean removeLast() {
@@ -606,18 +572,14 @@ public abstract class QueueListStandard<E extends Entity> extends QueueList<E> i
     }
 
     /**
-     * Sends a warning to the error output by forwarding it to the associated
-     * QueueBased's <code>sendwarning</code> method. Warnings are sent only if the
-     * QueueBased's flag for queue implementation warnings is set to
+     * Sends a warning to the error output by forwarding it to the associated QueueBased's <code>sendwarning</code>
+     * method. Warnings are sent only if the QueueBased's flag for queue implementation warnings is set to
      * <code>true</code>.
      *
      * @param description java.lang.String : describing the error
-     * @param location    java.lang.String : describing the location the error
-     *                    occurred
-     * @param reason      java.lang.String : describing the possible cause for this
-     *                    error
-     * @param prevention  java.lang.String : telling what to do to prevent this
-     *                    error
+     * @param location    java.lang.String : describing the location the error occurred
+     * @param reason      java.lang.String : describing the possible cause for this error
+     * @param prevention  java.lang.String : telling what to do to prevent this error
      * @see QueueBased
      */
     @Override

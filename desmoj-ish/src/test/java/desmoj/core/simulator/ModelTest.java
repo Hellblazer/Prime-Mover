@@ -1,27 +1,24 @@
 package desmoj.core.simulator;
 
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
 /**
- * As it is in the real implementation, this class
- * derived of ModelModulTest can be instantiated.
+ * As it is in the real implementation, this class derived of ModelModulTest can be instantiated.
  *
  * @author Sascha Winde, Clara Bluemm
- *
  */
 public class ModelTest extends ModelModulTest {
 
-	@Override
+    @Override
     @BeforeEach
-	public void setUp() throws Exception {
-		super.setUp();
-	}
+    public void setUp() throws Exception {
+        super.setUp();
+    }
 
-	@Override
+    @Override
     @AfterEach
-	public void tearDown() throws Exception {
-	}
+    public void tearDown() throws Exception {
+    }
 
 }

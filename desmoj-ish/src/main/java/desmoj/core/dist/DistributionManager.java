@@ -3,37 +3,29 @@ package desmoj.core.dist;
 import desmoj.core.simulator.NamedObject;
 
 /**
- * Controls all distributions used during an experiment. Provides the service of
- * automatic seed generation for all distributions registered at the
- * distributionmanager. Note that all distributions register at instantiation
- * time at the experiment's distributionmanager automatically.
+ * Controls all distributions used during an experiment. Provides the service of automatic seed generation for all
+ * distributions registered at the distributionmanager. Note that all distributions register at instantiation time at
+ * the experiment's distributionmanager automatically.
  *
- * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  * @author Tim Lechler
  *
- *         Licensed under the Apache License, Version 2.0 (the "License"); you
- *         may not use this file except in compliance with the License. You may
- *         obtain a copy of the License at
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
  *
- *         Unless required by applicable law or agreed to in writing, software
- *         distributed under the License is distributed on an "AS IS" BASIS,
- *         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- *         implied. See the License for the specific language governing
- *         permissions and limitations under the License.
- *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  */
 public class DistributionManager extends NamedObject {
 
     /**
-     * Value sets antithetic mode for all distributions registering at the
-     * distributionmanager.
+     * Value sets antithetic mode for all distributions registering at the distributionmanager.
      */
     private boolean _antitheticMode;
 
     /**
-     * The current default random number generator to be used by newly created
-     * distributions.
+     * The current default random number generator to be used by newly created distributions.
      */
     private Class<? extends UniformRandomGenerator> _currentDefaultGenerator;
 
@@ -53,8 +45,7 @@ public class DistributionManager extends NamedObject {
     private UniformRandomGenerator _seedGenerator;
 
     /**
-     * Creates a new distributionManager with the given name and the given initial
-     * seed for the seed-generator.
+     * Creates a new distributionManager with the given name and the given initial seed for the seed-generator.
      *
      * @param name java.lang.String : The distributionmanager's name
      * @param seed long : The initial seed for the seedgenerator
@@ -73,7 +64,7 @@ public class DistributionManager extends NamedObject {
         // _currentDefaultGenerator = LinearCongruentialRandomGenerator.class;
 
         _distributions = new java.util.ArrayList<>(); // init List
-                                                      // for dist
+        // for dist
 
         _seed = seed;
     }
@@ -106,8 +97,8 @@ public class DistributionManager extends NamedObject {
     }
 
     /**
-     * Provides all registered distributions with new seed values, thus resetting
-     * all distribution statistics at the same time.
+     * Provides all registered distributions with new seed values, thus resetting all distribution statistics at the
+     * same time.
      */
     public void newSeedAll() {
 
@@ -117,8 +108,7 @@ public class DistributionManager extends NamedObject {
     }
 
     /**
-     * Returns a new seed value to be used as an initial seed for registered
-     * distributions.
+     * Returns a new seed value to be used as an initial seed for registered distributions.
      *
      * @return long : A new seed value for a registered distribution
      */
@@ -130,8 +120,7 @@ public class DistributionManager extends NamedObject {
     }
 
     /**
-     * Registers a new distribution at the experiment to control antithetic mode and
-     * set random seed values.
+     * Registers a new distribution at the experiment to control antithetic mode and set random seed values.
      *
      * @param dist desmoj.dist.Distribution : The distribution to be registered
      */
@@ -144,8 +133,7 @@ public class DistributionManager extends NamedObject {
     }
 
     /**
-     * Resets all registered distributions. Just calls all distribution's individual
-     * reset method.
+     * Resets all registered distributions. Just calls all distribution's individual reset method.
      */
     public void resetAll() {
 
@@ -155,8 +143,8 @@ public class DistributionManager extends NamedObject {
     }
 
     /**
-     * Sets antithetic mode to true on all registered distributions regardless of
-     * their previous status. No reset of statistical counters.
+     * Sets antithetic mode to true on all registered distributions regardless of their previous status. No reset of
+     * statistical counters.
      *
      * @param antitheticMode boolean : The new status of antithetic mode
      */
@@ -168,16 +156,13 @@ public class DistributionManager extends NamedObject {
     }
 
     /**
-     * Sets the underlying pseudo random number generator to be used by all
-     * distributions created from now on. The default generator is
-     * LinearCongruentialRandomGenerator; any other generator to be used must
-     * implement the interface UniformRandomGenerator.
+     * Sets the underlying pseudo random number generator to be used by all distributions created from now on. The
+     * default generator is LinearCongruentialRandomGenerator; any other generator to be used must implement the
+     * interface UniformRandomGenerator.
      *
+     * @param randomNumberGenerator Class : The random number generator class to be used
      * @see desmoj.core.dist.LinearCongruentialRandomGenerator
      * @see desmoj.core.dist.UniformRandomGenerator
-     *
-     * @param randomNumberGenerator Class : The random number generator class to be
-     *                              used
      */
     public void setRandomNumberGenerator(Class<? extends UniformRandomGenerator> randomNumberGenerator) {
 
@@ -186,8 +171,8 @@ public class DistributionManager extends NamedObject {
     }
 
     /**
-     * Sets the seed of the SeedGenerator to the given value. If the seed is not set
-     * here, its default is zero, unless specified in the experimentoptions.
+     * Sets the seed of the SeedGenerator to the given value. If the seed is not set here, its default is zero, unless
+     * specified in the experimentoptions.
      *
      * @param newSeed long : The new seed for the seedgenerator
      */
@@ -200,14 +185,12 @@ public class DistributionManager extends NamedObject {
     }
 
     /**
-     * Returns the underlying pseudo random number generator to be used by all
-     * distributions. This method is intended for internal use (i.e. called by
-     * Distribution) only.
+     * Returns the underlying pseudo random number generator to be used by all distributions. This method is intended
+     * for internal use (i.e. called by Distribution) only.
      *
      * @see desmoj.core.dist.LinearCongruentialRandomGenerator
      * @see desmoj.core.dist.MersenneTwisterRandomGenerator
      * @see desmoj.core.dist.UniformRandomGenerator
-     *
      */
     protected Class<? extends UniformRandomGenerator> getRandomNumberGenerator() {
 

@@ -62,7 +62,8 @@ public abstract class AbstractTransform extends AbstractMojo {
                 file.getParentFile().mkdirs();
                 try (var fos = new FileOutputStream(file)) {
                     fos.write(bytes);
-                    logger.info(String.format("ClassFile API Transformed: %s, written: %s", ci.getName(), file.getAbsoluteFile()));
+                    logger.info(
+                    String.format("ClassFile API Transformed: %s, written: %s", ci.getName(), file.getAbsoluteFile()));
                 } catch (IOException e) {
                     failed.add(file.getAbsolutePath());
                 }
@@ -75,8 +76,8 @@ public abstract class AbstractTransform extends AbstractMojo {
         }
     }
 
-    abstract File getOutputDirectory();
-
     abstract protected String getCompileClasspath() throws MojoExecutionException;
+
+    abstract File getOutputDirectory();
 
 }

@@ -1,49 +1,35 @@
 package desmoj.core.simulator;
 
-import java.awt.BorderLayout;
-import java.awt.Toolkit;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
-import javax.swing.BorderFactory;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
-import javax.swing.Timer;
 
 /**
  * The progress bar to display the progress of the experiment.
  *
- * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  * @author Soenke Claassen
  *
- *         Licensed under the Apache License, Version 2.0 (the "License"); you
- *         may not use this file except in compliance with the License. You may
- *         obtain a copy of the License at
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
  *
- *         Unless required by applicable law or agreed to in writing, software
- *         distributed under the License is distributed on an "AS IS" BASIS,
- *         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- *         implied. See the License for the specific language governing
- *         permissions and limitations under the License.
- *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  * @sharpen.ignore
- *
  */
 public class ExpProgressBar extends JFrame {
 
     /**
-     * A constant defining half a second as 500 milliseconds. Every half a second
-     * the progress bar will be updated.
+     * A constant defining half a second as 500 milliseconds. Every half a second the progress bar will be updated.
      */
     public final static int HALF_A_SECOND = 500;
 
     private static final long serialVersionUID = 1L;
 
     /**
-     * Flag indicating whether the progress bar will be autoclosed once the
-     * experiment terminates or not.
+     * Flag indicating whether the progress bar will be autoclosed once the experiment terminates or not.
      */
     private boolean _autoclose;
 
@@ -63,11 +49,9 @@ public class ExpProgressBar extends JFrame {
     private Timer _timer;
 
     /**
-     * Constructs an ExpProgressBar for an <code>Experiment</code> to display its
-     * progress on the screen.
+     * Constructs an ExpProgressBar for an <code>Experiment</code> to display its progress on the screen.
      *
-     * @param experiment Experiment : The experiment which progress will be
-     *                   displayed of the progress bar.
+     * @param experiment Experiment : The experiment which progress will be displayed of the progress bar.
      */
     public ExpProgressBar(Experiment experiment, boolean autoclose) {
 
@@ -118,8 +102,7 @@ public class ExpProgressBar extends JFrame {
     /**
      * Returns the <code>Experiment</code> this progress bar monitors.
      *
-     * @return desmoj.Experiment : the <code>Experiment</code> this progress bar
-     *         monitors.
+     * @return desmoj.Experiment : the <code>Experiment</code> this progress bar monitors.
      */
     public Experiment getExperiment() {
 

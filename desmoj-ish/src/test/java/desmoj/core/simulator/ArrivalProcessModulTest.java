@@ -1,22 +1,19 @@
 package desmoj.core.simulator;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
+import desmoj.implementation.TestArrivalProcess;
+import desmoj.implementation.TestModel;
+import desmoj.implementation.TestRealDist;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import desmoj.implementation.TestArrivalProcess;
-import desmoj.implementation.TestModel;
-import desmoj.implementation.TestRealDist;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * This class tests the functionality of the class ArrivalProcess.
  *
  * @author Sascha Winde, Clara Bluemm
- *
- *
  */
 public abstract class ArrivalProcessModulTest {
 

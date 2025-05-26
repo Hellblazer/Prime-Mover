@@ -19,7 +19,7 @@
 
 package hello;
 
-import com.hellblazer.primeMover.Kronos;
+import com.hellblazer.primeMover.api.Kronos;
 import com.hellblazer.primeMover.annotations.Entity;
 
 /**

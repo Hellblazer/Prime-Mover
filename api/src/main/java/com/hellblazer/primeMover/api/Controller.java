@@ -1,39 +1,35 @@
 /**
  * Copyright (C) 2010 Hal Hildebrand. All rights reserved.
- * 
+ *
  * This file is part of the Prime Mover Event Driven Simulation Framework.
- * 
- * This program is free software: you can redistribute it and/or modify it under
- * the terms of the GNU Affero General Public License as published by the Free
- * Software Foundation, either version 3 of the License, or (at your option) any
+ *
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General
+ * Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
  * later version.
- * 
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
  * details.
- * 
- * You should have received a copy of the GNU Affero General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * You should have received a copy of the GNU Affero General Public License along with this program. If not, see
+ * <http://www.gnu.org/licenses/>.
  */
-package com.hellblazer.primeMover;
-
-import com.hellblazer.primeMover.runtime.EntityReference;
+package com.hellblazer.primeMover.api;
 
 import java.util.logging.Logger;
 
 /**
  * The processor of events, the continuation of time. This is the central
  * control interface of PrimeMover.
- * 
+ *
  * @author <a href="mailto:hal.hildebrand@gmail.com">Hal Hildebrand</a>
- * 
+ *
  */
 public interface Controller {
 
     /**
      * Advance the current time of the controller
-     * 
+     *
      * @param duration
      */
     void advance(long duration);
@@ -44,14 +40,14 @@ public interface Controller {
     void clear();
 
     /**
-     * 
+     *
      * @return the current event of the controller.
      */
     Event getCurrentEvent();
 
     /**
      * Answer the current instant in time of the controller
-     * 
+     *
      * @return the current value of the simulation clock
      */
     long getCurrentTime();
@@ -70,7 +66,7 @@ public interface Controller {
     /**
      * Post the event to be evaluated. The event is blocking, meaning that it
      * will cause the caller to continue execution until the event is processed.
-     * 
+     *
      * @param entity
      *            - the target of the event
      * @param event
@@ -80,12 +76,11 @@ public interface Controller {
      * @return
      * @throws Throwable
      */
-    Object postContinuingEvent(EntityReference entity, int event,
-                               Object... arguments) throws Throwable;
+    Object postContinuingEvent(EntityReference entity, int event, Object... arguments) throws Throwable;
 
     /**
      * Post the event to be evaluated
-     * 
+     *
      * @param entity
      *            - the target of the event
      * @param event
@@ -97,7 +92,7 @@ public interface Controller {
 
     /**
      * Post the event to be evaluated at the specified instant in time
-     * 
+     *
      * @param time
      *            - the instant in time the event is to be processed
      * @param entity
@@ -107,12 +102,11 @@ public interface Controller {
      * @param arguments
      *            - the arguments to the event
      */
-    void postEvent(long time, EntityReference entity, int event,
-                   Object... arguments);
+    void postEvent(long time, EntityReference entity, int event, Object... arguments);
 
     /**
      * Set the current time of the controller
-     * 
+     *
      * @param time
      */
     void setCurrentTime(long time);
@@ -123,7 +117,7 @@ public interface Controller {
      * event was raised. The collection of debug information for events is
      * expensive and significantly impacts the performance of the simulation
      * event processing.
-     * 
+     *
      * @param debug
      *            - true to trigger the collecting of event debug information
      */
@@ -131,7 +125,7 @@ public interface Controller {
 
     /**
      * Configure the logger for tracing all event processing
-     * 
+     *
      * @param eventLog
      */
     void setEventLogger(Logger eventLog);
@@ -141,7 +135,7 @@ public interface Controller {
      * event. Tracking event sources has garbage collection implications, as
      * event chains prevent the elimantion of previous events which have already
      * been processed.
-     * 
+     *
      * @param track
      *            - true to track event sources
      */

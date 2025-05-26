@@ -1,26 +1,17 @@
 package desmoj.core.simulator;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
+import desmoj.implementation.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import desmoj.implementation.TestEntity;
-import desmoj.implementation.TestEventAbstract;
-import desmoj.implementation.TestExternalEvent;
-import desmoj.implementation.TestModel;
-import desmoj.implementation.TestSimProcess;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * This class tests the functionality of the scheduler in interaction with
- * EventList, Model, Entity, Event, SimProcess, EventNote, TimeInstant, TimeSpan
- * and experiment.
+ * This class tests the functionality of the scheduler in interaction with EventList, Model, Entity, Event, SimProcess,
+ * EventNote, TimeInstant, TimeSpan and experiment.
  *
  * @author Sascha Winde
- *
  */
 public class SchedulerInteractionTest {
 
@@ -84,7 +75,7 @@ public class SchedulerInteractionTest {
     public void testExternalEvent() {
         scheduler.scheduleNoPreempt(null, event1, new TimeInstant(4));
         experiment.start();
-//        assertEquals(event1, scheduler.getCurrentEvent());
+        //        assertEquals(event1, scheduler.getCurrentEvent());
     }
 
     /**
@@ -95,14 +86,14 @@ public class SchedulerInteractionTest {
         experiment.stop(new TimeInstant(6));
         experiment.start();
         System.out.println(scheduler.getSimClock().getTime());
-//        assertTrue(new TimeInstant(6).getTimeAsDouble() == scheduler.getSimClock().getTime().getTimeAsDouble()); // nicht
+        //        assertTrue(new TimeInstant(6).getTimeAsDouble() == scheduler.getSimClock().getTime().getTimeAsDouble()); // nicht
         // hingucken,
         // weitergehen
         // ^^
         experiment.stop(timeInstant);
         experiment.proceed();
         System.out.println(scheduler.getSimClock().getTime());
-//        assertTrue(new TimeInstant(100).getTimeAsDouble() == scheduler.getSimClock().getTime().getTimeAsDouble()); // nicht
+        //        assertTrue(new TimeInstant(100).getTimeAsDouble() == scheduler.getSimClock().getTime().getTimeAsDouble()); // nicht
         // hingucken,
         // weitergehen
         // ^^
@@ -113,16 +104,15 @@ public class SchedulerInteractionTest {
      */
     @Test
     public void testRandom() {
-//        EventList.setRandomizingConcurrentEvents(false);
-//        assertFalse(scheduler.isRandomizingConcurrentEvents());
-//        EventList.setRandomizingConcurrentEvents(true);
-//        assertTrue(scheduler.isRandomizingConcurrentEvents());
+        //        EventList.setRandomizingConcurrentEvents(false);
+        //        assertFalse(scheduler.isRandomizingConcurrentEvents());
+        //        EventList.setRandomizingConcurrentEvents(true);
+        //        assertTrue(scheduler.isRandomizingConcurrentEvents());
     }
 
     /**
-     * This test checks, if the scheduler schedules the given ENtitys right.
-     * Therefore, they are scheduled with TimeSpans, activated with TimeInstants or
-     * after one another.
+     * This test checks, if the scheduler schedules the given ENtitys right. Therefore, they are scheduled with
+     * TimeSpans, activated with TimeInstants or after one another.
      */
     @Test
     public void testScheduleEntity() {
@@ -136,7 +126,7 @@ public class SchedulerInteractionTest {
         // assertEquals(process1, scheduler.getCurrentSimProcess());
         // experiment.stop(timeInstant);
         // experiment.proceed();
-//        assertEquals(process2, scheduler.getCurrentSimProcess());
+        //        assertEquals(process2, scheduler.getCurrentSimProcess());
 
     }
 
@@ -156,7 +146,7 @@ public class SchedulerInteractionTest {
         scheduler.scheduleWithPreempt(process1, null);
         process1.activatePreempt();
         experiment.start();
-//        assertEquals(process1, scheduler.getCurrentSimProcess());
+        //        assertEquals(process1, scheduler.getCurrentSimProcess());
 
     }
 

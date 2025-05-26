@@ -17,6 +17,8 @@
 
 package com.hellblazer.primeMover.runtime;
 
+import com.hellblazer.primeMover.api.EntityReference;
+
 /**
  * Implementation of the blocking sleep.
  *

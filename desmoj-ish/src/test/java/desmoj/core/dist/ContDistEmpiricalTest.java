@@ -1,12 +1,11 @@
 package desmoj.core.dist;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
+import desmoj.core.simulator.Experiment;
+import desmoj.core.simulator.Model;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import desmoj.core.simulator.Experiment;
-import desmoj.core.simulator.Model;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ContDistEmpiricalTest {
 

@@ -1,27 +1,23 @@
 package desmoj.core.report;
 
-import java.util.ArrayList;
-
 import desmoj.core.report.html5chart.ChartDataHistogramDouble;
 import desmoj.core.simulator.TimeSpan;
 import desmoj.core.statistic.StatisticObject;
 
+import java.util.ArrayList;
+
 /**
  * Captures all relevant information about the HistogramAccumulate.
  *
- * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  * @author Chr. M&uuml;ller (TH Wildau) 28.11.2012 based on HistogramReport
  *
- *         Licensed under the Apache License, Version 2.0 (the "License"); you
- *         may not use this file except in compliance with the License. You may
- *         obtain a copy of the License at
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
  *
- *         Unless required by applicable law or agreed to in writing, software
- *         distributed under the License is distributed on an "AS IS" BASIS,
- *         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- *         implied. See the License for the specific language governing
- *         permissions and limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  */
 
 public class HistogramAccumulateReporter extends desmoj.core.report.Reporter {
@@ -29,26 +25,22 @@ public class HistogramAccumulateReporter extends desmoj.core.report.Reporter {
     // ****** attributes ******
 
     /**
-     * The column headings of the histogram part of this HistogramReporter. Entries
-     * should contain in the elements in the same order as the
+     * The column headings of the histogram part of this HistogramReporter. Entries should contain in the elements in
+     * the same order as the
      * <code>histEntries[]</code>.
      */
     private String[] _histColumns;
 
     /**
-     * The data entries of the histogram part of this HistogramReporter. The first
-     * (leftmost) dimension of this array is representing the number of cells the
-     * interval of the histogram is devided into (incl. under- and overflow). The
-     * second dimension of this array is representing each column entry of the
-     * specified cell. So the second dimension entries should contain the data
-     * elements in the same order as defined in the <code>histColumns[]</code>
-     * array.
+     * The data entries of the histogram part of this HistogramReporter. The first (leftmost) dimension of this array is
+     * representing the number of cells the interval of the histogram is devided into (incl. under- and overflow). The
+     * second dimension of this array is representing each column entry of the specified cell. So the second dimension
+     * entries should contain the data elements in the same order as defined in the <code>histColumns[]</code> array.
      */
     private String[][] _histEntries;
 
     /**
-     * The number of columns of the histogram part (table) of this
-     * HistogramReporter.
+     * The number of columns of the histogram part (table) of this HistogramReporter.
      */
     private int _histNumColumns;
 
@@ -60,13 +52,11 @@ public class HistogramAccumulateReporter extends desmoj.core.report.Reporter {
     // ****** methods ******
 
     /**
-     * Constructor for a new HistogramReporter. Note that although any Reportable is
-     * accepted you should make sure that only subtypes of Histogram are passed to
-     * this constructor. Otherwise the number of column titles and their individual
-     * headings will differ from the actual content collected by this reporter.
+     * Constructor for a new HistogramReporter. Note that although any Reportable is accepted you should make sure that
+     * only subtypes of Histogram are passed to this constructor. Otherwise the number of column titles and their
+     * individual headings will differ from the actual content collected by this reporter.
      *
-     * @param informationSource desmoj.core.simulator.Reportable : The Histogram to
-     *                          report about.
+     * @param informationSource desmoj.core.simulator.Reportable : The Histogram to report about.
      */
     public HistogramAccumulateReporter(desmoj.core.simulator.Reportable informationSource) {
         super(informationSource); // make a Reporter (source = informationSource)
@@ -130,12 +120,14 @@ public class HistogramAccumulateReporter extends desmoj.core.report.Reporter {
             // check if remaining cells are empty
             boolean zeros = true;
             while (zeros && j < hist.getCells() + 2) {
-                if (hist.getObservationsInCell(j).getTimeAsDouble() != 0)
+                if (hist.getObservationsInCell(j).getTimeAsDouble() != 0) {
                     zeros = false;
+                }
                 j++;
             }
-            if (zeros)
+            if (zeros) {
                 remainingEmpty = true;
+            }
         }
 
         if (table.size() < hist.getCells() + 2) {
@@ -161,11 +153,10 @@ public class HistogramAccumulateReporter extends desmoj.core.report.Reporter {
     }
 
     /**
-     * Returns an array of Strings each containing the data for the corresponding
-     * column in array <code>columns[]</code>. Implement this method in a way, that
-     * an array of the same length as the columntitles is produced containing the
-     * data at the point of time this method is called by someone else to produce
-     * up-to-date information.
+     * Returns an array of Strings each containing the data for the corresponding column in array
+     * <code>columns[]</code>. Implement this method in a way, that an array of the same length as the columntitles is
+     * produced containing the data at the point of time this method is called by someone else to produce up-to-date
+     * information.
      *
      * @return java.lang.String[] : Array containing the data for reporting
      */
@@ -231,24 +222,22 @@ public class HistogramAccumulateReporter extends desmoj.core.report.Reporter {
     }
 
     /**
-     * Returns an array of Strings each containing the title for the corresponding
-     * column of the histogram part (table).
+     * Returns an array of Strings each containing the title for the corresponding column of the histogram part
+     * (table).
      *
-     * @return java.lang.String[] : Array containing column titles of the histogram
-     *         part (table).
+     * @return java.lang.String[] : Array containing column titles of the histogram part (table).
      */
     public String[] getHistColumnTitles() {
         return _histColumns.clone();
     }
 
     /**
-     * Returns a two-dimensional array of Strings containing the data for the
-     * histogram part of this HistogramReporter. Implement this method in a way,
-     * that the data is collected at the point of time this method is called by
-     * someone else to produce up-to-date information.
+     * Returns a two-dimensional array of Strings containing the data for the histogram part of this HistogramReporter.
+     * Implement this method in a way, that the data is collected at the point of time this method is called by someone
+     * else to produce up-to-date information.
      *
-     * @return java.lang.String[][] : Array containing the data for reporting about
-     *         the histogram part of this HistogramReporter.
+     * @return java.lang.String[][] : Array containing the data for reporting about the histogram part of this
+     * HistogramReporter.
      */
     public String[][] getHistEntries() {
         // the Histogram we report about (source = informationSource)
@@ -270,12 +259,14 @@ public class HistogramAccumulateReporter extends desmoj.core.report.Reporter {
                 // Lower Limit
                 String a = this.format(_showTimeSpansInReport, hist.getLowerLimit(j));
                 String b = this.format(_showTimeSpansInReport, Double.POSITIVE_INFINITY);
-                if (j + 1 < _noOfCells + 2)
+                if (j + 1 < _noOfCells + 2) {
                     b = this.format(_showTimeSpansInReport, hist.getLowerLimit(j + 1));
-                if (j == 0)
+                }
+                if (j == 0) {
                     _histEntries[j][1] = "(" + a + ", " + b + ")";
-                else
+                } else {
                     _histEntries[j][1] = "[" + a + ", " + b + ")";
+                }
 
                 // n
                 _histEntries[j][2] = hist.getObservationsInCell(j).toString();
@@ -285,7 +276,7 @@ public class HistogramAccumulateReporter extends desmoj.core.report.Reporter {
                 // calculate the percentage with 4 digits after the decimal
                 // point
                 double perc = StatisticObject.round(100.0 * hist.getObservationsInCell(j).getTimeAsDouble()
-                / hist.getPeriodMeasured().getTimeAsDouble());
+                                                    / hist.getPeriodMeasured().getTimeAsDouble());
 
                 cumPerc += perc; // update the accumulated percentage
                 // to display the perc. round it to 2 digits after the decimal
@@ -356,30 +347,26 @@ public class HistogramAccumulateReporter extends desmoj.core.report.Reporter {
     }
 
     /**
-     * Returns the number of columns of the histogram part (table) of this
-     * HistogramReporter.
+     * Returns the number of columns of the histogram part (table) of this HistogramReporter.
      *
-     * @return int : The number of columns of the histogram part (table) of this
-     *         HistogramReporter
+     * @return int : The number of columns of the histogram part (table) of this HistogramReporter
      */
     public int getHistNumColumns() {
         return _histNumColumns;
     }
 
     /**
-     * Returns the number of cells the interval of the given Histogram is devided
-     * into.
+     * Returns the number of cells the interval of the given Histogram is devided into.
      *
-     * @return int : The number of cells the interval of the given Histogram is
-     *         devided into.
+     * @return int : The number of cells the interval of the given Histogram is devided into.
      */
     public int getNoOfCells() {
         return _noOfCells;
     }
 
     /**
-     * Returns the number of observations made by the Histogram object. This method
-     * call is passed on to the Histogram object.
+     * Returns the number of observations made by the Histogram object. This method call is passed on to the Histogram
+     * object.
      *
      * @return long : The number of observations made by the Histogram object.
      */
@@ -396,12 +383,13 @@ public class HistogramAccumulateReporter extends desmoj.core.report.Reporter {
 
     private String format(boolean showTimeSpans, double value) {
         String out = Double.toString(value);
-        if (showTimeSpans && value < 0.0)
+        if (showTimeSpans && value < 0.0) {
             out += " (Invalid)";
-        else if (showTimeSpans && value >= Long.MAX_VALUE)
+        } else if (showTimeSpans && value >= Long.MAX_VALUE) {
             out += " (Invalid)";
-        else if (showTimeSpans)
+        } else if (showTimeSpans) {
             out = new TimeSpan(value).toString();
+        }
         return out;
     }
 } // end class HistogramReporter

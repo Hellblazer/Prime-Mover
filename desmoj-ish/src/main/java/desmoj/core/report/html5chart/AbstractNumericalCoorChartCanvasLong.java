@@ -1,22 +1,17 @@
 package desmoj.core.report.html5chart;
 
 /**
- * A chart to represent <code>Long</code> data on the y-axis of a coordinate
- * system.
+ * A chart to represent <code>Long</code> data on the y-axis of a coordinate system.
  *
- * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  * @author Johanna Djimandjaja
  *
- *         Licensed under the Apache License, Version 2.0 (the "License"); you
- *         may not use this file except in compliance with the License. You may
- *         obtain a copy of the License at
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
  *
- *         Unless required by applicable law or agreed to in writing, software
- *         distributed under the License is distributed on an "AS IS" BASIS,
- *         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- *         implied. See the License for the specific language governing
- *         permissions and limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  */
 public abstract class AbstractNumericalCoorChartCanvasLong extends AbstractNumericalCoorChartCanvas<Long> {
 
@@ -26,8 +21,7 @@ public abstract class AbstractNumericalCoorChartCanvasLong extends AbstractNumer
     }
 
     /**
-     * Determines the number of scales on the y-axis and the difference between each
-     * scale.
+     * Determines the number of scales on the y-axis and the difference between each scale.
      */
     @Override
     void determineYScale() {
@@ -48,8 +42,9 @@ public abstract class AbstractNumericalCoorChartCanvasLong extends AbstractNumer
         int candidate = 0;
 
         for (candidate = 0; candidate < hight_candidates.length; candidate++) {
-            if (base * hight_candidates[candidate] > maxEntry)
+            if (base * hight_candidates[candidate] > maxEntry) {
                 break;
+            }
         }
 
         _numOfYScale = hight_candidates_ticks[candidate];

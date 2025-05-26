@@ -6,8 +6,7 @@ import java.lang.instrument.Instrumentation;
  * @author hal.hildebrand
  **/
 public class SimAgent {
-    private static final java.util.logging.Logger log = java.util.logging.Logger.getLogger(
-    SimAgent.class.getName());
+    private static final java.util.logging.Logger log = java.util.logging.Logger.getLogger(SimAgent.class.getName());
 
     public static void agentmain(String agentArgs, Instrumentation inst) {
         log.info("[Agent] In agentmain method using ClassFile API");

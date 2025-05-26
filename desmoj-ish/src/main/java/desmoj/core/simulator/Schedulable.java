@@ -1,86 +1,41 @@
 package desmoj.core.simulator;
 
+import desmoj.core.report.Reporter;
+
 import java.lang.reflect.Constructor;
 import java.util.LinkedList;
 import java.util.List;
 
-import desmoj.core.report.Reporter;
-
 /**
- * All objects that want to be handled by the scheduler must extend this class.
- * These are events (including external events), entities and SimProcesses. All
- * functionality common to Schedulable objects are encapsulated here.
+ * All objects that want to be handled by the scheduler must extend this class. These are events (including external
+ * events), entities and SimProcesses. All functionality common to Schedulable objects are encapsulated here.
  *
- * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  * @author Tim Lechler
  *
- *         Licensed under the Apache License, Version 2.0 (the "License"); you
- *         may not use this file except in compliance with the License. You may
- *         obtain a copy of the License at
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
  *
- *         Unless required by applicable law or agreed to in writing, software
- *         distributed under the License is distributed on an "AS IS" BASIS,
- *         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- *         implied. See the License for the specific language governing
- *         permissions and limitations under the License.
- *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  */
 public class Schedulable extends ModelComponent {
-
-    /**
-     * Helper object to be able to report about this Schedulable.
-     */
-    private class DummyReportable extends desmoj.core.simulator.Reportable {
-
-        Class<? extends Reporter> reporterClass;
-
-        public DummyReportable(Model owner, Class<? extends Reporter> reporterClass, boolean showInReport,
-                               boolean showInTrace) {
-            super(owner, "DummyReporter", showInReport, showInTrace);
-            this.reporterClass = reporterClass;
-        }
-
-        /*
-         * (non-Javadoc)
-         *
-         * @see desmoj.core.simulator.Reportable#createDefaultReporter()
-         */
-        @Override
-        public desmoj.core.report.Reporter createDefaultReporter() {
-
-            try {
-                Constructor<?> constructor;
-                constructor = reporterClass.getConstructor(new Class[] { Schedulable.class });
-                constructor.setAccessible(true);
-                return (Reporter) constructor.newInstance(new Object[] { Schedulable.this });
-            } catch (Exception e) {
-                this.sendWarning("Instanciating the user-specified reporter for this Schedulable caused an exception. Using the default reporter instead.",
-                                 "Schedulable : " + getName() + " Method: DummyReportable.createDefaultReporter()",
-                                 "User-specified class is not accessible or constructor cannot be invoked.",
-                                 "Make sure provide an appropriate reporter class if you want to replace the default reporter. "
-                                 + "Such a reporter has to provide a constructor requiring a reference to this reportable as only parameter");
-                return createDefaultReporter();
-            }
-        }
-    }
 
     /**
      * A list containing all scheduled entries for this Schedulable in future.
      */
     protected List<EventNote> _schedule;
-
     /**
-     * Reportable (e.g. entity) corresponding to this Schedulable maybe null if no
-     * Reportable corresponds to this Schedulable
+     * Reportable (e.g. entity) corresponding to this Schedulable maybe null if no Reportable corresponds to this
+     * Schedulable
      */
     private Reportable _correspondingReportable = null;
 
     /**
-     * Constructs a Schedulable object with the given name. Note that to identify
-     * the multiple objects that can be created of one type of Schedulable, each has
-     * a unique number added to its name as a suffix. The numbers represent the
-     * amount of objects being created with the same name.
+     * Constructs a Schedulable object with the given name. Note that to identify the multiple objects that can be
+     * created of one type of Schedulable, each has a unique number added to its name as a suffix. The numbers represent
+     * the amount of objects being created with the same name.
      *
      * @param name  java.lang.String : The name of the new Schedulable object
      * @param owner Model : The owner of this Schedulable object
@@ -93,26 +48,21 @@ public class Schedulable extends ModelComponent {
     }
 
     /**
-     * Allows to allocate a <code>Reporter</code> to this <code>Schedulable</code>.
-     * Bypassing the usual approach of each <code>ModelComponent</code> either being
-     * a <code>Schedulable</code> or a <code>Reportable</code>, this allocation
-     * permits generating report output about a <code>ModelComponent</code> that is
-     * also used for scheduling. Internally, a dummy <code>Reportable</code> is
-     * generated, strictly speaking (hidden from the user) is the true
+     * Allows to allocate a <code>Reporter</code> to this <code>Schedulable</code>. Bypassing the usual approach of each
+     * <code>ModelComponent</code> either being a <code>Schedulable</code> or a <code>Reportable</code>, this allocation
+     * permits generating report output about a <code>ModelComponent</code> that is also used for scheduling.
+     * Internally, a dummy <code>Reportable</code> is generated, strictly speaking (hidden from the user) is the true
      * <code>Reportable</code> to report about.
      *
-     * @param r            Reporter : The offset to the current simulation time at
-     *                     which this Schedulable is to be re-scheduled. Must have a
-     *                     constructor accepting a <code>Schedulable</code> as only
-     *                     (!) parameter.
+     * @param r            Reporter : The offset to the current simulation time at which this Schedulable is to be
+     *                     re-scheduled. Must have a constructor accepting a <code>Schedulable</code> as only (!)
+     *                     parameter.
      * @param showInReport boolean : Flag for showing the report. Set it to
      *                     <code>true</code> if reportable should show up in report.
-     *                     Set it to <code>false</code> if reportable should not be
-     *                     shown in report.
-     * @param showInTrace  boolean : Flag for showing this reportable in trace
-     *                     files. Set it to <code>true</code> if reportable should
-     *                     show up in trace. Set it to <code>false</code> if
-     *                     reportable should not be shown in trace.
+     *                     Set it to <code>false</code> if reportable should not be shown in report.
+     * @param showInTrace  boolean : Flag for showing this reportable in trace files. Set it to <code>true</code> if
+     *                     reportable should show up in trace. Set it to <code>false</code> if reportable should not be
+     *                     shown in trace.
      */
     public void assignReporter(Class<? extends Reporter> reporterClass, boolean showInReport, boolean showInTrace) {
 
@@ -123,8 +73,8 @@ public class Schedulable extends ModelComponent {
     }
 
     /**
-     * Removes all events scheduled for this entity from the event-list. The Entity
-     * will not become active until scheduled again.
+     * Removes all events scheduled for this entity from the event-list. The Entity will not become active until
+     * scheduled again.
      */
     public void cancel() {
         if (!isScheduled()) {
@@ -145,19 +95,22 @@ public class Schedulable extends ModelComponent {
             if (currentlySendTraceNotes()) {
                 TimeInstant time = firstNote.getTime();
                 if (this == current()) {
-                    if (time == presentTime())
-                        sendTraceNote("cancels scheduled Event " + firstNote.getEvent()
-                        + " for itself, which was scheduled now");
-                    else
-                        sendTraceNote("cancels scheduled Event " + firstNote.getEvent()
-                        + " for itself, which was scheduled at " + time);
+                    if (time == presentTime()) {
+                        sendTraceNote(
+                        "cancels scheduled Event " + firstNote.getEvent() + " for itself, which was scheduled now");
+                    } else {
+                        sendTraceNote(
+                        "cancels scheduled Event " + firstNote.getEvent() + " for itself, which was scheduled at "
+                        + time);
+                    }
                 } else {
-                    if (time == presentTime())
+                    if (time == presentTime()) {
                         sendTraceNote("cancels scheduled Event " + firstNote.getEvent() + " for " + this.getName()
-                        + ", which was scheduled now");
-                    else
+                                      + ", which was scheduled now");
+                    } else {
                         sendTraceNote("cancels scheduled Event " + firstNote.getEvent() + " for " + this.getName()
-                        + ", which was scheduled at " + time);
+                                      + ", which was scheduled at " + time);
+                    }
                 }
             }
             this.getModel().getExperiment().getScheduler().evList.remove(firstNote);
@@ -165,11 +118,11 @@ public class Schedulable extends ModelComponent {
     }
 
     /**
-     * Gets the Reportable corresponding to this Schedulable; may be null if no
-     * Reportable corresponds to this Schedulable.
+     * Gets the Reportable corresponding to this Schedulable; may be null if no Reportable corresponds to this
+     * Schedulable.
      *
-     * @return Reportable : The Reportable corresponding to this Schedulable (may be
-     *         null if no Reportable corresponds to this Schedulable!)
+     * @return Reportable : The Reportable corresponding to this Schedulable (may be null if no Reportable corresponds
+     * to this Schedulable!)
      */
     public Reportable getCorrespondingReportable() {
         return _correspondingReportable;
@@ -178,8 +131,7 @@ public class Schedulable extends ModelComponent {
     /**
      * Shows if this Schedulable is the currently active object.
      *
-     * @return boolean :<code>true</code> if this Schedulable is the currently
-     *         active, <code>false</code> otherwise
+     * @return boolean :<code>true</code> if this Schedulable is the currently active, <code>false</code> otherwise
      */
     public boolean isCurrent() {
 
@@ -190,8 +142,7 @@ public class Schedulable extends ModelComponent {
     /**
      * Tests if this entity has already been scheduled.
      *
-     * @return boolean :<code>true</code> if already scheduled, <code>false</code>
-     *         otherwise
+     * @return boolean :<code>true</code> if already scheduled, <code>false</code> otherwise
      */
     public boolean isScheduled() {
 
@@ -201,26 +152,10 @@ public class Schedulable extends ModelComponent {
     }
 
     /**
-     * Allows to rename a Schedulable object while keeping its internally added
-     * serial number to keep track of the individual object. Note that invalid
-     * string parameters will result in renaming the Schedulable to 'unnamed'.
+     * Re-schedules the Schedulable to some other point in simulation time (which should be different form the instant
+     * at which is a scheduled at the moment). Requires the Schedulable to be scheduled exactly once. No preemption.
      *
-     * @param newName java.lang.String : The Schedulable's new name
-     */
-    @Override
-    public void rename(String newName) {
-
-        super.rename(getModel().getExperiment().getNameCatalog().registeredName(newName));
-
-    }
-
-    /**
-     * Re-schedules the Schedulable to some other point in simulation time (which
-     * should be different form the instant at which is a scheduled at the moment).
-     * Requires the Schedulable to be scheduled exactly once. No preemption.
-     *
-     * @param time TimeInstant : The simulation time at which this entity is to be
-     *             re-scheduled
+     * @param time TimeInstant : The simulation time at which this entity is to be re-scheduled
      */
     public void reSchedule(TimeInstant time) {
 
@@ -260,15 +195,17 @@ public class Schedulable extends ModelComponent {
 
         if (currentlySendTraceNotes()) {
             if (this == current()) {
-                if (time == presentTime())
+                if (time == presentTime()) {
                     sendTraceNote("reschedules itself now");
-                else
+                } else {
                     sendTraceNote("reschedules itself at " + time);
+                }
             } else {
-                if (time == presentTime())
+                if (time == presentTime()) {
                     sendTraceNote("reschedules '" + getName() + "' now");
-                else
+                } else {
                     sendTraceNote("reschedules '" + getName() + "' at " + time);
+                }
             }
         }
 
@@ -281,11 +218,9 @@ public class Schedulable extends ModelComponent {
     }
 
     /**
-     * Re-schedules the Schedulable by shifting all EventNote by a specified <code>
-     * TimeSpan</code>.
+     * Re-schedules the Schedulable by shifting all EventNote by a specified <code> TimeSpan</code>.
      *
-     * @param dt TimeSpan : The offset to the current simulation time at which this
-     *           Schedulable is to be re-scheduled
+     * @param dt TimeSpan : The offset to the current simulation time at which this Schedulable is to be re-scheduled
      */
     public void reSchedule(TimeSpan dt) {
         if (dt == null) {
@@ -313,25 +248,29 @@ public class Schedulable extends ModelComponent {
             newNote.setTime(TimeOperations.add(oldNote.getTime(), dt)); // shift it
             newNotes.add(newNote); // save it to new list
             this.getModel().getExperiment().getScheduler().evList.remove(oldNote); // remove original event-note local
-                                                                                   // and global
+            // and global
 
             if (currentlySendTraceNotes()) {
                 TimeInstant timeOld = oldNote.getTime();
                 TimeInstant timeNew = newNote.getTime();
                 if (this == current()) {
-                    if (timeOld == presentTime())
-                        sendTraceNote("reschedules " + newNote.getEvent() + " for itself, which was scheduled now, to "
+                    if (timeOld == presentTime()) {
+                        sendTraceNote(
+                        "reschedules " + newNote.getEvent() + " for itself, which was scheduled now, to " + timeNew);
+                    } else {
+                        sendTraceNote(
+                        "reschedules " + newNote.getEvent() + " for itself, which was scheduled at " + timeOld + ", to "
                         + timeNew);
-                    else
-                        sendTraceNote("reschedules " + newNote.getEvent() + " for itself, which was scheduled at "
-                        + timeOld + ", to " + timeNew);
+                    }
                 } else {
-                    if (timeOld == presentTime())
+                    if (timeOld == presentTime()) {
                         sendTraceNote("reschedules " + newNote.getEvent() + " for " + this.getName()
-                        + ", which was scheduled now, to " + timeNew);
-                    else
-                        sendTraceNote("reschedules " + newNote.getEvent() + " for " + this.getName()
-                        + ", which was scheduled at " + timeOld + ", to " + timeNew);
+                                      + ", which was scheduled now, to " + timeNew);
+                    } else {
+                        sendTraceNote(
+                        "reschedules " + newNote.getEvent() + " for " + this.getName() + ", which was scheduled at "
+                        + timeOld + ", to " + timeNew);
+                    }
                 }
             }
 
@@ -346,8 +285,7 @@ public class Schedulable extends ModelComponent {
     }
 
     /**
-     * Re-schedules the Schedulable to happen immediately, preempting the current
-     * process.
+     * Re-schedules the Schedulable to happen immediately, preempting the current process.
      */
     public void reSchedulePreempt() {
 
@@ -390,10 +328,22 @@ public class Schedulable extends ModelComponent {
     }
 
     /**
+     * Allows to rename a Schedulable object while keeping its internally added serial number to keep track of the
+     * individual object. Note that invalid string parameters will result in renaming the Schedulable to 'unnamed'.
+     *
+     * @param newName java.lang.String : The Schedulable's new name
+     */
+    @Override
+    public void rename(String newName) {
+
+        super.rename(getModel().getExperiment().getNameCatalog().registeredName(newName));
+
+    }
+
+    /**
      * Returns the next point of time this entity is scheduled.
      *
-     * @return TimeInstant : The point of simulation time the next Entity is
-     *         schedule or <code>null</code> otherwise
+     * @return TimeInstant : The point of simulation time the next Entity is schedule or <code>null</code> otherwise
      */
     public TimeInstant scheduledNext() {
         if (!isScheduled()) {
@@ -404,13 +354,11 @@ public class Schedulable extends ModelComponent {
     }
 
     /**
-     * Sets the Reportable (e.g. entity) corresponding to this Schedulable. May be
-     * null if no Reportable corresponds to this Schedulable. If set, the Reportable
-     * must have the same model as this Schedulable! A Schedulable needs not have a
-     * corresponding Reportable.
+     * Sets the Reportable (e.g. entity) corresponding to this Schedulable. May be null if no Reportable corresponds to
+     * this Schedulable. If set, the Reportable must have the same model as this Schedulable! A Schedulable needs not
+     * have a corresponding Reportable.
      *
-     * @param correspondingReportable Reportable : The Reportable corresponding to
-     *                                this Schedulable.
+     * @param correspondingReportable Reportable : The Reportable corresponding to this Schedulable.
      */
     public void setCorrespondingReportable(Reportable correspondingReportable) {
 
@@ -425,10 +373,9 @@ public class Schedulable extends ModelComponent {
     }
 
     /**
-     * Creates and returns a copy of this Schedulable. Note that subclasses have to
-     * implement the interface <code>java.lang.Cloneable</code> to actually use this
-     * method as otherwise, a <code>CloneNotSupportedException</code> will be
-     * thrown.
+     * Creates and returns a copy of this Schedulable. Note that subclasses have to implement the interface
+     * <code>java.lang.Cloneable</code> to actually use this method as otherwise, a
+     * <code>CloneNotSupportedException</code> will be thrown.
      *
      * @return Schedulable : A copy of this Schedulable.
      */
@@ -452,12 +399,11 @@ public class Schedulable extends ModelComponent {
     }
 
     /**
-     * Returns a list of EventNote associated to this Entity object. If the Entity
-     * object is not currently scheduled, <code>null</code> will be returned. Remind
-     * that all different Event classes can be included.
+     * Returns a list of EventNote associated to this Entity object. If the Entity object is not currently scheduled,
+     * <code>null</code> will be returned. Remind that all different Event classes can be included.
      *
      * @return List<EventNote> : The event-notes associated to the entity or
-     *         <code>null</code> if Entity is not currently scheduled
+     * <code>null</code> if Entity is not currently scheduled
      */
     List<EventNote> getEventNotes() {
         return _schedule;
@@ -472,6 +418,44 @@ public class Schedulable extends ModelComponent {
     void removeEventNote(EventNote note) {
         _schedule.remove(note); // only removes Event in local list
 
+    }
+
+    /**
+     * Helper object to be able to report about this Schedulable.
+     */
+    private class DummyReportable extends desmoj.core.simulator.Reportable {
+
+        Class<? extends Reporter> reporterClass;
+
+        public DummyReportable(Model owner, Class<? extends Reporter> reporterClass, boolean showInReport,
+                               boolean showInTrace) {
+            super(owner, "DummyReporter", showInReport, showInTrace);
+            this.reporterClass = reporterClass;
+        }
+
+        /*
+         * (non-Javadoc)
+         *
+         * @see desmoj.core.simulator.Reportable#createDefaultReporter()
+         */
+        @Override
+        public desmoj.core.report.Reporter createDefaultReporter() {
+
+            try {
+                Constructor<?> constructor;
+                constructor = reporterClass.getConstructor(new Class[] { Schedulable.class });
+                constructor.setAccessible(true);
+                return (Reporter) constructor.newInstance(new Object[] { Schedulable.this });
+            } catch (Exception e) {
+                this.sendWarning(
+                "Instanciating the user-specified reporter for this Schedulable caused an exception. Using the default reporter instead.",
+                "Schedulable : " + getName() + " Method: DummyReportable.createDefaultReporter()",
+                "User-specified class is not accessible or constructor cannot be invoked.",
+                "Make sure provide an appropriate reporter class if you want to replace the default reporter. "
+                + "Such a reporter has to provide a constructor requiring a reference to this reportable as only parameter");
+                return createDefaultReporter();
+            }
+        }
     }
 
 }

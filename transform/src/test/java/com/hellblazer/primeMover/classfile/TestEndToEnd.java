@@ -34,7 +34,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * Test the end to end behavior of simulation transform.
  *
  * @author <a href="mailto:hal.hildebrand@gmail.com">Hal Hildebrand</a>
- *
  */
 public class TestEndToEnd {
 

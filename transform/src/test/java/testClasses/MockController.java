@@ -1,10 +1,10 @@
 package testClasses;
 
-import java.util.logging.Logger;
-
-import com.hellblazer.primeMover.runtime.EntityReference;
+import com.hellblazer.primeMover.api.EntityReference;
 import com.hellblazer.primeMover.runtime.Devi;
 import com.hellblazer.primeMover.runtime.EventImpl;
+
+import java.util.logging.Logger;
 
 class MockController extends Devi {
 

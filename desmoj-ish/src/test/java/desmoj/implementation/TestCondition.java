@@ -5,11 +5,10 @@ import desmoj.core.simulator.Entity;
 import desmoj.core.simulator.Model;
 
 /**
- * This class is an subclass to an abstact simulation core class. This class is
- * implemented to be able to test the functionality provided by the Mainclass.
+ * This class is an subclass to an abstact simulation core class. This class is implemented to be able to test the
+ * functionality provided by the Mainclass.
  *
  * @author Sascha Winde, Clara Bluemm
- *
  */
 public class TestCondition extends Condition<Entity> {
 

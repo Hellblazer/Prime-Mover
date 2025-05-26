@@ -1,50 +1,27 @@
 package desmoj.core.report;
 
-import java.text.DecimalFormat;
-
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.Reportable;
 import desmoj.core.simulator.TimeInstant;
 import desmoj.core.simulator.TimeOperations;
 
+import java.text.DecimalFormat;
+
 /**
- * A reporter about a simulation run, including information like simulation
- * duration, computation duration and last reset.
+ * A reporter about a simulation run, including information like simulation duration, computation duration and last
+ * reset.
  *
- * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  * @author Tim Lechler, Johannes G&ouml;bel
  *
- *         Licensed under the Apache License, Version 2.0 (the "License"); you
- *         may not use this file except in compliance with the License. You may
- *         obtain a copy of the License at
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
  *
- *         Unless required by applicable law or agreed to in writing, software
- *         distributed under the License is distributed on an "AS IS" BASIS,
- *         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- *         implied. See the License for the specific language governing
- *         permissions and limitations under the License.
- *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  */
 public class SimulationRunReporter extends desmoj.core.report.TableReporter {
-
-    /**
-     * An inner class providing the simulation report.
-     */
-    public static class SimulationRunReporterProvider extends Reportable {
-
-        SimulationRunReporter r;
-
-        public SimulationRunReporterProvider(Model model) {
-            super(model, "SimulationrunReportProvider", true, false);
-            r = new SimulationRunReporter(model);
-        }
-
-        @Override
-        public Reporter createDefaultReporter() {
-            return r;
-        }
-    }
 
     /**
      * System time at which the simulation has started
@@ -91,8 +68,8 @@ public class SimulationRunReporter extends desmoj.core.report.TableReporter {
         elapsed_tot /= 24;
         days_tot = elapsed_tot;
         DecimalFormat formatter = new DecimalFormat("00");
-        String duration_tot = (days_tot > 0 ? days_tot + " day" + (days_tot > 1 ? "s " : " ") : "")
-        + formatter.format(hours_tot) + ":" + formatter.format(minutes_tot) + ":" + formatter.format(seconds_tot);
+        String duration_tot = (days_tot > 0 ? days_tot + " day" + (days_tot > 1 ? "s " : " ") : "") + formatter.format(
+        hours_tot) + ":" + formatter.format(minutes_tot) + ":" + formatter.format(seconds_tot);
 
         entryTable = new String[numRows][numColumns];
         Model m = (Model) source;
@@ -111,10 +88,28 @@ public class SimulationRunReporter extends desmoj.core.report.TableReporter {
         entryTable[3][1] = Long.toString(getModel().getExperiment().getDistributionManager().getSeed());
 
         entryTable[4][0] = "Errors";
-        entryTable[4][1] = m.getExperiment()
-                            .hasError() ? "Attention: At least one error or warning has occurred. See error output for details."
-                                        : "No errors or warnings have occurred.";
+        entryTable[4][1] = m.getExperiment().hasError()
+                           ? "Attention: At least one error or warning has occurred. See error output for details."
+                           : "No errors or warnings have occurred.";
 
         return entryTable;
+    }
+
+    /**
+     * An inner class providing the simulation report.
+     */
+    public static class SimulationRunReporterProvider extends Reportable {
+
+        SimulationRunReporter r;
+
+        public SimulationRunReporterProvider(Model model) {
+            super(model, "SimulationrunReportProvider", true, false);
+            r = new SimulationRunReporter(model);
+        }
+
+        @Override
+        public Reporter createDefaultReporter() {
+            return r;
+        }
     }
 }

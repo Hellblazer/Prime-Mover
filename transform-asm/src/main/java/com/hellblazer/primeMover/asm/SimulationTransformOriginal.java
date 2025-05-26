@@ -18,8 +18,8 @@
  */
 package com.hellblazer.primeMover.asm;
 
-import com.hellblazer.primeMover.Kronos;
 import com.hellblazer.primeMover.annotations.*;
+import com.hellblazer.primeMover.api.Kronos;
 import com.hellblazer.primeMover.classfile.OpenAddressingSet.OpenSet;
 import com.hellblazer.primeMover.runtime.Kairos;
 import io.github.classgraph.*;

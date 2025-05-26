@@ -1,6 +1,6 @@
 package com.hellblazer.primeMover.agent;
 
-import com.hellblazer.primeMover.Kronos;
+import com.hellblazer.primeMover.api.Kronos;
 import com.hellblazer.primeMover.asm.AnnotationScanner;
 import com.hellblazer.primeMover.asm.SimulationTransformRefactored;
 import com.hellblazer.primeMover.runtime.Kairos;

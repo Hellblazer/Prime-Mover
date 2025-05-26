@@ -1,22 +1,18 @@
 package desmoj.core.statistic;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
+import desmoj.core.simulator.Experiment;
+import desmoj.implementation.TestModel;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import desmoj.core.simulator.Experiment;
-import desmoj.implementation.TestModel;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Tests the class Accumulate
  *
- * @see core.statistics.Accumulate
  * @author Sascha Winde, Clara Bluemm
- *
+ * @see core.statistics.Accumulate
  */
 public class AccumulateTest {
 

@@ -1,22 +1,35 @@
 /*
  * Copyright (C) 2023 Hal Hildebrand. All rights reserved.
- * 
+ *
  * This file is part of the Prime Mover Event Driven Simulation Framework.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Affero General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.hellblazer.primeMover.asm;
+
+import com.hellblazer.primeMover.annotations.Blocking;
+import com.hellblazer.primeMover.annotations.Entity;
+import com.hellblazer.primeMover.annotations.Transformed;
+import com.hellblazer.primeMover.api.EntityReference;
+import com.hellblazer.primeMover.api.Kronos;
+import com.hellblazer.primeMover.classfile.OpenAddressingSet.OpenSet;
+import com.hellblazer.primeMover.runtime.Devi;
+import com.hellblazer.primeMover.runtime.Framework;
+import com.hellblazer.primeMover.runtime.Kairos;
+import io.github.classgraph.*;
+import org.objectweb.asm.*;
+import org.objectweb.asm.commons.*;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -27,35 +40,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import com.hellblazer.primeMover.runtime.EntityReference;
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.Label;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
-import org.objectweb.asm.commons.ClassRemapper;
-import org.objectweb.asm.commons.GeneratorAdapter;
-import org.objectweb.asm.commons.Method;
-import org.objectweb.asm.commons.SimpleRemapper;
-import org.objectweb.asm.commons.TableSwitchGenerator;
-
-import com.hellblazer.primeMover.Kronos;
-import com.hellblazer.primeMover.annotations.Blocking;
-import com.hellblazer.primeMover.annotations.Entity;
-import com.hellblazer.primeMover.annotations.Transformed;
-import com.hellblazer.primeMover.classfile.OpenAddressingSet.OpenSet;
-import com.hellblazer.primeMover.runtime.Devi;
-import com.hellblazer.primeMover.runtime.Framework;
-import com.hellblazer.primeMover.runtime.Kairos;
-
-import io.github.classgraph.ArrayTypeSignature;
-import io.github.classgraph.BaseTypeSignature;
-import io.github.classgraph.ClassInfo;
-import io.github.classgraph.MethodInfo;
-import io.github.classgraph.MethodParameterInfo;
 
 /**
  * Transforms Entity classes into PrimeMover entities.
@@ -108,16 +92,6 @@ public class EntityGeneratorOriginal {
     private static final String TO_STRING                 = "toString";
     private static final Method TO_STRING_METHOD;
     private static final String VALUE_OF                  = "valueOf";
-
-    private final Set<Method>              blocking;
-    private final ClassInfo                clazz;
-    private final Set<Method>              events;
-    private final String                   internalName;
-    private final Map<Method, Integer>     inverse;
-    private final Map<Integer, MethodInfo> mapped;
-    private final Set<MethodInfo>          remapped;
-    private final String                   timestamp;
-    private final Type                     type;
 
     static {
         java.lang.reflect.Method method;
@@ -361,10 +335,20 @@ public class EntityGeneratorOriginal {
         STRING_BUILDER_CONSTRUCTOR = Method.getMethod(constructor);
     }
 
+    private final Set<Method>              blocking;
+    private final ClassInfo                clazz;
+    private final Set<Method>              events;
+    private final String                   internalName;
+    private final Map<Method, Integer>     inverse;
+    private final Map<Integer, MethodInfo> mapped;
+    private final Set<MethodInfo>          remapped;
+    private final String                   timestamp;
+    private final Type                     type;
+
     public EntityGeneratorOriginal(ClassInfo clazz, Set<MethodInfo> events) {
         this(clazz, events, Instant.now().toString());
     }
-    
+
     public EntityGeneratorOriginal(ClassInfo clazz, Set<MethodInfo> events, String timestamp) {
         this.clazz = clazz;
         this.timestamp = timestamp;
@@ -413,10 +397,8 @@ public class EntityGeneratorOriginal {
             ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
             var transform = eventTransform(cw);
             classReader.accept(transform, ClassReader.EXPAND_FRAMES);
-            final var interfaces = clazz.getInterfaces()
-                                        .stream()
-                                        .map(ci -> ci.getName().replace('.', '/'))
-                                        .collect(Collectors.toList());
+            final var interfaces = clazz.getInterfaces().stream().map(ci -> ci.getName().replace('.', '/')).collect(
+            Collectors.toList());
             interfaces.add(Type.getType(EntityReference.class).getInternalName());
             var av = transform.visitAnnotation(Type.getType(Transformed.class).getDescriptor(), true);
             av.visit("comment", "PrimeMover ASM Event Transform");
@@ -437,43 +419,43 @@ public class EntityGeneratorOriginal {
 
     private void boxIt(GeneratorAdapter adapter, Type type) {
         switch (type.getSort()) {
-        case Type.BYTE:
-            adapter.invokeStatic(Type.getType(Byte.class), BYTE_VALUE_OF_METHOD);
-            break;
-        case Type.CHAR:
-            adapter.invokeStatic(Type.getType(Character.class), CHARACTER_VALUE_OF_METHOD);
-            break;
-        case Type.DOUBLE:
-            adapter.invokeStatic(Type.getType(Double.class), DOUBLE_VALUE_OF_METHOD);
-            break;
-        case Type.FLOAT:
-            adapter.invokeStatic(Type.getType(Float.class), FLOAT_VALUE_OF_METHOD);
-            break;
-        case Type.INT:
-            adapter.invokeStatic(Type.getType(Integer.class), INTEGER_VALUE_OF_METHOD);
-            break;
-        case Type.LONG:
-            adapter.invokeStatic(Type.getType(Long.class), LONG_VALUE_OF_METHOD);
-            break;
-        case Type.SHORT:
-            adapter.invokeStatic(Type.getType(Short.class), SHORT_VALUE_OF_METHOD);
-            break;
-        case Type.BOOLEAN:
-            adapter.invokeStatic(Type.getType(Boolean.class), BOOLEAN_VALUE_OF_METHOD);
-            break;
-        case Type.ARRAY:
-        case Type.OBJECT:
-            break;
+            case Type.BYTE:
+                adapter.invokeStatic(Type.getType(Byte.class), BYTE_VALUE_OF_METHOD);
+                break;
+            case Type.CHAR:
+                adapter.invokeStatic(Type.getType(Character.class), CHARACTER_VALUE_OF_METHOD);
+                break;
+            case Type.DOUBLE:
+                adapter.invokeStatic(Type.getType(Double.class), DOUBLE_VALUE_OF_METHOD);
+                break;
+            case Type.FLOAT:
+                adapter.invokeStatic(Type.getType(Float.class), FLOAT_VALUE_OF_METHOD);
+                break;
+            case Type.INT:
+                adapter.invokeStatic(Type.getType(Integer.class), INTEGER_VALUE_OF_METHOD);
+                break;
+            case Type.LONG:
+                adapter.invokeStatic(Type.getType(Long.class), LONG_VALUE_OF_METHOD);
+                break;
+            case Type.SHORT:
+                adapter.invokeStatic(Type.getType(Short.class), SHORT_VALUE_OF_METHOD);
+                break;
+            case Type.BOOLEAN:
+                adapter.invokeStatic(Type.getType(Boolean.class), BOOLEAN_VALUE_OF_METHOD);
+                break;
+            case Type.ARRAY:
+            case Type.OBJECT:
+                break;
 
-        default:
-            throw new IllegalArgumentException("Unknown parameter type: " + type);
+            default:
+                throw new IllegalArgumentException("Unknown parameter type: " + type);
         }
     }
 
     private TableSwitchGenerator eventSwitch(GeneratorAdapter adapter) {
         return new TableSwitchGenerator() {
-            final Object[] locals = new Object[] { internalName, Opcodes.INTEGER,
-                                                   Type.getType(Object[].class).getInternalName() };
+            final Object[] locals = new Object[] { internalName, Opcodes.INTEGER, Type.getType(
+            Object[].class).getInternalName() };
             final Object[] stack  = new Object[] {};
 
             @Override
@@ -528,9 +510,10 @@ public class EntityGeneratorOriginal {
                                                                                     .filter(e -> matches(e, mi))
                                                                                     .findAny()
                                                                                     .isPresent()) {
-                    superMappings.put(METHOD_REMAP_KEY_TEMPLATE.formatted(superClass.getName().replace('.', '/'),
-                                                                          mi.getName(), mi.getTypeDescriptorStr()),
-                                      REMAPPED_TEMPLATE.formatted(mi.getName()));
+                    superMappings.put(
+                    METHOD_REMAP_KEY_TEMPLATE.formatted(superClass.getName().replace('.', '/'), mi.getName(),
+                                                        mi.getTypeDescriptorStr()),
+                    REMAPPED_TEMPLATE.formatted(mi.getName()));
                 }
             }
         }
@@ -568,8 +551,8 @@ public class EntityGeneratorOriginal {
                     public void visitMethodInsn(int opcodeAndSource, String owner, String name, String descriptor,
                                                 boolean isInterface) {
                         String newName = name;
-                        if (isEvent && Opcodes.INVOKESPECIAL == opcodeAndSource && name.equals(ogName) &&
-                            descriptor.equals(ogDescriptor)) {
+                        if (isEvent && Opcodes.INVOKESPECIAL == opcodeAndSource && name.equals(ogName)
+                        && descriptor.equals(ogDescriptor)) {
                             newName = superRemapper.mapMethodName(owner, name, descriptor);
                         }
                         super.visitMethodInsn(opcodeAndSource, owner, newName, descriptor, isInterface);
@@ -581,13 +564,8 @@ public class EntityGeneratorOriginal {
 
     private void generateEvent(Method m, int access, String name, String descriptor, String[] exceptions,
                                ClassVisitor cv) {
-        var mg = new GeneratorAdapter(access, m, descriptor,
-                                      exceptions == null ? null
-                                                         : Arrays.stream(exceptions)
-                                                                 .map(t -> Type.getObjectType(t))
-                                                                 .toList()
-                                                                 .toArray(new Type[0]),
-                                      cv);
+        var mg = new GeneratorAdapter(access, m, descriptor, exceptions == null ? null : Arrays.stream(exceptions).map(
+        t -> Type.getObjectType(t)).toList().toArray(new Type[0]), cv);
         mg.loadThis();
         mg.invokeStatic(Type.getType(Framework.class), GET_CONTROLLER_METHOD);
         mg.loadThis();
@@ -715,40 +693,40 @@ public class EntityGeneratorOriginal {
             adapter.checkCast(Type.getObjectType(ats.getTypeSignatureStr()));
         } else if (descriptor instanceof BaseTypeSignature bts) {
             switch (bts.getTypeSignatureChar()) {
-            case 'B':
-                adapter.checkCast(Type.getType(Byte.class));
-                adapter.invokeVirtual(Type.getType(Byte.class), BYTE_VALUE_METHOD);
-                break;
-            case 'C':
-                adapter.checkCast(Type.getType(Character.class));
-                adapter.invokeVirtual(Type.getType(Character.class), CHARACTER_VALUE_METHOD);
-                break;
-            case 'D':
-                adapter.checkCast(Type.getType(Double.class));
-                adapter.invokeVirtual(Type.getType(Double.class), DOUBLE_VALUE_METHOD);
-                break;
-            case 'F':
-                adapter.checkCast(Type.getType(Float.class));
-                adapter.invokeVirtual(Type.getType(Float.class), FLOAT_VALUE_METHOD);
-                break;
-            case 'I':
-                adapter.checkCast(Type.getType(Integer.class));
-                adapter.invokeVirtual(Type.getType(Integer.class), INT_VALUE_METHOD);
-                break;
-            case 'J':
-                adapter.checkCast(Type.getType(Long.class));
-                adapter.invokeVirtual(Type.getType(Long.class), LONG_VALUE_METHOD);
-                break;
-            case 'S':
-                adapter.checkCast(Type.getType(Short.class));
-                adapter.invokeVirtual(Type.getType(Short.class), SHORT_VALUE_METHOD);
-                break;
-            case 'Z':
-                adapter.checkCast(Type.getType(Boolean.class));
-                adapter.invokeVirtual(Type.getType(Boolean.class), BOOLEAN_VALUE_METHOD);
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown parameter type: " + pi);
+                case 'B':
+                    adapter.checkCast(Type.getType(Byte.class));
+                    adapter.invokeVirtual(Type.getType(Byte.class), BYTE_VALUE_METHOD);
+                    break;
+                case 'C':
+                    adapter.checkCast(Type.getType(Character.class));
+                    adapter.invokeVirtual(Type.getType(Character.class), CHARACTER_VALUE_METHOD);
+                    break;
+                case 'D':
+                    adapter.checkCast(Type.getType(Double.class));
+                    adapter.invokeVirtual(Type.getType(Double.class), DOUBLE_VALUE_METHOD);
+                    break;
+                case 'F':
+                    adapter.checkCast(Type.getType(Float.class));
+                    adapter.invokeVirtual(Type.getType(Float.class), FLOAT_VALUE_METHOD);
+                    break;
+                case 'I':
+                    adapter.checkCast(Type.getType(Integer.class));
+                    adapter.invokeVirtual(Type.getType(Integer.class), INT_VALUE_METHOD);
+                    break;
+                case 'J':
+                    adapter.checkCast(Type.getType(Long.class));
+                    adapter.invokeVirtual(Type.getType(Long.class), LONG_VALUE_METHOD);
+                    break;
+                case 'S':
+                    adapter.checkCast(Type.getType(Short.class));
+                    adapter.invokeVirtual(Type.getType(Short.class), SHORT_VALUE_METHOD);
+                    break;
+                case 'Z':
+                    adapter.checkCast(Type.getType(Boolean.class));
+                    adapter.invokeVirtual(Type.getType(Boolean.class), BOOLEAN_VALUE_METHOD);
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unknown parameter type: " + pi);
             }
         } else {
             adapter.checkCast(Type.getObjectType(descriptor.toString().replace('.', '/')));

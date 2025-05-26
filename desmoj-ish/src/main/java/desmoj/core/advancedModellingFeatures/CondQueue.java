@@ -1,55 +1,38 @@
 package desmoj.core.advancedModellingFeatures;
 
-import desmoj.core.simulator.Condition;
-import desmoj.core.simulator.QueueBased;
-import desmoj.core.simulator.QueueList;
-import desmoj.core.simulator.QueueListFifo;
-import desmoj.core.simulator.QueueListLifo;
-import desmoj.core.simulator.QueueListRandom;
-import desmoj.core.simulator.SimProcess;
+import desmoj.core.simulator.*;
 
 /**
- * In a CondQueue processes are waiting for a specific condition to become true.
- * Process synchronisation happens when processes are waiting in a queue for a
- * specific condition to become true. Each process which uses
+ * In a CondQueue processes are waiting for a specific condition to become true. Process synchronisation happens when
+ * processes are waiting in a queue for a specific condition to become true. Each process which uses
  * <code>waitUntil(condition)</code> and does not find this condition to be
- * true, is inserted in a waiting-queue automatically. Whenever something
- * happens which might influence the condition to become <code>true</code>,
+ * true, is inserted in a waiting-queue automatically. Whenever something happens which might influence the condition to
+ * become <code>true</code>,
  * <code>signal()</code> should be used to check if the first entity (or, if the
- * attribute <code>checkAll</code> is set to true, all entities) in the
- * waiting-queue finds the desired condition now and therefore can continue. The
- * designer of the model is responsible that this check takes place! He also has
- * to implement the condition, this can easily be done by deriving it from the
- * interface <code>Condition</code>. The flag, if only the first or all entities
- * in the queue are checking their conditions again, can be checked and changed
- * using <code>getCheckAll()</code> and <code>setCheckAll()</code>.
+ * attribute <code>checkAll</code> is set to true, all entities) in the waiting-queue finds the desired condition now
+ * and therefore can continue. The designer of the model is responsible that this check takes place! He also has to
+ * implement the condition, this can easily be done by deriving it from the interface <code>Condition</code>. The flag,
+ * if only the first or all entities in the queue are checking their conditions again, can be checked and changed using
+ * <code>getCheckAll()</code> and <code>setCheckAll()</code>.
  *
- * The first sort criterion of the queue is highest queueing priorities first
- * (i.e. not using scheduling priorities - note that this is a somewhat
- * arbitrary choice, as the <ode>CondQueue</code> combines queueing and
- * scheduling features). The second criterion, if a tie-breaker is needed, is
- * the queueing discipline of the underlying queue, e.g. FIFO. The capacity
- * limit can be determined by the user. <code>CondQueue</code> is derived from
+ * The first sort criterion of the queue is highest queueing priorities first (i.e. not using scheduling priorities -
+ * note that this is a somewhat arbitrary choice, as the <ode>CondQueue</code> combines queueing and scheduling
+ * features). The second criterion, if a tie-breaker is needed, is the queueing discipline of the underlying queue, e.g.
+ * FIFO. The capacity limit can be determined by the user. <code>CondQueue</code> is derived from
  * <code>QueueBased</code>, which provides all the statistical functionality for
  * a queue.
  *
- * @see QueueBased
- *
- * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  * @author Soenke Claassen
  * @author based on DESMO-C from Thomas Schniewind, 1998
  *
- *         Licensed under the Apache License, Version 2.0 (the "License"); you
- *         may not use this file except in compliance with the License. You may
- *         obtain a copy of the License at
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
  *
- *         Unless required by applicable law or agreed to in writing, software
- *         distributed under the License is distributed on an "AS IS" BASIS,
- *         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- *         implied. See the License for the specific language governing
- *         permissions and limitations under the License.
- *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
+ * @see QueueBased
  */
 
 public class CondQueue<P extends SimProcess> extends desmoj.core.simulator.QueueBased {
@@ -57,8 +40,7 @@ public class CondQueue<P extends SimProcess> extends desmoj.core.simulator.Queue
     // ****** attributes ******
 
     /**
-     * The queue, actually storing the processes waiting for the condition to become
-     * true.
+     * The queue, actually storing the processes waiting for the condition to become true.
      */
     protected QueueList<P> _queue;
 
@@ -68,27 +50,24 @@ public class CondQueue<P extends SimProcess> extends desmoj.core.simulator.Queue
     private boolean _checkAll;
 
     /**
-     * Counter for the SimProcesses which are refused to be enqueued, because the
-     * queue capacity is full.
+     * Counter for the SimProcesses which are refused to be enqueued, because the queue capacity is full.
      */
     private long _refused;
 
     /**
-     * Indicates the method where something has gone wrong. Is passed as a parameter
-     * to the method <code>checkProcess()</code>.
+     * Indicates the method where something has gone wrong. Is passed as a parameter to the method
+     * <code>checkProcess()</code>.
      */
     private String _where;
 
     /**
-     * Constructor for a CondQueue where processes can wait for a certain condition
-     * to become true. The processes are sorted (and thus activated) according to
-     * their queueing priorities (highest first) and (if equal) FIFO. The underlying
-     * queue has unlimited capacity.
+     * Constructor for a CondQueue where processes can wait for a certain condition to become true. The processes are
+     * sorted (and thus activated) according to their queueing priorities (highest first) and (if equal) FIFO. The
+     * underlying queue has unlimited capacity.
      *
      * @param owner        Model : The model this CondQueue is associated to.
      * @param name         java.lang.String : The CondQueue's name
-     * @param showInReport boolean : Flag, if CondQueue should produce a report or
-     *                     not.
+     * @param showInReport boolean : Flag, if CondQueue should produce a report or not.
      * @param showInTrace  boolean : Flag for trace to produce trace messages.
      */
     public CondQueue(desmoj.core.simulator.Model owner, String name, boolean showInReport, boolean showInTrace) {
@@ -104,25 +83,21 @@ public class CondQueue<P extends SimProcess> extends desmoj.core.simulator.Queue
     // ****** methods ******
 
     /**
-     * Constructor for a CondQueue where processes can wait for a certain condition
-     * to become true. The processes are sorted (and thus activated) according to
-     * their queueing priorities (highest first) and (if equal) by a queuing
+     * Constructor for a CondQueue where processes can wait for a certain condition to become true. The processes are
+     * sorted (and thus activated) according to their queueing priorities (highest first) and (if equal) by a queuing
      * discipline as defined by <code>QueueBased</code>, e.g.
      * <code>QueueBased.FIFO</code> or <code>QueueBased.LIFO</code>. The capacity
      * limit of the underlying queue can be chosen.
      *
      * @param owner        Model : The model this CondQueue is associated to.
      * @param name         java.lang.String : The CondQueue's name
-     * @param sortOrder    int : determines the sort order of the underlying queue
-     *                     implementation to use for sorting processes with equal
-     *                     queing priorities. Choose a constant from
+     * @param sortOrder    int : determines the sort order of the underlying queue implementation to use for sorting
+     *                     processes with equal queing priorities. Choose a constant from
      *                     <code>QueueBased</code> like <code>QueueBased.FIFO</code>
      *                     or <code>QueueBased.LIFO</code> or ...
-     * @param qCapacity    int : The capacity of the queue, that is how many
-     *                     processes can be enqueued. Zero (0) means unlimited
-     *                     capacity.
-     * @param showInReport boolean : Flag, if CondQueue should produce a report or
-     *                     not.
+     * @param qCapacity    int : The capacity of the queue, that is how many processes can be enqueued. Zero (0) means
+     *                     unlimited capacity.
+     * @param showInReport boolean : Flag, if CondQueue should produce a report or not.
      * @param showInTrace  boolean : Flag for trace to produce trace messages.
      */
     public CondQueue(desmoj.core.simulator.Model owner, String name, int sortOrder, int qCapacity, boolean showInReport,
@@ -134,26 +109,26 @@ public class CondQueue<P extends SimProcess> extends desmoj.core.simulator.Queue
 
         // determine the queueing strategy
         switch (sortOrder) {
-        case QueueBased.FIFO:
-            _queue = new QueueListFifo<>();
-            break;
-        case QueueBased.LIFO:
-            _queue = new QueueListLifo<>();
-            break;
-        case QueueBased.RANDOM:
-            _queue = new QueueListRandom<>();
-            break;
-        default:
-            sendWarning("The given sortOrder parameter " + sortOrder + " is not valid! "
-            + "A queue with FIFO sort order will be created.",
-                        "CondQueue : " + getName() + " Constructor: CondQueue (desmoj.Model owner, String name, "
-                        + "int sortOrder, long qCapacity, boolean showInReport, " + "boolean showInTrace)",
-                        "A valid positive integer number must be provided to "
-                        + "determine the sort order of the queue.",
-                        "Make sure to provide a valid positive integer number "
-                        + "by using the constants in the class QueueBased, like "
-                        + "QueueBased.FIFO, QueueBased.LIFO or QueueBased.RANDOM.");
-            _queue = new QueueListFifo<>();
+            case QueueBased.FIFO:
+                _queue = new QueueListFifo<>();
+                break;
+            case QueueBased.LIFO:
+                _queue = new QueueListLifo<>();
+                break;
+            case QueueBased.RANDOM:
+                _queue = new QueueListRandom<>();
+                break;
+            default:
+                sendWarning("The given sortOrder parameter " + sortOrder + " is not valid! "
+                            + "A queue with FIFO sort order will be created.",
+                            "CondQueue : " + getName() + " Constructor: CondQueue (desmoj.Model owner, String name, "
+                            + "int sortOrder, long qCapacity, boolean showInReport, " + "boolean showInTrace)",
+                            "A valid positive integer number must be provided to "
+                            + "determine the sort order of the queue.",
+                            "Make sure to provide a valid positive integer number "
+                            + "by using the constants in the class QueueBased, like "
+                            + "QueueBased.FIFO, QueueBased.LIFO or QueueBased.RANDOM.");
+                _queue = new QueueListFifo<>();
         }
 
         // give the QueueList a reference to this QueueBased
@@ -165,7 +140,7 @@ public class CondQueue<P extends SimProcess> extends desmoj.core.simulator.Queue
         // check if it the capacity does make sense
         if (qCapacity < 0) {
             sendWarning("The given capacity of the queue is negative! "
-            + "A queue with unlimited capacity will be created instead.",
+                        + "A queue with unlimited capacity will be created instead.",
                         "CondQueue : " + getName() + " Constructor: CondQueue (desmoj.Model owner, String name, "
                         + "int sortOrder, long qCapacity, boolean showInReport, " + "boolean showInTrace)",
                         "A negative capacity for a queue does not make sense.",
@@ -186,8 +161,7 @@ public class CondQueue<P extends SimProcess> extends desmoj.core.simulator.Queue
     /**
      * Returns a Reporter to produce a report about this CondQueue.
      *
-     * @return desmoj.report.Reporter : The Reporter for the queue inside this
-     *         CondQueue.
+     * @return desmoj.report.Reporter : The Reporter for the queue inside this CondQueue.
      */
     @Override
     public desmoj.core.report.Reporter createDefaultReporter() {
@@ -195,11 +169,10 @@ public class CondQueue<P extends SimProcess> extends desmoj.core.simulator.Queue
     }
 
     /**
-     * Returns the first process waiting in the queue. If there is no process
-     * waiting, <code>null</code> is returned.
+     * Returns the first process waiting in the queue. If there is no process waiting, <code>null</code> is returned.
      *
      * @return SimProcess : Returns the first process in the queue (or
-     *         <code>null</code> if no process is waiting).
+     * <code>null</code> if no process is waiting).
      */
     public P first() {
         if (_queue.isEmpty()) { // nobody home to be checked
@@ -211,16 +184,13 @@ public class CondQueue<P extends SimProcess> extends desmoj.core.simulator.Queue
     } // end method
 
     /**
-     * Returns the first process waiting in the queue that complies to the given
-     * condition. If there is no such process waiting, <code>null</code> is
-     * returned.
+     * Returns the first process waiting in the queue that complies to the given condition. If there is no such process
+     * waiting, <code>null</code> is returned.
      *
-     * @return SimProcess : Returns the first process in the queue which complies to
-     *         the given condition.
-     * @param cond Condition : The Condition <code>cond</code> is describing the
-     *             condition to which the process must comply to. This has to be
-     *             implemented by the user in the class: <code>Condition</code> in
-     *             the method: <code>check()</code>.
+     * @param cond Condition : The Condition <code>cond</code> is describing the condition to which the process must
+     *             comply to. This has to be implemented by the user in the class: <code>Condition</code> in the method:
+     *             <code>check()</code>.
+     * @return SimProcess : Returns the first process in the queue which complies to the given condition.
      */
     public P first(Condition<P> cond) {
         if (_queue.isEmpty()) { // nobody home to be checked
@@ -228,8 +198,9 @@ public class CondQueue<P extends SimProcess> extends desmoj.core.simulator.Queue
         } // return null
 
         for (P process = _queue.first(); process != null; process = _queue.succ(process)) {
-            if (cond.check(process))
+            if (cond.check(process)) {
                 return process;
+            }
         }
 
         // if no SimProcess complies to the condition just return null
@@ -238,21 +209,18 @@ public class CondQueue<P extends SimProcess> extends desmoj.core.simulator.Queue
     } // end method
 
     /**
-     * Returns if all entities or only the first one in the queue are getting a
-     * signal to check their conditions.
+     * Returns if all entities or only the first one in the queue are getting a signal to check their conditions.
      *
-     * @return boolean : Are all entities in the queue checking their conditions?
-     *         Default is <code>false</code>, so that only the first process in the
-     *         queue is checking its condition.
+     * @return boolean : Are all entities in the queue checking their conditions? Default is <code>false</code>, so that
+     * only the first process in the queue is checking its condition.
      */
     public boolean getCheckAll() {
         return this._checkAll;
     }
 
     /**
-     * Returns the implemented queueing discipline of the underlying queue used for
-     * sorting (and, therefore, activation order) of processes with equal queing
-     * priorities. Return type is <code>String</code>, inteded to be displayed in
+     * Returns the implemented queueing discipline of the underlying queue used for sorting (and, therefore, activation
+     * order) of processes with equal queing priorities. Return type is <code>String</code>, inteded to be displayed in
      * the report.
      *
      * @return String : The String indicating the queueing discipline.
@@ -264,8 +232,7 @@ public class CondQueue<P extends SimProcess> extends desmoj.core.simulator.Queue
     }
 
     /**
-     * Returns the number of entities refused to be enqueued in the queue, because
-     * the capacity limit is reached.
+     * Returns the number of entities refused to be enqueued in the queue, because the capacity limit is reached.
      *
      * @return long : The number of entities refused to be enqueued in the queue.
      */
@@ -275,24 +242,21 @@ public class CondQueue<P extends SimProcess> extends desmoj.core.simulator.Queue
     }
 
     /**
-     * Sets the flag <code>checkAll</code>: if all entities or only the first one in
-     * the queue are getting a signal to check their conditions.
+     * Sets the flag <code>checkAll</code>: if all entities or only the first one in the queue are getting a signal to
+     * check their conditions.
      *
-     * @param chckall boolean : Flag if all entities in the queue should check their
-     *                conditions? Default is <code>false</code>, so that only the
-     *                first entity in the queue is checking its condition.
+     * @param chckall boolean : Flag if all entities in the queue should check their conditions? Default is
+     *                <code>false</code>, so that only the first entity in the queue is checking its condition.
      */
     public void setCheckAll(boolean chckall) {
         _checkAll = chckall;
     }
 
     /**
-     * A <code>signal ()</code> should be sent every time when a condition has
-     * changed and might be true now. It activates the first process in the queue to
-     * check its condition again. Other processes might follow. The order of process
-     * activation depends on the order of the internal <code>&#95;queue</code>,
-     * which is based on the processes' queueing priorities and (if queueing
-     * priorities are equal, requiring a tie-breaker) by FIFO or a different
+     * A <code>signal ()</code> should be sent every time when a condition has changed and might be true now. It
+     * activates the first process in the queue to check its condition again. Other processes might follow. The order of
+     * process activation depends on the order of the internal <code>&#95;queue</code>, which is based on the processes'
+     * queueing priorities and (if queueing priorities are equal, requiring a tie-breaker) by FIFO or a different
      * discipline as defined in the constructor.
      */
     public void signal() {
@@ -306,8 +270,8 @@ public class CondQueue<P extends SimProcess> extends desmoj.core.simulator.Queue
     }
 
     /**
-     * Removes the given SimProcess from the Queue. The process no longer waits for
-     * its condition to become true and resumes its lifecycle.
+     * Removes the given SimProcess from the Queue. The process no longer waits for its condition to become true and
+     * resumes its lifecycle.
      *
      * @param p P : The P to be removed from the queue
      */
@@ -347,18 +311,14 @@ public class CondQueue<P extends SimProcess> extends desmoj.core.simulator.Queue
     }
 
     /**
-     * Lets the current process wait in the CondQueue until a certain condition,
-     * given as a parameter, has become true. When the process finds its condition
-     * to have become true or <code>checkAll</code> is set to <code>true</code> the
-     * next process in the queue will be activated, too. If the capacity limit of
-     * the queue is reached, the process will not be enqueued and <code>false</code>
-     * returned.
+     * Lets the current process wait in the CondQueue until a certain condition, given as a parameter, has become true.
+     * When the process finds its condition to have become true or <code>checkAll</code> is set to <code>true</code> the
+     * next process in the queue will be activated, too. If the capacity limit of the queue is reached, the process will
+     * not be enqueued and <code>false</code> returned.
      *
-     * @return boolean : Is <code>true</code> if the process can be enqueued
-     *         successfully, <code>false</code> otherwise (i.e. capacity limit of
-     *         the queue is reached).
-     * @param cond Condition : The condition that has to become true before the
-     *             process can continue.
+     * @param cond Condition : The condition that has to become true before the process can continue.
+     * @return boolean : Is <code>true</code> if the process can be enqueued successfully, <code>false</code> otherwise
+     * (i.e. capacity limit of the queue is reached).
      * @see desmoj.core.simulator.Condition
      */
     @SuppressWarnings("unchecked")
@@ -375,7 +335,7 @@ public class CondQueue<P extends SimProcess> extends desmoj.core.simulator.Queue
         if (!this.isModelCompatible(cond)) // if cond is not modelcompatible
         {
             sendWarning("Attempt to use a Condition object that does not "
-            + "belong to this model. The attempted action is ignored!",
+                        + "belong to this model. The attempted action is ignored!",
                         "CondQueue: " + getName() + " Method: boolean waitUntil (Condition cond)",
                         "The condition is not modelcompatible.",
                         "Make sure that conditions given in a CondQueue waitUntil() method "
@@ -387,12 +347,12 @@ public class CondQueue<P extends SimProcess> extends desmoj.core.simulator.Queue
         {
             if (currentlySendDebugNotes()) {
                 sendDebugNote("refuses to insert " + currentProcess.getQuotedName()
-                + " in waiting-queue, because the capacity limit is reached. ");
+                              + " in waiting-queue, because the capacity limit is reached. ");
             }
 
             if (currentlySendTraceNotes()) {
                 sendTraceNote("is refused to be enqueued in " + this.getQuotedName() + "because the capacity limit ("
-                + getQueueLimit() + ") of the " + "queue is reached");
+                              + getQueueLimit() + ") of the " + "queue is reached");
             }
 
             _refused++; // count the refused ones
@@ -445,7 +405,7 @@ public class CondQueue<P extends SimProcess> extends desmoj.core.simulator.Queue
                 sendTraceNote("resumes after waiting in '" + getName() + "' canceled"); // send a traceNote
             } else {
                 sendTraceNote("leaves '" + getName() + "', because '" + cond.getName() + "' is true"); // send a
-                                                                                                       // traceNote
+                // traceNote
             }
         }
         _queue.remove(currentProcess); // get the process out of the queue
@@ -456,12 +416,10 @@ public class CondQueue<P extends SimProcess> extends desmoj.core.simulator.Queue
     }
 
     /**
-     * Activates the given SimProcess and schedules him right after the current
-     * process. Then the process is responsible to check if the desired condition
-     * has become true. This is done in the method <code>waitUntil()</code>.
+     * Activates the given SimProcess and schedules him right after the current process. Then the process is responsible
+     * to check if the desired condition has become true. This is done in the method <code>waitUntil()</code>.
      *
-     * @param process SimProcess : The process that will be activated now to check
-     *                its condition.
+     * @param process SimProcess : The process that will be activated now to check its condition.
      */
     protected void activateAsNext(SimProcess process) {
         _where = "protected void activateAsNext (SimProcess process)";
@@ -501,24 +459,24 @@ public class CondQueue<P extends SimProcess> extends desmoj.core.simulator.Queue
     /**
      * Checks whether the entity using the CondQueue is a valid process.
      *
-     * @return boolean : Returns whether the SimProcess is valid or not.
      * @param p SimProcess : Is this SimProcess a valid one?
+     * @return boolean : Returns whether the SimProcess is valid or not.
      */
     protected boolean checkProcess(SimProcess p, String where) {
         if (p == null) // if p is a null pointer instead of a process
         {
-            sendWarning("A non existing process is trying to use a CondQueue  "
-            + "object. The attempted action is ignored!", "CondQueue: " + getName() + " Method: " + where,
-                        "The process is only a null pointer.",
-                        "Make sure that only real SimProcesses are using CondQueues.");
+            sendWarning(
+            "A non existing process is trying to use a CondQueue  " + "object. The attempted action is ignored!",
+            "CondQueue: " + getName() + " Method: " + where, "The process is only a null pointer.",
+            "Make sure that only real SimProcesses are using CondQueues.");
             return false;
         }
 
         if (!isModelCompatible(p)) // if p is not modelcompatible
         {
             sendWarning("The process trying to use a CondQueue object does not "
-            + "belong to this model. The attempted action is ignored!", "CondQueue: " + getName() + " Method: " + where,
-                        "The process is not modelcompatible.",
+                        + "belong to this model. The attempted action is ignored!",
+                        "CondQueue: " + getName() + " Method: " + where, "The process is not modelcompatible.",
                         "Make sure that processes are using only CondQueues within their model.");
             return false;
         }

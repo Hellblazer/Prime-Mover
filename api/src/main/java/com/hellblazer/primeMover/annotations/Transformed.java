@@ -24,29 +24,23 @@ import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * Annotation to indicate that a simulation transform has been applied to the
- * element. When used, the value element must have the name of the simulation
- * transformer. The convention is to use the fully qualified name of the
- * transformer in the value field. For example: com.company.package.classname.
+ * Annotation to indicate that a simulation transform has been applied to the element. When used, the value element must
+ * have the name of the simulation transformer. The convention is to use the fully qualified name of the transformer in
+ * the value field. For example: com.company.package.classname.
  * <p>
- * The date element is used to indicate the date the element was transformed.
- * The date element must follow the ISO 8601 standard. For example the date
- * element would have the following value 2001-07-04T12:08:56.235-0700 which
- * represents 2001-07-04 12:08:56 local time in the U.S. Pacific Time time zone.
- * <p.>
- * The comment element is a place holder for any comments that the transformer
- * may want to include in the generated code.
+ * The date element is used to indicate the date the element was transformed. The date element must follow the ISO 8601
+ * standard. For example the date element would have the following value 2001-07-04T12:08:56.235-0700 which represents
+ * 2001-07-04 12:08:56 local time in the U.S. Pacific Time time zone. <p.> The comment element is a place holder for any
+ * comments that the transformer may want to include in the generated code.
  * <p>
  *
  * @author <a href="mailto:hal.hildebrand@gmail.com">Hal Hildebrand</a>
- *
  */
 @Retention(RUNTIME)
 @Target({ TYPE })
 public @interface Transformed {
     /**
-     * A place holder for any comments that the transformer may want to include
-     * in the transformed element.
+     * A place holder for any comments that the transformer may want to include in the transformed element.
      */
     String comment() default "";
 
@@ -56,8 +50,7 @@ public @interface Transformed {
     String date();
 
     /**
-     * This is used by the code generator to mark the transformed classes,
-     * methods and constructors
+     * This is used by the code generator to mark the transformed classes, methods and constructors
      */
     String value();
 }

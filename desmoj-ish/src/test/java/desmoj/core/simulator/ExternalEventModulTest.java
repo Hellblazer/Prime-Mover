@@ -1,21 +1,18 @@
 package desmoj.core.simulator;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
+import desmoj.implementation.TestExternalEvent;
+import desmoj.implementation.TestModel;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import desmoj.implementation.TestExternalEvent;
-import desmoj.implementation.TestModel;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * This Class simply tests if an Event is external or not. Further functionality
- * is tested in the EventModulTest Class.
+ * This Class simply tests if an Event is external or not. Further functionality is tested in the EventModulTest Class.
  *
  * @author Sascha Winde, Clara Bluemm
- *
  */
 public abstract class ExternalEventModulTest {
 

@@ -1,12 +1,9 @@
 package com.hellblazer.primeMover.asm;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.stream.Collectors;
-
 import com.hellblazer.primeMover.classfile.OpenAddressingSet;
+import io.github.classgraph.ClassGraph;
+import io.github.classgraph.ClassInfo;
+import io.github.classgraph.MethodInfo;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,9 +12,9 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.util.TraceClassVisitor;
 
-import io.github.classgraph.ClassGraph;
-import io.github.classgraph.ClassInfo;
-import io.github.classgraph.MethodInfo;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.stream.Collectors;
 
 /**
  * Test to analyze differences between original and refactored EntityGeneratorOriginal bytecode.
@@ -26,22 +23,10 @@ public class BytecodeDifferenceAnalysisTest {
 
     private SimulationTransformOriginal transform;
 
-    @BeforeEach
-    public void setUp() {
-        transform = new SimulationTransformOriginal(new ClassGraph().acceptPackages("com.hellblazer.primeMover.asm.testClasses"));
-    }
-
-    @AfterEach 
-    public void tearDown() throws Exception {
-        if (transform != null) {
-            transform.close();
-        }
-    }
-
     @Test
     public void analyzeBytecodeStructuralDifferences() throws Exception {
         final var className = "com.hellblazer.primeMover.asm.testClasses.MyTest";
-        
+
         // Generate bytecode using original EntityGeneratorOriginal
         EntityGeneratorOriginal originalGenerator = transform.generatorOf(className);
         Assertions.assertNotNull(originalGenerator, "Original generator should not be null");
@@ -49,18 +34,20 @@ public class BytecodeDifferenceAnalysisTest {
 
         // Get the entity and events for refactored generator
         var generators = transform.generators();
-        var matchingEntry = generators.entrySet().stream()
-            .filter(entry -> entry.getKey().getName().equals(className))
-            .findFirst()
-            .orElse(null);
-        
+        var matchingEntry = generators.entrySet()
+                                      .stream()
+                                      .filter(entry -> entry.getKey().getName().equals(className))
+                                      .findFirst()
+                                      .orElse(null);
+
         Assertions.assertNotNull(matchingEntry, "Should find matching entity class");
-        
+
         var entity = matchingEntry.getKey();
-        
+
         // Create refactored generator using the same ClassInfo and events
         var entIFaces = SimulationTransformOriginal.getEntityInterfaces(entity);
-        var allPublic = entIFaces.stream().anyMatch(c -> c.getName().equals("com.hellblazer.primeMover.annotations.AllMethodsMarker"));
+        var allPublic = entIFaces.stream().anyMatch(
+        c -> c.getName().equals("com.hellblazer.primeMover.annotations.AllMethodsMarker"));
         var interfaces = entity.getInterfaces();
         var implemented = new OpenAddressingSet.OpenSet<ClassInfo>();
         entIFaces.forEach(c -> {
@@ -68,23 +55,22 @@ public class BytecodeDifferenceAnalysisTest {
                 implemented.add(c);
             }
         });
-        
+
         var events = implemented.stream()
                                 .flatMap(intf -> intf.getMethodInfo().stream())
                                 .map(mi -> entity.getMethodInfo(mi.getName())
-                                             .stream()
-                                             .filter(m -> m.getTypeDescriptorStr().equals(mi.getTypeDescriptorStr()))
-                                             .findFirst()
-                                             .orElse(null))
+                                                 .stream()
+                                                 .filter(m -> m.getTypeDescriptorStr()
+                                                               .equals(mi.getTypeDescriptorStr()))
+                                                 .findFirst()
+                                                 .orElse(null))
                                 .filter(mi -> mi != null)
                                 .collect(Collectors.toCollection(() -> new OpenAddressingSet.OpenSet<MethodInfo>()));
-        
+
         // Add @Event annotated methods
-        entity.getDeclaredMethodInfo()
-              .stream()
-              .filter(mi -> mi.hasAnnotation("com.hellblazer.primeMover.annotations.Event"))
-              .forEach(mi -> events.add(mi));
-              
+        entity.getDeclaredMethodInfo().stream().filter(
+        mi -> mi.hasAnnotation("com.hellblazer.primeMover.annotations.Event")).forEach(mi -> events.add(mi));
+
         // Add all public methods if AllMethodsMarker is present
         if (allPublic) {
             entity.getDeclaredMethodInfo()
@@ -94,7 +80,8 @@ public class BytecodeDifferenceAnalysisTest {
                   .forEach(mi -> events.add(mi));
         }
 
-        EntityGeneratorRefactored refactoredGenerator = new EntityGeneratorRefactored(entity, events, transform.getTransformTimestamp());
+        EntityGeneratorRefactored refactoredGenerator = new EntityGeneratorRefactored(entity, events,
+                                                                                      transform.getTransformTimestamp());
         byte[] refactoredBytecode = refactoredGenerator.generate().toByteArray();
 
         // Parse both into ClassNode for detailed comparison
@@ -109,7 +96,7 @@ public class BytecodeDifferenceAnalysisTest {
         System.out.println("=== BYTECODE DIFFERENCE ANALYSIS ===");
         System.out.println("Original bytecode size: " + originalBytecode.length);
         System.out.println("Refactored bytecode size: " + refactoredBytecode.length);
-        
+
         // Print basic class structure comparison
         System.out.println("\n=== CLASS STRUCTURE COMPARISON ===");
         System.out.println("Class name: " + originalClass.name + " vs " + refactoredClass.name);
@@ -123,17 +110,18 @@ public class BytecodeDifferenceAnalysisTest {
         for (int i = 0; i < Math.min(originalClass.methods.size(), refactoredClass.methods.size()); i++) {
             var originalMethod = originalClass.methods.get(i);
             var refactoredMethod = refactoredClass.methods.get(i);
-            
-            boolean matches = originalMethod.name.equals(refactoredMethod.name) &&
-                             originalMethod.desc.equals(refactoredMethod.desc) &&
-                             originalMethod.access == refactoredMethod.access;
-            
-            System.out.println("Method " + i + ": " + originalMethod.name + originalMethod.desc + 
-                             " - Match: " + matches);
-                             
+
+            boolean matches = originalMethod.name.equals(refactoredMethod.name) && originalMethod.desc.equals(
+            refactoredMethod.desc) && originalMethod.access == refactoredMethod.access;
+
+            System.out.println(
+            "Method " + i + ": " + originalMethod.name + originalMethod.desc + " - Match: " + matches);
+
             if (!matches) {
-                System.out.println("  Original:  " + originalMethod.name + originalMethod.desc + " access=" + originalMethod.access);
-                System.out.println("  Refactored:" + refactoredMethod.name + refactoredMethod.desc + " access=" + refactoredMethod.access);
+                System.out.println(
+                "  Original:  " + originalMethod.name + originalMethod.desc + " access=" + originalMethod.access);
+                System.out.println(
+                "  Refactored:" + refactoredMethod.name + refactoredMethod.desc + " access=" + refactoredMethod.access);
             }
         }
 
@@ -144,7 +132,7 @@ public class BytecodeDifferenceAnalysisTest {
         TraceClassVisitor originalTraceVisitor = new TraceClassVisitor(originalPrintWriter);
         originalReader.accept(originalTraceVisitor, ClassReader.EXPAND_FRAMES);
         String originalText = originalStringWriter.toString();
-        
+
         System.out.println("\n=== REFACTORED BYTECODE ===");
         StringWriter refactoredStringWriter = new StringWriter();
         PrintWriter refactoredPrintWriter = new PrintWriter(refactoredStringWriter);
@@ -160,49 +148,69 @@ public class BytecodeDifferenceAnalysisTest {
                 break;
             }
         }
-        
+
         if (firstDiff >= 0) {
             System.out.println("\n=== FIRST BYTE DIFFERENCE ===");
-            System.out.println("At index " + firstDiff + ": original=" + (originalBytecode[firstDiff] & 0xFF) + 
-                             ", refactored=" + (refactoredBytecode[firstDiff] & 0xFF));
-                             
+            System.out.println(
+            "At index " + firstDiff + ": original=" + (originalBytecode[firstDiff] & 0xFF) + ", refactored=" + (
+            refactoredBytecode[firstDiff] & 0xFF));
+
             // Show surrounding bytes
             int start = Math.max(0, firstDiff - 10);
             int end = Math.min(Math.min(originalBytecode.length, refactoredBytecode.length), firstDiff + 10);
-            
+
             System.out.print("Original bytes around diff:   ");
             for (int i = start; i < end; i++) {
-                if (i == firstDiff) System.out.print("[" + (originalBytecode[i] & 0xFF) + "] ");
-                else System.out.print((originalBytecode[i] & 0xFF) + " ");
+                if (i == firstDiff) {
+                    System.out.print("[" + (originalBytecode[i] & 0xFF) + "] ");
+                } else {
+                    System.out.print((originalBytecode[i] & 0xFF) + " ");
+                }
             }
             System.out.println();
-            
+
             System.out.print("Refactored bytes around diff: ");
             for (int i = start; i < end; i++) {
-                if (i == firstDiff) System.out.print("[" + (refactoredBytecode[i] & 0xFF) + "] ");
-                else System.out.print((refactoredBytecode[i] & 0xFF) + " ");
+                if (i == firstDiff) {
+                    System.out.print("[" + (refactoredBytecode[i] & 0xFF) + "] ");
+                } else {
+                    System.out.print((refactoredBytecode[i] & 0xFF) + " ");
+                }
             }
             System.out.println();
         }
-        
+
         // Check if the differences are just in line numbers or debug info
-        boolean structurallyEquivalent = originalClass.name.equals(refactoredClass.name) &&
-                                       originalClass.superName.equals(refactoredClass.superName) &&
-                                       originalClass.interfaces.equals(refactoredClass.interfaces) &&
-                                       originalClass.fields.size() == refactoredClass.fields.size() &&
-                                       originalClass.methods.size() == refactoredClass.methods.size();
-                                       
+        boolean structurallyEquivalent = originalClass.name.equals(refactoredClass.name)
+        && originalClass.superName.equals(refactoredClass.superName) && originalClass.interfaces.equals(
+        refactoredClass.interfaces) && originalClass.fields.size() == refactoredClass.fields.size()
+        && originalClass.methods.size() == refactoredClass.methods.size();
+
         System.out.println("\n=== ANALYSIS RESULT ===");
         System.out.println("Structurally equivalent: " + structurallyEquivalent);
         System.out.println("Byte-for-byte identical: " + (firstDiff == -1));
-        
+
         if (structurallyEquivalent && firstDiff >= 0) {
-            System.out.println("CONCLUSION: The generators produce structurally equivalent but not byte-identical bytecode.");
+            System.out.println(
+            "CONCLUSION: The generators produce structurally equivalent but not byte-identical bytecode.");
             System.out.println("This is likely due to differences in:");
             System.out.println("- Constant pool ordering");
             System.out.println("- Line number tables");
             System.out.println("- Debug information");
             System.out.println("- Stack map frames");
+        }
+    }
+
+    @BeforeEach
+    public void setUp() {
+        transform = new SimulationTransformOriginal(
+        new ClassGraph().acceptPackages("com.hellblazer.primeMover.asm.testClasses"));
+    }
+
+    @AfterEach
+    public void tearDown() throws Exception {
+        if (transform != null) {
+            transform.close();
         }
     }
 }

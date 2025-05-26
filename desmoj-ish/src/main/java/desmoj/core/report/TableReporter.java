@@ -5,20 +5,15 @@ import desmoj.core.simulator.Reportable;
 /**
  * A reporter with an arbitrary number of rows and columns.
  *
- * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  * @author Nicolas Knaak
  *
- *         Licensed under the Apache License, Version 2.0 (the "License"); you
- *         may not use this file except in compliance with the License. You may
- *         obtain a copy of the License at
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
  *
- *         Unless required by applicable law or agreed to in writing, software
- *         distributed under the License is distributed on an "AS IS" BASIS,
- *         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- *         implied. See the License for the specific language governing
- *         permissions and limitations under the License.
- *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  */
 
 public abstract class TableReporter extends Reporter {
@@ -27,9 +22,8 @@ public abstract class TableReporter extends Reporter {
     protected String[][] entryTable;
 
     /**
-     * Header table printed before the data table stored in <tt>entryTable</tt>.
-     * This should contain additional information like e.g. the number of
-     * observations.
+     * Header table printed before the data table stored in <tt>entryTable</tt>. This should contain additional
+     * information like e.g. the number of observations.
      */
     protected String[][] header = null;
 
@@ -52,8 +46,8 @@ public abstract class TableReporter extends Reporter {
     }
 
     /**
-     * Returns a one-dimensional array of entries (Computed from getEntryTable() by
-     * entries[numColumns * i + j] = entryTable[i][j]).
+     * Returns a one-dimensional array of entries (Computed from getEntryTable() by entries[numColumns * i + j] =
+     * entryTable[i][j]).
      *
      * @return field of table entries
      */
@@ -83,10 +77,11 @@ public abstract class TableReporter extends Reporter {
      */
 
     public String[][] getHeader() {
-        if (header == null)
+        if (header == null) {
             return null;
-        else
+        } else {
             return header.clone();
+        }
     }
 
     /**

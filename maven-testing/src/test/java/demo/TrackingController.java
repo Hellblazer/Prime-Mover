@@ -19,7 +19,7 @@
 
 package demo;
 
-import com.hellblazer.primeMover.runtime.EntityReference;
+import com.hellblazer.primeMover.api.EntityReference;
 
 import java.util.ArrayList;
 import java.util.List;

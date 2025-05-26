@@ -1,34 +1,26 @@
 package desmoj.core.report;
 
 /**
- * The standard reporter for any reportable object. Its report contains the
- * reportable's name, the simulation time of the last reset and the number of
- * observations made by the reportable. These represent the basic data each
- * reportable can supply. To get more specific information, build a custom
- * reporter for that reportable.
+ * The standard reporter for any reportable object. Its report contains the reportable's name, the simulation time of
+ * the last reset and the number of observations made by the reportable. These represent the basic data each reportable
+ * can supply. To get more specific information, build a custom reporter for that reportable.
  *
- * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  * @author Tim Lechler
  *
- *         Licensed under the Apache License, Version 2.0 (the "License"); you
- *         may not use this file except in compliance with the License. You may
- *         obtain a copy of the License at
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
  *
- *         Unless required by applicable law or agreed to in writing, software
- *         distributed under the License is distributed on an "AS IS" BASIS,
- *         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- *         implied. See the License for the specific language governing
- *         permissions and limitations under the License.
- *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  */
 public class StandardReporter extends Reporter {
     /**
-     * Constructs a standrad reporter to report about the given reportable. Reports
-     * produced by this standard reporter are always listed last on a report output.
+     * Constructs a standrad reporter to report about the given reportable. Reports produced by this standard reporter
+     * are always listed last on a report output.
      *
-     * @param informationSource desmoj.core.simulator.Reportable : The reportable to
-     *                          produce a report about
+     * @param informationSource desmoj.core.simulator.Reportable : The reportable to produce a report about
      */
     public StandardReporter(desmoj.core.simulator.Reportable informationSource) {
 
@@ -50,11 +42,10 @@ public class StandardReporter extends Reporter {
     }
 
     /**
-     * Returns the array of strings containing the basic information any reportable
-     * can offer.
+     * Returns the array of strings containing the basic information any reportable can offer.
      *
-     * @return java.lang.String[] : The array of Strings containing all information
-     *         about the reportable information source
+     * @return java.lang.String[] : The array of Strings containing all information about the reportable information
+     * source
      */
     @Override
     public java.lang.String[] getEntries() {

@@ -1,36 +1,60 @@
 package desmoj.core.simulator;
 
 /**
- * Class to Represent a Parameter. This parameter can be an experiment-
- * parameter or a model-parameter. Parameters are variables that are accessible
- * from everywhere in the model. Model-parameters are assignable from model,
+ * Class to Represent a Parameter. This parameter can be an experiment- parameter or a model-parameter. Parameters are
+ * variables that are accessible from everywhere in the model. Model-parameters are assignable from model,
  * experiment-parameters from experiment.
- *
- * @see desmoj.core.simulator.ParameterManager
- * @see desmoj.core.simulator.ModelParameterManager
- * @see desmoj.core.simulator.ExperimentParameterManager
  *
  * @author Tim Janz
  * @version DESMO-J, Ver. 2.5.1d copyright (c) 2015
  *
- *          Licensed under the Apache License, Version 2.0 (the "License"); you
- *          may not use this file except in compliance with the License. You may
- *          obtain a copy of the License at
- *          http://www.apache.org/licenses/LICENSE-2.0
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
  *
- *          Unless required by applicable law or agreed to in writing, software
- *          distributed under the License is distributed on an "AS IS" BASIS,
- *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- *          implied. See the License for the specific language governing
- *          permissions and limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations under the License.
+ * @see desmoj.core.simulator.ParameterManager
+ * @see desmoj.core.simulator.ModelParameterManager
+ * @see desmoj.core.simulator.ExperimentParameterManager
  */
 public class Parameter {
     /**
-     * Enum to decide, if a parameter is a model-parameter or an experiment-
-     * parameter
+     * The parameter's default value (only for experiment-parameters)
      */
-    public static enum ParameterType {
-        EXPERIMENTPARAMETER, MODELPARAMETER;
+    private Object _defaultValue;
+    /**
+     * The parameter's name
+     */
+    private String _name;
+    /**
+     * Parameter can be a model-parameter or an experiment-parameter
+     */
+    private ParameterType _parameterType;
+    /**
+     * The type of the parameter's value
+     */
+    private Class<?> _type;
+    /**
+     * The parameter's value
+     */
+    private Object _value;
+
+    /**
+     * Constructs a new parameter. New Parameters should be created by the factory- methods of this class.
+     *
+     * @param parameterType is this parameter a model-parameter or an experiment-parameter
+     * @param type          the parameter's type
+     * @param name          the parameter's name
+     * @param value         the parameter's value
+     * @param defaultValue  the parameter's default value
+     */
+    private Parameter(ParameterType parameterType, Class<?> type, String name, Object value, Object defaultValue) {
+        this._parameterType = parameterType;
+        this._type = type;
+        this._name = name;
+        this._value = value;
+        this._defaultValue = defaultValue;
     }
 
     /**
@@ -80,50 +104,6 @@ public class Parameter {
     }
 
     /**
-     * The parameter's default value (only for experiment-parameters)
-     */
-    private Object _defaultValue;
-
-    /**
-     * The parameter's name
-     */
-    private String _name;
-
-    /**
-     * Parameter can be a model-parameter or an experiment-parameter
-     */
-    private ParameterType _parameterType;
-
-    /**
-     * The type of the parameter's value
-     */
-    private Class<?> _type;
-
-    /**
-     * The parameter's value
-     */
-    private Object _value;
-
-    /**
-     * Constructs a new parameter. New Parameters should be created by the factory-
-     * methods of this class.
-     *
-     * @param parameterType is this parameter a model-parameter or an
-     *                      experiment-parameter
-     * @param type          the parameter's type
-     * @param name          the parameter's name
-     * @param value         the parameter's value
-     * @param defaultValue  the parameter's default value
-     */
-    private Parameter(ParameterType parameterType, Class<?> type, String name, Object value, Object defaultValue) {
-        this._parameterType = parameterType;
-        this._type = type;
-        this._name = name;
-        this._value = value;
-        this._defaultValue = defaultValue;
-    }
-
-    /**
      * Returns the parameter's name
      *
      * @return the parameter's name
@@ -135,9 +115,8 @@ public class Parameter {
     /**
      * Is this parameter a model-parameter or an experiment-parameter?
      *
-     * @return ParameterType.MODELPARAMETER if this parameter is a model-parameter,
-     *         or ParameterType.EXPERIMENTPARAMETER if this parameter is an
-     *         experiment-parameter
+     * @return ParameterType.MODELPARAMETER if this parameter is a model-parameter, or ParameterType.EXPERIMENTPARAMETER
+     * if this parameter is an experiment-parameter
      */
     public ParameterType getParameterType() {
         return _parameterType;
@@ -204,5 +183,12 @@ public class Parameter {
     @Override
     public String toString() {
         return "(" + _type.toString() + ") " + _name + ": " + _value.toString();
+    }
+
+    /**
+     * Enum to decide, if a parameter is a model-parameter or an experiment- parameter
+     */
+    public static enum ParameterType {
+        EXPERIMENTPARAMETER, MODELPARAMETER;
     }
 }
