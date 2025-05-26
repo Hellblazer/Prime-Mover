@@ -17,7 +17,7 @@
 
 package com.hellblazer.primeMover.maven;
 
-import com.hellblazer.primeMover.asm.SimulationTransform;
+import com.hellblazer.primeMover.classfile.SimulationTransform;
 import io.github.classgraph.ClassGraph;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;

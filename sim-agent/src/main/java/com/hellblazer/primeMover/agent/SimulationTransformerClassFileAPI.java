@@ -2,8 +2,8 @@ package com.hellblazer.primeMover.agent;
 
 import com.hellblazer.primeMover.Kronos;
 import com.hellblazer.primeMover.asm.AnnotationScanner;
-import com.hellblazer.primeMover.asm.ClassRemapper;
-import com.hellblazer.primeMover.asm.SimulationTransform;
+import com.hellblazer.primeMover.classfile.ClassRemapper;
+import com.hellblazer.primeMover.classfile.SimulationTransform;
 import com.hellblazer.primeMover.runtime.Kairos;
 import io.github.classgraph.ClassGraph;
 import org.objectweb.asm.Opcodes;

@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.hellblazer.primeMover.asm;
+package com.hellblazer.primeMover.classfile;
 
 import java.util.AbstractSet;
 import java.util.Iterator;

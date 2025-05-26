@@ -3,6 +3,8 @@ package com.hellblazer.primeMover.asm;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import com.hellblazer.primeMover.classfile.EntityGenerator;
+import com.hellblazer.primeMover.classfile.SimulationTransform;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;

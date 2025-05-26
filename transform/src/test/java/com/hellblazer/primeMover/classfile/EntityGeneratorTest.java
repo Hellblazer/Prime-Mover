@@ -1,51 +1,43 @@
 /*
  * Copyright (C) 2023 Hal Hildebrand. All rights reserved.
- * 
+ *
  * This file is part of the Prime Mover Event Driven Simulation Framework.
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Affero General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.hellblazer.primeMover.asm;
+package com.hellblazer.primeMover.classfile;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
-import static org.objectweb.asm.Opcodes.ACC_STATIC;
-
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
-import java.io.PrintWriter;
-import java.nio.ByteBuffer;
-
+import com.hellblazer.primeMover.ControllerImpl;
+import com.hellblazer.primeMover.classfile.testClasses.Foo;
+import com.hellblazer.primeMover.runtime.Kairos;
+import io.github.classgraph.ClassGraph;
 import org.junit.jupiter.api.Test;
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.Label;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
+import org.objectweb.asm.*;
 import org.objectweb.asm.commons.GeneratorAdapter;
 import org.objectweb.asm.commons.Method;
 import org.objectweb.asm.commons.TableSwitchGenerator;
 import org.objectweb.asm.util.CheckClassAdapter;
 import org.objectweb.asm.util.TraceClassVisitor;
 
-import com.hellblazer.primeMover.ControllerImpl;
-import com.hellblazer.primeMover.asm.testClasses.Foo;
-import com.hellblazer.primeMover.runtime.Kairos;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.nio.ByteBuffer;
 
-import io.github.classgraph.ClassGraph;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
+import static org.objectweb.asm.Opcodes.ACC_STATIC;
 
 /**
  * @author hal.hildebrand
@@ -53,13 +45,13 @@ import io.github.classgraph.ClassGraph;
 public class EntityGeneratorTest {
     @Test
     public void smokin() throws Exception {
-        var transform = new SimulationTransform(new ClassGraph().acceptPackages("com.hellblazer.primeMover.asm.testClasses",
-                                                                                "testClasses"));
+        var transform = new SimulationTransform(
+        new ClassGraph().acceptPackages("com.hellblazer"));
 
-//        final var name = "testClasses.ContinuationThroughputImpl";
-//        final var name = "testClasses.HelloWorld";
-//        final var name = "testClasses.SubEntity";
-        final var name = "com.hellblazer.primeMover.asm.testClasses.MyTest";
+        //        final var name = "testClasses.ContinuationThroughputImpl";
+        //        final var name = "testClasses.HelloWorld";
+        //        final var name = "testClasses.SubEntity";
+        final var name = "com.hellblazer.primeMover.classfile.testClasses.MyTest";
         var generator = transform.generatorOf(name);
         assertNotNull(generator);
         var cw = generator.generate();
@@ -129,30 +121,27 @@ public class EntityGeneratorTest {
 
             @Override
             public void generateCase(int key, Label end) {
-                gen.visitFrame(Opcodes.F_NEW, 2,
-                               new Object[] { Type.getObjectType("Example").getInternalName(), Opcodes.INTEGER }, 0,
-                               new Object[] {});
+                gen.visitFrame(Opcodes.F_NEW, 2, new Object[] { Type.getObjectType("Example").getInternalName(),
+                                                                Opcodes.INTEGER }, 0, new Object[] {});
                 gen.push("foo");
-                gen.visitFrame(Opcodes.F_NEW, 2,
-                               new Object[] { Type.getObjectType("Example").getInternalName(), Opcodes.INTEGER }, 1,
-                               new Object[] { Type.getType(String.class).getInternalName() });
+                gen.visitFrame(Opcodes.F_NEW, 2, new Object[] { Type.getObjectType("Example").getInternalName(),
+                                                                Opcodes.INTEGER }, 1, new Object[] { Type.getType(
+                String.class).getInternalName() });
                 gen.push(key);
-                gen.visitFrame(Opcodes.F_NEW, 2,
-                               new Object[] { Type.getObjectType("Example").getInternalName(), Opcodes.INTEGER }, 2,
-                               new Object[] { Type.getType(String.class).getInternalName(), Opcodes.INTEGER });
+                gen.visitFrame(Opcodes.F_NEW, 2, new Object[] { Type.getObjectType("Example").getInternalName(),
+                                                                Opcodes.INTEGER }, 2, new Object[] { Type.getType(
+                String.class).getInternalName(), Opcodes.INTEGER });
                 gen.invokeStatic(Type.getType(Integer.class), Method.getMethod("Integer parseInt (String, int)"));
                 gen.returnValue();
             }
 
             @Override
             public void generateDefault() {
-                gen.visitFrame(Opcodes.F_NEW, 2,
-                               new Object[] { Type.getObjectType("Example").getInternalName(), Opcodes.INTEGER }, 0,
-                               new Object[] {});
+                gen.visitFrame(Opcodes.F_NEW, 2, new Object[] { Type.getObjectType("Example").getInternalName(),
+                                                                Opcodes.INTEGER }, 0, new Object[] {});
                 gen.push(0);
-                gen.visitFrame(Opcodes.F_NEW, 2,
-                               new Object[] { Type.getObjectType("Example").getInternalName(), Opcodes.INTEGER }, 1,
-                               new Object[] { Opcodes.INTEGER });
+                gen.visitFrame(Opcodes.F_NEW, 2, new Object[] { Type.getObjectType("Example").getInternalName(),
+                                                                Opcodes.INTEGER }, 1, new Object[] { Opcodes.INTEGER });
                 gen.invokeStatic(Type.getType(Integer.class), Method.getMethod("Integer valueOf (int)"));
                 gen.returnValue();
             }
@@ -186,7 +175,7 @@ public class EntityGeneratorTest {
     @Test
     public void template() throws Exception {
 
-        final var name = "com.hellblazer.primeMover.asm.testClasses.Template";
+        final var name = "com.hellblazer.primeMover.classfile.testClasses.Template";
 
         ClassReader reader;
         try (var is = getClass().getClassLoader().getResourceAsStream(name.replace('.', '/') + ".class")) {

@@ -42,10 +42,16 @@
         <module>janus</module>
         <module>sim-agent</module>
         <module>transform-asm</module>
+        <module>api</module>
     </modules>
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>runtime</artifactId>

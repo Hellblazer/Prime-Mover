@@ -1,9 +1,9 @@
 package com.hellblazer.primeMover.asm;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import java.util.stream.Collectors;
 
+import com.hellblazer.primeMover.classfile.EntityGenerator;
+import com.hellblazer.primeMover.classfile.OpenAddressingSet;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.objectweb.asm.ClassReader;

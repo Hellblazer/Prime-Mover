@@ -1,5 +1,7 @@
 package com.hellblazer.primeMover.asm;
 
+import com.hellblazer.primeMover.classfile.EntityGenerator;
+import com.hellblazer.primeMover.classfile.SimulationTransform;
 import io.github.classgraph.ClassGraph;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

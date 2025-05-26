@@ -1,11 +1,7 @@
-package com.hellblazer.primeMover.asm;
+package com.hellblazer.primeMover.classfile;
 
 import java.lang.classfile.*;
-import java.lang.classfile.attribute.*;
-import java.lang.classfile.constantpool.*;
-import java.lang.classfile.instruction.*;
 import java.lang.constant.*;
-import java.nio.file.*;
 
 /**
  * Exploration of the Java 24 ClassFile API (JEP 484)

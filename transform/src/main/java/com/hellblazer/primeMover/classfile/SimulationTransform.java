@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.hellblazer.primeMover.asm;
+package com.hellblazer.primeMover.classfile;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -35,7 +35,7 @@ import com.hellblazer.primeMover.annotations.Entity;
 import com.hellblazer.primeMover.annotations.Event;
 import com.hellblazer.primeMover.annotations.NonEvent;
 import com.hellblazer.primeMover.annotations.Transformed;
-import com.hellblazer.primeMover.asm.OpenAddressingSet.OpenSet;
+import com.hellblazer.primeMover.classfile.OpenAddressingSet.OpenSet;
 import com.hellblazer.primeMover.runtime.Kairos;
 
 import io.github.classgraph.AnnotationClassRef;
@@ -66,7 +66,7 @@ public class SimulationTransform implements Closeable {
     private static final ClassInfoFilter ACCEPT_ALL_FILTER = classInfo -> true;
     
     /** Filter that excludes already transformed classes */
-    private static final ClassInfoFilter EXCLUDE_TRANSFORMED_FILTER = classInfo -> !classInfo.hasAnnotation(Transformed.class);
+    public static final ClassInfoFilter EXCLUDE_TRANSFORMED_FILTER = classInfo -> !classInfo.hasAnnotation(Transformed.class);
 
     private final ScanResult scan;
     private final ClassRemapper apiRemapper;

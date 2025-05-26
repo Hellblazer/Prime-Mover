@@ -18,6 +18,7 @@
  */
 package com.hellblazer.primeMover.asm;
 
+import com.hellblazer.primeMover.runtime.EntityReference;
 import io.github.classgraph.ClassGraph;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -93,7 +94,7 @@ public class EntityGeneratorRefactoredTest {
             var clazz = loader.loadClass(name);
 
             // Verify it implements EntityReference
-            Assertions.assertTrue(com.hellblazer.primeMover.runtime.EntityReference.class.isAssignableFrom(clazz));
+            Assertions.assertTrue(EntityReference.class.isAssignableFrom(clazz));
 
             // The generated class should have the required EntityReference methods
             var invokeMethod = clazz.getMethod("__invoke", int.class, Object[].class);
@@ -105,7 +106,7 @@ public class EntityGeneratorRefactoredTest {
             System.out.println("✅ Refactored EntityGeneratorOriginal provides complete EntityReference interface!");
             System.out.println("Generated class: " + clazz.getName());
             System.out.println(
-            "Implements EntityReference: " + com.hellblazer.primeMover.runtime.EntityReference.class.isAssignableFrom(
+            "Implements EntityReference: " + EntityReference.class.isAssignableFrom(
             clazz));
         }
     }

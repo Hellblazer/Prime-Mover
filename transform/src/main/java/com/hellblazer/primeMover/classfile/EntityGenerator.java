@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.hellblazer.primeMover.asm;
+package com.hellblazer.primeMover.classfile;
 
 import java.io.IOException;
 import java.lang.classfile.*;
@@ -29,7 +29,7 @@ import java.util.*;
 
 import com.hellblazer.primeMover.Kronos;
 import com.hellblazer.primeMover.annotations.Blocking;
-import com.hellblazer.primeMover.asm.OpenAddressingSet.OpenSet;
+import com.hellblazer.primeMover.classfile.OpenAddressingSet.OpenSet;
 import com.hellblazer.primeMover.runtime.Kairos;
 
 import io.github.classgraph.ClassInfo;
@@ -64,8 +64,9 @@ public class EntityGenerator {
     // === ClassFile API Constants ===
     private static final ClassDesc OBJECT_CLASS = ConstantDescs.CD_Object;
     private static final ClassDesc STRING_CLASS = ConstantDescs.CD_String;
-    private static final ClassDesc OBJECT_ARRAY_CLASS = ClassDesc.of("java.lang.Object").arrayType();
-    private static final ClassDesc ENTITY_REFERENCE_CLASS = ClassDesc.of("com.hellblazer.primeMover.runtime.EntityReference");
+    private static final ClassDesc OBJECT_ARRAY_CLASS = ClassDesc.of(Object.class.getCanonicalName()).arrayType();
+    private static final ClassDesc ENTITY_REFERENCE_CLASS = ClassDesc.of(
+    "com.hellblazer.primeMover.runtime.EntityReference");
     private static final ClassDesc FRAMEWORK_CLASS = ClassDesc.of("com.hellblazer.primeMover.runtime.Framework");
     private static final ClassDesc DEVI_CLASS = ClassDesc.of("com.hellblazer.primeMover.runtime.Devi");
     private static final ClassDesc TRANSFORMED_CLASS = ClassDesc.of("com.hellblazer.primeMover.annotations.Transformed");

@@ -1,4 +1,4 @@
-package com.hellblazer.primeMover.asm;
+package com.hellblazer.primeMover.classfile;
 
 import io.github.classgraph.ClassGraph;
 import org.junit.jupiter.api.AfterEach;
@@ -19,8 +19,7 @@ public class SimulationTransformTest {
 
     @BeforeEach
     public void setUp() {
-        var classGraph = new ClassGraph().acceptPackages("com.hellblazer.primeMover.asm.testClasses",
-                                                         "com.hellblazer.primeMover");
+        var classGraph = new ClassGraph().acceptPackages("com.hellblazer.primeMover");
         classFileTransform = new SimulationTransform(classGraph);
     }
 
@@ -34,7 +33,7 @@ public class SimulationTransformTest {
     @Test
     public void testClassFileTransformFunctionality() throws Exception {
         // Test that ClassFile API transform provides all expected functionality
-        final var className = "com.hellblazer.primeMover.asm.testClasses.MyTest";
+        final var className = "com.hellblazer.primeMover.classfile.testClasses.MyTest";
 
         // Test generatorOf
         var generator = classFileTransform.generatorOf(className);

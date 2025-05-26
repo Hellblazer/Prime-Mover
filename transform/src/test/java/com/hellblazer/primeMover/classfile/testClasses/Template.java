@@ -16,12 +16,12 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.hellblazer.primeMover.asm.testClasses;
+package com.hellblazer.primeMover.classfile.testClasses;
 
+import com.hellblazer.primeMover.runtime.EntityReference;
 import com.hellblazer.primeMover.annotations.Blocking;
 import com.hellblazer.primeMover.annotations.Entity;
 import com.hellblazer.primeMover.runtime.Devi;
-import com.hellblazer.primeMover.runtime.EntityReference;
 import com.hellblazer.primeMover.runtime.Framework;
 
 /**

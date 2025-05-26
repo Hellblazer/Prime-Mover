@@ -18,9 +18,9 @@
  */
 package com.hellblazer.primeMover;
 
-import java.util.logging.Logger;
-
 import com.hellblazer.primeMover.runtime.EntityReference;
+
+import java.util.logging.Logger;
 
 /**
  * The processor of events, the continuation of time. This is the central

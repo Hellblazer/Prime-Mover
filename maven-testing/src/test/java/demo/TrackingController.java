@@ -19,10 +19,11 @@
 
 package demo;
 
+import com.hellblazer.primeMover.runtime.EntityReference;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import com.hellblazer.primeMover.runtime.EntityReference;
 
 /**
  * 
@@ -33,7 +34,7 @@ import com.hellblazer.primeMover.runtime.EntityReference;
 public class TrackingController extends ControllerImpl {
 
     public List<String> blockingEvents = new ArrayList<String>();
-    public List<String> events = new ArrayList<String>();
+    public List<String>          events     = new ArrayList<String>();
     public List<EntityReference> references = new ArrayList<EntityReference>();
 
     @Override

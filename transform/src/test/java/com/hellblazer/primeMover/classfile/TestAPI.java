@@ -15,7 +15,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-package com.hellblazer.primeMover.asm;
+package com.hellblazer.primeMover.classfile;
 
 import com.hellblazer.primeMover.TrackingController;
 import com.hellblazer.primeMover.runtime.Kairos;
@@ -26,7 +26,6 @@ import org.objectweb.asm.util.CheckClassAdapter;
 import org.objectweb.asm.util.TraceClassVisitor;
 import testClasses.LocalLoader;
 
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.Method;
 import java.util.Map;
@@ -59,16 +58,11 @@ public class TestAPI {
 
     private Map<String, byte[]> getTransformed() throws Exception {
         try (var transform = new SimulationTransform(
-        new ClassGraph().acceptPackages("com.hellblazer.*"))) {
-            return transform.generators().entrySet().stream().collect(
+        new ClassGraph().acceptPackages("com.hellblazer.*", "testClasses"))) {
+            return transform.transformed(SimulationTransform.EXCLUDE_TRANSFORMED_FILTER).entrySet().stream().collect(
             Collectors.toMap(e -> e.getKey().getName().replace('.', '/'), e -> {
-                try {
-                    final var bytes = e.getValue().generate();
-                    //                                    dump(bytes);
-                    return bytes;
-                } catch (IOException e1) {
-                    throw new IllegalStateException(e1);
-                }
+                //                                    dump(e.getValue());
+                return e.getValue();
             }));
         }
     }
