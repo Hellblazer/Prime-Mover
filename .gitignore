@@ -8,3 +8,6 @@
 **/.idea
 **/vcs.xml
 **/dependency-reduced-pom-*.xml
+**/CLAUDE.md
+**/CLASSFILE_API_ANALYSIS.md
+**/.claude
