@@ -32,12 +32,15 @@ import java.lang.constant.ClassDesc;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
- * ClassFile API implementation of SimulationTransformOriginal that provides entity transformation using Java 24 JEP 484
- * ClassFile API instead of ASM.
+ * ClassFile API implementation of SimulationTransformOriginal that provides entity transformation using Java 25 ClassFile API
+ * (JEP 484) instead of ASM.
  *
  * This class provides the same functionality as SimulationTransformRefactored but uses the new ClassFile API for
  * bytecode manipulation, ensuring compatibility with modern Java versions while maintaining identical behavior.
@@ -51,11 +54,14 @@ public class SimulationTransform implements Closeable {
     Transformed.class);
     /** Marker annotation that indicates all public methods should be treated as events */
     private static final String          ALL_METHODS_MARKER         = AllMethodsMarker.class.getCanonicalName();
+    /** Cached ClassFile instance for bytecode transformations */
+    private static final ClassFile       CLASS_FILE                 = ClassFile.of();
     /** Filter that accepts all classes */
-    private static final ClassInfoFilter ACCEPT_ALL_FILTER          = classInfo -> true;
-    private final        ScanResult      scan;
-    private final        ClassRemapper   apiRemapper;
-    private              String          transformTimestamp;
+    private static final ClassInfoFilter              ACCEPT_ALL_FILTER   = classInfo -> true;
+    private static final Logger                       log                 = Logger.getLogger(SimulationTransform.class.getName());
+    private final        ScanResult                   scan;
+    private final        ClassRemapper                apiRemapper;
+    private final        AtomicReference<String>      transformTimestamp  = new AtomicReference<>();
 
     /**
      * Creates a new SimulationTransform with the given ClassGraph configuration.
@@ -76,13 +82,14 @@ public class SimulationTransform implements Closeable {
         this.scan = scan;
         // Create mapping function for ClassFile API ClassRemapper
         this.apiRemapper = new ClassRemapper(classDesc -> {
-            String className = classDesc.packageName() + "." + classDesc.displayName();
+            var pkg = classDesc.packageName();
+            var className = pkg.isEmpty() ? classDesc.displayName() : pkg + "." + classDesc.displayName();
             if (className.equals(Kronos.class.getCanonicalName())) {
                 return ClassDesc.of(Kairos.class.getCanonicalName());
             }
             return classDesc;
         });
-        this.transformTimestamp = java.time.Instant.now().toString();
+        this.transformTimestamp.set(java.time.Instant.now().toString());
     }
 
     /**
@@ -146,12 +153,20 @@ public class SimulationTransform implements Closeable {
      * @param classname Fully qualified class name of the entity
      * @param selector  Filter to apply to entity classes
      * @return EntityGenerator instance or null if class not found
+     * @throws NullPointerException if classname is null
+     * @throws IllegalArgumentException if classname is empty or class not found
      */
     public EntityGenerator generatorOf(String classname, ClassInfoFilter selector) {
+        Objects.requireNonNull(classname, "classname cannot be null");
+        if (classname.trim().isEmpty()) {
+            throw new IllegalArgumentException("classname cannot be empty");
+        }
+
         var entities = findEntityClasses(selector);
         var entity = entities.get(classname);
         if (entity == null) {
-            return null;
+            throw new IllegalArgumentException("Entity class not found: " + classname +
+                ". Available entities: " + entities.stream().map(ci -> ci.getName()).collect(Collectors.toSet()));
         }
         return createEntityGenerator(entity);
     }
@@ -193,7 +208,7 @@ public class SimulationTransform implements Closeable {
      * @return The current timestamp string
      */
     public String getTransformTimestamp() {
-        return transformTimestamp;
+        return transformTimestamp.get();
     }
 
     /**
@@ -203,7 +218,7 @@ public class SimulationTransform implements Closeable {
      * @param timestamp The timestamp string to use (typically ISO-8601 format)
      */
     public void setTransformTimestamp(String timestamp) {
-        this.transformTimestamp = timestamp;
+        this.transformTimestamp.set(timestamp);
     }
 
     /**
@@ -278,15 +293,16 @@ public class SimulationTransform implements Closeable {
         var implementedInterfaces = findImplementedEntityInterfaces(entityClass, entityInterfaces);
 
         if (entityInterfaces.isEmpty() && !hasAllMethodsMarker) {
-            throw new IllegalStateException(
-            "Entity class " + entityClass.getName() + " has no entity interfaces and no AllMethodsMarker annotation");
+            var msg = "Entity class " + entityClass.getName() + " has no entity interfaces and no AllMethodsMarker annotation";
+            log.severe(msg);
+            throw new IllegalStateException(msg);
         }
 
         // Collect event methods from interfaces and annotations
         var eventMethods = collectEventMethods(entityClass, implementedInterfaces, hasAllMethodsMarker);
 
         try {
-            return new EntityGenerator(entityClass, eventMethods, transformTimestamp);
+            return new EntityGenerator(entityClass, eventMethods, transformTimestamp.get());
         } catch (Exception e) {
             throw new IllegalStateException("Failed to create EntityGenerator for " + entityClass.getName(), e);
         }
@@ -367,17 +383,17 @@ public class SimulationTransform implements Closeable {
      */
     private byte[] remapClassWithClassFileAPI(ClassInfo classInfo) {
         if (classInfo.getResource() == null) {
+            log.warning("No resource found for class: " + classInfo.getName() + " - skipping transformation");
             return null;
         }
 
         try (var inputStream = classInfo.getResource().open()) {
             byte[] originalBytes = inputStream.readAllBytes();
 
-            ClassFile cf = ClassFile.of();
-            var classModel = cf.parse(originalBytes);
+            var classModel = CLASS_FILE.parse(originalBytes);
 
-            byte[] transformedBytes = cf.build(classModel.thisClass().asSymbol(),
-                                               classBuilder -> classBuilder.transform(classModel, apiRemapper));
+            byte[] transformedBytes = CLASS_FILE.build(classModel.thisClass().asSymbol(),
+                                                       classBuilder -> classBuilder.transform(classModel, apiRemapper));
 
             // Only return transformed bytes if they differ from original
             return java.util.Arrays.equals(originalBytes, transformedBytes) ? null : transformedBytes;
@@ -394,11 +410,10 @@ public class SimulationTransform implements Closeable {
      * @return Remapped bytecode
      */
     private byte[] remapGeneratedClassWithClassFileAPI(byte[] generatedBytes) {
-        ClassFile cf = ClassFile.of();
-        var classModel = cf.parse(generatedBytes);
+        var classModel = CLASS_FILE.parse(generatedBytes);
 
-        return cf.build(classModel.thisClass().asSymbol(),
-                        classBuilder -> classBuilder.transform(classModel, apiRemapper));
+        return CLASS_FILE.build(classModel.thisClass().asSymbol(),
+                                classBuilder -> classBuilder.transform(classModel, apiRemapper));
     }
 
     /**
