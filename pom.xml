@@ -9,7 +9,21 @@
     <name>Event Driven Framework</name>
 
 
+    <properties>
+        <repository-owner>Hellblazer</repository-owner>
+        <repository-name>Prime-Mover</repository-name>
+    </properties>
+
     <url>https://github.com/${repository-owner}/${repository-name}.git</url>
+
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub Packages</name>
+            <url>https://maven.pkg.github.com/${repository-owner}/${repository-name}</url>
+        </repository>
+    </distributionManagement>
+
     <scm>
         <url>https://github.com/${repository-owner}/${repository-name}.git</url>
         <connection>
@@ -201,11 +215,6 @@
             </plugin>
             <plugin>
                 <artifactId>maven-deploy-plugin</artifactId>
-                <configuration>
-                    <altDeploymentRepository>
-                        internal.repo::default::file://${env.INTERNAL_REPOSITORY}
-                    </altDeploymentRepository>
-                </configuration>
             </plugin>
         </plugins>
         <pluginManagement>
