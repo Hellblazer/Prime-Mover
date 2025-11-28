@@ -22,7 +22,9 @@ package com.hellblazer.primeMover.runtime;
 import java.io.PrintStream;
 import java.io.Serializable;
 import java.util.concurrent.CompletableFuture;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hellblazer.primeMover.api.Event;
 import com.hellblazer.primeMover.api.EntityReference;
@@ -35,7 +37,7 @@ import com.hellblazer.primeMover.runtime.Devi.EvaluationResult;
  * 
  */
 public class EventImpl implements Cloneable, Serializable, Comparable<EventImpl>, Event {
-    private static final Logger       logger           = Logger.getLogger(EventImpl.class.getCanonicalName());
+    private static final Logger       logger           = LoggerFactory.getLogger(EventImpl.class);
     private static final long         serialVersionUID = -628833433139964756L;
     /**
      * The arguments for the event
@@ -67,7 +69,7 @@ public class EventImpl implements Cloneable, Serializable, Comparable<EventImpl>
     /**
      * The instant in time when this event was raised
      */
-    private long time;
+    private volatile long time;
 
     EventImpl(long time, Event sourceEvent, EntityReference reference, int ordinal, Object... arguments) {
         this(null, time, sourceEvent, reference, ordinal, arguments);
@@ -148,13 +150,12 @@ public class EventImpl implements Cloneable, Serializable, Comparable<EventImpl>
 
     @Override
     public void printTrace(PrintStream s) {
-        synchronized (s) {
-            s.println(this);
-            Event eventSource = source;
-            while (eventSource != null) {
-                s.println("\tat " + eventSource);
-                eventSource = eventSource.getSource();
-            }
+        // PrintStream is already thread-safe for concurrent writes
+        s.println(this);
+        var eventSource = source;
+        while (eventSource != null) {
+            s.println("\tat " + eventSource);
+            eventSource = eventSource.getSource();
         }
     }
 
@@ -197,7 +198,7 @@ public class EventImpl implements Cloneable, Serializable, Comparable<EventImpl>
 //                                                                                   cont == null ? false
 //                                                                                                : cont.isParked());
         continuation = null;
-        logger.finer("Continuing: %s".formatted(this));
+        logger.trace("Continuing: {}", this);
         cont.resume();
     }
 

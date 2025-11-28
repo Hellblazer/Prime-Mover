@@ -119,7 +119,7 @@ public class UnsafeExecutors {
 
         @Override
         public boolean isTerminated() {
-            return !executor.isTerminated();
+            return executor.isTerminated();
         }
 
         @Override

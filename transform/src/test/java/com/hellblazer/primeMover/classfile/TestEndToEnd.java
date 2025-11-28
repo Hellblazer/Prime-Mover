@@ -66,7 +66,7 @@ public class TestEndToEnd {
         assertEquals("<testClasses.Entity1Impl: void event2(testClasses.Entity2)>", controller.events.get(i++));
         assertEquals("<testClasses.Entity1Impl: void event1()>", controller.events.get(i++));
         assertEquals("<testClasses.Entity2Impl: void myEvent()>", controller.events.get(i++));
-        assertEquals("<com.hellblazer.primeMover.runtime.BlockingSleepImpl void sleep(org.joda.time.Duration)>",
+        assertEquals("<com.hellblazer.primeMover.runtime.BlockingSleep: void sleep(long)>",
                      controller.events.get(i++));
         assertEquals("<testClasses.Entity1Impl: void event1()>", controller.events.get(i++));
     }

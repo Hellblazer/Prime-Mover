@@ -16,7 +16,7 @@
  */
 package com.hellblazer.primeMover.api;
 
-import java.util.logging.Logger;
+import org.slf4j.Logger;
 
 /**
  * The processor of events, the continuation of time. This is the central

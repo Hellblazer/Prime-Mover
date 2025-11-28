@@ -135,74 +135,74 @@ public class TestAPI {
         assertEquals("<testClasses.ThreadedImpl: void process(int)>", controller.events.get(i++));
         assertEquals("<testClasses.ThreadedImpl: void process(int)>", controller.events.get(i++));
 
-        assertEquals("<com.hellblazer.primeMover.runtime.BlockingSleepImpl void sleep(org.joda.time.Duration)>",
+        assertEquals("<com.hellblazer.primeMover.runtime.BlockingSleep: void sleep(long)>",
                      controller.events.get(i++));
-        assertEquals("<com.hellblazer.primeMover.runtime.BlockingSleepImpl void sleep(org.joda.time.Duration)>",
-                     controller.events.get(i++));
-
-        assertEquals("<testClasses.ThreadedImpl: void process(int)>", controller.events.get(i++));
-        assertEquals("<testClasses.ThreadedImpl: void process(int)>", controller.events.get(i++));
-
-        assertEquals("<com.hellblazer.primeMover.runtime.BlockingSleepImpl void sleep(org.joda.time.Duration)>",
-                     controller.events.get(i++));
-
-        assertEquals("<testClasses.ThreadedImpl: void process(int)>", controller.events.get(i++));
-
-        assertEquals("<com.hellblazer.primeMover.runtime.BlockingSleepImpl void sleep(org.joda.time.Duration)>",
-                     controller.events.get(i++));
-        assertEquals("<com.hellblazer.primeMover.runtime.BlockingSleepImpl void sleep(org.joda.time.Duration)>",
+        assertEquals("<com.hellblazer.primeMover.runtime.BlockingSleep: void sleep(long)>",
                      controller.events.get(i++));
 
         assertEquals("<testClasses.ThreadedImpl: void process(int)>", controller.events.get(i++));
         assertEquals("<testClasses.ThreadedImpl: void process(int)>", controller.events.get(i++));
 
-        assertEquals("<com.hellblazer.primeMover.runtime.BlockingSleepImpl void sleep(org.joda.time.Duration)>",
+        assertEquals("<com.hellblazer.primeMover.runtime.BlockingSleep: void sleep(long)>",
                      controller.events.get(i++));
 
         assertEquals("<testClasses.ThreadedImpl: void process(int)>", controller.events.get(i++));
 
-        assertEquals("<com.hellblazer.primeMover.runtime.BlockingSleepImpl void sleep(org.joda.time.Duration)>",
+        assertEquals("<com.hellblazer.primeMover.runtime.BlockingSleep: void sleep(long)>",
                      controller.events.get(i++));
-        assertEquals("<com.hellblazer.primeMover.runtime.BlockingSleepImpl void sleep(org.joda.time.Duration)>",
-                     controller.events.get(i++));
-
-        assertEquals("<testClasses.ThreadedImpl: void process(int)>", controller.events.get(i++));
-        assertEquals("<testClasses.ThreadedImpl: void process(int)>", controller.events.get(i++));
-
-        assertEquals("<com.hellblazer.primeMover.runtime.BlockingSleepImpl void sleep(org.joda.time.Duration)>",
-                     controller.events.get(i++));
-
-        assertEquals("<testClasses.ThreadedImpl: void process(int)>", controller.events.get(i++));
-
-        assertEquals("<com.hellblazer.primeMover.runtime.BlockingSleepImpl void sleep(org.joda.time.Duration)>",
-                     controller.events.get(i++));
-        assertEquals("<com.hellblazer.primeMover.runtime.BlockingSleepImpl void sleep(org.joda.time.Duration)>",
+        assertEquals("<com.hellblazer.primeMover.runtime.BlockingSleep: void sleep(long)>",
                      controller.events.get(i++));
 
         assertEquals("<testClasses.ThreadedImpl: void process(int)>", controller.events.get(i++));
         assertEquals("<testClasses.ThreadedImpl: void process(int)>", controller.events.get(i++));
 
-        assertEquals("<com.hellblazer.primeMover.runtime.BlockingSleepImpl void sleep(org.joda.time.Duration)>",
+        assertEquals("<com.hellblazer.primeMover.runtime.BlockingSleep: void sleep(long)>",
                      controller.events.get(i++));
 
         assertEquals("<testClasses.ThreadedImpl: void process(int)>", controller.events.get(i++));
 
-        assertEquals("<com.hellblazer.primeMover.runtime.BlockingSleepImpl void sleep(org.joda.time.Duration)>",
+        assertEquals("<com.hellblazer.primeMover.runtime.BlockingSleep: void sleep(long)>",
                      controller.events.get(i++));
-        assertEquals("<com.hellblazer.primeMover.runtime.BlockingSleepImpl void sleep(org.joda.time.Duration)>",
+        assertEquals("<com.hellblazer.primeMover.runtime.BlockingSleep: void sleep(long)>",
                      controller.events.get(i++));
 
         assertEquals("<testClasses.ThreadedImpl: void process(int)>", controller.events.get(i++));
         assertEquals("<testClasses.ThreadedImpl: void process(int)>", controller.events.get(i++));
 
-        assertEquals("<com.hellblazer.primeMover.runtime.BlockingSleepImpl void sleep(org.joda.time.Duration)>",
+        assertEquals("<com.hellblazer.primeMover.runtime.BlockingSleep: void sleep(long)>",
+                     controller.events.get(i++));
+
+        assertEquals("<testClasses.ThreadedImpl: void process(int)>", controller.events.get(i++));
+
+        assertEquals("<com.hellblazer.primeMover.runtime.BlockingSleep: void sleep(long)>",
+                     controller.events.get(i++));
+        assertEquals("<com.hellblazer.primeMover.runtime.BlockingSleep: void sleep(long)>",
+                     controller.events.get(i++));
+
+        assertEquals("<testClasses.ThreadedImpl: void process(int)>", controller.events.get(i++));
+        assertEquals("<testClasses.ThreadedImpl: void process(int)>", controller.events.get(i++));
+
+        assertEquals("<com.hellblazer.primeMover.runtime.BlockingSleep: void sleep(long)>",
+                     controller.events.get(i++));
+
+        assertEquals("<testClasses.ThreadedImpl: void process(int)>", controller.events.get(i++));
+
+        assertEquals("<com.hellblazer.primeMover.runtime.BlockingSleep: void sleep(long)>",
+                     controller.events.get(i++));
+        assertEquals("<com.hellblazer.primeMover.runtime.BlockingSleep: void sleep(long)>",
+                     controller.events.get(i++));
+
+        assertEquals("<testClasses.ThreadedImpl: void process(int)>", controller.events.get(i++));
+        assertEquals("<testClasses.ThreadedImpl: void process(int)>", controller.events.get(i++));
+
+        assertEquals("<com.hellblazer.primeMover.runtime.BlockingSleep: void sleep(long)>",
                      controller.events.get(i++));
 
         assertEquals("<testClasses.ThreadedImpl: void process(int)>", controller.events.get(i++));
 
         assertEquals(15, controller.blockingEvents.size());
         for (String contEvent : controller.blockingEvents) {
-            assertEquals("<com.hellblazer.primeMover.runtime.BlockingSleepImpl void sleep(org.joda.time.Duration)>",
+            assertEquals("<com.hellblazer.primeMover.runtime.BlockingSleep: void sleep(long)>",
                          contEvent);
         }
 

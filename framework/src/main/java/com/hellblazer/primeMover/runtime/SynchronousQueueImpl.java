@@ -621,18 +621,17 @@ public class SynchronousQueueImpl<E> implements SynchronousQueue<E> {
             node = waitList.getFirst();
             if (node.hasData()) {
                 // iterate and find a slot for this producer
-                for (Node waiter : waitList) {
-                    if (!node.hasData()) {
+                for (var waiter : waitList) {
+                    if (!waiter.hasData()) {
                         waiter.data = data;
                         waiter.producer = controller.swapCaller(null);
+                        return;
                     }
-                    return;
                 }
-                Node node1;
-                node1 = new Node();
-                node1.data = data;
-                node1.producer = controller.swapCaller(null);
-                waitList.add(node1);
+                var newNode = new Node();
+                newNode.data = data;
+                newNode.producer = controller.swapCaller(null);
+                waitList.add(newNode);
                 return;
             }
         }

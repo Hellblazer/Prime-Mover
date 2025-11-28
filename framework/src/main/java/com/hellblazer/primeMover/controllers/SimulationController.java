@@ -19,11 +19,13 @@
 
 package com.hellblazer.primeMover.controllers;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Queue;
-import java.util.logging.Logger;
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hellblazer.primeMover.api.SimulationException;
 import com.hellblazer.primeMover.runtime.Devi;
@@ -39,14 +41,14 @@ import com.hellblazer.primeMover.runtime.SplayQueue;
  */
 
 public class SimulationController extends Devi implements StatisticalController {
-    static final Logger log = Logger.getLogger(SimulationController.class.getCanonicalName());
+    private static final Logger log = LoggerFactory.getLogger(SimulationController.class);
 
     protected long                 endTime  = Long.MAX_VALUE;
     protected Queue<EventImpl>     eventQueue;
     protected String               name     = "Prime Mover Simulation Event Evaluation";
     protected long                 simulationEnd;
     protected long                 simulationStart;
-    protected Map<String, Integer> spectrum = new HashMap<String, Integer>();
+    protected Map<String, Integer> spectrum = new ConcurrentHashMap<>();
     protected int                  totalEvents;
 
     public SimulationController() {
@@ -70,7 +72,7 @@ public class SimulationController extends Devi implements StatisticalController 
         }
         setCurrentTime(simulationStart);
         Kairos.setController(this);
-        log.info("Simulation started at: " + simulationStart);
+        log.info("Simulation started at: {}", simulationStart);
         try {
             while (getCurrentTime() < endTime) {
                 try {
@@ -80,7 +82,7 @@ public class SimulationController extends Devi implements StatisticalController 
                 }
             }
             simulationEnd = getCurrentTime();
-            log.info("Simulation ended at: " + simulationEnd);
+            log.info("Simulation ended at: {}", simulationEnd);
         } finally {
             Kairos.setController(null);
         }

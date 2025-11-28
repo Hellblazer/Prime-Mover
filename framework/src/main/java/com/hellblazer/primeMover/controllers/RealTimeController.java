@@ -27,8 +27,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.LockSupport;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This controller evaluates the events using the wall clock as the simulation time
@@ -36,7 +37,7 @@ import java.util.logging.Logger;
  * @author <a href="mailto:hal.hildebrand@gmail.com">Hal Hildebrand</a>
  */
 public class RealTimeController extends Devi {
-    private static final Logger log = Logger.getLogger(RealTimeController.class.getCanonicalName());
+    private static final Logger log = LoggerFactory.getLogger(RealTimeController.class);
 
     protected final Queue<EventImpl> eventQueue = new SplayQueue<EventImpl>();
     protected final String           name;
@@ -75,15 +76,19 @@ public class RealTimeController extends Devi {
         if (!running.getAndSet(false)) {
             return;
         }
+        var animatorThread = animator;
         queueLock.lock();
         try {
             eventQueue.clear();
-            eventQueue.notify();
+            // Unpark the animator thread so it can check the running flag
+            if (animatorThread != null) {
+                LockSupport.unpark(animatorThread);
+            }
         } finally {
             queueLock.unlock();
         }
-        if (animator != null) {
-            animator.interrupt();
+        if (animatorThread != null) {
+            animatorThread.interrupt();
         }
         animator = null;
     }
@@ -127,7 +132,7 @@ public class RealTimeController extends Devi {
                     try {
                         evaluate(event);
                     } catch (SimulationException e) {
-                        log.log(Level.SEVERE, "Error firing: " + event, e.getCause());
+                        log.error("Error firing: {}", event, e.getCause());
                     }
                 } else {
                     LockSupport.parkNanos(nanos);

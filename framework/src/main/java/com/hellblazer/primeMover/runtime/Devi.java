@@ -23,8 +23,9 @@ import com.hellblazer.primeMover.api.SimulationException;
 import com.hellblazer.primeMover.api.EntityReference;
 
 import java.util.concurrent.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The processor of events, the continuation of time. This is the central
@@ -33,7 +34,7 @@ import java.util.logging.Logger;
  * @author <a href="mailto:hal.hildebrand@gmail.com">Hal Hildebrand</a>
  */
 abstract public class Devi implements Controller, AutoCloseable {
-    private static final Logger logger = Logger.getLogger(Devi.class.getCanonicalName());
+    private static final Logger logger = LoggerFactory.getLogger(Devi.class);
     private final    ThreadPoolExecutor                  executor;
     private final    Semaphore                           serializer        = new Semaphore(1);
     private volatile EventImpl                           caller;
@@ -47,7 +48,7 @@ abstract public class Devi implements Controller, AutoCloseable {
     public Devi() {
         executor = (ThreadPoolExecutor) Executors.newCachedThreadPool(
         Thread.ofVirtual().uncaughtExceptionHandler((thread, t) -> {
-            logger.log(Level.SEVERE, "unhandled exception in: " + thread, t);
+            logger.error("unhandled exception in: {}", thread, t);
         }).name("Event Execution: ", 0).factory());
     }
 
@@ -172,7 +173,7 @@ abstract public class Devi implements Controller, AutoCloseable {
 
         assert current != null : "no current event";
         assert sailorMoon != null : "No future to signal";
-        assert !sailorMoon.isDone() : "Future sailure is done";
+        assert !sailorMoon.isDone() : "Future sailor is already done";
 
         final var ct = currentTime;
         final var continuingEvent = current.clone(ct);
@@ -287,11 +288,11 @@ abstract public class Devi implements Controller, AutoCloseable {
                 }
                 final var result = event.invoke();
                 if (futureSailor.isDone()) {
-                    logger.severe("Future sailor already done");
+                    logger.error("Future sailor already done");
                 }
                 futureSailor.complete(new EvaluationResult(result));
             } catch (SimulationEnd e) {
-                logger.info("Simulation has ended at: " + currentTime);
+                logger.info("Simulation has ended at: {}", currentTime);
                 futureSailor.completeExceptionally(e);
                 return;
             } catch (Throwable e) {
@@ -303,7 +304,7 @@ abstract public class Devi implements Controller, AutoCloseable {
     }
 
     private void evaluation(EventImpl next) throws SimulationException {
-        logger.finer("evaluating: %s".formatted(next));
+        logger.trace("evaluating: {}", next);
         final var sailorMoon = futureSailor = new CompletableFuture<>();
         currentEvent = next;
         currentTime = next.getTime();
@@ -335,7 +336,7 @@ abstract public class Devi implements Controller, AutoCloseable {
         assert result != null;
 
         if (result.t != null) {
-            logger.log(Level.SEVERE, "Cannot evaluate event: " + next, result.t);
+            logger.error("Cannot evaluate event: {}", next, result.t);
             if (result.t instanceof SimulationException se) {
                 throw se;
             }
