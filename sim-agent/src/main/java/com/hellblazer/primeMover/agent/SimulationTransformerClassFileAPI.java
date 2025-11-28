@@ -18,11 +18,14 @@
  */
 package com.hellblazer.primeMover.agent;
 
+import com.hellblazer.primeMover.annotations.AllMethodsMarker;
+import com.hellblazer.primeMover.annotations.Blocking;
+import com.hellblazer.primeMover.annotations.Event;
+import com.hellblazer.primeMover.annotations.NonEvent;
 import com.hellblazer.primeMover.api.Kronos;
-import com.hellblazer.primeMover.classfile.ClassRemapper;
-import com.hellblazer.primeMover.classfile.SimulationTransform;
+import com.hellblazer.primeMover.classfile.*;
+import com.hellblazer.primeMover.classfile.OpenAddressingSet.OpenSet;
 import com.hellblazer.primeMover.runtime.Kairos;
-import io.github.classgraph.ClassGraph;
 
 import java.io.IOException;
 import java.lang.classfile.ClassFile;
@@ -34,6 +37,7 @@ import java.lang.instrument.ClassFileTransformer;
 import java.security.ProtectionDomain;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -153,7 +157,8 @@ public class SimulationTransformerClassFileAPI implements ClassFileTransformer {
     }
 
     /**
-     * Transform an entity class using ClassGraph and EntityGenerator
+     * Transform an entity class using EntityGenerator directly from bytecode.
+     * No ClassGraph needed - we already have the bytecode.
      */
     private byte[] transformEntity(ClassLoader loader, String className, byte[] originalBytes) {
         // Convert internal name to canonical name
@@ -168,19 +173,17 @@ public class SimulationTransformerClassFileAPI implements ClassFileTransformer {
 
         log.info("Transforming entity: " + canonicalName);
 
-        // Create a ClassGraph that scans only the necessary class
-        var graph = new ClassGraph()
-                .addClassLoader(loader)
-                .acceptClasses(canonicalName)
-                .enableAllInfo()
-                .enableInterClassDependencies()
-                .enableExternalClasses()
-                .ignoreMethodVisibility();
+        try {
+            // Create ClassMetadata directly from the bytecode we already have
+            var classModel = CLASS_FILE.parse(originalBytes);
+            var classMetadata = new ClassMetadata(canonicalName, classModel, originalBytes);
 
-        try (var txfm = new SimulationTransform(graph)) {
-            var generator = txfm.generatorOf(canonicalName);
+            // Determine event methods for this entity
+            var eventMethods = collectEventMethods(classMetadata);
 
-            // Generate transformed bytecode
+            // Create EntityGenerator and generate transformed bytecode
+            var generator = new EntityGenerator(classMetadata, eventMethods,
+                java.time.Instant.now().toString());
             var generatedBytes = generator.generate();
 
             // Apply Kronos -> Kairos remapping
@@ -198,11 +201,36 @@ public class SimulationTransformerClassFileAPI implements ClassFileTransformer {
         } catch (IOException e) {
             log.severe("Failed to transform entity " + canonicalName + ": " + e.getMessage());
             throw new RuntimeException("Failed to transform entity: " + canonicalName, e);
-        } catch (IllegalArgumentException e) {
-            // Entity not found - might not be a valid entity after all
-            log.warning("Entity not found for transformation: " + canonicalName + " - " + e.getMessage());
+        } catch (Exception e) {
+            log.warning("Entity transformation failed: " + canonicalName + " - " + e.getMessage());
             return null;
         }
+    }
+
+    /**
+     * Collect event methods for an entity class.
+     * Uses AllMethodsMarker logic when @Entity has no explicit interfaces.
+     */
+    private Set<MethodMetadata> collectEventMethods(ClassMetadata entityClass) {
+        var eventMethods = new OpenSet<MethodMetadata>();
+
+        // Check if using AllMethodsMarker (default when @Entity has no value)
+        var entityAnnotation = entityClass.getAnnotation(com.hellblazer.primeMover.annotations.Entity.class);
+        var classValues = entityAnnotation != null ? entityAnnotation.getClassValues() : java.util.List.<String>of();
+        var hasAllMethodsMarker = classValues.isEmpty() ||
+            classValues.contains(AllMethodsMarker.class.getCanonicalName());
+
+        for (var method : entityClass.getDeclaredMethods()) {
+            if (!method.isStatic() && !method.hasAnnotation(NonEvent.class)) {
+                if (hasAllMethodsMarker && method.isPublic()) {
+                    eventMethods.add(method);
+                } else if (method.hasAnnotation(Blocking.class) || method.hasAnnotation(Event.class)) {
+                    eventMethods.add(method);
+                }
+            }
+        }
+
+        return eventMethods;
     }
 
     /**

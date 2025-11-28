@@ -18,9 +18,9 @@
  */
 package com.hellblazer.primeMover.classfile;
 
-import io.github.classgraph.ClassGraph;
 import org.junit.jupiter.api.Test;
 
+import java.nio.file.Path;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.ExecutorService;
@@ -43,8 +43,11 @@ class ConcurrentTransformationTest {
      */
     @Test
     void testConcurrentTimestampAccess() throws Exception {
-        var graph = new ClassGraph().acceptPackages("com.hellblazer.primeMover");
-        var transform = new SimulationTransform(graph);
+        var scanner = new ClassScanner()
+            .addClasspathEntry(Path.of("target/test-classes"))
+            .addClasspathEntry(Path.of("target/classes"))
+            .scan();
+        var transform = new SimulationTransform(scanner);
 
         var timestamp = "2024-01-01T12:00:00Z";
         transform.setTransformTimestamp(timestamp);
@@ -80,8 +83,11 @@ class ConcurrentTransformationTest {
      */
     @Test
     void testConcurrentTimestampModification() throws Exception {
-        var graph = new ClassGraph().acceptPackages("com.hellblazer.primeMover");
-        var transform = new SimulationTransform(graph);
+        var scanner = new ClassScanner()
+            .addClasspathEntry(Path.of("target/test-classes"))
+            .addClasspathEntry(Path.of("target/classes"))
+            .scan();
+        var transform = new SimulationTransform(scanner);
 
         var numThreads = 10;
         var executor = Executors.newFixedThreadPool(numThreads);
@@ -127,8 +133,11 @@ class ConcurrentTransformationTest {
      */
     @Test
     void testTimestampInitialization() throws Exception {
-        var graph = new ClassGraph().acceptPackages("com.hellblazer.primeMover");
-        var transform = new SimulationTransform(graph);
+        var scanner = new ClassScanner()
+            .addClasspathEntry(Path.of("target/test-classes"))
+            .addClasspathEntry(Path.of("target/classes"))
+            .scan();
+        var transform = new SimulationTransform(scanner);
 
         try {
             var timestamp = transform.getTransformTimestamp();

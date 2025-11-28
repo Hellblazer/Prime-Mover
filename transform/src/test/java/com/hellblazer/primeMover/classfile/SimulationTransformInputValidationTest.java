@@ -18,10 +18,11 @@
  */
 package com.hellblazer.primeMover.classfile;
 
-import io.github.classgraph.ClassGraph;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -36,9 +37,12 @@ class SimulationTransformInputValidationTest {
     private SimulationTransform transform;
 
     @BeforeEach
-    void setUp() {
-        var graph = new ClassGraph().acceptPackages("com.hellblazer.primeMover");
-        transform = new SimulationTransform(graph);
+    void setUp() throws Exception {
+        var scanner = new ClassScanner()
+            .addClasspathEntry(Path.of("target/test-classes"))
+            .addClasspathEntry(Path.of("target/classes"))
+            .scan();
+        transform = new SimulationTransform(scanner);
     }
 
     @AfterEach

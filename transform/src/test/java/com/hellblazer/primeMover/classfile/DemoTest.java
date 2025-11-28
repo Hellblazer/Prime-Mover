@@ -7,12 +7,12 @@
 package com.hellblazer.primeMover.classfile;
 
 import com.hellblazer.primeMover.runtime.SimulationEnd;
-import io.github.classgraph.ClassGraph;
 import org.junit.jupiter.api.Test;
 import testClasses.LocalLoader;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.nio.file.Path;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -39,8 +39,11 @@ public class DemoTest {
     }
 
     private Map<String, byte[]> getTransformed() throws Exception {
-        try (var transform = new SimulationTransform(
-        new ClassGraph().acceptPackages("testClasses", "com.hellblazer.*"))) {
+        var scanner = new ClassScanner()
+            .addClasspathEntry(Path.of("target/test-classes"))
+            .addClasspathEntry(Path.of("target/classes"))
+            .scan();
+        try (var transform = new SimulationTransform(scanner)) {
             return transform.transformed().entrySet().stream().collect(
             Collectors.toMap(e -> e.getKey().getName().replace('.', '/'), e -> e.getValue()));
         }

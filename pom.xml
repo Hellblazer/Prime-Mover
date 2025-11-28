@@ -114,11 +114,6 @@
                 <version>${asm.version}</version>
             </dependency>
             <dependency>
-                <groupId>io.github.classgraph</groupId>
-                <artifactId>classgraph</artifactId>
-                <version>4.8.179</version>
-            </dependency>
-            <dependency>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>3.6.0</version>

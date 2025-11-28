@@ -19,7 +19,6 @@ package com.hellblazer.primeMover.classfile;
 
 import com.hellblazer.primeMover.TrackingController;
 import com.hellblazer.primeMover.runtime.Kairos;
-import io.github.classgraph.ClassGraph;
 import org.junit.jupiter.api.Test;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.util.CheckClassAdapter;
@@ -28,6 +27,7 @@ import testClasses.LocalLoader;
 
 import java.io.PrintWriter;
 import java.lang.reflect.Method;
+import java.nio.file.Path;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -55,8 +55,11 @@ public class TestAPI {
     }
 
     private Map<String, byte[]> getTransformed() throws Exception {
-        try (var transform = new SimulationTransform(
-        new ClassGraph().acceptPackages("com.hellblazer.*", "testClasses"))) {
+        var scanner = new ClassScanner()
+            .addClasspathEntry(Path.of("target/test-classes"))
+            .addClasspathEntry(Path.of("target/classes"))
+            .scan();
+        try (var transform = new SimulationTransform(scanner)) {
             return transform.transformed(SimulationTransform.EXCLUDE_TRANSFORMED_FILTER).entrySet().stream().collect(
             Collectors.toMap(e -> e.getKey().getName().replace('.', '/'), e -> {
                 //                                    dump(e.getValue());
