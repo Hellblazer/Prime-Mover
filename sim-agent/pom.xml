@@ -23,12 +23,6 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>transform</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.hellblazer.primeMover</groupId>
-            <artifactId>transform-asm</artifactId>
-            <version>0.1.0-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
     </dependencies>
 
     <build>

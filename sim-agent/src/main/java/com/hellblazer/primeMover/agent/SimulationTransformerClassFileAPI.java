@@ -1,14 +1,11 @@
 package com.hellblazer.primeMover.agent;
 
 import com.hellblazer.primeMover.api.Kronos;
-import com.hellblazer.primeMover.asm.AnnotationScanner;
 import com.hellblazer.primeMover.classfile.ClassRemapper;
 import com.hellblazer.primeMover.classfile.SimulationTransform;
 import com.hellblazer.primeMover.runtime.Kairos;
 import io.github.classgraph.ClassGraph;
-import org.objectweb.asm.Opcodes;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.lang.classfile.ClassFile;
 import java.lang.constant.ClassDesc;
@@ -46,14 +43,11 @@ public class SimulationTransformerClassFileAPI implements ClassFileTransformer {
             return null;
         }
 
-        var annotationScanner = new AnnotationScanner(Opcodes.ASM9);
-        try {
-            var cr = new org.objectweb.asm.ClassReader(new ByteArrayInputStream(classfileBuffer));
-            cr.accept(annotationScanner, 0);
-        } catch (IOException e) {
-            log.severe("Unable to read class " + className);
-            return null;
-        }
+        // Parse class and scan for annotations using ClassFile API
+        ClassFile cf = ClassFile.of();
+        var classModel = cf.parse(classfileBuffer);
+        var annotationScanner = new AnnotationScanner();
+        annotationScanner.scan(classModel);
 
         if (!annotationScanner.isTransform()) {
             if (annotationScanner.isPreviouslyTransformed()) {
@@ -61,11 +55,8 @@ public class SimulationTransformerClassFileAPI implements ClassFileTransformer {
             }
 
             // Apply API remapping using ClassFile API
-            ClassFile cf = ClassFile.of();
-            var classModel = cf.parse(classfileBuffer);
-
-            byte[] remappedBytes = cf.build(classModel.thisClass().asSymbol(),
-                                            classBuilder -> classBuilder.transform(classModel, apiRemapper));
+            var remappedBytes = cf.build(classModel.thisClass().asSymbol(),
+                                         classBuilder -> classBuilder.transform(classModel, apiRemapper));
 
             return remappedBytes;
         }
@@ -79,14 +70,13 @@ public class SimulationTransformerClassFileAPI implements ClassFileTransformer {
             }
 
             // Generate the bytecode and apply API remapping to replace Kronos with Kairos
-            byte[] generatedBytes = generator.generate();
+            var generatedBytes = generator.generate();
 
             // Apply API remapping using ClassFile API
-            ClassFile cf = ClassFile.of();
-            var classModel = cf.parse(generatedBytes);
+            var generatedClassModel = cf.parse(generatedBytes);
 
-            byte[] remappedBytes = cf.build(classModel.thisClass().asSymbol(),
-                                            classBuilder -> classBuilder.transform(classModel, apiRemapper));
+            var remappedBytes = cf.build(generatedClassModel.thisClass().asSymbol(),
+                                         classBuilder -> classBuilder.transform(generatedClassModel, apiRemapper));
 
             log.info("ClassFile API Transformed " + className);
             return remappedBytes;

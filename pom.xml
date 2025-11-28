@@ -41,7 +41,6 @@
         <module>space-ghost</module>
         <module>janus</module>
         <module>sim-agent</module>
-        <module>transform-asm</module>
         <module>api</module>
     </modules>
 
