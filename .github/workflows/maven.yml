@@ -3,6 +3,8 @@ name: Java CI
 on:
   push:
     branches: [master]
+  pull_request:
+    branches: [master]
 
 jobs:
   build:
@@ -27,6 +29,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
       - name: Bump version
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
         uses: mickem/gh-action-bump-maven-version@v1
         with:
           bump-type: patch
