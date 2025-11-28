@@ -25,7 +25,7 @@ import java.util.Queue;
 import com.hellblazer.primeMover.api.SimulationException;
 import com.hellblazer.primeMover.runtime.Devi;
 import com.hellblazer.primeMover.runtime.EventImpl;
-import com.hellblazer.primeMover.runtime.SplayQueue;
+import java.util.PriorityQueue;
 
 /**
  * 
@@ -34,7 +34,7 @@ import com.hellblazer.primeMover.runtime.SplayQueue;
  */
 
 public class ControllerImpl extends Devi {
-    public Queue<EventImpl> eventQueue = new SplayQueue<EventImpl>();
+    public Queue<EventImpl> eventQueue = new PriorityQueue<>();
 
     public void run(String entityClassName, String eventName,
                     Class<?>[] argumentTypes, Object[] arguments)

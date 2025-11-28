@@ -21,6 +21,7 @@ package com.hellblazer.primeMover.controllers;
 
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -31,28 +32,35 @@ import com.hellblazer.primeMover.api.SimulationException;
 import com.hellblazer.primeMover.runtime.Devi;
 import com.hellblazer.primeMover.runtime.EventImpl;
 import com.hellblazer.primeMover.runtime.Kairos;
-import com.hellblazer.primeMover.runtime.SplayQueue;
 
 /**
- * The cannonical simulation controller which gathers statistics of the events
- * sent
- * 
+ * Single-threaded discrete event simulation controller that gathers statistics
+ * of the events processed.
+ * <p>
+ * Thread safety model:
+ * <ul>
+ *   <li>The event loop ({@link #eventLoop()}) runs on a single thread</li>
+ *   <li>Event posting via {@link #post(EventImpl)} is not thread-safe</li>
+ *   <li>For concurrent event posting, use {@link RealTimeController}</li>
+ *   <li>The spectrum map uses ConcurrentHashMap for safe reads during simulation</li>
+ * </ul>
+ *
  * @author <a href="mailto:hal.hildebrand@gmail.com">Hal Hildebrand</a>
  */
-
 public class SimulationController extends Devi implements StatisticalController {
     private static final Logger log = LoggerFactory.getLogger(SimulationController.class);
 
-    protected long                 endTime  = Long.MAX_VALUE;
+    protected long                 endTime         = Long.MAX_VALUE;
     protected Queue<EventImpl>     eventQueue;
-    protected String               name     = "Prime Mover Simulation Event Evaluation";
+    protected String               name            = "Prime Mover Simulation Event Evaluation";
     protected long                 simulationEnd;
     protected long                 simulationStart;
-    protected Map<String, Integer> spectrum = new ConcurrentHashMap<>();
+    protected Map<String, Integer> spectrum        = new ConcurrentHashMap<>();
     protected int                  totalEvents;
+    protected boolean              trackSpectrum   = true;
 
     public SimulationController() {
-        this(new SplayQueue<EventImpl>());
+        this(new PriorityQueue<>());
     }
 
     public SimulationController(Queue<EventImpl> eventQueue) {
@@ -185,20 +193,34 @@ public class SimulationController extends Devi implements StatisticalController 
     }
 
     /**
+     * Configure whether the controller tracks event spectrum statistics.
+     * Disabling spectrum tracking improves performance.
+     *
+     * @param track - true to track event spectrum
+     */
+    public void setTrackSpectrum(boolean track) {
+        this.trackSpectrum = track;
+    }
+
+    /**
+     * @return true if spectrum tracking is enabled
+     */
+    public boolean isTrackSpectrum() {
+        return trackSpectrum;
+    }
+
+    /**
      * Process the head of the queued events.
-     * 
+     *
      * @throws SimulationException
      */
     public void singleStep() throws SimulationException {
-        EventImpl current = eventQueue.remove();
-        String signature = current.getSignature();
+        var current = eventQueue.remove();
         evaluate(current);
         totalEvents++;
-        Integer inc = spectrum.get(signature);
-        if (inc == null) {
-            inc = Integer.valueOf(0);
+        if (trackSpectrum) {
+            spectrum.merge(current.getSignature(), 1, Integer::sum);
         }
-        spectrum.put(signature, inc + 1);
     }
 
     @Override

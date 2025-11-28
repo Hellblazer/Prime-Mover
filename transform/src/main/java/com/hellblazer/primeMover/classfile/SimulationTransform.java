@@ -30,10 +30,11 @@ import java.io.IOException;
 import java.lang.classfile.ClassFile;
 import java.lang.constant.ClassDesc;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -239,12 +240,12 @@ public class SimulationTransform implements Closeable {
      */
     public Map<ClassInfo, byte[]> transformed(ClassInfoFilter selector) {
         var entities = findEntityClasses(selector);
-        var transformed = new HashMap<ClassInfo, byte[]>();
+        var transformed = new ConcurrentHashMap<ClassInfo, byte[]>();
 
-        // Transform non-entity classes that depend on Kronos
+        // Transform non-entity classes that depend on Kronos (parallel)
         transformDependentClasses(selector, entities, transformed);
 
-        // Transform entity classes
+        // Transform entity classes (parallel)
         transformEntityClasses(entities, transformed);
 
         return transformed;
@@ -447,43 +448,58 @@ public class SimulationTransform implements Closeable {
 
     /**
      * Transforms non-entity classes that depend on Kronos by remapping API calls.
+     * <p>
+     * Uses parallel stream processing for improved throughput. Exceptions during
+     * transformation are logged with full context before being re-thrown.
      *
      * @param selector    Filter for classes to consider
      * @param entities    Entity classes to exclude from this transformation
-     * @param transformed Map to store transformed bytecode
+     * @param transformed Map to store transformed bytecode (must be thread-safe)
      */
     private void transformDependentClasses(ClassInfoFilter selector, ClassInfoList entities,
                                            Map<ClassInfo, byte[]> transformed) {
         var kronosClass = findKronosClass();
+        var entitySet = new HashSet<>(entities);  // O(1) lookup instead of O(n)
 
         scan.getAllClasses()
             .filter(selector)
             .filter(this::shouldTransformClass)
-            .filter(ci -> !entities.contains(ci))
+            .filter(ci -> !entitySet.contains(ci))
             .filter(EXCLUDE_TRANSFORMED_FILTER)
             .filter(ci -> ci.getClassDependencies().contains(kronosClass))
+            .parallelStream()
             .forEach(classInfo -> {
-                var transformedBytes = remapClassWithClassFileAPI(classInfo);
-                if (transformedBytes != null) {
-                    transformed.put(classInfo, transformedBytes);
+                try {
+                    var transformedBytes = remapClassWithClassFileAPI(classInfo);
+                    if (transformedBytes != null) {
+                        transformed.put(classInfo, transformedBytes);
+                    }
+                } catch (Exception e) {
+                    log.severe("Failed to transform dependent class: " + classInfo.getName() + " - " + e.getMessage());
+                    throw new IllegalStateException("Failed to transform dependent class: " + classInfo.getName(), e);
                 }
             });
     }
 
     /**
      * Transforms entity classes using EntityGenerator and API remapping.
+     * <p>
+     * Uses parallel stream processing for improved throughput. Exceptions during
+     * transformation are logged with full context before being re-thrown.
      *
      * @param entities    Entity classes to transform
-     * @param transformed Map to store transformed bytecode
+     * @param transformed Map to store transformed bytecode (must be thread-safe)
      */
     private void transformEntityClasses(ClassInfoList entities, Map<ClassInfo, byte[]> transformed) {
-        generators(entities).forEach((classInfo, generator) -> {
+        generators(entities).entrySet().parallelStream().forEach(entry -> {
+            var entityName = entry.getKey().getName();
             try {
-                var generatedBytes = generator.generate();
+                var generatedBytes = entry.getValue().generate();
                 var remappedBytes = remapGeneratedClassWithClassFileAPI(generatedBytes);
-                transformed.put(classInfo, remappedBytes);
+                transformed.put(entry.getKey(), remappedBytes);
             } catch (Exception e) {
-                throw new IllegalStateException("Failed to transform entity: " + classInfo.getName(), e);
+                log.severe("Failed to transform entity class: " + entityName + " - " + e.getMessage());
+                throw new IllegalStateException("Failed to transform entity: " + entityName, e);
             }
         });
     }

@@ -35,21 +35,18 @@ import org.slf4j.LoggerFactory;
  */
 abstract public class Devi implements Controller, AutoCloseable {
     private static final Logger logger = LoggerFactory.getLogger(Devi.class);
-    private final    ThreadPoolExecutor                  executor;
+    private final    ExecutorService                     executor;
     private final    Semaphore                           serializer        = new Semaphore(1);
     private volatile EventImpl                           caller;
     private volatile EventImpl                           currentEvent;
     private volatile long                                currentTime       = 0;
     private          boolean                             debugEvents       = false;
     private          Logger                              eventLog;
-    private volatile ThreadStats                         finalStats;
     private volatile CompletableFuture<EvaluationResult> futureSailor;
     private          boolean                             trackEventSources = false;
+
     public Devi() {
-        executor = (ThreadPoolExecutor) Executors.newCachedThreadPool(
-        Thread.ofVirtual().uncaughtExceptionHandler((thread, t) -> {
-            logger.error("unhandled exception in: {}", thread, t);
-        }).name("Event Execution: ", 0).factory());
+        executor = Executors.newVirtualThreadPerTaskExecutor();
     }
 
     /**
@@ -76,9 +73,6 @@ abstract public class Devi implements Controller, AutoCloseable {
 
     @Override
     public void close() throws Exception {
-        if (finalStats != null) {
-            finalStats = new ThreadStats(executor);
-        }
         executor.close();
     }
 
@@ -216,24 +210,25 @@ abstract public class Devi implements Controller, AutoCloseable {
         this.eventLog = eventLog;
     }
 
-    public ThreadStats threadStatistics() {
-        return finalStats != null ? finalStats : new ThreadStats(executor);
-    }
 
     protected EventImpl createEvent(long time, EntityReference entity, int event, Object... arguments) {
         Event sourceEvent = trackEventSources ? currentEvent : null;
 
         if (debugEvents) {
-            StackTraceElement[] stackTrace = new Throwable().getStackTrace();
-            final var cn = entity.getClass().getCanonicalName();
-            for (int i = 0; i < stackTrace.length; i++) {
-                if (stackTrace[i].getClassName().equals(cn)) {
-                    return new EventImpl(stackTrace[i + 1].toString(), time, sourceEvent, entity, event, arguments);
-                }
+            // Use getName() instead of getCanonicalName() for reliable matching
+            // getCanonicalName() can return null for anonymous/local classes
+            final var entityClassName = entity.getClass().getName();
+            var frame = StackWalker.getInstance()
+                                   .walk(stream -> stream.dropWhile(f -> !f.getClassName().equals(entityClassName))
+                                                         .skip(1)
+                                                         .findFirst()
+                                                         .map(StackWalker.StackFrame::toStackTraceElement)
+                                                         .orElse(null));
+            if (frame != null) {
+                return new EventImpl(frame.toString(), time, sourceEvent, entity, event, arguments);
             }
         }
         return new EventImpl(time, sourceEvent, entity, event, arguments);
-
     }
 
     /**
@@ -354,14 +349,6 @@ abstract public class Devi implements Controller, AutoCloseable {
         } else if (cc != null) {
             final var ct = currentTime;
             post(cc.resume(ct, result.result, result.t));
-        }
-    }
-
-    public record ThreadStats(int activeCount, long completedTaskCount, int largestPoolSize, int poolSize,
-                              long taskCount) {
-        public ThreadStats(ThreadPoolExecutor executor) {
-            this(executor.getActiveCount(), executor.getCompletedTaskCount(), executor.getLargestPoolSize(),
-                 executor.getPoolSize(), executor.getTaskCount());
         }
     }
 

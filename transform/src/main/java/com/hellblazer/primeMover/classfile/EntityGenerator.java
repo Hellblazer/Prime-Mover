@@ -73,6 +73,17 @@ public class EntityGenerator {
     // === Cached ClassFile Instance ===
     private static final ClassFile CLASS_FILE = ClassFile.of();
 
+    // === Kronos to Kairos Remapper (reused across all method transforms) ===
+    private static final ClassRemapper API_REMAPPER = new ClassRemapper(classDesc -> {
+        var className = classDesc.packageName().isEmpty()
+            ? classDesc.displayName()
+            : classDesc.packageName() + "." + classDesc.displayName();
+        if (className.equals(Kronos.class.getCanonicalName())) {
+            return ClassDesc.of(Kairos.class.getCanonicalName());
+        }
+        return classDesc;
+    });
+
     // === Wrapper Class Names (for O(1) lookup) ===
     private static final Set<String> WRAPPER_CLASS_NAMES = Set.of(
         "java.lang.Integer",
@@ -434,17 +445,9 @@ public class EntityGenerator {
 
         classBuilder.withMethod(eventMethodName, methodModel.methodTypeSymbol(), eventMethodFlags,
                                methodBuilder -> {
-                                   var apiRemapper = new ClassRemapper(classDesc -> {
-                                       var className = classDesc.packageName() + "." + classDesc.displayName();
-                                       if (className.equals(Kronos.class.getCanonicalName())) {
-                                           return ClassDesc.of(Kairos.class.getCanonicalName());
-                                       }
-                                       return classDesc;
-                                   });
-
                                    MethodTransform methodTransform = (mb, me) -> {
                                        if (!(me instanceof AccessFlags)) {
-                                           apiRemapper.asMethodTransform().accept(mb, me);
+                                           API_REMAPPER.asMethodTransform().accept(mb, me);
                                        }
                                    };
 
