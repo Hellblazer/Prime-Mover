@@ -25,10 +25,8 @@ import java.io.File;
 
 /**
  * Transform the module's test classes to event driven simulation code.
- *
  */
-@Mojo(name = "transform-test", defaultPhase = LifecyclePhase.PROCESS_TEST_CLASSES, requiresDependencyResolution = ResolutionScope.TEST, threadSafe = false, executionStrategy = "once-per-session", instantiationStrategy = InstantiationStrategy.PER_LOOKUP, requiresDependencyCollection = ResolutionScope.COMPILE_PLUS_RUNTIME)
-@Execute(phase = LifecyclePhase.PROCESS_TEST_CLASSES)
+@Mojo(name = "transform-test", defaultPhase = LifecyclePhase.PROCESS_TEST_CLASSES, requiresDependencyResolution = ResolutionScope.TEST, threadSafe = true, executionStrategy = "once-per-session", instantiationStrategy = InstantiationStrategy.PER_LOOKUP, requiresDependencyCollection = ResolutionScope.COMPILE_PLUS_RUNTIME)
 public class TestTransform extends AbstractTransform {
 
     @Parameter(property = "project")
@@ -36,6 +34,9 @@ public class TestTransform extends AbstractTransform {
 
     @Parameter(property = "project.build.testOutputDirectory", readonly = true)
     private File testOutputDirectory;
+
+    @Parameter(property = "primemover.skip", defaultValue = "false")
+    private boolean skip;
 
     @Override
     protected String getCompileClasspath() throws MojoExecutionException {
@@ -47,4 +48,8 @@ public class TestTransform extends AbstractTransform {
         return testOutputDirectory;
     }
 
+    @Override
+    protected boolean isSkip() {
+        return skip;
+    }
 }

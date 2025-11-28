@@ -29,6 +29,7 @@
         <logback.version>1.5.18</logback.version>
         <asm.version>9.8</asm.version>
         <maven.version>3.15.1</maven.version>
+        <maven.core.version>3.9.9</maven.core.version>
     </properties>
 
     <modules>
