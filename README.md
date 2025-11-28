@@ -12,7 +12,7 @@ Licensed under AGPL V 3.0
 
 ## Building
 
-Requires Java 23+
+Requires Java 24+
 
 To build:
 

@@ -114,8 +114,6 @@ public class ClassFileAPIComparison {
      * CURRENT STATUS:
      * ==============
      * - Final in Java 24 (JEP 484)
-     * - Preview in Java 22 (JEP 457) and Java 23 (JEP 466)
-     * - Requires --enable-preview flag for Java 22/23
      * - Production ready in Java 24+
      */
 
