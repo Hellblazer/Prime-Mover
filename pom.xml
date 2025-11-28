@@ -9,20 +9,7 @@
     <name>Event Driven Framework</name>
 
 
-    <properties>
-        <repository-owner>Hellblazer</repository-owner>
-        <repository-name>Prime-Mover</repository-name>
-    </properties>
-
     <url>https://github.com/${repository-owner}/${repository-name}.git</url>
-
-    <distributionManagement>
-        <repository>
-            <id>github</id>
-            <name>GitHub Packages</name>
-            <url>https://maven.pkg.github.com/${repository-owner}/${repository-name}</url>
-        </repository>
-    </distributionManagement>
 
     <scm>
         <url>https://github.com/${repository-owner}/${repository-name}.git</url>
@@ -34,8 +21,17 @@
         </developerConnection>
     </scm>
 
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub Packages</name>
+            <url>https://maven.pkg.github.com/${repository-owner}/${repository-name}</url>
+        </repository>
+    </distributionManagement>
 
     <properties>
+        <repository-owner>Hellblazer</repository-owner>
+        <repository-name>Prime-Mover</repository-name>
         <maven.compiler.source>25</maven.compiler.source>
         <maven.compiler.target>25</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
