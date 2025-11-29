@@ -8,12 +8,21 @@ The framework module provides the simulation runtime implementation for Prime Mo
 
 ## Purpose
 
-This module implements:
+This module implements the **core simulation runtime** that all Prime Mover applications depend on:
 1. **Controller Implementations** - Time-driven simulation engines
 2. **Event Execution** - Time-ordered event processing via priority queue
 3. **Continuation Support** - Virtual thread-based blocking operation handling
 4. **Channel Implementation** - Synchronous inter-entity communication
 5. **Runtime API** - `Kairos`, the actual implementation of the public `Kronos` API
+
+## Module Scope
+
+The framework module provides the **minimal essential runtime** for discrete event simulation. Optional simulation features (DESMOJ-compatible blocking primitives, distributions, and reporting) are provided by the `desmoj-ish` module, which depends on this core runtime. This separation allows:
+
+- **Lean core**: Applications using only basic Prime Mover features have minimal dependencies
+- **Composability**: The `desmoj-ish` module extends the core with DESMOJ-compatible APIs
+- **Clear separation of concerns**: Core event execution vs. optional simulation constructs
+- **Cross-package integration**: Core runtime exports necessary methods for desmoj-ish blocking primitives
 
 ## Key Components
 
@@ -118,8 +127,13 @@ Abstract controller that provides virtual thread-based event execution.
 ```java
 void postEvent(EntityReference entity, int event, Object... args)
 Object postContinuingEvent(EntityReference entity, int event, Object... args)
+public void post(EventImpl event)                    // Post an event (public for cross-package use)
+public EventImpl swapCaller(EventImpl newCaller)     // Swap caller context (public for cross-package use)
 ExecutorService getExecutor()  // Virtual thread executor
 ```
+
+**Visibility Notes:**
+The `post()` and `swapCaller()` methods are public to allow the `desmoj-ish` module to manage blocking event state across package boundaries. This is intentional and supports the architecture where blocking primitives reside in the separate `desmoj-ish` module.
 
 #### `EventImpl` Class
 Concrete implementation of the `Event` interface representing a scheduled simulation event.
@@ -141,7 +155,12 @@ EntityReference getEntity()
 int getEvent()
 Event getSource()       // For source chain tracking
 void execute()          // Run the event
+public Continuation getContinuation()  // Get continuation state (public for cross-package use)
+public void setTime(long time)         // Set event time (public for cross-package use)
 ```
+
+**Visibility Notes:**
+The `getContinuation()` and `setTime()` methods are public to allow the `desmoj-ish` module to properly manage blocking event continuations. This is intentional and supports the architecture where blocking primitives reside in the separate `desmoj-ish` module while maintaining tight integration with the core runtime.
 
 #### Event Queue Implementation
 Standard Java `PriorityQueue` for efficient time-ordered event queue management.

@@ -224,7 +224,7 @@ public class SimulationController extends Devi implements StatisticalController 
     }
 
     @Override
-    protected void post(EventImpl event) {
+    public void post(EventImpl event) {
         eventQueue.add(event);
     }
 }

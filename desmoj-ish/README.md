@@ -2,312 +2,219 @@
 
 ## Overview
 
-The desmoj-ish module provides a DESMOJ-compatible simulation framework built on top of Prime Mover. It offers familiar APIs for users migrating from DESMOJ, including distributions, queues, resources, and reporting facilities.
+The desmoj-ish module provides simulation blocking primitives, probability distributions, and statistical reporting for Prime Mover simulations. These components enable building sophisticated discrete event simulations with familiar patterns from simulation frameworks like DESMOJ.
 
 **Artifact**: `com.hellblazer.primeMover:desmoj-ish`
 
-**Purpose**: Compatibility layer and advanced simulation features
+**Purpose**: Blocking primitives, distributions, and reporting for simulations
 
-## Motivation
+## Module Structure
 
-DESMOJ (Discrete Event Simulation for Java) is a popular discrete event simulation framework. Prime Mover provides a cleaner, more modern architecture, but users familiar with DESMOJ APIs may want compatible abstractions.
+The module is organized into three packages:
 
-This module bridges the gap by providing:
-- Familiar DESMOJ-style APIs
-- Random distributions (uniform, normal, exponential, etc.)
-- Queues and resource pools
-- Statistical reporting
-- Named entities
+### Core Blocking Primitives (`com.hellblazer.primeMover.desmoj`)
+
+- **SimSignal**: Basic signal/await primitive for event synchronization
+- **SimCondition**: Condition variable with await/signal/signalAll semantics
+- **Resource**: Pool of resources with blocking acquire/release
+- **ResourceToken**: Token representing acquired resources
+- **Loan**: Auto-closeable resource wrapper for try-with-resources
+- **ResourceStatistics**: Statistics tracking for Resource usage
+- **ProcessQueue**: FIFO queue for process coordination
+- **QueueStatistics**: Statistics tracking for queues
+- **Bin**: Store for homogeneous items with blocking take
+- **Stock**: Continuous quantity storage with blocking withdraw
+
+### Probability Distributions (`com.hellblazer.primeMover.desmoj.dist`)
+
+- **Distribution<T>**: Base interface for all distributions
+- **ContinuousDistribution**: Abstract base for continuous distributions
+- **Uniform**: Uniform distribution over a range
+- **Normal**: Normal (Gaussian) distribution
+- **Exponential**: Exponential distribution
+- **Triangular**: Triangular distribution
+- **Constant**: Constant "distribution" (always returns same value)
+
+### Reporting (`com.hellblazer.primeMover.desmoj.report`)
+
+- **Reportable**: Interface for reportable simulation components
+- **Reporter**: Base class for generating reports
+- **ReportOutput**: Interface for report output destinations
+- **JsonReportOutput**: JSON-formatted report output
+- **SimulationReport**: Aggregates all reporters for full simulation report
+- **QueueReporter**: Report generator for queue statistics
+- **ResourceReporter**: Report generator for resource statistics
+
+## Key Patterns
+
+### Blocking Resource Acquisition
+
+Resources use `@Blocking` methods with internal `SimSignal` for suspension:
+
+```java
+@Entity
+@Transformed
+public static class Customer {
+    @Blocking
+    public void visit() {
+        var arrivalTime = controller.getCurrentTime();
+
+        // Acquire the server - blocks if busy
+        var token = server.acquire();
+
+        // Simulate service time
+        Kronos.blockingSleep(serviceTime);
+
+        // Release the server
+        server.release(token);
+    }
+}
+```
+
+### Using Loans (Auto-Release)
+
+```java
+@Blocking
+public void processWithLoan() {
+    try (var loan = resource.loan()) {
+        // Use the resource
+        Kronos.blockingSleep(processingTime);
+    }  // Auto-released when exiting try block
+}
+```
+
+### Signal/Await Pattern
+
+```java
+// Waiter blocks until signaled
+@Blocking
+public void waitForEvent() {
+    signal.await();
+    // Continues after signal() is called
+}
+
+// Signaler wakes one waiter
+public void triggerEvent() {
+    signal.signal();
+}
+
+// Wake all waiters
+public void broadcastEvent() {
+    signal.signalAll();
+}
+```
+
+### Using Distributions
+
+```java
+// Create distributions
+var interArrival = new Exponential(random, 10.0);  // Mean of 10
+var serviceTime = new Uniform(random, 5.0, 15.0);  // Between 5-15
+
+// Sample values
+long nextArrival = (long) interArrival.sample();
+long service = (long) serviceTime.sample();
+```
+
+## Example: M/M/1 Queue
+
+A complete M/M/1 queue simulation demonstrating Resource usage:
+
+```java
+@Test
+public void testMM1Queue() throws Exception {
+    try (var controller = new SimulationController()) {
+        var servedCount = new AtomicInteger(0);
+
+        // Create a single server (M/M/1 has exactly 1 server)
+        var server = new Resource.entity(controller, 1);
+
+        // Schedule customer arrivals
+        for (int i = 0; i < numCustomers; i++) {
+            var customer = new Customer.entity(controller, i, server, servedCount);
+            controller.postEvent(i * interArrivalTime, customer, Customer.entity.VISIT);
+        }
+
+        // Run the simulation
+        controller.eventLoop();
+
+        // Check statistics
+        var stats = server.statistics();
+        System.out.println("Average wait time: " + stats.getAvgWaitTime());
+        System.out.println("Total acquisitions: " + stats.getTotalAcquisitions());
+    }
+}
+```
 
 ## Architecture
 
-The module is built as a layer on top of Prime Mover:
+The module builds on Prime Mover's core transformation system:
 
 ```
-DESMOJ-ish API
+Blocking Primitives (SimSignal, Resource, etc.)
     |
     v
-Prime Mover Runtime (Kronos, Controllers)
+Prime Mover Runtime (Devi, EventImpl, continuations)
     |
     v
-Bytecode Transformation
-    |
-    v
-Virtual Threads + Simulation Events
+Virtual Threads (Project Loom)
 ```
 
-## Key Components
+Blocking operations work by:
+1. Entity calls `@Blocking` method (e.g., `resource.acquire()`)
+2. If blocked, internal `SimSignal.await()` suspends the event
+3. Another event calls `signal()` when condition is satisfied
+4. Original event resumes from where it left off
 
-### Distribution Support
+## Statistics and Reporting
 
-Random number generation with common distributions:
+Components track statistics automatically:
 
 ```java
-// Uniform distribution [0, 100)
-UniformDistribution uniform = new UniformDistribution(0, 100);
-double value = uniform.nextValue();
+var resource = new Resource.entity(controller, 5);
+// ... run simulation ...
 
-// Normal distribution (mean=50, stdDev=10)
-NormalDistribution normal = new NormalDistribution(50, 10);
-double value = normal.nextValue();
-
-// Exponential distribution (mean=5)
-ExponentialDistribution exp = new ExponentialDistribution(5);
-double value = exp.nextValue();
+var stats = resource.statistics();
+System.out.println("Total acquisitions: " + stats.getTotalAcquisitions());
+System.out.println("Average wait time: " + stats.getAvgWaitTime());
+System.out.println("Max wait time: " + stats.getMaxWaitTime());
+System.out.println("Average utilization: " + stats.getAverageUtilization());
 ```
 
-### Queue Management
-
-First-in-first-out and priority queues:
+For full simulation reports:
 
 ```java
-@Entity
-public class QueueExample {
-    private Queue<Customer> customers = new LinkedList<>();
+var report = new SimulationReport();
+report.addReportable(resource);
+report.addReportable(queue);
 
-    public void addCustomer(Customer c) {
-        customers.add(c);
-        if (customers.size() == 1) {
-            serveNext();
-        }
-    }
-
-    public void serveNext() {
-        if (!customers.isEmpty()) {
-            Customer c = customers.remove();
-            serveCustomer(c);
-        }
-    }
-
-    public void serveCustomer(Customer c) {
-        Kronos.sleep(50);  // Service time
-        serveNext();
-    }
-}
+var output = new JsonReportOutput();
+report.generateReport(output);
+System.out.println(output.toJson());
 ```
 
-### Resource Pools
+## Testing
 
-Limited resources that entities must acquire:
+The module includes comprehensive tests:
 
-```java
-@Entity
-public class ResourcePoolExample {
-    private ResourcePool tellers = new ResourcePool(5);  // 5 tellers
+- `SimSignalTest`: Basic signal/await semantics
+- `SimConditionTest`: Condition variable behavior
+- `ResourceTest`: Resource pool acquire/release
+- `BinTest`: Bin store/retrieve operations
+- `StockTest`: Stock deposit/withdraw
+- `ProcessQueueTest`: Queue operations
+- `DistributionTest`: Distribution sampling
+- `ReportingTest`: Report generation
+- `MM1QueueTest`: Integration example
 
-    public void serveCustomer(Customer c) {
-        Resource teller = tellers.acquire();  // Blocks until available
-        try {
-            // Serve customer
-            Kronos.sleep(100);
-        } finally {
-            teller.release();
-        }
-    }
-}
-```
+Run tests with:
 
-### Statistical Reporting
-
-Collect and report simulation statistics:
-
-```java
-// During simulation
-statisticalReporter.record("service_time", 45.2);
-statisticalReporter.record("wait_time", 12.3);
-
-// After simulation
-statisticalReporter.report();
-// Output:
-// service_time: min=10.0, max=120.0, mean=45.2, stdDev=25.1, count=1000
-// wait_time:    min=0.0,  max=85.0,  mean=12.3, stdDev=8.9,  count=1000
-```
-
-## Usage Patterns
-
-### Simulation Setup
-
-```java
-SimulationModel model = new SimulationModel("Bank Simulation");
-Kronos.setController(model.getController());
-
-// Create entities
-Bank bank = new Bank(model);
-CustomerGenerator generator = new CustomerGenerator(model);
-
-// Schedule initial events
-generator.generateNextCustomer();
-
-// Run simulation
-model.simulate();
-
-// Get results
-model.report();
-```
-
-### Named Entities
-
-```java
-@Entity
-public class Bank extends SimulationEntity {
-    public Bank(SimulationModel model) {
-        super(model, "Bank");
-    }
-
-    public void openAccount(String name) {
-        // ...
-    }
-}
-```
-
-### Event Scheduling
-
-```java
-// Schedule event at specific time
-Kronos.scheduleAt(time, entity, "eventName", args);
-
-// Schedule event after delay
-Kronos.scheduleIn(delay, entity, "eventName", args);
-
-// Schedule repeating event
-Kronos.scheduleEvery(interval, entity, "eventName", args);
-```
-
-## Distributions
-
-Supported distributions:
-
-**Continuous**:
-- Uniform(min, max)
-- Normal(mean, stdDev)
-- Exponential(mean)
-- Triangular(min, mode, max)
-- Lognormal(mean, stdDev)
-- Gamma(shape, scale)
-- Beta(alpha, beta)
-- Weibull(shape, scale)
-
-**Discrete**:
-- Poisson(lambda)
-- Binomial(n, p)
-- GeometricDistribution(p)
-- NegativeBinomial(r, p)
-
-### Usage
-
-```java
-Distribution<Double> dist = new NormalDistribution(100, 15);
-
-// Get next random value
-double sample = dist.nextValue();
-
-// Get statistics
-double mean = dist.getMean();
-double variance = dist.getVariance();
-```
-
-## Advanced Features
-
-### Conditional Events
-
-```java
-@Entity
-public class ConditionalExample {
-    private Queue queue;
-
-    public void checkQueue() {
-        if (!queue.isEmpty()) {
-            processNext();
-        } else {
-            // Schedule check later
-            Kronos.scheduleIn(100, this, "checkQueue");
-        }
-    }
-}
-```
-
-### Event Cancellation
-
-```java
-// Schedule event
-Event event = Kronos.scheduleAt(time, entity, "event");
-
-// Cancel if needed
-event.cancel();
-```
-
-### Simulation Pause/Resume
-
-```java
-SimulationModel model = new SimulationModel();
-model.run();        // Run to completion
-model.pause();      // Pause execution
-// ... inspect state ...
-model.resume();     // Resume from pause
-```
-
-## Compatibility Notes
-
-**DESMOJ Features NOT Included**:
-- Process-based entities (Prime Mover uses events instead)
-- Coroutine simulation (uses virtual threads instead)
-- Some advanced reporting features
-
-**DESMOJ Features INCLUDED**:
-- Distributions and random sampling
-- Queues and resource management
-- Statistical reporting
-- Named entities
-- Time-stepped simulation
-
-## Performance Considerations
-
-The desmoj-ish layer adds minimal overhead:
-- Distributions: <1% overhead
-- Queue operations: O(1) amortized
-- Statistics collection: <2% overhead
-- Resource pools: O(log n) for manage waiting queues
-
-## Migration from DESMOJ
-
-### Before (DESMOJ)
-```java
-public class CustomerEntity extends SimulationEntity {
-    public void scheduleNewCustomer() {
-        Customer customer = new Customer(getModel(), "Customer", true);
-        customer.schedule(new java.util.concurrent.TimeUnit().convert(
-            getDistribution().nextValue(), TimeUnit.SECONDS));
-    }
-}
-```
-
-### After (Prime Mover + desmoj-ish)
-```java
-@Entity
-public class CustomerEntity {
-    private Distribution dist;
-
-    public void scheduleNewCustomer() {
-        Customer customer = new Customer();
-        Kronos.scheduleIn((long) dist.nextValue(), customer, "arrive");
-    }
-}
+```bash
+./mvnw test -pl desmoj-ish
 ```
 
 ## See Also
 
-- **framework module**: Core runtime that this layer uses
-- **api module**: Kronos API and @Entity annotation
-- **demo module**: Example simulations
-
-## Status
-
-This module is under development. Early version with core features implemented.
-
-**Planned Features**:
-- More statistical distributions
-- Advanced queue discipline (priority, sorted)
-- Transporter entities
-- Advanced reporting and visualization
-- Batch processing
-- Variance reduction techniques
+- **api module**: `@Entity`, `@Blocking` annotations and `Kronos` API
+- **framework module**: `Devi`, `SimulationController`, event queue management
+- **demo module**: Additional simulation examples

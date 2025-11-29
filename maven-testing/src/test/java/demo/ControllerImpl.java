@@ -55,7 +55,7 @@ public class ControllerImpl extends Devi {
     }
 
     @Override
-    protected void post(EventImpl event) {
+    public void post(EventImpl event) {
         eventQueue.add(event);
     }
 }

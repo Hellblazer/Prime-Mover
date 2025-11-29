@@ -177,7 +177,7 @@ public class RealTimeController extends Devi {
     }
 
     @Override
-    protected void post(EventImpl event) {
+    public void post(EventImpl event) {
         queueLock.lock();
         try {
             eventQueue.add(event);

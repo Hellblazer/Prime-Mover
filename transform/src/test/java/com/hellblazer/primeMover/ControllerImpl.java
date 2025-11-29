@@ -46,7 +46,7 @@ public class ControllerImpl extends Devi {
     }
 
     @Override
-    protected void post(EventImpl event) {
+    public void post(EventImpl event) {
         eventQueue.add(event);
         Logger.getLogger(ControllerImpl.class.getCanonicalName()).info("Posting: %s".formatted(event));
     }

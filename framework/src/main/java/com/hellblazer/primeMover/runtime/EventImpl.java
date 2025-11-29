@@ -175,7 +175,11 @@ public class EventImpl implements Cloneable, Serializable, Comparable<EventImpl>
         }
     }
 
-    Continuation getContinuation() {
+    /**
+     * Get the continuation associated with this event. Made public to allow
+     * blocking primitives in other packages to set return values.
+     */
+    public Continuation getContinuation() {
         return continuation;
     }
 
@@ -211,7 +215,11 @@ public class EventImpl implements Cloneable, Serializable, Comparable<EventImpl>
         return this;
     }
 
-    void setTime(long time) {
+    /**
+     * Set the time for this event. Made public to allow blocking primitives
+     * in other packages to schedule events at specific times.
+     */
+    public void setTime(long time) {
         this.time = time;
     }
 }

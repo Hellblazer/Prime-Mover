@@ -259,15 +259,20 @@ abstract public class Devi implements Controller, AutoCloseable {
      *
      * @param event
      */
-    abstract protected void post(EventImpl event);
+    /**
+     * Post the event to be evaluated. Made public to allow blocking primitives
+     * in other packages to schedule continuation events.
+     */
+    abstract public void post(EventImpl event);
 
     /**
-     * Swap the calling event for the current caller
+     * Swap the calling event for the current caller. Made public to allow
+     * blocking primitives in other packages to capture continuation state.
      *
-     * @param newCaller
+     * @param newCaller the new caller to set (typically null to capture current)
      * @return the current caller event
      */
-    protected EventImpl swapCaller(EventImpl newCaller) {
+    public EventImpl swapCaller(EventImpl newCaller) {
         var tmp = caller;
         caller = newCaller;
         return tmp;
