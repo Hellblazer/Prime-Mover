@@ -5,7 +5,7 @@
     <parent>
         <artifactId>primeMover.app</artifactId>
         <groupId>com.hellblazer.primeMover</groupId>
-        <version>1.0.1</version>
+        <version>1.0.2-SNAPSHOT</version>
     </parent>
     <artifactId>maven-test</artifactId>
     <name>Maven plugin integration testing</name>
