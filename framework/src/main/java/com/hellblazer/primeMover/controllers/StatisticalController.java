@@ -30,15 +30,15 @@ import java.util.Map;
 public interface StatisticalController {
 
     /**
-     * Answer the simulaiton clock at the end of the simulation
-     * 
+     * Answer the simulation clock at the end of the simulation
+     *
      * @return
      */
     public abstract long getSimulationEnd();
 
     /**
-     * Answer the simulation clock at the beginning of hte simulation
-     * 
+     * Answer the simulation clock at the beginning of the simulation
+     *
      * @return
      */
     public abstract long getSimulationStart();

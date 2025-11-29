@@ -25,9 +25,8 @@ import java.io.File;
 
 /**
  * Transform the module's classes to event driven simulation code.
- *
  */
-@Mojo(name = "transform", defaultPhase = LifecyclePhase.PROCESS_CLASSES, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME, threadSafe = false, executionStrategy = "once-per-session", instantiationStrategy = InstantiationStrategy.PER_LOOKUP, requiresDependencyCollection = ResolutionScope.COMPILE_PLUS_RUNTIME)
+@Mojo(name = "transform", defaultPhase = LifecyclePhase.PROCESS_CLASSES, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME, threadSafe = true, executionStrategy = "once-per-session", instantiationStrategy = InstantiationStrategy.PER_LOOKUP, requiresDependencyCollection = ResolutionScope.COMPILE_PLUS_RUNTIME)
 public class CompileTransform extends AbstractTransform {
 
     @Parameter(property = "project.build.outputDirectory", readonly = true)
@@ -35,6 +34,9 @@ public class CompileTransform extends AbstractTransform {
 
     @Parameter(property = "project")
     private MavenProject project;
+
+    @Parameter(property = "primemover.skip", defaultValue = "false")
+    private boolean skip;
 
     @Override
     protected String getCompileClasspath() throws MojoExecutionException {
@@ -44,5 +46,10 @@ public class CompileTransform extends AbstractTransform {
     @Override
     File getOutputDirectory() {
         return buildOutputDirectory;
+    }
+
+    @Override
+    protected boolean isSkip() {
+        return skip;
     }
 }

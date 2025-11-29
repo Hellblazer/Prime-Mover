@@ -21,7 +21,6 @@ package com.hellblazer.primeMover.classfile;
 import com.hellblazer.primeMover.ControllerImpl;
 import com.hellblazer.primeMover.classfile.testClasses.Foo;
 import com.hellblazer.primeMover.runtime.Kairos;
-import io.github.classgraph.ClassGraph;
 import org.junit.jupiter.api.Test;
 import org.objectweb.asm.*;
 import org.objectweb.asm.commons.GeneratorAdapter;
@@ -34,6 +33,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.nio.ByteBuffer;
+import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
@@ -45,7 +45,11 @@ import static org.objectweb.asm.Opcodes.ACC_STATIC;
 public class EntityGeneratorTest {
     @Test
     public void smokin() throws Exception {
-        var transform = new SimulationTransform(new ClassGraph().acceptPackages("com.hellblazer"));
+        var scanner = new ClassScanner()
+            .addClasspathEntry(Path.of("target/test-classes"))
+            .addClasspathEntry(Path.of("target/classes"))
+            .scan();
+        var transform = new SimulationTransform(scanner);
 
         //        final var name = "testClasses.ContinuationThroughputImpl";
         //        final var name = "testClasses.HelloWorld";

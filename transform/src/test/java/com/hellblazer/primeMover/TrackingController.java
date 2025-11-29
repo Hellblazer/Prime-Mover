@@ -41,7 +41,7 @@ public class TrackingController extends ControllerImpl {
     }
 
     @Override
-    protected void post(EventImpl event) {
+    public void post(EventImpl event) {
         events.add(event.getSignature());
         references.add(event.getReference());
         super.post(event);

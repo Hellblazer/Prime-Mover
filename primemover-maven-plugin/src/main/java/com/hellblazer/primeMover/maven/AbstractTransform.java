@@ -18,7 +18,6 @@
 package com.hellblazer.primeMover.maven;
 
 import com.hellblazer.primeMover.classfile.SimulationTransform;
-import io.github.classgraph.ClassGraph;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.slf4j.Logger;
@@ -27,15 +26,12 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
+import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public abstract class AbstractTransform extends AbstractMojo {
 
-    private static Logger logger = LoggerFactory.getLogger(AbstractTransform.class);
+    private static final Logger logger = LoggerFactory.getLogger(AbstractTransform.class);
 
     public AbstractTransform() {
         super();
@@ -43,28 +39,25 @@ public abstract class AbstractTransform extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException {
-        var classpath = getCompileClasspath();
-        logger.info(String.format("Using ClassFile API transform classpath: %s", Arrays.asList(classpath)));
-        var graph = new ClassGraph();
-        final var cpFile = new File(classpath);
-        final URL cpUrl;
-        try {
-            cpUrl = cpFile.toURI().toURL();
-        } catch (MalformedURLException e) {
-            throw new MojoExecutionException("Unable to transform", e);
+        if (isSkip()) {
+            logger.info("Skipping transformation");
+            return;
         }
-        graph.addClassLoader(new URLClassLoader(new URL[] { cpUrl }));
+
+        var classpath = getCompileClasspath();
+        logger.info("Using ClassFile API transform classpath: {}", classpath);
+
         var failed = new ArrayList<String>();
-        try (var txfm = new SimulationTransform(graph)) {
+        try (var txfm = new SimulationTransform(Path.of(classpath))) {
             var out = getOutputDirectory();
-            txfm.transformed(_ -> true).forEach((ci, bytes) -> {
-                final var file = new File(out, ci.getName().replace('.', '/') + ".class");
+            txfm.transformed(_ -> true).forEach((cm, bytes) -> {
+                var file = new File(out, cm.getName().replace('.', '/') + ".class");
                 file.getParentFile().mkdirs();
                 try (var fos = new FileOutputStream(file)) {
                     fos.write(bytes);
-                    logger.info(
-                    String.format("ClassFile API Transformed: %s, written: %s", ci.getName(), file.getAbsoluteFile()));
+                    logger.info("ClassFile API Transformed: {}, written: {}", cm.getName(), file.getAbsoluteFile());
                 } catch (IOException e) {
+                    logger.error("Failed to write transformed class to {}", file.getAbsolutePath(), e);
                     failed.add(file.getAbsolutePath());
                 }
             });
@@ -72,9 +65,11 @@ public abstract class AbstractTransform extends AbstractMojo {
             throw new MojoExecutionException("Unable to transform", e);
         }
         if (!failed.isEmpty()) {
-            throw new MojoExecutionException("Unable to transform: " + failed);
+            throw new MojoExecutionException("Unable to write transformed classes: " + failed);
         }
     }
+
+    abstract protected boolean isSkip();
 
     abstract protected String getCompileClasspath() throws MojoExecutionException;
 

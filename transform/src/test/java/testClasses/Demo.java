@@ -39,8 +39,6 @@ public class Demo {
         new UseChannelImpl().test();
         controller.eventLoop();
         controller.close();
-        System.out.println("Thread Statistics: " + controller.threadStatistics());
-        System.out.println();
         System.out.println("Event spectrum:");
         for (Map.Entry<String, Integer> spectrumEntry : controller.getSpectrum().entrySet()) {
             System.out.println("\t" + spectrumEntry.getValue() + "\t\t : " + spectrumEntry.getKey());
@@ -55,8 +53,6 @@ public class Demo {
         new ContinuationThroughputImpl("STRING", 1_000_000).go();
         controller.eventLoop();
         controller.close();
-        System.out.println("Thread Statistics: " + controller.threadStatistics());
-        System.out.println();
         System.out.println("Event spectrum:");
         for (Map.Entry<String, Integer> spectrumEntry : controller.getSpectrum().entrySet()) {
             System.out.println("\t" + spectrumEntry.getValue() + "\t\t : " + spectrumEntry.getKey());
@@ -75,13 +71,10 @@ public class Demo {
         benchmark.finish();
         controller.eventLoop();
         controller.close();
-        System.out.println("Thread Statistics: " + controller.threadStatistics());
-        System.out.println();
         System.out.println("Event spectrum:");
         for (Map.Entry<String, Integer> spectrumEntry : controller.getSpectrum().entrySet()) {
             System.out.println("\t" + spectrumEntry.getValue() + "\t\t : " + spectrumEntry.getKey());
         }
-        System.out.println("Thread Statistics: " + controller.threadStatistics());
     }
 
     public static void main(String[] argv) throws Exception {
@@ -125,8 +118,6 @@ public class Demo {
         threaded.process(3);
         controller.eventLoop();
         controller.close();
-        System.out.println("Thread Statistics: " + controller.threadStatistics());
-        System.out.println();
         System.out.println("Event spectrum:");
         for (Map.Entry<String, Integer> spectrumEntry : controller.getSpectrum().entrySet()) {
             System.out.println("\t" + spectrumEntry.getValue() + "\t\t : " + spectrumEntry.getKey());

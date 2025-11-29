@@ -16,19 +16,21 @@
 package com.hellblazer.primeMover.classfile;
 
 import java.util.AbstractSet;
+import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
  * @author <a href="mailto:hal.hildebrand@gmail.com">Hal Hildebrand</a>
  */
-public abstract class OpenAddressingSet<T> extends AbstractSet<T> {
+public abstract class OpenAddressingSet<T> extends AbstractSet<T> implements Cloneable {
     private static final Object DELETED   = new Object();
     private static final int    PRIME     = -1640531527;
     private static final float  THRESHOLD = 0.75f;
-    int    load;
-    int    size = 0;
-    Object table[];
+    int                 load;
+    int                 size = 0;
+    Object              table[];
+    private transient int modCount = 0;
 
     public OpenAddressingSet() {
         this(4);
@@ -55,17 +57,17 @@ public abstract class OpenAddressingSet<T> extends AbstractSet<T> {
     public void clear() {
         table = null;
         size = 0;
+        modCount++;
     }
 
     @Override
     public Object clone() {
         try {
-            IdentitySet<?> t = (IdentitySet<?>) super.clone();
+            @SuppressWarnings("unchecked")
+            OpenAddressingSet<T> t = (OpenAddressingSet<T>) super.clone();
             if (table != null) {
                 t.table = new Object[table.length];
-                for (int i = table.length; i-- > 0; ) {
-                    t.table[i] = table[i];
-                }
+                System.arraycopy(table, 0, t.table, 0, table.length);
             }
             return t;
         } catch (CloneNotSupportedException e) {
@@ -102,9 +104,17 @@ public abstract class OpenAddressingSet<T> extends AbstractSet<T> {
     public Iterator<T> iterator() {
         return new Iterator<T>() {
             int next = 0;
+            int expectedModCount = modCount;
+
+            private void checkForComodification() {
+                if (modCount != expectedModCount) {
+                    throw new ConcurrentModificationException();
+                }
+            }
 
             @Override
             public boolean hasNext() {
+                checkForComodification();
                 while (next < table.length) {
                     if (table[next] != null && table[next] != DELETED) {
                         return true;
@@ -117,6 +127,7 @@ public abstract class OpenAddressingSet<T> extends AbstractSet<T> {
             @SuppressWarnings("unchecked")
             @Override
             public T next() {
+                checkForComodification();
                 while (next < table.length) {
                     if (table[next] != null && table[next] != DELETED) {
                         return (T) table[next++];
@@ -149,6 +160,7 @@ public abstract class OpenAddressingSet<T> extends AbstractSet<T> {
                 if (equals(key, ob)) {
                     table[index] = DELETED;
                     size -= 1;
+                    modCount++;
                     return true;
                 }
                 index = index + (hash | 1) & table.length - 1;
@@ -188,6 +200,7 @@ public abstract class OpenAddressingSet<T> extends AbstractSet<T> {
             if (ob == null || ob == DELETED) {
                 table[index] = key;
                 size += 1;
+                modCount++;
                 return true;
             }
             if (equals(key, ob)) {

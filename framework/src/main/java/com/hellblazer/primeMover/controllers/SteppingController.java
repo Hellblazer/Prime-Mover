@@ -28,18 +28,26 @@ import com.hellblazer.primeMover.runtime.EventImpl;
 import com.hellblazer.primeMover.runtime.Framework;
 import com.hellblazer.primeMover.runtime.Kairos;
 import com.hellblazer.primeMover.runtime.SimulationEnd;
-import com.hellblazer.primeMover.runtime.SplayQueue;
+import java.util.PriorityQueue;
 
 /**
- * A simulation controller which allows stepping through events
- * 
+ * Single-threaded simulation controller that allows stepping through events
+ * one at a time for debugging and testing.
+ * <p>
+ * Thread safety model:
+ * <ul>
+ *   <li>Not thread-safe - designed for single-threaded use</li>
+ *   <li>The {@link #step()} method processes events sequentially</li>
+ *   <li>Event posting via {@link #post(EventImpl)} is not thread-safe</li>
+ * </ul>
+ *
  * @author <a href="mailto:hal.hildebrand@gmail.com">Hal Hildebrand</a>
  */
 public class SteppingController extends Devi {
     protected Queue<EventImpl> eventQueue;
 
     public SteppingController() {
-        this(new SplayQueue<EventImpl>());
+        this(new PriorityQueue<>());
     }
 
     public SteppingController(Queue<EventImpl> eventQueue) {
@@ -71,7 +79,7 @@ public class SteppingController extends Devi {
     }
 
     @Override
-    protected void post(EventImpl event) {
+    public void post(EventImpl event) {
         eventQueue.add(event);
     }
 }

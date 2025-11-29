@@ -19,12 +19,12 @@ package com.hellblazer.primeMover.classfile;
 
 import com.hellblazer.primeMover.TrackingController;
 import com.hellblazer.primeMover.runtime.Kairos;
-import io.github.classgraph.ClassGraph;
 import org.junit.jupiter.api.Test;
 import testClasses.LocalLoader;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.nio.file.Path;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -66,14 +66,17 @@ public class TestEndToEnd {
         assertEquals("<testClasses.Entity1Impl: void event2(testClasses.Entity2)>", controller.events.get(i++));
         assertEquals("<testClasses.Entity1Impl: void event1()>", controller.events.get(i++));
         assertEquals("<testClasses.Entity2Impl: void myEvent()>", controller.events.get(i++));
-        assertEquals("<com.hellblazer.primeMover.runtime.BlockingSleepImpl void sleep(org.joda.time.Duration)>",
+        assertEquals("<com.hellblazer.primeMover.runtime.BlockingSleep: void sleep(long)>",
                      controller.events.get(i++));
         assertEquals("<testClasses.Entity1Impl: void event1()>", controller.events.get(i++));
     }
 
     private Map<String, byte[]> getTransformed() throws Exception {
-        try (var transform = new SimulationTransform(
-        new ClassGraph().acceptPackages("testClasses", "com.hellblazer.*"))) {
+        var scanner = new ClassScanner()
+            .addClasspathEntry(Path.of("target/test-classes"))
+            .addClasspathEntry(Path.of("target/classes"))
+            .scan();
+        try (var transform = new SimulationTransform(scanner)) {
             return transform.generators().entrySet().stream().collect(
             Collectors.toMap(e -> e.getKey().getName().replace('.', '/'), e -> {
                 try {

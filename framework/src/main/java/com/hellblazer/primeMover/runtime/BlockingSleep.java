@@ -41,7 +41,7 @@ class BlockingSleep implements EntityReference {
 
     @Override
     public String __signatureFor(int event) {
-        return "<com.hellblazer.primeMover.runtime.BlockingSleepImpl void sleep(org.joda.time.Duration)>";
+        return "<com.hellblazer.primeMover.runtime.BlockingSleep: void sleep(long)>";
     }
 
     public void sleep(long duration) {

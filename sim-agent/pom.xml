@@ -13,8 +13,8 @@
     <description>Sim Agent: Java Agent for event transformation</description>
 
     <properties>
-        <maven.compiler.source>24</maven.compiler.source>
-        <maven.compiler.target>24</maven.compiler.target>
+        <maven.compiler.source>25</maven.compiler.source>
+        <maven.compiler.target>25</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -23,11 +23,19 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>transform</artifactId>
         </dependency>
+
+        <!-- Test dependencies -->
         <dependency>
-            <groupId>com.hellblazer.primeMover</groupId>
-            <artifactId>transform-asm</artifactId>
-            <version>0.1.0-SNAPSHOT</version>
-            <scope>compile</scope>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logback.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

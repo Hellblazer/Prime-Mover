@@ -13,7 +13,6 @@
 package com.chiralbehaviors.janus;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.classfile.*;
 import java.lang.classfile.attribute.ExceptionsAttribute;
 import java.lang.constant.ClassDesc;
@@ -23,34 +22,41 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * ClassFile API implementation of CompositeOriginal functionality that provides identical bytecode generation to the
- * ASM-based CompositeOriginal implementation.
- *
- * This class generates the same bytecode as the original CompositeOriginal but uses Java 24's ClassFile API instead of
- * ASM for bytecode manipulation.
+ * ClassFile API implementation of composite functionality that provides dynamic interface composition using bytecode
+ * generation.
+ * <p>
+ * This interface generates composite classes at runtime using Java 25's ClassFile API. Composites combine multiple
+ * mixin implementations into a single object that implements the composite interface, with support for dependency
+ * injection via {@link Facet} and {@link This} annotations.
  *
  * @author hal.hildebrand
  */
 public interface Composite {
 
+    // Bytecode access flags
+    int    ACC_ABSTRACT                 = 0x0400;
+    int    ACC_STATIC                   = 0x0008;
+    int    JAVA_5_CLASS_VERSION         = 49;
+
     String GENERATED_COMPOSITE_TEMPLATE = "%s$composite";
     String MIX_IN_VAR_PREFIX            = "mixIn_";
 
-    public static ClassModel getClassModel(Class<?> clazz) {
-        String classResourceName = '/' + (clazz.getCanonicalName().replace('.', '/')) + ".class";
-        InputStream is = clazz.getResourceAsStream(classResourceName);
-        if (is == null) {
-            throw new VerifyError("cannot read class resource for: " + classResourceName);
-        }
+    // Thread-safe cache for generated composite classes
+    Map<String, Class<?>> GENERATED_CLASSES = new ConcurrentHashMap<>();
 
-        try {
-            byte[] classBytes = is.readAllBytes();
-            ClassFile cf = ClassFile.of();
-            return cf.parse(classBytes);
+    public static ClassModel getClassModel(Class<?> clazz) {
+        var classResourceName = '/' + (clazz.getCanonicalName().replace('.', '/')) + ".class";
+        try (var is = clazz.getResourceAsStream(classResourceName)) {
+            if (is == null) {
+                throw new VerifyError("cannot read class resource for: " + classResourceName);
+            }
+            var classBytes = is.readAllBytes();
+            return ClassFile.of().parse(classBytes);
         } catch (IOException e) {
-            VerifyError v = new VerifyError("cannot read class resource for: " + classResourceName);
+            var v = new VerifyError("cannot read class resource for: " + classResourceName);
             v.initCause(e);
             throw v;
         }
@@ -65,20 +71,19 @@ public interface Composite {
         if (!composite.isInterface()) {
             throw new IllegalArgumentException("Supplied composite class is not an interface: " + composite);
         }
-        Map<Class<?>, Integer> mixInMap = new HashMap<Class<?>, Integer>();
         var mixIns = mixInTypesFor(composite);
-        int i = 0;
-        for (var in : mixInTypesFor(composite)) {
-            mixInMap.put(in, i++);
+        var mixInMap = new HashMap<Class<?>, Integer>();
+        for (var i = 0; i < mixIns.length; i++) {
+            mixInMap.put(mixIns[i], i);
         }
         if (parameters.size() != mixInMap.size()) {
             throw new IllegalArgumentException(
             "Supplied composite: %s parameters is the wrong size: %s expected: %s".formatted(
             composite.getCanonicalName(), parameters.size(), mixInMap.size()));
         }
-        Object[] arguments = new Object[mixInMap.size()];
-        for (Map.Entry<Class<?>, Object> pe : parameters.entrySet()) {
-            for (Map.Entry<Class<?>, Integer> mapping : mixInMap.entrySet()) {
+        var arguments = new Object[mixInMap.size()];
+        for (var pe : parameters.entrySet()) {
+            for (var mapping : mixInMap.entrySet()) {
                 if (mapping.getKey().isAssignableFrom(pe.getKey())) {
                     arguments[mapping.getValue()] = pe.getValue();
                 }
@@ -102,15 +107,14 @@ public interface Composite {
         if (!composite.isInterface()) {
             throw new IllegalArgumentException("Supplied composite class is not an interface: " + composite);
         }
-        Map<Class<?>, Integer> mixInMap = new HashMap<Class<?>, Integer>();
         var mixIns = mixInTypesFor(composite);
-        int i = 0;
-        for (var in : mixInTypesFor(composite)) {
-            mixInMap.put(in, i++);
+        var mixInMap = new HashMap<Class<?>, Integer>();
+        for (var i = 0; i < mixIns.length; i++) {
+            mixInMap.put(mixIns[i], i);
         }
-        Object[] arguments = new Object[mixInMap.size()];
-        for (Object mixIn : mixInInstances) {
-            for (Map.Entry<Class<?>, Integer> mapping : mixInMap.entrySet()) {
+        var arguments = new Object[mixInMap.size()];
+        for (var mixIn : mixInInstances) {
+            for (var mapping : mixInMap.entrySet()) {
                 if (mapping.getKey().isAssignableFrom(mixIn.getClass())) {
                     arguments[mapping.getValue()] = mixIn;
                 }
@@ -128,20 +132,19 @@ public interface Composite {
      * @return the bytes of the generated composite class
      */
     default byte[] generateClassBits(Class<?> composite) {
-        ClassDesc compositeDesc = ClassDesc.of(composite.getName());
-        String generatedClassName = GENERATED_COMPOSITE_TEMPLATE.formatted(composite.getName());
-        ClassDesc generatedDesc = ClassDesc.of(generatedClassName);
+        var compositeDesc = ClassDesc.of(composite.getName());
+        var generatedClassName = GENERATED_COMPOSITE_TEMPLATE.formatted(composite.getName());
+        var generatedDesc = ClassDesc.of(generatedClassName);
 
-        Map<Class<?>, Integer> mixInTypeMapping = new LinkedHashMap<Class<?>, Integer>();
+        var mixInTypeMapping = new LinkedHashMap<Class<?>, Integer>();
         var mixInTypes = mixInTypesFor(composite);
-        for (int i = 0; i < mixInTypes.length; i++) {
+        for (var i = 0; i < mixInTypes.length; i++) {
             mixInTypeMapping.put(mixInTypes[i], i);
         }
 
-        ClassFile cf = ClassFile.of();
-        return cf.build(generatedDesc, classBuilder -> {
-            // Set class version to Java 5 (49) to match ASM implementation (V1_5)
-            classBuilder.withVersion(49, 0);
+        return ClassFile.of().build(generatedDesc, classBuilder -> {
+            // Set class version to Java 5 to match ASM implementation (V1_5)
+            classBuilder.withVersion(JAVA_5_CLASS_VERSION, 0);
             classBuilder.withFlags(ClassFile.ACC_PUBLIC);
             classBuilder.withSuperclass(ConstantDescs.CD_Object);
             classBuilder.withInterfaceSymbols(compositeDesc);
@@ -150,22 +153,22 @@ public interface Composite {
             generateConstructor(classBuilder, generatedDesc, mixInTypeMapping);
 
             // Generate fields and methods for each mixin
-            for (Map.Entry<Class<?>, Integer> entry : mixInTypeMapping.entrySet()) {
-                String fieldName = MIX_IN_VAR_PREFIX + entry.getValue();
-                ClassDesc mixInDesc = ClassDesc.of(entry.getKey().getName());
+            for (var entry : mixInTypeMapping.entrySet()) {
+                var fieldName = MIX_IN_VAR_PREFIX + entry.getValue();
+                var mixInDesc = ClassDesc.of(entry.getKey().getName());
 
                 // Add private field for mixin
                 classBuilder.withField(fieldName, mixInDesc, ClassFile.ACC_PRIVATE);
 
                 // Process mixin methods
-                ClassModel mixInModel = getClassModel(entry.getKey());
+                var mixInModel = getClassModel(entry.getKey());
                 processMixInMethods(classBuilder, mixInModel, generatedDesc, fieldName, mixInDesc);
             }
         });
     }
 
     private void addMixInTypesTo(Class<?> iFace, Set<Class<?>> collected) {
-        for (Class<?> extended : iFace.getInterfaces()) {
+        for (var extended : iFace.getInterfaces()) {
             if (!extended.equals(Object.class)) {
                 collected.add(extended);
                 addMixInTypesTo(extended, collected);
@@ -176,38 +179,39 @@ public interface Composite {
     @SuppressWarnings("unchecked")
     private <T> T assemble(Class<T> composite, Object[] arguments, Class<?>[] mixIns, Map<Class<?>, Integer> mixInMap,
                            final ClassLoader loader, Object... mixInInstances) {
-        var compositeLoader = loader instanceof CompositeClassLoader l ? l : new CompositeClassLoader(loader);
-        Class<T> clazz;
-
-        final var name = GENERATED_COMPOSITE_TEMPLATE.formatted(composite.getName());
-        try {
-            clazz = (Class<T>) composite.getClassLoader().loadClass(name.replace('.', '/'));
-        } catch (ClassNotFoundException e) {
-            clazz = (Class<T>) compositeLoader.define(name, generateClassBits(composite));
-        }
         if (mixInInstances == null) {
             throw new IllegalArgumentException("supplied mixin instances must not be null");
         }
         if (mixInInstances.length != mixInMap.size()) {
             throw new IllegalArgumentException("wrong number of arguments supplied");
         }
-        T instance = constructInstance(clazz, mixIns, arguments);
+
+        var compositeLoader = loader instanceof CompositeClassLoader l ? l : new CompositeClassLoader(loader);
+        var name = GENERATED_COMPOSITE_TEMPLATE.formatted(composite.getName());
+
+        // Thread-safe class caching using computeIfAbsent
+        var clazz = (Class<T>) GENERATED_CLASSES.computeIfAbsent(name, key -> {
+            try {
+                return composite.getClassLoader().loadClass(key);
+            } catch (ClassNotFoundException e) {
+                return compositeLoader.define(key, generateClassBits(composite));
+            }
+        });
+
+        var instance = constructInstance(clazz, mixIns, arguments);
         inject(instance, arguments);
         return instance;
     }
 
     private <T> T constructInstance(Class<T> generated, Class<?>[] mixIns, Object[] arguments) {
-        Constructor<T> constructor = getConstructor(generated, mixIns);
+        var constructor = getConstructor(generated, mixIns);
         try {
             return constructor.newInstance(arguments);
-        } catch (IllegalArgumentException e) {
-            throw new IllegalStateException("Illegal arguments in constructing composite", e);
         } catch (InvocationTargetException e) {
-            throw new IllegalStateException("Unexpected error in constructing composite", e.getTargetException());
-        } catch (InstantiationException e) {
-            throw new IllegalStateException("Cannot instantiate composite", e);
-        } catch (IllegalAccessException e) {
-            throw new IllegalStateException("Cannot access constructor for composite", e);
+            // Unwrap to show the actual exception thrown by the constructor
+            throw new IllegalStateException("Error during composite construction", e.getTargetException());
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalStateException("Cannot construct composite", e);
         }
     }
 
@@ -217,12 +221,12 @@ public interface Composite {
     private void generateConstructor(ClassBuilder classBuilder, ClassDesc generatedDesc,
                                      Map<Class<?>, Integer> mixInTypeMapping) {
         // Create ordered array of mixin types for constructor parameters
-        ClassDesc[] orderedMixIns = new ClassDesc[mixInTypeMapping.size()];
-        for (Map.Entry<Class<?>, Integer> entry : mixInTypeMapping.entrySet()) {
+        var orderedMixIns = new ClassDesc[mixInTypeMapping.size()];
+        for (var entry : mixInTypeMapping.entrySet()) {
             orderedMixIns[entry.getValue()] = ClassDesc.of(entry.getKey().getName());
         }
 
-        MethodTypeDesc constructorType = MethodTypeDesc.of(ConstantDescs.CD_void, orderedMixIns);
+        var constructorType = MethodTypeDesc.of(ConstantDescs.CD_void, orderedMixIns);
 
         classBuilder.withMethod(ConstantDescs.INIT_NAME, constructorType, ClassFile.ACC_PUBLIC, methodBuilder -> {
             methodBuilder.withCode(codeBuilder -> {
@@ -232,10 +236,10 @@ public interface Composite {
                                           MethodTypeDesc.of(ConstantDescs.CD_void));
 
                 // Initialize all mixin fields
-                for (int i = 0; i < orderedMixIns.length; i++) {
+                for (var i = 0; i < orderedMixIns.length; i++) {
                     codeBuilder.aload(0);           // Load 'this'
                     codeBuilder.aload(i + 1);       // Load constructor argument (i+1 because 0 is 'this')
-                    String fieldName = MIX_IN_VAR_PREFIX + i;
+                    var fieldName = MIX_IN_VAR_PREFIX + i;
                     codeBuilder.putfield(generatedDesc, fieldName, orderedMixIns[i]);
                 }
 
@@ -250,20 +254,19 @@ public interface Composite {
     private void generateDelegationMethod(ClassBuilder classBuilder, MethodModel originalMethod,
                                           ClassDesc generatedDesc, String fieldName, ClassDesc mixInDesc) {
 
-        String methodName = originalMethod.methodName().stringValue();
-        MethodTypeDesc methodType = originalMethod.methodTypeSymbol();
+        var methodName = originalMethod.methodName().stringValue();
+        var methodType = originalMethod.methodTypeSymbol();
 
         // Convert access flags: remove abstract flag (matches ASM: access = access ^ ACC_ABSTRACT)
-        int access = originalMethod.flags().flagsMask();
-        access = access ^ 0x0400; // ACC_ABSTRACT = 1024
+        var access = originalMethod.flags().flagsMask() ^ ACC_ABSTRACT;
 
         // Get exception types from the original method
-        ClassDesc[] exceptionTypes = getExceptionTypes(originalMethod);
+        var exceptionTypes = getExceptionTypes(originalMethod);
 
         classBuilder.withMethod(methodName, methodType, access, methodBuilder -> {
             // Add exception declarations if present
             if (exceptionTypes.length > 0) {
-                methodBuilder.with(ExceptionsAttribute.ofSymbols(java.util.List.of(exceptionTypes)));
+                methodBuilder.with(ExceptionsAttribute.ofSymbols(List.of(exceptionTypes)));
             }
 
             methodBuilder.withCode(codeBuilder -> {
@@ -274,8 +277,8 @@ public interface Composite {
                 codeBuilder.getfield(generatedDesc, fieldName, mixInDesc);
 
                 // Load all method arguments
-                int paramIndex = 1; // Start at 1 (0 is 'this')
-                for (ClassDesc paramType : methodType.parameterList()) {
+                var paramIndex = 1; // Start at 1 (0 is 'this')
+                for (var paramType : methodType.parameterList()) {
                     if (paramType.isPrimitive()) {
                         switch (paramType.descriptorString()) {
                             case "I", "Z", "B", "C", "S" -> codeBuilder.iload(paramIndex);
@@ -299,7 +302,7 @@ public interface Composite {
                 codeBuilder.invokeinterface(mixInDesc, methodName, methodType);
 
                 // Return the appropriate value
-                ClassDesc returnType = methodType.returnType();
+                var returnType = methodType.returnType();
                 if (returnType.equals(ConstantDescs.CD_void)) {
                     codeBuilder.return_();
                 } else if (returnType.isPrimitive()) {
@@ -317,51 +320,49 @@ public interface Composite {
     }
 
     private <T> Constructor<T> getConstructor(Class<T> generated, Class<?>[] mixIns) {
-        Constructor<T> constructor;
         try {
-            constructor = generated.getConstructor(mixIns);
+            return generated.getConstructor(mixIns);
         } catch (NoSuchMethodException e) {
             throw new IllegalStateException("Cannot find constructor on generated composite class", e);
         }
-        return constructor;
     }
 
     /**
      * Extract exception types from a method model
      */
     private ClassDesc[] getExceptionTypes(MethodModel methodModel) {
-        return methodModel.findAttribute(Attributes.exceptions()).map(
-        attr -> attr.exceptions().stream().map(entry -> entry.asSymbol()).toArray(ClassDesc[]::new)).orElse(
-        new ClassDesc[0]);
+        return methodModel.findAttribute(Attributes.exceptions())
+                          .map(attr -> attr.exceptions()
+                                           .stream()
+                                           .map(entry -> entry.asSymbol())
+                                           .toArray(ClassDesc[]::new))
+                          .orElse(new ClassDesc[0]);
     }
 
     private void inject(Object value, Field field, Object instance, Class<?> clazz) {
         field.setAccessible(true);
         try {
             field.set(instance, value);
-        } catch (IllegalArgumentException e) {
-            throw new IllegalStateException("Field: " + field + " is not a part of class: " + clazz, e);
         } catch (IllegalAccessException e) {
             throw new IllegalStateException("Unable to set field: " + field + " on class: " + clazz, e);
         }
     }
 
     private <T> void inject(T instance, Object[] facets) {
-        for (int i = 0; i < facets.length; i++) {
-            Class<?> mixIn = facets[i].getClass();
-            Object mixInInstance = facets[i];
-            for (Field field : mixIn.getDeclaredFields()) {
-                if (!injectFacet(field, facets, mixInInstance, mixIn)) {
-                    injectThis(instance, mixIn, mixInInstance, field);
+        for (var facet : facets) {
+            var mixIn = facet.getClass();
+            for (var field : mixIn.getDeclaredFields()) {
+                if (!injectFacet(field, facets, facet, mixIn)) {
+                    injectThis(instance, mixIn, facet, field);
                 }
             }
         }
     }
 
-    private <T> boolean injectFacet(Field field, Object[] facets, Object instance, Class<?> clazz) {
-        Facet facetAnnotation = field.getAnnotation(Facet.class);
+    private boolean injectFacet(Field field, Object[] facets, Object instance, Class<?> clazz) {
+        var facetAnnotation = field.getAnnotation(Facet.class);
         if (facetAnnotation != null) {
-            for (Object facet : facets) {
+            for (var facet : facets) {
                 if (field.getType().isAssignableFrom(facet.getClass())) {
                     inject(facet, field, instance, clazz);
                     return true;
@@ -372,7 +373,7 @@ public interface Composite {
     }
 
     private <T> boolean injectThis(T instance, Class<?> mixIn, Object mixInInstance, Field field) {
-        This thisAnnotation = field.getAnnotation(This.class);
+        var thisAnnotation = field.getAnnotation(This.class);
         if (thisAnnotation != null) {
             if (field.getType().isAssignableFrom(instance.getClass())) {
                 inject(instance, field, mixInInstance, mixIn);
@@ -383,15 +384,9 @@ public interface Composite {
     }
 
     private Class<?>[] mixInTypesFor(Class<?> composite) {
-        Comparator<Class<?>> comparator = new Comparator<Class<?>>() {
-            @Override
-            public int compare(Class<?> o1, Class<?> o2) {
-                return o1.getCanonicalName().compareTo(o2.getCanonicalName());
-            }
-        };
-        Set<Class<?>> mixInTypes = new TreeSet<Class<?>>(comparator);
+        var mixInTypes = new TreeSet<Class<?>>(Comparator.comparing(Class::getCanonicalName));
         addMixInTypesTo(composite, mixInTypes);
-        return mixInTypes.toArray(new Class<?>[mixInTypes.size()]);
+        return mixInTypes.toArray(Class[]::new);
     }
 
     /**
@@ -400,9 +395,9 @@ public interface Composite {
     private void processMixInMethods(ClassBuilder classBuilder, ClassModel mixInModel, ClassDesc generatedDesc,
                                      String fieldName, ClassDesc mixInDesc) {
 
-        for (MethodModel methodModel : mixInModel.methods()) {
+        for (var methodModel : mixInModel.methods()) {
             // Skip static methods (matches ASM implementation logic)
-            if ((methodModel.flags().flagsMask() & 0x0008) != 0) { // ACC_STATIC = 8
+            if ((methodModel.flags().flagsMask() & ACC_STATIC) != 0) {
                 continue;
             }
 

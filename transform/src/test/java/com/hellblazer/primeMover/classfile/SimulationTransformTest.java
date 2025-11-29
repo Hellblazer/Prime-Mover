@@ -1,11 +1,12 @@
 package com.hellblazer.primeMover.classfile;
 
-import io.github.classgraph.ClassGraph;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.ClassNode;
+
+import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -18,9 +19,12 @@ public class SimulationTransformTest {
     private SimulationTransform classFileTransform;
 
     @BeforeEach
-    public void setUp() {
-        var classGraph = new ClassGraph().acceptPackages("com.hellblazer.primeMover");
-        classFileTransform = new SimulationTransform(classGraph);
+    public void setUp() throws Exception {
+        var scanner = new ClassScanner()
+            .addClasspathEntry(Path.of("target/test-classes"))
+            .addClasspathEntry(Path.of("target/classes"))
+            .scan();
+        classFileTransform = new SimulationTransform(scanner);
     }
 
     @AfterEach

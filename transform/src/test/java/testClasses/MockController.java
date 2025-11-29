@@ -4,7 +4,7 @@ import com.hellblazer.primeMover.api.EntityReference;
 import com.hellblazer.primeMover.runtime.Devi;
 import com.hellblazer.primeMover.runtime.EventImpl;
 
-import java.util.logging.Logger;
+import org.slf4j.Logger;
 
 class MockController extends Devi {
 

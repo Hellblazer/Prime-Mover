@@ -45,17 +45,20 @@ public class Continuation implements Serializable {
     public Object park(CompletableFuture<EvaluationResult> sailorMoon, EvaluationResult result) throws Throwable {
         assert thread == null;
         thread = Thread.currentThread();
-        sailorMoon.complete(result);
-        LockSupport.park();
-        thread = null;
-        final var ex = exception;
-        if (ex != null) {
-            exception = null;
-            throw ex;
+        try {
+            sailorMoon.complete(result);
+            LockSupport.park();
+            final var ex = exception;
+            if (ex != null) {
+                exception = null;
+                throw ex;
+            }
+            final var value = returnValue;
+            returnValue = null;
+            return value;
+        } finally {
+            thread = null;
         }
-        final var value = returnValue;
-        returnValue = null;
-        return value;
     }
 
     public void resume() {

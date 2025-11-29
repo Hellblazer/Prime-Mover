@@ -10,6 +10,7 @@
 
 
     <url>https://github.com/${repository-owner}/${repository-name}.git</url>
+
     <scm>
         <url>https://github.com/${repository-owner}/${repository-name}.git</url>
         <connection>
@@ -20,15 +21,25 @@
         </developerConnection>
     </scm>
 
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub Packages</name>
+            <url>https://maven.pkg.github.com/${repository-owner}/${repository-name}</url>
+        </repository>
+    </distributionManagement>
 
     <properties>
-        <maven.compiler.source>24</maven.compiler.source>
-        <maven.compiler.target>24</maven.compiler.target>
+        <repository-owner>Hellblazer</repository-owner>
+        <repository-name>Prime-Mover</repository-name>
+        <maven.compiler.source>25</maven.compiler.source>
+        <maven.compiler.target>25</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <junit.version>5.13.0-M2</junit.version>
         <logback.version>1.5.18</logback.version>
         <asm.version>9.8</asm.version>
         <maven.version>3.15.1</maven.version>
+        <maven.core.version>3.9.9</maven.core.version>
     </properties>
 
     <modules>
@@ -41,7 +52,6 @@
         <module>space-ghost</module>
         <module>janus</module>
         <module>sim-agent</module>
-        <module>transform-asm</module>
         <module>api</module>
     </modules>
 
@@ -112,11 +122,6 @@
                 <groupId>org.ow2.asm</groupId>
                 <artifactId>asm-test</artifactId>
                 <version>${asm.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.github.classgraph</groupId>
-                <artifactId>classgraph</artifactId>
-                <version>4.8.179</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -197,7 +202,7 @@
                                 </requireMavenVersion>
                                 <dependencyConvergence/>
                                 <requireJavaVersion>
-                                    <version>[24,)</version>
+                                    <version>[25,)</version>
                                 </requireJavaVersion>
                             </rules>
                         </configuration>
@@ -206,11 +211,6 @@
             </plugin>
             <plugin>
                 <artifactId>maven-deploy-plugin</artifactId>
-                <configuration>
-                    <altDeploymentRepository>
-                        internal.repo::default::file://${env.INTERNAL_REPOSITORY}
-                    </altDeploymentRepository>
-                </configuration>
             </plugin>
         </plugins>
         <pluginManagement>
