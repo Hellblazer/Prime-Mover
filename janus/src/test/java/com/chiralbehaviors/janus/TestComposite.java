@@ -35,11 +35,11 @@ public class TestComposite {
     @Test
     public void testConstruct() {
         var assembler = Composite.instance();
-        MixIn1Impl mixIn1 = new MixIn1Impl();
-        MixIn2Impl mixIn2 = new MixIn2Impl();
+        var mixIn1 = new MixIn1Impl();
+        var mixIn2 = new MixIn2Impl();
 
-        Composite1 instance = assembler.assemble(Composite1.class,
-                                                 new CompositeClassLoader(getClass().getClassLoader()), mixIn2, mixIn1);
+        var instance = assembler.assemble(Composite1.class,
+                                          new CompositeClassLoader(getClass().getClassLoader()), mixIn2, mixIn1);
         assertNotNull(instance);
         assertEquals("MixIn1-Method1", instance.m11());
         assertEquals("MixIn1-Method2", instance.m12());
@@ -54,11 +54,11 @@ public class TestComposite {
     @Test
     public void testFacets() {
         var assembler = Composite.instance();
-        MixIn1Impl mixIn1 = new MixIn1Impl();
-        MixIn2Impl mixIn2 = new MixIn2Impl();
+        var mixIn1 = new MixIn1Impl();
+        var mixIn2 = new MixIn2Impl();
 
-        Composite1 instance = assembler.assemble(Composite1.class,
-                                                 new CompositeClassLoader(getClass().getClassLoader()), mixIn2, mixIn1);
+        var instance = assembler.assemble(Composite1.class,
+                                          new CompositeClassLoader(getClass().getClassLoader()), mixIn2, mixIn1);
         assertNotNull(instance);
         assertSame(mixIn2, instance.getFriend1());
         assertSame(mixIn1, instance.getFriend2());
@@ -67,25 +67,25 @@ public class TestComposite {
     @Test
     public void testGeneratedBits() {
         var generator = Composite.instance();
-        byte[] generatedBits = generator.generateClassBits(Composite1.class);
+        var generatedBits = generator.generateClassBits(Composite1.class);
         assertNotNull(generatedBits);
-        TraceClassVisitor tcv = new TraceClassVisitor(new PrintWriter(System.out));
-        CheckClassAdapter cv = new CheckClassAdapter(tcv);
-        ClassReader reader = new ClassReader(generatedBits);
+        var tcv = new TraceClassVisitor(new PrintWriter(System.out));
+        var cv = new CheckClassAdapter(tcv);
+        var reader = new ClassReader(generatedBits);
         reader.accept(cv, 0);
     }
 
     @Test
     public void testMappedConstruct() {
         var assembler = Composite.instance();
-        MixIn1Impl mixIn1 = new MixIn1Impl();
-        MixIn2Impl mixIn2 = new MixIn2Impl();
+        var mixIn1 = new MixIn1Impl();
+        var mixIn2 = new MixIn2Impl();
 
         var parameters = new HashMap<Class<?>, Object>();
         parameters.put(MixIn1.class, mixIn1);
         parameters.put(MixIn2.class, mixIn2);
-        Composite1 instance = assembler.assemble(Composite1.class,
-                                                 new CompositeClassLoader(getClass().getClassLoader()), parameters);
+        var instance = assembler.assemble(Composite1.class,
+                                          new CompositeClassLoader(getClass().getClassLoader()), parameters);
         assertNotNull(instance);
         assertEquals("MixIn1-Method1", instance.m11());
         assertEquals("MixIn1-Method2", instance.m12());
@@ -100,11 +100,11 @@ public class TestComposite {
     @Test
     public void testThis() {
         var assembler = Composite.instance();
-        MixIn1Impl mixIn1 = new MixIn1Impl();
-        MixIn2Impl mixIn2 = new MixIn2Impl();
+        var mixIn1 = new MixIn1Impl();
+        var mixIn2 = new MixIn2Impl();
 
-        Composite1 instance = assembler.assemble(Composite1.class,
-                                                 new CompositeClassLoader(getClass().getClassLoader()), mixIn2, mixIn1);
+        var instance = assembler.assemble(Composite1.class,
+                                          new CompositeClassLoader(getClass().getClassLoader()), mixIn2, mixIn1);
         assertNotNull(instance);
         assertSame(instance, instance.getComposite());
     }
