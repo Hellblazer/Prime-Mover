@@ -251,7 +251,13 @@ Simulation Results
 - **Memory Efficiency**: Minimal overhead with virtual threads
 - **Scales Linearly**: With available CPU cores
 
-## Module Documentation
+## Documentation
+
+### Conceptual Foundations
+
+- **[CONCEPTS.md](./CONCEPTS.md)** - Deep-dive into DES theory, Kronos/Kairos design, event semantics, and virtual thread continuations
+
+### Module Documentation
 
 Each module has detailed documentation:
 
@@ -262,6 +268,7 @@ Each module has detailed documentation:
 - **[sim-agent/README.md](./sim-agent/README.md)** - Runtime transformation via Java agent
 - **[demo/README.md](./demo/README.md)** - Example programs and patterns
 - **[janus/README.md](./janus/README.md)** - Composite/mixin pattern support
+- **[desmoj-ish/README.md](./desmoj-ish/README.md)** - DESMOJ-compatible simulation features
 - **[CLASSFILE_API_ANALYSIS.md](./CLASSFILE_API_ANALYSIS.md)** - Technical deep-dive on ClassFile API
 
 ## Build and Test
