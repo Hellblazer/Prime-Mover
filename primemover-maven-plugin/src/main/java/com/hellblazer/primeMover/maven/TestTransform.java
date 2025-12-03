@@ -22,6 +22,7 @@ import org.apache.maven.plugins.annotations.*;
 import org.apache.maven.project.MavenProject;
 
 import java.io.File;
+import java.util.List;
 
 /**
  * Transform the module's test classes to event driven simulation code.
@@ -39,8 +40,12 @@ public class TestTransform extends AbstractTransform {
     private boolean skip;
 
     @Override
-    protected String getCompileClasspath() throws MojoExecutionException {
-        return project.getBuild().getTestOutputDirectory();
+    protected List<String> getCompileClasspath() throws MojoExecutionException {
+        // Return both test classes and main classes so test entities can resolve interfaces from main code
+        return List.of(
+            project.getBuild().getTestOutputDirectory(),
+            project.getBuild().getOutputDirectory()
+        );
     }
 
     @Override

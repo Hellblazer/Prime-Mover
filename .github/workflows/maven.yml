@@ -28,10 +28,5 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
-      - name: Bump version
-        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
-        uses: mickem/gh-action-bump-maven-version@v1
-        with:
-          bump-type: patch
       - name: Build with Maven
         run: ./mvnw -batch-mode clean install --file pom.xml

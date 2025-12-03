@@ -28,6 +28,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.List;
 
 public abstract class AbstractTransform extends AbstractMojo {
 
@@ -44,23 +45,31 @@ public abstract class AbstractTransform extends AbstractMojo {
             return;
         }
 
-        var classpath = getCompileClasspath();
-        logger.info("Using ClassFile API transform classpath: {}", classpath);
+        var classpaths = getCompileClasspath();
+        logger.info("Using ClassFile API transform classpath: {}", classpaths);
 
         var failed = new ArrayList<String>();
-        try (var txfm = new SimulationTransform(Path.of(classpath))) {
-            var out = getOutputDirectory();
-            txfm.transformed(_ -> true).forEach((cm, bytes) -> {
-                var file = new File(out, cm.getName().replace('.', '/') + ".class");
-                file.getParentFile().mkdirs();
-                try (var fos = new FileOutputStream(file)) {
-                    fos.write(bytes);
-                    logger.info("ClassFile API Transformed: {}, written: {}", cm.getName(), file.getAbsoluteFile());
-                } catch (IOException e) {
-                    logger.error("Failed to write transformed class to {}", file.getAbsolutePath(), e);
-                    failed.add(file.getAbsolutePath());
-                }
-            });
+        try {
+            var scanner = new com.hellblazer.primeMover.classfile.ClassScanner();
+            for (var cp : classpaths) {
+                scanner.addClasspathEntry(Path.of(cp));
+            }
+            scanner.scan();
+            
+            try (var txfm = new SimulationTransform(scanner)) {
+                var out = getOutputDirectory();
+                txfm.transformed(_ -> true).forEach((cm, bytes) -> {
+                    var file = new File(out, cm.getName().replace('.', '/') + ".class");
+                    file.getParentFile().mkdirs();
+                    try (var fos = new FileOutputStream(file)) {
+                        fos.write(bytes);
+                        logger.info("ClassFile API Transformed: {}, written: {}", cm.getName(), file.getAbsoluteFile());
+                    } catch (IOException e) {
+                        logger.error("Failed to write transformed class to {}", file.getAbsolutePath(), e);
+                        failed.add(file.getAbsolutePath());
+                    }
+                });
+            }
         } catch (IOException e) {
             throw new MojoExecutionException("Unable to transform", e);
         }
@@ -71,7 +80,7 @@ public abstract class AbstractTransform extends AbstractMojo {
 
     abstract protected boolean isSkip();
 
-    abstract protected String getCompileClasspath() throws MojoExecutionException;
+    abstract protected List<String> getCompileClasspath() throws MojoExecutionException;
 
     abstract File getOutputDirectory();
 
