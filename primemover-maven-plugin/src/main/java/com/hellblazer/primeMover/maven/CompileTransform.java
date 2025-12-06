@@ -22,6 +22,7 @@ import org.apache.maven.plugins.annotations.*;
 import org.apache.maven.project.MavenProject;
 
 import java.io.File;
+import java.util.List;
 
 /**
  * Transform the module's classes to event driven simulation code.
@@ -39,8 +40,8 @@ public class CompileTransform extends AbstractTransform {
     private boolean skip;
 
     @Override
-    protected String getCompileClasspath() throws MojoExecutionException {
-        return project.getBuild().getOutputDirectory();
+    protected List<String> getCompileClasspath() throws MojoExecutionException {
+        return List.of(project.getBuild().getOutputDirectory());
     }
 
     @Override
