@@ -5,7 +5,7 @@
     <parent>
         <artifactId>primeMover.app</artifactId>
         <groupId>com.hellblazer.primeMover</groupId>
-        <version>1.0.4</version>
+        <version>1.0.5-SNAPSHOT</version>
     </parent>
     <artifactId>transform</artifactId>
     <name>Transformation Framework</name>
