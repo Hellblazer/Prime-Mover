@@ -341,15 +341,20 @@ public class SimulationTransform implements Closeable {
     }
 
     /**
-     * Finds entity interfaces that are actually implemented by the given class.
+     * Finds entity interfaces that are actually implemented by the given class,
+     * including interfaces inherited from superclasses.
      */
     private Set<ClassMetadata> findImplementedEntityInterfaces(ClassMetadata entityClass,
                                                                Set<ClassMetadata> entityInterfaces) {
-        var classInterfaceNames = new HashSet<>(entityClass.getInterfaceNames());
-        var implementedInterfaces = new OpenSet<ClassMetadata>();
+        // Collect all interface names from this class AND all superclasses
+        var allInterfaceNames = new HashSet<>(entityClass.getInterfaceNames());
+        for (var superClass : entityClass.getSuperclasses()) {
+            allInterfaceNames.addAll(superClass.getInterfaceNames());
+        }
 
+        var implementedInterfaces = new OpenSet<ClassMetadata>();
         for (var entityInterface : entityInterfaces) {
-            if (classInterfaceNames.contains(entityInterface.getName())) {
+            if (allInterfaceNames.contains(entityInterface.getName())) {
                 implementedInterfaces.add(entityInterface);
             }
         }
