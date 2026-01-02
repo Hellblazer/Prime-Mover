@@ -1,0 +1,78 @@
+plugins {
+    id 'java'
+    id 'org.jetbrains.intellij.platform'
+}
+
+repositories {
+    mavenLocal()  // For Prime Mover SNAPSHOT artifacts (via jps-plugin dependency)
+    mavenCentral()
+    intellijPlatform {
+        defaultRepositories()
+    }
+}
+
+dependencies {
+    intellijPlatform {
+        intellijIdea('2025.3')
+        bundledPlugin('com.intellij.java')
+        instrumentationTools()
+        // Let IntelliJ Platform plugin auto-detect appropriate JBR for the platform
+        jetbrainsRuntime()
+    }
+
+    // Include JPS plugin JAR for compileServer.plugin
+    implementation project(':jps-plugin')
+
+    // Test dependencies
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.11.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.11.0'
+}
+
+intellijPlatform {
+    pluginConfiguration {
+        id = 'com.hellblazer.primemover.intellij'
+        name = 'Prime Mover'
+        version = project.version
+
+        ideaVersion {
+            sinceBuild = '253'
+            untilBuild = '260.*'
+        }
+
+        vendor {
+            name = 'Hellblazer'
+            email = 'hal.hildebrand@gmail.com'
+            url = 'https://github.com/Hellblazer/Prime-Mover'
+        }
+    }
+}
+
+tasks.named('prepareSandbox') {
+    // Copy the JPS plugin fat JAR (includes Prime Mover transform module)
+    from(project(':jps-plugin').tasks.named('jar')) {
+        into "${intellijPlatform.projectName.get()}/lib"
+    }
+}
+
+// Custom test task that runs plain JUnit 5 tests without IntelliJ test framework
+// This allows testing detection logic without full IDE environment
+tasks.register('unitTest', Test) {
+    useJUnitPlatform()
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    javaLauncher = javaToolchains.launcherFor {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
+}
+
+// Disable IntelliJ Platform test tasks for unit tests
+tasks.named('test') { enabled = false }
+tasks.named('prepareTest') { enabled = false }
+tasks.named('instrumentTestCode') { enabled = false }
+tasks.named('prepareTestSandbox') { enabled = false }
+
+// Disable buildSearchableOptions in CI - requires running full IDE
+// This task generates search indices for plugin settings, not critical for build
+tasks.named('buildSearchableOptions') {
+    enabled = !System.getenv('CI')
+}

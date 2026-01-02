@@ -5,6 +5,7 @@
 The framework module provides the simulation runtime implementation for Prime Mover. It contains the core controllers, event execution engine, and virtual thread-based continuation support.
 
 **Artifact**: `com.hellblazer.primeMover:runtime`
+**Version**: 1.0.5-SNAPSHOT
 
 ## Purpose
 
@@ -54,11 +55,16 @@ controller.eventLoop();  // Process all events until done
 
 **Key Methods:**
 ```java
-void eventLoop()                    // Main simulation loop
-void eventLoop(long endTime)        // Run until specific time
-long getEventCount()                // Query total events
-double getEventRate()               // Events per millisecond
-Map<String, Long> getEventStats()   // Detailed statistics
+void eventLoop()                      // Main simulation loop
+void eventLoop(long endTime)          // Run until specific time
+int getTotalEvents()                  // Query total events processed
+Map<String, Integer> getSpectrum()    // Event type distribution
+long getSimulationStart()             // Start time
+long getSimulationEnd()               // End time
+long getEndTime()                     // Scheduled end time
+void setEndTime(long time)            // Set end time
+String getName()                      // Simulation name
+void setName(String name)             // Set simulation name
 ```
 
 #### `SteppingController`
@@ -85,13 +91,14 @@ controller.eventLoop();  // Executes events synchronized with real time
 ```
 
 #### `StatisticalController`
-Interface for querying simulation statistics. Implemented by other controllers.
+Interface for querying simulation statistics. Implemented by `SimulationController` and other statistical controllers.
 
 **Key Methods:**
 ```java
-long getEventCount()
-double getEventRate()
-Map<String, Long> getEventStats()
+int getTotalEvents()                  // Total number of events processed
+Map<String, Integer> getSpectrum()    // Distribution of event types (signature -> count)
+long getSimulationStart()             // Simulation start time
+long getSimulationEnd()               // Simulation end time
 ```
 
 ### Runtime API (`com.hellblazer.primeMover.runtime`)
@@ -116,12 +123,13 @@ public static void setController(Controller c)
 ```
 
 #### `Devi` Abstract Base Class
-Abstract controller that provides virtual thread-based event execution.
+Abstract controller that provides virtual thread-based event execution using Java's virtual threads (Project Loom).
 
 **Features:**
-- Uses virtual thread executor for event processing
-- Handles thread-local controller propagation
+- Creates virtual thread executor via `Executors.newVirtualThreadPerTaskExecutor()`
+- Handles thread-local controller propagation across virtual threads
 - Provides foundation for concrete controller implementations
+- Manages event evaluation and continuation state
 
 **Key Methods:**
 ```java
@@ -129,7 +137,6 @@ void postEvent(EntityReference entity, int event, Object... args)
 Object postContinuingEvent(EntityReference entity, int event, Object... args)
 public void post(EventImpl event)                    // Post an event (public for cross-package use)
 public EventImpl swapCaller(EventImpl newCaller)     // Swap caller context (public for cross-package use)
-ExecutorService getExecutor()  // Virtual thread executor
 ```
 
 **Visibility Notes:**
@@ -150,13 +157,13 @@ CompletableFuture<?>   // Continuation state for blocking
 
 **Key Methods:**
 ```java
-long getTime()
-EntityReference getEntity()
-int getEvent()
-Event getSource()       // For source chain tracking
-void execute()          // Run the event
-public Continuation getContinuation()  // Get continuation state (public for cross-package use)
-public void setTime(long time)         // Set event time (public for cross-package use)
+long getTime()                              // Get event time
+String getSignature()                       // Get event method signature
+Event getSource()                           // Get source event (for chain tracking)
+void printTrace()                           // Print event source chain
+void printTrace(PrintStream s)              // Print to specific stream
+public Continuation getContinuation()       // Get continuation state (public for cross-package use)
+public void setTime(long time)              // Set event time (public for cross-package use)
 ```
 
 **Visibility Notes:**
@@ -166,18 +173,18 @@ The `getContinuation()` and `setTime()` methods are public to allow the `desmoj-
 Standard Java `PriorityQueue` for efficient time-ordered event queue management.
 
 **Characteristics:**
-- Uses heap-based priority queue structure
+- Uses heap-based priority queue structure (`java.util.PriorityQueue`)
 - O(log n) insertion and extraction
-- Standard library implementation - well-tested
-- Maintains time ordering via `EventImpl` comparisons
+- Standard Java library implementation - well-tested and reliable
+- Maintains time ordering via `EventImpl.compareTo()` method (events ordered by time)
 
 **Key Operations:**
 ```java
-queue.add(event)           // Add event to queue
-EventImpl next = queue.poll() // Get next event (by time)
-queue.size()
-queue.isEmpty()
-queue.clear()
+queue.add(event)              // Add event to queue - O(log n)
+EventImpl next = queue.poll() // Get next event (by time) - O(log n)
+queue.size()                  // Number of pending events - O(1)
+queue.isEmpty()               // Check if empty - O(1)
+queue.clear()                 // Remove all events - O(n)
 ```
 
 #### `BlockingSleep` Class
@@ -344,7 +351,7 @@ The framework module depends on:
 
 ## Virtual Threads Integration
 
-The framework is built on Java 21+ virtual threads (Project Loom):
+The framework is built on Java virtual threads (Project Loom, introduced in Java 21):
 
 **Benefits:**
 - Efficient blocking: Virtual threads are lightweight
@@ -353,7 +360,8 @@ The framework is built on Java 21+ virtual threads (Project Loom):
 - Transparency: No code changes needed from user perspective
 
 **Requirements:**
-- Java 21 or later
+- Java 25 or later (required for ClassFile API used by transformation)
+- Virtual threads were introduced in Java 21, but Prime Mover requires Java 25
 - No special VM flags needed
 - Compatible with `CompletableFuture` for continuations
 

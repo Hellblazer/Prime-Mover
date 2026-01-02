@@ -22,6 +22,8 @@ Prime Mover enables discrete event simulation using standard Java method calls. 
 
 The framework addresses a common problem: traditional DES frameworks require explicit event scheduling, fragmenting natural control flow. Prime Mover eliminates this by treating method calls as implicit events.
 
+**Requirements**: Java 25+ (uses ClassFile API from JEP 484 for bytecode transformation and virtual threads from Project Loom for continuations)
+
 This document covers the technical foundations of the framework.
 
 ---
@@ -681,7 +683,7 @@ Channels apply to:
 - Transparent stack management
 - No bytecode compatibility concerns
 
-**Trade-off**: Requires Java 21+; cannot run on older JVMs.
+**Trade-off**: Requires Java 25+ (for ClassFile API; virtual threads require Java 21+); cannot run on older JVMs.
 
 ### Decision: Priority Queue for Event Ordering
 

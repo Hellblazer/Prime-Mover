@@ -1,0 +1,21 @@
+plugins {
+    id 'java'
+    id 'org.jetbrains.intellij.platform' version '2.10.5' apply false
+}
+
+group = 'com.hellblazer.primemover.intellij'
+// Version comes from gradle.properties or -Pversion command line argument
+
+subprojects {
+    apply plugin: 'java'
+
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(25)
+        }
+    }
+
+    repositories {
+        mavenCentral()
+    }
+}

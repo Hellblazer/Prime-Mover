@@ -67,12 +67,19 @@ Add the plugin to your pom.xml build section:
         <plugin>
             <groupId>com.hellblazer.primeMover</groupId>
             <artifactId>primemover-maven-plugin</artifactId>
-            <version>0.1.0</version>
+            <version>1.0.5-SNAPSHOT</version>
             <executions>
                 <execution>
+                    <id>transform-classes</id>
                     <phase>process-classes</phase>
                     <goals>
                         <goal>transform</goal>
+                    </goals>
+                </execution>
+                <execution>
+                    <id>transform-test-classes</id>
+                    <phase>process-test-classes</phase>
+                    <goals>
                         <goal>transform-test</goal>
                     </goals>
                 </execution>
@@ -105,8 +112,7 @@ This assumes default configuration:
     <version>${project.version}</version>
     <configuration>
         <!-- Optional: customize transformation behavior -->
-        <skip>false</skip>  <!-- Skip transformation entirely -->
-        <verbose>false</verbose>  <!-- Verbose output -->
+        <!-- Note: Use -Dprimemover.skip=true to skip transformation from command line -->
     </configuration>
     <executions>
         <execution>
@@ -115,9 +121,7 @@ This assumes default configuration:
             <goals>
                 <goal>transform</goal>
             </goals>
-            <configuration>
-                <classDirectory>${project.build.outputDirectory}</classDirectory>
-            </configuration>
+            <!-- Configuration uses defaults -->
         </execution>
         <execution>
             <id>transform-test-classes</id>
@@ -125,9 +129,7 @@ This assumes default configuration:
             <goals>
                 <goal>transform-test</goal>
             </goals>
-            <configuration>
-                <classDirectory>${project.build.testOutputDirectory}</classDirectory>
-            </configuration>
+            <!-- Configuration uses defaults -->
         </execution>
     </executions>
 </plugin>
@@ -143,9 +145,8 @@ Transforms main classes in `target/classes`.
 **Purpose**: Transform production code
 
 **Parameters**:
-- `classDirectory` (default: `${project.build.outputDirectory}`)
-- `skip` (default: false)
-- `verbose` (default: false)
+- `buildOutputDirectory` (default: `${project.build.outputDirectory}`)
+- `skip` (property: `primemover.skip`, default: false)
 
 **Example**:
 ```bash
@@ -160,9 +161,8 @@ Transforms test classes in `target/test-classes`.
 **Purpose**: Transform test code
 
 **Parameters**:
-- `classDirectory` (default: `${project.build.testOutputDirectory}`)
-- `skip` (default: false)
-- `verbose` (default: false)
+- `testOutputDirectory` (default: `${project.build.testOutputDirectory}`)
+- `skip` (property: `primemover.skip`, default: false)
 
 **Example**:
 ```bash
@@ -316,24 +316,10 @@ javap -v target/classes/mypackage/MyClass.class
 
 3. **Incremental builds**: Only retransforms changed classes
 
-4. **Separate test configuration**: Run test transformation only when needed
-   ```xml
-   <!-- Skip test transformation by default -->
-   <execution>
-       <id>transform-test-classes</id>
-       <phase>process-test-classes</phase>
-       <goals>
-           <goal>transform-test</goal>
-       </goals>
-       <configuration>
-           <skip>true</skip>
-       </configuration>
-   </execution>
-   ```
-
-   Then explicitly enable:
+4. **Skip transformation when needed**:
    ```bash
-   mvn test -Dtransform.tests=true
+   # Skip all transformations
+   mvn clean install -Dprimemover.skip=true
    ```
 
 ## Common Patterns

@@ -1,0 +1,62 @@
+<idea-plugin>
+    <id>com.hellblazer.primemover.intellij</id>
+    <name>Prime Mover</name>
+    <vendor email="hal.hildebrand@gmail.com" url="https://github.com/Hellblazer/Prime-Mover">Hellblazer</vendor>
+
+    <description><![CDATA[
+    Seamless bytecode transformation for Prime Mover discrete event simulation framework.
+
+    <h3>Features</h3>
+    <ul>
+        <li>Automatic post-compile transformation of @Entity classes</li>
+        <li>Auto-detection of Prime Mover projects</li>
+        <li>Run configuration enhancement with -javaagent</li>
+        <li>Incremental compilation support</li>
+    </ul>
+
+    <h3>Requirements</h3>
+    <ul>
+        <li>IntelliJ IDEA 2025.3 or later</li>
+        <li>Java 25 or later</li>
+        <li>Prime Mover framework in project dependencies</li>
+    </ul>
+    ]]></description>
+
+    <change-notes><![CDATA[
+    <h3>1.0.0</h3>
+    <ul>
+        <li>Initial release</li>
+        <li>JPS-based post-compile bytecode transformation for @Entity classes</li>
+        <li>Auto-detection of Prime Mover projects (Maven and Gradle)</li>
+        <li>Automatic -javaagent:sim-agent.jar injection for run configurations</li>
+        <li>Settings UI for configuration</li>
+        <li>Duplicate transformation warning when Maven plugin is also configured</li>
+    </ul>
+    ]]></change-notes>
+
+    <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.modules.java</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <!-- JPS Builder Plugin - loads our JPS module into the compile server -->
+        <compileServer.plugin classpath="jps-plugin.jar"/>
+
+        <!-- Project-level settings configurable -->
+        <projectConfigurable
+            parentId="build"
+            instance="com.hellblazer.primemover.intellij.ui.PrimeMoverSettingsConfigurable"
+            id="com.hellblazer.primemover.intellij.settings"
+            displayName="Prime Mover"
+            nonDefaultProject="true"/>
+
+        <!-- Startup activity for project detection and notifications -->
+        <postStartupActivity implementation="com.hellblazer.primemover.intellij.PrimeMoverStartupActivity"/>
+
+        <!-- Notification group for Prime Mover messages -->
+        <notificationGroup id="Prime Mover" displayType="BALLOON"/>
+
+        <!-- Java program patcher for auto-adding -javaagent to run configurations -->
+        <java.programPatcher implementation="com.hellblazer.primemover.intellij.agent.PrimeMoverJavaProgramPatcher"/>
+    </extensions>
+
+</idea-plugin>

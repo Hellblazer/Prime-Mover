@@ -6,6 +6,8 @@ The Janus module provides dynamic interface composition and mixin support using 
 
 **Artifact**: `com.hellblazer.primeMover:janus`
 
+**Package**: `com.chiralbehaviors.janus`
+
 **Type**: Core utility module
 
 ## Purpose
@@ -51,12 +53,32 @@ public interface Shape extends Drawable, Movable, Serializable {
 }
 
 // Runtime creation
-Shape shape = Composite.assemble(Shape.class,
+var composite = Composite.instance();
+Shape shape = composite.assemble(
+    Shape.class,
+    Thread.currentThread().getContextClassLoader(),
     new DrawableImpl(),
-    new MovableImpl());
+    new MovableImpl()
+);
 ```
 
 ## Usage
+
+**Note**: All examples use the full API with explicit class loader. For simpler code, you can create a helper:
+
+```java
+public class CompositeHelper {
+    private static final Composite INSTANCE = Composite.instance();
+
+    public static <T> T assemble(Class<T> composite, Object... mixins) {
+        return INSTANCE.assemble(composite,
+            Thread.currentThread().getContextClassLoader(),
+            mixins);
+    }
+}
+```
+
+Then use: `var shape = CompositeHelper.assemble(Shape.class, new DrawableImpl(), new MovableImpl());`
 
 ### Basic Mixin Definition
 
@@ -119,10 +141,14 @@ public interface SmartShape extends Drawable, Movable, Loggable {
 }
 
 // Create instance at runtime
-SmartShape shape = Composite.assemble(SmartShape.class,
+var composite = Composite.instance();
+SmartShape shape = composite.assemble(
+    SmartShape.class,
+    Thread.currentThread().getContextClassLoader(),
     new DrawableImpl(canvas),
     new MovableImpl(),
-    new LoggingBehavior());
+    new LoggingBehavior()
+);
 
 // Use as normal interface
 shape.draw();
@@ -238,9 +264,13 @@ class Renderer1 implements Renderable { ... }
 class Renderer2 implements Renderable { ... }
 
 // Last mixin wins
-Composite.assemble(MyInterface.class,
+var composite = Composite.instance();
+composite.assemble(
+    MyInterface.class,
+    Thread.currentThread().getContextClassLoader(),
     new Renderer1(),
-    new Renderer2());  // render() uses Renderer2
+    new Renderer2()  // render() uses Renderer2
+);
 ```
 
 ## Benefits
@@ -279,10 +309,14 @@ Composite.assemble(MyInterface.class,
 public interface Plugin extends Named, Versioned, Executable {
 }
 
-Plugin plugin = Composite.assemble(Plugin.class,
+var composite = Composite.instance();
+Plugin plugin = composite.assemble(
+    Plugin.class,
+    Thread.currentThread().getContextClassLoader(),
     new NameMixin("MyPlugin"),
     new VersionMixin("1.0.0"),
-    new ExecutableMixin());
+    new ExecutableMixin()
+);
 ```
 
 ### 2. Simulated Entities with Behaviors
@@ -291,10 +325,14 @@ Plugin plugin = Composite.assemble(Plugin.class,
 public interface SimulatedAgent extends Movable, Talkative, Intelligent {
 }
 
-SimulatedAgent agent = Composite.assemble(SimulatedAgent.class,
+var composite = Composite.instance();
+SimulatedAgent agent = composite.assemble(
+    SimulatedAgent.class,
+    Thread.currentThread().getContextClassLoader(),
     new MovementBehavior(),
     new CommunicationBehavior(),
-    new DecisionMaking());
+    new DecisionMaking()
+);
 ```
 
 ### 3. Protocol Implementations
@@ -302,10 +340,14 @@ SimulatedAgent agent = Composite.assemble(SimulatedAgent.class,
 public interface HTTPServer extends Listenable, Routable, Loggable {
 }
 
-HTTPServer server = Composite.assemble(HTTPServer.class,
+var composite = Composite.instance();
+HTTPServer server = composite.assemble(
+    HTTPServer.class,
+    Thread.currentThread().getContextClassLoader(),
     new ListenerMixin(8080),
     new RouterMixin(),
-    new LoggingMixin());
+    new LoggingMixin()
+);
 ```
 
 ### 4. Data Access Objects
@@ -313,10 +355,14 @@ HTTPServer server = Composite.assemble(HTTPServer.class,
 public interface UserRepository extends Readable, Writable, Indexable {
 }
 
-UserRepository repo = Composite.assemble(UserRepository.class,
+var composite = Composite.instance();
+UserRepository repo = composite.assemble(
+    UserRepository.class,
+    Thread.currentThread().getContextClassLoader(),
     new ReadImpl(database),
     new WriteImpl(database),
-    new IndexImpl(database));
+    new IndexImpl(database)
+);
 ```
 
 ## Limitations
@@ -340,11 +386,15 @@ public interface ComplexAgent extends
 }
 
 // Create at runtime
-ComplexAgent agent = Composite.assemble(ComplexAgent.class,
+var composite = Composite.instance();
+ComplexAgent agent = composite.assemble(
+    ComplexAgent.class,
+    Thread.currentThread().getContextClassLoader(),
     new MovementBehavior(),
     new CommunicationBehavior(),
     new LearningBehavior(),
-    new LoggingBehavior());
+    new LoggingBehavior()
+);
 
 // Use in simulation
 agent.move();
@@ -377,9 +427,13 @@ Test your composites:
 ```java
 @Test
 void testComposite() {
-    MyInterface obj = Composite.assemble(MyInterface.class,
+    var composite = Composite.instance();
+    MyInterface obj = composite.assemble(
+        MyInterface.class,
+        Thread.currentThread().getContextClassLoader(),
         new Impl1(),
-        new Impl2());
+        new Impl2()
+    );
 
     assertEquals("expected", obj.method1());
     assertEquals(42, obj.method2());
