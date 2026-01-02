@@ -42,6 +42,9 @@
 
         <!-- Notification group for Prime Mover messages -->
         <notificationGroup id="Prime Mover" displayType="BALLOON"/>
+
+        <!-- Java program patcher for auto-adding -javaagent to run configurations -->
+        <java.programPatcher implementation="com.hellblazer.primemover.intellij.agent.PrimeMoverJavaProgramPatcher"/>
     </extensions>
 
 </idea-plugin>
