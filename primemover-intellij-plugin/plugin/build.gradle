@@ -22,6 +22,10 @@ dependencies {
 
     // Include JPS plugin JAR for compileServer.plugin
     implementation project(':jps-plugin')
+
+    // Test dependencies
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.11.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.11.0'
 }
 
 intellijPlatform {
@@ -49,3 +53,20 @@ tasks.named('prepareSandbox') {
         into "${intellijPlatform.projectName.get()}/lib"
     }
 }
+
+// Custom test task that runs plain JUnit 5 tests without IntelliJ test framework
+// This allows testing detection logic without full IDE environment
+tasks.register('unitTest', Test) {
+    useJUnitPlatform()
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    javaLauncher = javaToolchains.launcherFor {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
+}
+
+// Disable IntelliJ Platform test tasks for unit tests
+tasks.named('test') { enabled = false }
+tasks.named('prepareTest') { enabled = false }
+tasks.named('instrumentTestCode') { enabled = false }
+tasks.named('prepareTestSandbox') { enabled = false }

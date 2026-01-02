@@ -28,6 +28,20 @@
     <extensions defaultExtensionNs="com.intellij">
         <!-- JPS Builder Plugin - loads our JPS module into the compile server -->
         <compileServer.plugin classpath="jps-plugin.jar"/>
+
+        <!-- Project-level settings configurable -->
+        <projectConfigurable
+            parentId="build"
+            instance="com.hellblazer.primemover.intellij.ui.PrimeMoverSettingsConfigurable"
+            id="com.hellblazer.primemover.intellij.settings"
+            displayName="Prime Mover"
+            nonDefaultProject="true"/>
+
+        <!-- Startup activity for project detection and notifications -->
+        <postStartupActivity implementation="com.hellblazer.primemover.intellij.PrimeMoverStartupActivity"/>
+
+        <!-- Notification group for Prime Mover messages -->
+        <notificationGroup id="Prime Mover" displayType="BALLOON"/>
     </extensions>
 
 </idea-plugin>
