@@ -1,0 +1,51 @@
+plugins {
+    id 'java'
+    id 'org.jetbrains.intellij.platform'
+}
+
+repositories {
+    mavenLocal()  // For Prime Mover SNAPSHOT artifacts (via jps-plugin dependency)
+    mavenCentral()
+    intellijPlatform {
+        defaultRepositories()
+    }
+}
+
+dependencies {
+    intellijPlatform {
+        intellijIdea('2025.3')
+        bundledPlugin('com.intellij.java')
+        instrumentationTools()
+        // Use JBR 25 to get access to ClassFile API
+        jetbrainsRuntimeExplicit('jbr_jcef-25-osx-aarch64-b176.4')
+    }
+
+    // Include JPS plugin JAR for compileServer.plugin
+    implementation project(':jps-plugin')
+}
+
+intellijPlatform {
+    pluginConfiguration {
+        id = 'com.hellblazer.primemover.intellij'
+        name = 'Prime Mover'
+        version = project.version
+
+        ideaVersion {
+            sinceBuild = '253'
+            untilBuild = '260.*'
+        }
+
+        vendor {
+            name = 'Hellblazer'
+            email = 'hal.hildebrand@gmail.com'
+            url = 'https://github.com/Hellblazer/Prime-Mover'
+        }
+    }
+}
+
+tasks.named('prepareSandbox') {
+    // Copy the JPS plugin fat JAR (includes Prime Mover transform module)
+    from(project(':jps-plugin').tasks.named('jar')) {
+        into "${intellijPlatform.projectName.get()}/lib"
+    }
+}

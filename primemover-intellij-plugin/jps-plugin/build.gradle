@@ -1,0 +1,115 @@
+plugins {
+    id 'java'
+    id 'org.jetbrains.intellij.platform'
+}
+
+repositories {
+    mavenLocal()  // For Prime Mover SNAPSHOT artifacts
+    mavenCentral()
+    intellijPlatform {
+        defaultRepositories()
+    }
+}
+
+dependencies {
+    // Use IntelliJ Platform for JPS classes
+    intellijPlatform {
+        intellijIdea('2025.3')
+        bundledPlugin('com.intellij.java')
+        instrumentationTools()
+    }
+
+    // Prime Mover transform module - will be shaded into the JPS plugin JAR
+    implementation 'com.hellblazer.primeMover:transform:1.0.5-SNAPSHOT'
+
+    // For testing
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.11.3'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+// Add JPS jars from the IntelliJ distribution to compile classpath
+afterEvaluate {
+    def platformPath = intellijPlatform.platformPath
+
+    dependencies {
+        // JPS model from main lib directory
+        compileOnly files("${platformPath}/lib/jps-model.jar")
+
+        // JPS builders from Java plugin
+        compileOnly files("${platformPath}/plugins/java/lib/jps-builders.jar")
+
+        // For @NotNull annotations
+        compileOnly files("${platformPath}/lib/annotations.jar")
+
+        // Util classes
+        compileOnly files("${platformPath}/lib/util.jar")
+    }
+}
+
+// Configure test task to use plain JUnit 5 without IntelliJ test framework
+// Create a custom test task that doesn't use IntelliJ's test infrastructure
+tasks.register('unitTest', Test) {
+    useJUnitPlatform()
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+
+    // Ensure Java 25 for ClassFile API
+    javaLauncher = javaToolchains.launcherFor {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
+}
+
+// Disable the standard test task (uses IntelliJ test framework)
+tasks.named('test') {
+    enabled = false
+}
+
+// Disable IntelliJ-specific test tasks since we use plain JUnit
+tasks.named('prepareTest') {
+    enabled = false
+}
+tasks.named('instrumentTestCode') {
+    enabled = false
+}
+tasks.named('prepareTestSandbox') {
+    enabled = false
+}
+
+// Create a JAR that will be loaded by the JPS process
+tasks.named('jar') {
+    archiveBaseName = 'primemover-intellij-jps'
+
+    manifest {
+        attributes(
+            'Implementation-Title': 'Prime Mover JPS Plugin',
+            'Implementation-Version': project.version
+        )
+    }
+}
+
+// Create a fat JAR that bundles Prime Mover transform module
+// No ASM-based tools used - we use ClassFile API exclusively
+tasks.named('jar') {
+    dependsOn configurations.runtimeClasspath
+
+    // Bundle all runtime dependencies into the JAR
+    from {
+        configurations.runtimeClasspath.collect { file ->
+            // Skip SLF4J - users provide their own
+            if (file.name.contains('slf4j')) {
+                return []
+            }
+            file.isDirectory() ? file : zipTree(file)
+        }
+    }
+
+    // Handle duplicate files
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    manifest {
+        attributes(
+            'Implementation-Title': 'Prime Mover JPS Plugin',
+            'Implementation-Version': project.version
+        )
+    }
+}

@@ -1,0 +1,4 @@
+rootProject.name = 'primemover-intellij-plugin'
+
+include 'plugin'
+include 'jps-plugin'
