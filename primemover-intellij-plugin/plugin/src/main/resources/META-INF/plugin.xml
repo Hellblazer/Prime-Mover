@@ -22,6 +22,18 @@
     </ul>
     ]]></description>
 
+    <change-notes><![CDATA[
+    <h3>1.0.0</h3>
+    <ul>
+        <li>Initial release</li>
+        <li>JPS-based post-compile bytecode transformation for @Entity classes</li>
+        <li>Auto-detection of Prime Mover projects (Maven and Gradle)</li>
+        <li>Automatic -javaagent:sim-agent.jar injection for run configurations</li>
+        <li>Settings UI for configuration</li>
+        <li>Duplicate transformation warning when Maven plugin is also configured</li>
+    </ul>
+    ]]></change-notes>
+
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.java</depends>
 

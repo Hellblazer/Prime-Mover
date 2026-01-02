@@ -75,6 +75,14 @@ tasks.named('prepareTestSandbox') {
     enabled = false
 }
 
+// JPS plugin doesn't have searchable options (no UI)
+tasks.named('prepareJarSearchableOptions') {
+    enabled = false
+}
+tasks.named('jarSearchableOptions') {
+    enabled = false
+}
+
 // Create a JAR that will be loaded by the JPS process
 tasks.named('jar') {
     archiveBaseName = 'primemover-intellij-jps'

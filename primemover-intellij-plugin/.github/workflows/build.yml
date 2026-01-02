@@ -1,0 +1,110 @@
+name: Build and Test
+
+on:
+  push:
+    branches: [ master, main ]
+    paths:
+      - 'primemover-intellij-plugin/**'
+  pull_request:
+    branches: [ master, main ]
+    paths:
+      - 'primemover-intellij-plugin/**'
+
+defaults:
+  run:
+    working-directory: primemover-intellij-plugin
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up JDK 25
+      uses: actions/setup-java@v4
+      with:
+        java-version: '25-ea'
+        distribution: 'temurin'
+
+    - name: Build Prime Mover (dependencies)
+      run: |
+        cd ..
+        ./mvnw install -DskipTests -pl api,framework,transform -am
+
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v4
+
+    - name: Build Plugin
+      run: ./gradlew buildPlugin
+
+    - name: Run JPS Plugin Tests
+      run: ./gradlew :jps-plugin:unitTest
+
+    - name: Run Plugin Tests
+      run: ./gradlew :plugin:unitTest
+
+    - name: Upload Plugin Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: plugin-distribution
+        path: primemover-intellij-plugin/plugin/build/distributions/*.zip
+
+    - name: Upload Test Results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: test-results
+        path: |
+          primemover-intellij-plugin/jps-plugin/build/test-results/
+          primemover-intellij-plugin/plugin/build/test-results/
+
+  verify-plugin:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up JDK 25
+      uses: actions/setup-java@v4
+      with:
+        java-version: '25-ea'
+        distribution: 'temurin'
+
+    - name: Download Plugin Artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: plugin-distribution
+        path: ./plugin-dist
+
+    - name: Verify Plugin Structure
+      run: |
+        cd ./plugin-dist
+        unzip -l *.zip
+        # Verify essential JARs are present
+        unzip -l *.zip | grep -q "jps-plugin.jar" || exit 1
+        unzip -l *.zip | grep -q "plugin-" || exit 1
+        echo "Plugin structure verified successfully"
+
+  release:
+    runs-on: ubuntu-latest
+    needs: [build, verify-plugin]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Download Plugin Artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: plugin-distribution
+        path: ./plugin-dist
+
+    - name: Create Release
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: softprops/action-gh-release@v1
+      with:
+        files: ./plugin-dist/*.zip
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
