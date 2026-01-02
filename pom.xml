@@ -52,6 +52,7 @@
         <module>janus</module>
         <module>sim-agent</module>
         <module>api</module>
+        <module>primemover-intellij-plugin</module>
     </modules>
 
     <dependencyManagement>

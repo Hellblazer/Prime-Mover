@@ -4,7 +4,7 @@ plugins {
 }
 
 group = 'com.hellblazer.primemover.intellij'
-version = '1.0.0-SNAPSHOT'
+// Version comes from gradle.properties or -Pversion command line argument
 
 subprojects {
     apply plugin: 'java'

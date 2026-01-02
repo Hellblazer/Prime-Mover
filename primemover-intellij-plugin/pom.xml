@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.hellblazer.primeMover</groupId>
+        <artifactId>primeMover.app</artifactId>
+        <version>1.0.5-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>primemover-intellij-plugin</artifactId>
+    <packaging>pom</packaging>
+    <name>Prime Mover IntelliJ Plugin</name>
+    <description>IntelliJ IDEA plugin for Prime Mover bytecode transformation</description>
+
+    <properties>
+        <!-- Gradle output locations -->
+        <plugin.build.dir>${project.basedir}/plugin/build</plugin.build.dir>
+        <plugin.distributions.dir>${plugin.build.dir}/distributions</plugin.distributions.dir>
+    </properties>
+
+    <build>
+        <plugins>
+            <!-- Run Gradle build -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.5.0</version>
+                <executions>
+                    <!-- Pass version from Maven to Gradle -->
+                    <execution>
+                        <id>gradle-build</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>./gradlew</executable>
+                            <workingDirectory>${project.basedir}</workingDirectory>
+                            <arguments>
+                                <argument>clean</argument>
+                                <argument>buildPlugin</argument>
+                                <argument>-Pversion=${project.version}</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Attach the plugin ZIP as a Maven artifact -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>3.6.0</version>
+                <executions>
+                    <execution>
+                        <id>attach-plugin-zip</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>attach-artifact</goal>
+                        </goals>
+                        <configuration>
+                            <artifacts>
+                                <artifact>
+                                    <file>${plugin.distributions.dir}/plugin-${project.version}.zip</file>
+                                    <type>zip</type>
+                                    <classifier>plugin</classifier>
+                                </artifact>
+                            </artifacts>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Clean Gradle build outputs -->
+            <plugin>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>3.4.1</version>
+                <configuration>
+                    <filesets>
+                        <fileset>
+                            <directory>${project.basedir}/build</directory>
+                        </fileset>
+                        <fileset>
+                            <directory>${project.basedir}/plugin/build</directory>
+                        </fileset>
+                        <fileset>
+                            <directory>${project.basedir}/jps-plugin/build</directory>
+                        </fileset>
+                        <fileset>
+                            <directory>${project.basedir}/.gradle</directory>
+                        </fileset>
+                    </filesets>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <!-- Dependencies listed for documentation - actual deps managed by Gradle -->
+    <dependencies>
+        <!-- The JPS plugin depends on transform module -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>transform</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+</project>

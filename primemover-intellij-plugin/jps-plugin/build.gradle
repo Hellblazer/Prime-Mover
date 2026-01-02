@@ -20,7 +20,8 @@ dependencies {
     }
 
     // Prime Mover transform module - will be shaded into the JPS plugin JAR
-    implementation 'com.hellblazer.primeMover:transform:1.0.5-SNAPSHOT'
+    // Version synced from root project (gradle.properties or -Pversion)
+    implementation "com.hellblazer.primeMover:transform:${rootProject.version}"
 
     // For testing
     testImplementation 'org.junit.jupiter:junit-jupiter:5.11.3'
