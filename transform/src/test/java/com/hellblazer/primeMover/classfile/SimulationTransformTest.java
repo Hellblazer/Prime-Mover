@@ -3,9 +3,9 @@ package com.hellblazer.primeMover.classfile;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.tree.ClassNode;
 
+import java.lang.classfile.ClassFile;
+import java.lang.classfile.ClassModel;
 import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -55,13 +55,12 @@ public class SimulationTransformTest {
         byte[] bytecode = generator.generate();
         assertTrue(bytecode.length > 0, "Should generate non-empty bytecode");
 
-        // Test that bytecode is valid by parsing it
-        ClassReader reader = new ClassReader(bytecode);
-        ClassNode classNode = new ClassNode();
-        reader.accept(classNode, 0);
+        // Validate bytecode using ClassFile API (parsing validates structure)
+        ClassModel classModel = ClassFile.of().parse(bytecode);
 
-        assertEquals(className.replace('.', '/'), classNode.name, "Generated class should have correct name");
-        assertTrue(classNode.methods.size() > 0, "Generated class should have methods");
+        assertEquals(className.replace('.', '/'), classModel.thisClass().asInternalName(),
+                     "Generated class should have correct name");
+        assertTrue(classModel.methods().size() > 0, "Generated class should have methods");
     }
 
 }

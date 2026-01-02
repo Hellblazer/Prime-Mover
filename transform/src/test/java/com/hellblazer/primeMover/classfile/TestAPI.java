@@ -20,12 +20,11 @@ package com.hellblazer.primeMover.classfile;
 import com.hellblazer.primeMover.TrackingController;
 import com.hellblazer.primeMover.runtime.Kairos;
 import org.junit.jupiter.api.Test;
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.util.CheckClassAdapter;
-import org.objectweb.asm.util.TraceClassVisitor;
 import testClasses.LocalLoader;
 
-import java.io.PrintWriter;
+import java.lang.classfile.ClassFile;
+import java.lang.classfile.ClassModel;
+import java.lang.classfile.MethodModel;
 import java.lang.reflect.Method;
 import java.nio.file.Path;
 import java.util.Map;
@@ -48,10 +47,14 @@ public class TestAPI {
 
     @SuppressWarnings("unused")
     private void dump(byte[] bytes) {
-        ClassReader reader = new ClassReader(bytes);
-        TraceClassVisitor visitor = new TraceClassVisitor(null, new PrintWriter(System.out, true));
-        reader.accept(visitor, ClassReader.EXPAND_FRAMES);
-        CheckClassAdapter.verify(reader, true, new PrintWriter(System.out, true));
+        // Parse and validate bytecode using ClassFile API
+        ClassModel classModel = ClassFile.of().parse(bytes);
+        System.out.println("Class: " + classModel.thisClass().asInternalName());
+        System.out.println("Super: " + classModel.superclass().map(sc -> sc.asInternalName()).orElse("none"));
+        System.out.println("Methods:");
+        for (MethodModel method : classModel.methods()) {
+            System.out.println("  " + method.methodName().stringValue() + method.methodType().stringValue());
+        }
     }
 
     private Map<String, byte[]> getTransformed() throws Exception {

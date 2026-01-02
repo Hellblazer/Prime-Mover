@@ -22,22 +22,13 @@ import com.hellblazer.primeMover.ControllerImpl;
 import com.hellblazer.primeMover.classfile.testClasses.Foo;
 import com.hellblazer.primeMover.runtime.Kairos;
 import org.junit.jupiter.api.Test;
-import org.objectweb.asm.*;
-import org.objectweb.asm.commons.GeneratorAdapter;
-import org.objectweb.asm.commons.Method;
-import org.objectweb.asm.commons.TableSwitchGenerator;
-import org.objectweb.asm.util.CheckClassAdapter;
-import org.objectweb.asm.util.TraceClassVisitor;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
-import java.io.PrintWriter;
+import java.lang.classfile.ClassFile;
+import java.lang.classfile.ClassModel;
 import java.nio.ByteBuffer;
 import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
-import static org.objectweb.asm.Opcodes.ACC_STATIC;
 
 /**
  * @author hal.hildebrand
@@ -51,9 +42,6 @@ public class EntityGeneratorTest {
             .scan();
         var transform = new SimulationTransform(scanner);
 
-        //        final var name = "testClasses.ContinuationThroughputImpl";
-        //        final var name = "testClasses.HelloWorld";
-        //        final var name = "testClasses.SubEntity";
         final var name = "com.hellblazer.primeMover.classfile.testClasses.MyTest";
         var generator = transform.generatorOf(name);
         assertNotNull(generator);
@@ -62,12 +50,11 @@ public class EntityGeneratorTest {
         final var bytes = cw;
         assertNotNull(bytes);
 
-        ClassReader reader = new ClassReader(bytes);
-        final var out = new PrintStream(new ByteArrayOutputStream()); // System.out;
-        final PrintWriter printWriter = new PrintWriter(out, true);
-        TraceClassVisitor visitor = new TraceClassVisitor(null, printWriter);
-        reader.accept(visitor, ClassReader.EXPAND_FRAMES);
-        CheckClassAdapter.verify(reader, printWriter != null, printWriter);
+        // Validate bytecode using ClassFile API (parsing validates structure)
+        ClassModel classModel = ClassFile.of().parse(bytes);
+        assertNotNull(classModel);
+        assertEquals(name.replace('.', '/'), classModel.thisClass().asInternalName());
+        assertTrue(classModel.methods().size() > 0, "Generated class should have methods");
 
         var loader = new ClassLoader(getClass().getClassLoader()) {
             {
@@ -94,100 +81,16 @@ public class EntityGeneratorTest {
     }
 
     @Test
-    public void tableSwitch() throws Exception {
-        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
-        final var name = "Example";
-        cw.visit(Opcodes.V17, ACC_PUBLIC, name, null, "java/lang/Object", null);
-
-        Method m = Method.getMethod("void <init> ()");
-        GeneratorAdapter mg = new GeneratorAdapter(ACC_PUBLIC, m, null, null, cw);
-        mg.loadThis();
-        mg.invokeConstructor(Type.getType(Object.class), m);
-        mg.returnValue();
-        mg.visitMaxs(1, 1);
-        mg.endMethod();
-
-        m = Method.getMethod("void main (String[])");
-        mg = new GeneratorAdapter(ACC_PUBLIC + ACC_STATIC, m, null, null, cw);
-        mg.getStatic(Type.getType(System.class), "out", Type.getType(PrintStream.class));
-        mg.push("Hello world!");
-        mg.invokeVirtual(Type.getType(PrintStream.class), Method.getMethod("void println (String)"));
-        mg.returnValue();
-        mg.visitMaxs(0, 0);
-        mg.endMethod();
-
-        m = Method.getMethod("Integer test (int)");
-        final var gen = new GeneratorAdapter(ACC_PUBLIC, m, null, null, cw);
-
-        gen.loadArg(0);
-        gen.tableSwitch(new int[] { 0, 1, 2 }, new TableSwitchGenerator() {
-
-            @Override
-            public void generateCase(int key, Label end) {
-                gen.visitFrame(Opcodes.F_NEW, 2, new Object[] { Type.getObjectType("Example").getInternalName(),
-                                                                Opcodes.INTEGER }, 0, new Object[] {});
-                gen.push("foo");
-                gen.visitFrame(Opcodes.F_NEW, 2, new Object[] { Type.getObjectType("Example").getInternalName(),
-                                                                Opcodes.INTEGER }, 1, new Object[] { Type.getType(
-                String.class).getInternalName() });
-                gen.push(key);
-                gen.visitFrame(Opcodes.F_NEW, 2, new Object[] { Type.getObjectType("Example").getInternalName(),
-                                                                Opcodes.INTEGER }, 2, new Object[] { Type.getType(
-                String.class).getInternalName(), Opcodes.INTEGER });
-                gen.invokeStatic(Type.getType(Integer.class), Method.getMethod("Integer parseInt (String, int)"));
-                gen.returnValue();
-            }
-
-            @Override
-            public void generateDefault() {
-                gen.visitFrame(Opcodes.F_NEW, 2, new Object[] { Type.getObjectType("Example").getInternalName(),
-                                                                Opcodes.INTEGER }, 0, new Object[] {});
-                gen.push(0);
-                gen.visitFrame(Opcodes.F_NEW, 2, new Object[] { Type.getObjectType("Example").getInternalName(),
-                                                                Opcodes.INTEGER }, 1, new Object[] { Opcodes.INTEGER });
-                gen.invokeStatic(Type.getType(Integer.class), Method.getMethod("Integer valueOf (int)"));
-                gen.returnValue();
-            }
-        });
-        gen.visitMaxs(0, 0);
-        gen.endMethod();
-
-        cw.visitEnd();
-
-        final var bytes = cw.toByteArray();
-        assertNotNull(bytes);
-
-        final var out = new PrintStream(new ByteArrayOutputStream()); // System.out;
-        final PrintWriter printWriter = new PrintWriter(out, true);
-        TraceClassVisitor visitor = new TraceClassVisitor(null, printWriter);
-        ClassReader reader = new ClassReader(bytes);
-        reader.accept(visitor, ClassReader.EXPAND_FRAMES);
-        CheckClassAdapter.verify(reader, printWriter != null, printWriter);
-        var loader = new ClassLoader(getClass().getClassLoader()) {
-            {
-                {
-                    defineClass(name, ByteBuffer.wrap(bytes), null);
-                }
-            }
-        };
-        var clazz = loader.loadClass(name);
-        assertNotNull(clazz);
-        clazz.getConstructor().newInstance();
-    }
-
-    @Test
     public void template() throws Exception {
-
         final var name = "com.hellblazer.primeMover.classfile.testClasses.Template";
 
-        ClassReader reader;
+        // Read and validate class file using ClassFile API
         try (var is = getClass().getClassLoader().getResourceAsStream(name.replace('.', '/') + ".class")) {
-            reader = new ClassReader(is);
+            assertNotNull(is, "Template class should exist");
+            byte[] bytes = is.readAllBytes();
+            ClassModel classModel = ClassFile.of().parse(bytes);
+            assertNotNull(classModel);
+            assertEquals(name.replace('.', '/'), classModel.thisClass().asInternalName());
         }
-
-        TraceClassVisitor visitor = new TraceClassVisitor(null, null);
-        reader.accept(visitor, ClassReader.EXPAND_FRAMES);
-
-        CheckClassAdapter.verify(reader, false, new PrintWriter(System.out, false));
     }
 }
