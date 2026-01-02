@@ -138,28 +138,39 @@ A complete M/M/1 queue simulation demonstrating Resource usage:
 ```java
 @Test
 public void testMM1Queue() throws Exception {
+    final var numCustomers = 5;
+    final var interArrivalTime = 5L;  // Customer arrives every 5 time units
+    final var serviceTime = 10L;       // Each customer takes 10 time units
+
     try (var controller = new SimulationController()) {
         var servedCount = new AtomicInteger(0);
+        var log = new ArrayList<String>();
 
         // Create a single server (M/M/1 has exactly 1 server)
         var server = new Resource.entity(controller, 1);
 
         // Schedule customer arrivals
         for (int i = 0; i < numCustomers; i++) {
-            var customer = new Customer.entity(controller, i, server, servedCount);
+            var customer = new Customer.entity(controller, i, server, serviceTime, servedCount, log);
             controller.postEvent(i * interArrivalTime, customer, Customer.entity.VISIT);
         }
 
         // Run the simulation
         controller.eventLoop();
 
+        // Check results
+        assertEquals(numCustomers, servedCount.get());
+
         // Check statistics
         var stats = server.statistics();
         System.out.println("Average wait time: " + stats.getAvgWaitTime());
+        System.out.println("Max wait time: " + stats.getMaxWaitTime());
         System.out.println("Total acquisitions: " + stats.getTotalAcquisitions());
     }
 }
 ```
+
+**Note**: `Resource.entity` and `Customer.entity` are the transformed (simulation-ready) versions of the base classes. See `MM1QueueTest.java` for the complete Customer entity implementation.
 
 ## Architecture
 

@@ -351,7 +351,7 @@ The framework module depends on:
 
 ## Virtual Threads Integration
 
-The framework is built on Java 21+ virtual threads (Project Loom):
+The framework is built on Java virtual threads (Project Loom, introduced in Java 21):
 
 **Benefits:**
 - Efficient blocking: Virtual threads are lightweight
@@ -360,7 +360,8 @@ The framework is built on Java 21+ virtual threads (Project Loom):
 - Transparency: No code changes needed from user perspective
 
 **Requirements:**
-- Java 21 or later
+- Java 25 or later (required for ClassFile API used by transformation)
+- Virtual threads were introduced in Java 21, but Prime Mover requires Java 25
 - No special VM flags needed
 - Compatible with `CompletableFuture` for continuations
 

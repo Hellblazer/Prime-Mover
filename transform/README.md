@@ -117,8 +117,8 @@ Transforms entity class bytecode to implement simulation event semantics using J
 
 **Transformation Process:**
 1. Analyzes event methods from `ClassMetadata`
-2. Generates `__invoke(int eventIndex, Object[] args)` method with switch-based dispatch
-3. Generates `__signatureFor(int eventIndex)` method for debugging
+2. Generates `__invoke(int event, Object[] arguments) throws Throwable` method with switch-based dispatch
+3. Generates `__signatureFor(int event)` method for debugging
 4. Renames original event methods to `__event_<originalName>` pattern
 5. Rewrites all `Kronos.*` calls to `Kairos.*` using ClassRemapper
 6. Adds `@Transformed` annotation to mark transformed classes
@@ -126,20 +126,20 @@ Transforms entity class bytecode to implement simulation event semantics using J
 
 **Generated Code Pattern (conceptual):**
 ```java
-// In transformed entity class:
-public Object __invoke(int eventIndex, Object[] args) {
-    return switch (eventIndex) {
-        case 0 -> __event_openAccount((String) args[0]);
-        case 1 -> __event_closeAccount((String) args[0]);
-        default -> throw new IllegalArgumentException("Unknown event: " + eventIndex);
+// In transformed entity class (implements EntityReference):
+public Object __invoke(int event, Object[] arguments) throws Throwable {
+    return switch (event) {
+        case 0 -> __event_openAccount((String) arguments[0]);
+        case 1 -> __event_closeAccount((String) arguments[0]);
+        default -> throw new IllegalArgumentException("Unknown event: " + event);
     };
 }
 
-public String __signatureFor(int eventIndex) {
-    return switch (eventIndex) {
+public String __signatureFor(int event) {
+    return switch (event) {
         case 0 -> "openAccount(String)";
         case 1 -> "closeAccount(String)";
-        default -> throw new IllegalArgumentException("Unknown event: " + eventIndex);
+        default -> throw new IllegalArgumentException("Unknown event: " + event);
     };
 }
 
@@ -268,45 +268,50 @@ public class Bank {
 ```java
 @Transformed
 @Entity
-public class Bank {
+public class Bank implements EntityReference {
     private Queue<String> queue = new LinkedList<>();
 
     // Generated dispatch method - invoked by Controller
-    public Object __invoke(int eventIndex, Object[] args) {
-        return switch (eventIndex) {
-            case 0 -> __event_openAccount((String) args[0]);
-            case 1 -> __event_printQueue();
-            default -> throw new IllegalArgumentException("Unknown event: " + eventIndex);
+    public Object __invoke(int event, Object[] arguments) throws Throwable {
+        return switch (event) {
+            case 0 -> { __event_openAccount((String) arguments[0]); yield null; }
+            case 1 -> { __event_printQueue(); yield null; }
+            default -> throw new IllegalArgumentException("Unknown event: " + event);
         };
     }
 
     // Generated signature method - for debugging
-    public String __signatureFor(int eventIndex) {
-        return switch (eventIndex) {
+    public String __signatureFor(int event) {
+        return switch (event) {
             case 0 -> "openAccount(String)";
             case 1 -> "printQueue()";
-            default -> throw new IllegalArgumentException("Unknown event: " + eventIndex);
+            default -> throw new IllegalArgumentException("Unknown event: " + event);
         };
     }
 
-    // Original method renamed - this is what event executes
+    // Original public methods now schedule events
+    public void openAccount(String name) {
+        Kairos.getController().postContinuingEvent(this, 0, name);
+    }
+
+    public void printQueue() {
+        Kairos.getController().postContinuingEvent(this, 1);
+    }
+
+    // Original implementations renamed - executed by framework
     public void __event_openAccount(String name) {
         System.out.println("Opening: " + name);
         Kairos.sleep(50);  // Kronos rewritten to Kairos
         System.out.println("Opened: " + name);
     }
 
-    // Original public method transformed
     public void __event_printQueue() {
         System.out.println("Queue: " + queue);
     }
-
-    // Note: The original public methods (openAccount, printQueue) are NOT retained.
-    // Instead, they become events scheduled through the Controller.
 }
 ```
 
-**Note**: Unlike earlier documentation suggested, transformed entities do NOT generate separate `EntityReference` interface implementations. Instead, they implement the `__invoke()` and `__signatureFor()` methods directly in the entity class itself, making the entity class its own EntityReference implementation.
+**Note**: Transformed entities implement `EntityReference` directly - there is no separate generated class. The entity class becomes its own EntityReference implementation with `__invoke()` and `__signatureFor()` methods.
 
 ## Decision Points in Transformation
 

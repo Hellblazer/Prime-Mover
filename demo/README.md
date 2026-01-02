@@ -86,20 +86,20 @@ public class HelloWorld {
 - `Kronos.sleep(1)` advances simulation time by 1 unit
 - `SimulationController.eventLoop()` processes all events
 
-**Output**:
+**Output** (runs until simulation ends at time 9):
 ```
-Hello World @ time=9
-Hello World @ time=8
-Hello World @ time=7
-Hello World @ time=6
-Hello World @ time=5
-Hello World @ time=4
-Hello World @ time=3
-Hello World @ time=2
-Hello World @ time=1
+Hello World @ time= 1
+Hello World @ time= 2
+Hello World @ time= 3
+Hello World @ time= 4
+Hello World @ time= 5
+Hello World @ time= 6
+Hello World @ time= 7
+Hello World @ time= 8
+Hello World @ time= 9
 ```
 
-Note: Events execute in reverse order due to how recursion becomes event scheduling.
+Events execute in time order: each `event1()` call schedules the next event, then prints the current time.
 
 ### EventThroughput - Performance Benchmark
 
@@ -457,19 +457,28 @@ public class MyEntity {
 }
 ```
 
-### Mistake 2: Direct Method Calls
+### Mistake 2: Calling Events from Non-Transformed Code
 
 ```java
 @Entity
 public class MyEntity {
     public void eventA() {
-        eventB();  // WRONG - direct call, not scheduled
+        eventB();  // OK - within @Entity, this schedules eventB
     }
 
     public void eventB() { ... }
 }
 
-// EventB is called immediately, not scheduled as event
+// But calling from non-transformed code:
+public class RegularClass {  // No @Entity annotation!
+    public void test(MyEntity entity) {
+        entity.eventA();  // This schedules eventA correctly
+        // But if RegularClass tried to call Kronos.sleep()...
+        Kronos.sleep(1);  // WRONG - throws UnsupportedOperationException!
+    }
+}
+
+// Non-@Entity classes cannot use Kronos API - transformation required
 ```
 
 ### Mistake 3: Synchronization in Events

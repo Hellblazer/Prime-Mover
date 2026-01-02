@@ -342,22 +342,38 @@ public class Account {
 ```java
 @Transformed
 @Entity
-public class Account {
-    private EntityReference __entityRef;
+public class Account implements EntityReference {
 
-    // New dispatch method - what users call
-    public void deposit(double amount) {
-        Controller c = Kairos.getController();
-        c.postEvent(__entityRef, 0, amount);  // Schedule as event
+    // Generated dispatch method - invoked by Controller
+    public Object __invoke(int eventIndex, Object[] args) throws Throwable {
+        return switch (eventIndex) {
+            case 0 -> { __event_deposit((Double) args[0]); yield null; }
+            default -> throw new IllegalArgumentException("Unknown event: " + eventIndex);
+        };
     }
 
-    // Original renamed - executed by framework
+    // Generated signature method - for debugging
+    public String __signatureFor(int eventIndex) {
+        return switch (eventIndex) {
+            case 0 -> "deposit(double)";
+            default -> throw new IllegalArgumentException("Unknown event: " + eventIndex);
+        };
+    }
+
+    // Original public method - now schedules event
+    public void deposit(double amount) {
+        Kairos.getController().postContinuingEvent(this, 0, amount);
+    }
+
+    // Original implementation renamed - executed by framework
     public void __event_deposit(double amount) {
         Kairos.sleep(50);  // Rewritten from Kronos
         System.out.println("Deposited: " + amount);
     }
 }
 ```
+
+The entity class becomes its own `EntityReference` implementation with `__invoke()` and `__signatureFor()` methods.
 
 ## Advanced Features
 
@@ -389,7 +405,9 @@ Combine multiple behaviors using the Janus mixin system:
 public interface ComplexAgent extends Movable, Communicative, Intelligent {
 }
 
-ComplexAgent agent = Composite.assemble(ComplexAgent.class,
+var assembler = Composite.instance();
+ComplexAgent agent = assembler.assemble(ComplexAgent.class,
+    new Composite.CompositeClassLoader(getClass().getClassLoader()),
     new MovementBehavior(),
     new CommunicationBehavior(),
     new DecisionMaking());
@@ -432,6 +450,37 @@ Contributions welcome! Please ensure:
 - All tests pass (`./mvnw test`)
 - Documentation updated
 - Clear commit messages
+
+## Troubleshooting
+
+### Common Issues
+
+**`UnsupportedOperationException` when calling Kronos methods**
+- **Cause**: Code is not transformed. Kronos methods throw by default and are rewritten to Kairos during transformation.
+- **Fix**: Ensure transformation is configured (Maven plugin, IntelliJ plugin, or sim-agent).
+
+**Classes not being transformed**
+- **Cause**: Missing `@Entity` annotation or wrong import.
+- **Fix**: Verify `import com.hellblazer.primeMover.annotations.Entity` (not javax.persistence.Entity).
+
+**`NoClassDefFoundError` for Kairos**
+- **Cause**: Runtime dependency missing.
+- **Fix**: Add `runtime` artifact to dependencies with appropriate scope.
+
+**Events executing in unexpected order**
+- **Cause**: Misunderstanding event scheduling vs direct execution.
+- **Fix**: Remember that method calls on `@Entity` classes schedule events at the current simulation time. Use `Kronos.sleep()` to advance time between events.
+
+**Blocking method not suspending**
+- **Cause**: Missing `@Blocking` annotation or not using `blockingSleep()`.
+- **Fix**: Mark method with `@Blocking` and use `Kronos.blockingSleep()` instead of `sleep()`.
+
+### Debugging Tips
+
+1. Use `SteppingController` to step through events one at a time
+2. Check `controller.getTotalEvents()` to verify events are being scheduled
+3. Enable logging to see event posting and execution
+4. Verify transformation with `javap -c YourClass` to inspect bytecode
 
 ## Getting Help
 

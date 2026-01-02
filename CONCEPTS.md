@@ -683,7 +683,7 @@ Channels apply to:
 - Transparent stack management
 - No bytecode compatibility concerns
 
-**Trade-off**: Requires Java 21+; cannot run on older JVMs.
+**Trade-off**: Requires Java 25+ (for ClassFile API; virtual threads require Java 21+); cannot run on older JVMs.
 
 ### Decision: Priority Queue for Event Ordering
 

@@ -34,9 +34,15 @@ public class Bank {
 - `value`: Optional array of interfaces that explicitly define which methods should be events. If omitted, all public methods become events.
 
 ```java
-@Entity(Customer.class)  // Only methods in Customer interface are events
+@Entity({Customer.class})  // Only methods in Customer interface are events
 public class Bank implements Customer {
     // ...
+}
+
+// For multiple interfaces:
+@Entity({Customer.class, Auditable.class})
+public class AuditedBank implements Customer, Auditable {
+    // Only methods from Customer and Auditable become events
 }
 ```
 
@@ -56,17 +62,32 @@ public class Task {
 #### `@Event` and `@NonEvent`
 Explicitly include or exclude methods from event transformation. These provide fine-grained control over which methods become events when `@Entity` is used without an interface parameter.
 
+**`@Event`** - Explicitly marks a method as an event:
+- Use on protected/package-private methods that should be events (they get made public)
+- Use for clarity when you want to explicitly document that a method is an event
+- Takes precedence over interface-based filtering
+
+**`@NonEvent`** - Explicitly excludes a method from being an event:
+- Use on public methods that should NOT be scheduled as events
+- Useful for utility methods, getters/setters that should execute immediately
+- Common for methods called during event execution that shouldn't themselves be events
+
 ```java
 @Entity
 public class Service {
     @Event
-    public void importantMethod() {
-        // Explicitly becomes an event
+    protected void internalEvent() {
+        // Protected method explicitly becomes an event (made public)
     }
 
     @NonEvent
     public void helperMethod() {
-        // Explicitly NOT an event (stays as regular method)
+        // Public method explicitly NOT an event (executes immediately when called)
+    }
+
+    public void normalEvent() {
+        // Public method becomes event by default
+        helperMethod();  // This executes immediately, not scheduled
     }
 }
 ```
@@ -152,12 +173,12 @@ Represents a simulation event. Provides access to timing information, execution 
 - Event sources can be tracked for debugging
 
 #### `EntityReference` Interface
-A generated interface that provides type-safe method dispatch for transformed entities. Each transformed entity class generates an implementation of this interface.
+A generated interface that provides type-safe method dispatch for transformed entities. Each transformed entity class implements this interface directly (the entity becomes its own EntityReference).
 
 **Key Methods:**
 ```java
-Object __invoke(int eventIndex, Object[] args)  // Invoke event by index
-String __signatureFor(int eventIndex)           // Get method signature for event index
+Object __invoke(int event, Object[] arguments) throws Throwable  // Invoke event by index
+String __signatureFor(int event)                                  // Get method signature for event index
 ```
 
 #### `SynchronousQueue<T>` Interface
@@ -176,7 +197,7 @@ When the bytecode transformer processes `@Entity` classes:
 
 1. **Method Rewriting**: Public methods matching the event specification are rewritten to schedule events instead of executing directly
 2. **Kronos Replacement**: All calls to `Kronos.X()` are replaced with calls to `Kairos.X()` (the runtime implementation)
-3. **Type Generation**: An `EntityReference` implementation is generated to enable efficient event dispatch
+3. **EntityReference Implementation**: The entity class implements `EntityReference` directly with `__invoke()` and `__signatureFor()` methods
 4. **Bytecode Marking**: The `@Transformed` annotation is added to the class
 
 ### Example Transformation
@@ -197,23 +218,39 @@ public class Bank {
 ```java
 @Transformed
 @Entity
-public class Bank {
-    private EntityReference __entityRef;  // Generated dispatch interface
+public class Bank implements EntityReference {
 
-    public void openAccount(String name) {
-        // Rewritten to schedule event instead
-        Controller ctrl = Kairos.getController();
-        ctrl.postEvent(__entityRef, 0, name);  // Schedule as event #0
+    // Generated dispatch method - invoked by Controller
+    public Object __invoke(int event, Object[] arguments) throws Throwable {
+        return switch (event) {
+            case 0 -> { __event_openAccount((String) arguments[0]); yield null; }
+            default -> throw new IllegalArgumentException("Unknown event: " + event);
+        };
     }
 
-    // Original method renamed/wrapped
-    public void __eventMethod_0(String name) {
+    // Generated signature method - for debugging
+    public String __signatureFor(int event) {
+        return switch (event) {
+            case 0 -> "openAccount(String)";
+            default -> throw new IllegalArgumentException("Unknown event: " + event);
+        };
+    }
+
+    // Original public method - now schedules event
+    public void openAccount(String name) {
+        Kairos.getController().postContinuingEvent(this, 0, name);
+    }
+
+    // Original method implementation renamed
+    public void __event_openAccount(String name) {
         System.out.println("Opening account: " + name);
         Kairos.sleep(100);  // Rewritten from Kronos.sleep
         System.out.println("Account opened");
     }
 }
 ```
+
+**Note**: The entity class becomes its own `EntityReference` implementation - there is no separate generated class.
 
 ## Usage Guidelines
 
