@@ -116,13 +116,16 @@ int index                       // Position in signature
 Transforms entity class bytecode to implement simulation event semantics using Java 25 ClassFile API.
 
 **Transformation Process:**
-1. Analyzes event methods from `ClassMetadata`
-2. Generates `__invoke(int event, Object[] arguments) throws Throwable` method with switch-based dispatch
-3. Generates `__signatureFor(int event)` method for debugging
-4. Renames original event methods to `__event_<originalName>` pattern
-5. Rewrites all `Kronos.*` calls to `Kairos.*` using ClassRemapper
-6. Adds `@Transformed` annotation to mark transformed classes
-7. Handles primitive type boxing/unboxing for event parameters
+1. Checks for `@Transformed` annotation - skips if already transformed (prevents double transformation)
+2. Analyzes event methods from `ClassMetadata`
+3. Generates `__invoke(int event, Object[] arguments) throws Throwable` method with switch-based dispatch
+4. Generates `__signatureFor(int event)` method for debugging
+5. Renames original event methods to `__event_<originalName>` pattern
+6. Rewrites all `Kronos.*` calls to `Kairos.*` using ClassRemapper
+7. Adds `@Transformed` annotation (allows multiple tools to coexist safely)
+8. Handles primitive type boxing/unboxing for event parameters
+
+**Note**: The `@Transformed` annotation guard allows Maven plugin, sim-agent, and IntelliJ JPS plugin to be used together. Whichever tool transforms first marks the class; subsequent tools skip it.
 
 **Generated Code Pattern (conceptual):**
 ```java
@@ -166,14 +169,15 @@ The main transformation orchestrator that coordinates the entire transformation 
 
 **Transformation Workflow:**
 1. **Scan Phase**: ClassScanner finds all `@Entity` classes in classpath
-2. **Filter Phase**: Apply filters to exclude already-transformed or unwanted classes
+2. **Filter Phase**: `EXCLUDE_TRANSFORMED_FILTER` skips classes with `@Transformed` annotation
 3. **Transform Phase**: For each entity class:
    - EntityGenerator analyzes metadata
    - Generates `__invoke()` and `__signatureFor()` methods
    - Renames event methods to `__event_*` pattern
    - Rewrites Kronos → Kairos calls
-   - Adds `@Transformed` annotation
-4. **Output Phase**: Write transformed bytecode back to filesystem or classloader
+   - Adds `@Transformed` annotation (marks class to prevent re-transformation)
+4. **Dependent Classes**: Non-entity classes that reference `Kronos` get Kronos→Kairos remapping only
+5. **Output Phase**: Write transformed bytecode back to filesystem or classloader
 
 **Key Methods:**
 ```java

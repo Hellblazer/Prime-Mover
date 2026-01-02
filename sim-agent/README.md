@@ -93,23 +93,29 @@ Original Class Bytecode
 Agent.transform() called
     |
     v
-Is this a @Entity class?
+Has @Transformed annotation?
     |
-    +--No--> Return bytecode unchanged
+    +--Yes--> Return bytecode unchanged (already transformed)
     |
-    +--Yes--> Pass to transformation engine
+    +--No--> Continue checking
                 |
                 v
-            ClassMetadata analysis
-            EntityGenerator
-            SimulationTransform
+            Is this an @Entity class?
                 |
-                v
-            Return transformed bytecode
+                +--Yes--> Full entity transformation
+                |         (EntityGenerator adds @Transformed)
+                |
+                +--No--> Does it reference Kronos?
+                            |
+                            +--Yes--> Remap Kronos→Kairos
+                            |
+                            +--No--> Return unchanged
     |
     v
 Class defined in JVM with transformed code
 ```
+
+**Note**: The `@Transformed` check allows sim-agent to work alongside Maven plugin or IntelliJ JPS plugin. If a class was already transformed at build time, sim-agent will skip it.
 
 ## Integration Examples
 

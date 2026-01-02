@@ -104,15 +104,19 @@ To use sim-agent, add it to your dependencies:
 </dependency>
 ```
 
-## Avoiding Duplicate Transformation
+## Multiple Transformation Tools
 
-If you're using both this IDE plugin and the Maven plugin (`primemover-maven-plugin`), classes may be transformed twice. The plugin will warn you about this.
+You can safely use multiple transformation tools together (Maven plugin, IntelliJ JPS plugin, sim-agent). The `@Transformed` annotation prevents double transformation:
 
-**Recommended configurations:**
+1. When any tool transforms an `@Entity` class, it adds the `@Transformed` annotation
+2. All transformation tools check for `@Transformed` and skip classes that have it
+3. For non-entity classes (just Kronos→Kairos remapping), the remapping is idempotent
 
-1. **IDE-only**: Remove Maven plugin from `pom.xml`, rely on IDE for transformation
-2. **Maven-only**: Disable IDE plugin in settings, use Maven for CI/CD builds
-3. **Hybrid**: Disable IDE plugin transformation but keep run configuration enhancement
+**Common configurations:**
+
+1. **IDE + Maven**: Maven transforms for CI/CD, IDE transforms during development - whichever runs first marks the class, the other skips it
+2. **IDE + sim-agent**: JPS transforms at compile time, sim-agent provides fallback for dynamically loaded classes
+3. **Maven + sim-agent**: Maven transforms at build time, sim-agent handles any classes missed or loaded dynamically
 
 ## Troubleshooting
 
@@ -123,10 +127,11 @@ If you're using both this IDE plugin and the Maven plugin (`primemover-maven-plu
 3. Check **Settings** > **Prime Mover** > "Enable transformation" is checked
 4. Rebuild the project (**Build** > **Rebuild Project**)
 
-### Duplicate transformation errors
+### Verifying transformation occurred
 
-1. Check if Maven plugin is also configured
-2. Disable one of the transformation methods (see above)
+1. Look for `@Transformed` annotation on compiled classes (use `javap -v`)
+2. Check build output for "Prime Mover: X classes transformed" messages
+3. Transformed classes will have `__invoke()` and `__signatureFor()` methods
 
 ### sim-agent not found
 

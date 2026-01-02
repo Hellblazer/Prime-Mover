@@ -12,10 +12,13 @@ The primemover-maven-plugin is a Maven plugin that integrates bytecode transform
 
 This plugin:
 1. **Scans** compiled class directories for `@Entity` classes
-2. **Transforms** them in-place using the transform module
-3. **Generates** entity reference classes
-4. **Runs** at build time (before packaging)
-5. **Supports** incremental compilation and IDE integration
+2. **Skips** classes already marked with `@Transformed` (prevents double transformation)
+3. **Transforms** them in-place using the transform module
+4. **Marks** transformed classes with `@Transformed` annotation
+5. **Runs** at build time (before packaging)
+6. **Supports** incremental compilation and IDE integration
+
+**Note**: The `@Transformed` guard allows this plugin to coexist with sim-agent and IntelliJ JPS plugin. Classes transformed by any tool are skipped by others.
 
 ## Installation
 

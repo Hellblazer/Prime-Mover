@@ -93,7 +93,7 @@ public class Service {
 ```
 
 #### `@Transformed`
-Applied automatically by the transformation process to mark classes that have been transformed. Not typically used by developers.
+Applied automatically by the transformation process to mark classes that have been transformed. This annotation serves as a guard against multiple transformations - all transformation entry points (Maven plugin, sim-agent, IntelliJ JPS plugin) check for this annotation and skip classes that already have it. This allows you to safely use multiple transformation tools together (e.g., Maven plugin for CI/CD builds and sim-agent for local development) without risk of double transformation. Not typically used by developers.
 
 #### `@AllMethodsMarker`
 Internal marker interface used as the default value for `@Entity` to indicate "all public methods".
