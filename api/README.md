@@ -5,6 +5,7 @@
 The API module defines the core public interfaces and annotations for the Prime Mover discrete event simulation framework. This module contains zero implementation code - it provides only the contracts that simulation code uses.
 
 **Artifact**: `com.hellblazer.primeMover:api`
+**Version**: 1.0.5-SNAPSHOT
 
 ## Purpose
 
@@ -88,8 +89,9 @@ The **static simulation API** that simulation code calls. All methods in this cl
 public static void sleep(long duration)              // Non-blocking time advance
 public static void blockingSleep(long duration)      // Blocking time advance
 public static long currentTime()                      // Query current simulation time
-public static void advance(long duration)             // Advance simulation time
 ```
+
+**Note**: There is no `advance()` method in Kronos - use `sleep()` instead. The `advance()` method exists only on the Controller interface.
 
 **Simulation Control:**
 ```java
@@ -125,15 +127,20 @@ The runtime interface for simulation control. Implementations process events, ma
 ```java
 void advance(long duration)                              // Advance time
 void clear()                                             // Reset controller state
+void setCurrentTime(long time)                           // Set current time
 Event getCurrentEvent()                                  // Get current event
 long getCurrentTime()                                    // Get current time
 void postEvent(EntityReference e, int event, Object...) // Schedule event now
 void postEvent(long time, EntityReference e, int event, Object...) // Schedule at time
 Object postContinuingEvent(EntityReference e, int event, Object...) // Blocking event
+boolean isDebugEvents()                                  // Query debug status
 void setDebugEvents(boolean debug)                      // Enable event debugging
+boolean isTrackEventSources()                            // Query tracking status
 void setTrackEventSources(boolean track)               // Enable source tracking
 void setEventLogger(Logger log)                        // Set event log
 ```
+
+**Note**: Statistics methods (`getEventCount()`, `getEventRate()`, `getEventStats()`) are provided by the `StatisticalController` interface in the framework module, not this base interface.
 
 #### `Event` Interface
 Represents a simulation event. Provides access to timing information, execution state, and event source chains.
@@ -147,9 +154,10 @@ Represents a simulation event. Provides access to timing information, execution 
 #### `EntityReference` Interface
 A generated interface that provides type-safe method dispatch for transformed entities. Each transformed entity class generates an implementation of this interface.
 
-**Key Method:**
+**Key Methods:**
 ```java
-Object invoke(int eventIndex, Object[] args)  // Invoke event by index
+Object __invoke(int eventIndex, Object[] args)  // Invoke event by index
+String __signatureFor(int eventIndex)           // Get method signature for event index
 ```
 
 #### `SynchronousQueue<T>` Interface

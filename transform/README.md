@@ -2,9 +2,10 @@
 
 ## Overview
 
-The transform module implements the bytecode transformation engine for Prime Mover. It uses Java 25's ClassFile API to transform `@Entity` classes into discrete event simulation entities at compile or runtime.
+The transform module implements the bytecode transformation engine for Prime Mover. It uses Java 25's ClassFile API (JEP 484) to transform `@Entity` classes into discrete event simulation entities at compile or runtime.
 
 **Artifact**: `com.hellblazer.primeMover:transform`
+**Version**: 1.0.5-SNAPSHOT
 
 ## Purpose
 
@@ -23,16 +24,19 @@ This module:
 Raw Bytecode
     |
     v
-ClassScanner - Finds @Entity classes and metadata
+SimulationTransform - Main orchestrator
+    |
+    v
+ClassScanner - Scans directories/JARs for @Entity classes
     |
     v
 ClassMetadata - Analyzes class structure and annotations
     |
     v
-EntityGenerator - Generates EntityReference implementation
-    |
-    v
-SimulationTransform - Rewrites method calls and Kronos references
+EntityGenerator - Transforms entity class bytecode
+                - Generates __invoke() and __signatureFor() methods
+                - Rewrites Kronos → Kairos calls
+                - Renames event methods to __event_* pattern
     |
     v
 Transformed Bytecode
@@ -41,17 +45,21 @@ Transformed Bytecode
 ### Key Components
 
 #### `ClassScanner`
-Scans compiled class directories for `@Entity` classes and builds metadata about them.
+Scans compiled class directories or JAR files for `@Entity` classes and builds metadata about them.
 
 **Responsibilities:**
-- Directory traversal
-- Class file identification
-- Metadata extraction
+- Directory and JAR traversal
+- Class file identification using ClassFile API
+- Annotation scanning (`@Entity`, `@Blocking`, `@Event`, `@NonEvent`)
+- Metadata extraction and building
 - Batch processing coordination
 
 **Key Methods:**
 ```java
-Map<ClassDesc, ClassMetadata> scan(Path classDir)
+ClassScanner addClasspathEntry(Path entry)      // Add directory or JAR to scan
+ClassScanner scan()                              // Perform scanning
+Map<ClassDesc, ClassMetadata> getEntityClasses() // Get discovered entities
+ClassMetadata getMetadata(ClassDesc desc)        // Get metadata for specific class
 ```
 
 #### `ClassMetadata`
@@ -105,71 +113,75 @@ int index                       // Position in signature
 ```
 
 #### `EntityGenerator`
-Generates bytecode for the entity dispatch interface.
+Transforms entity class bytecode to implement simulation event semantics using Java 25 ClassFile API.
 
-**Generation Process:**
-1. Creates new interface extending `EntityReference`
-2. Implements single `invoke(int eventIndex, Object[] args)` method
-3. Uses switch statement to dispatch by event index
-4. Generates efficient event invocation for each method
+**Transformation Process:**
+1. Analyzes event methods from `ClassMetadata`
+2. Generates `__invoke(int eventIndex, Object[] args)` method with switch-based dispatch
+3. Generates `__signatureFor(int eventIndex)` method for debugging
+4. Renames original event methods to `__event_<originalName>` pattern
+5. Rewrites all `Kronos.*` calls to `Kairos.*` using ClassRemapper
+6. Adds `@Transformed` annotation to mark transformed classes
+7. Handles primitive type boxing/unboxing for event parameters
 
-**Generated Code Pattern:**
+**Generated Code Pattern (conceptual):**
 ```java
-public interface BankEntityReference extends EntityReference {
-    @Override
-    Object invoke(int eventIndex, Object[] args) {
-        return switch (eventIndex) {
-            case 0 -> entity.__event_openAccount((String) args[0]);
-            case 1 -> entity.__event_closeAccount((String) args[0]);
-            default -> throw new IllegalArgumentException("Unknown event: " + eventIndex);
-        };
-    }
+// In transformed entity class:
+public Object __invoke(int eventIndex, Object[] args) {
+    return switch (eventIndex) {
+        case 0 -> __event_openAccount((String) args[0]);
+        case 1 -> __event_closeAccount((String) args[0]);
+        default -> throw new IllegalArgumentException("Unknown event: " + eventIndex);
+    };
+}
+
+public String __signatureFor(int eventIndex) {
+    return switch (eventIndex) {
+        case 0 -> "openAccount(String)";
+        case 1 -> "closeAccount(String)";
+        default -> throw new IllegalArgumentException("Unknown event: " + eventIndex);
+    };
+}
+
+// Original method renamed:
+public void __event_openAccount(String name) {
+    // Original method body with Kronos → Kairos rewritten
 }
 ```
 
 **Key Methods:**
 ```java
-byte[] generateEntityReference(ClassMetadata metadata)
+byte[] transformEntity(ClassMetadata metadata, byte[] originalBytes)
 ```
 
 #### `SimulationTransform`
-The main transformation orchestrator - rewrites bytecode to create simulation events.
+The main transformation orchestrator that coordinates the entire transformation process.
 
-**Transformation Steps:**
+**Responsibilities:**
+- Manages ClassScanner for discovering `@Entity` classes
+- Coordinates transformation of multiple entity classes
+- Provides filtering (e.g., exclude already transformed classes)
+- Delegates actual bytecode transformation to EntityGenerator
+- Manages API remapping (Kronos → Kairos)
 
-1. **Identify Event Methods**
-   - Analyze `@Entity` annotation parameters
-   - Check for `@Event` / `@NonEvent` annotations
-   - Build event index map
-
-2. **Rename Original Methods**
-   - Original methods renamed to `__event_<original>`
-   - Allows original code to run when events execute
-
-3. **Create Event Dispatch Methods**
-   - New public methods with original signatures
-   - Instead of executing code directly, they schedule events
-   - Call `controller.postEvent(entityRef, eventIndex, args...)`
-
-4. **Rewrite Kronos Calls**
-   - All `Kronos.X()` -> `Kairos.X()`
-   - Enables runtime implementation replacement
-
-5. **Rewrite Method Calls**
-   - Within entities, method calls become event posts
-   - Preserves control flow semantics while making it event-driven
-
-6. **Generate EntityReference**
-   - Creates dispatch interface for event invocation
-   - Stores reference in entity instance
-
-7. **Add Metadata**
-   - Add `@Transformed` annotation
-   - Store event index mapping
+**Transformation Workflow:**
+1. **Scan Phase**: ClassScanner finds all `@Entity` classes in classpath
+2. **Filter Phase**: Apply filters to exclude already-transformed or unwanted classes
+3. **Transform Phase**: For each entity class:
+   - EntityGenerator analyzes metadata
+   - Generates `__invoke()` and `__signatureFor()` methods
+   - Renames event methods to `__event_*` pattern
+   - Rewrites Kronos → Kairos calls
+   - Adds `@Transformed` annotation
+4. **Output Phase**: Write transformed bytecode back to filesystem or classloader
 
 **Key Methods:**
 ```java
-byte[] transformClass(byte[] classBytes, ClassMetadata metadata)
+SimulationTransform(Path classpathEntry)                        // Create from path
+SimulationTransform(ClassScanner scanner)                       // Create from scanner
+Map<ClassDesc, byte[]> transformEntities(Predicate<ClassMetadata> filter) // Transform all
+byte[] transformEntity(ClassDesc entityClass)                   // Transform single entity
+void writeTransformedClasses(Path outputDir)                    // Write to disk
 ```
 
 #### `ClassRemapper`
@@ -258,7 +270,24 @@ public class Bank {
 @Entity
 public class Bank {
     private Queue<String> queue = new LinkedList<>();
-    private EntityReference __entityRef;  // Generated
+
+    // Generated dispatch method - invoked by Controller
+    public Object __invoke(int eventIndex, Object[] args) {
+        return switch (eventIndex) {
+            case 0 -> __event_openAccount((String) args[0]);
+            case 1 -> __event_printQueue();
+            default -> throw new IllegalArgumentException("Unknown event: " + eventIndex);
+        };
+    }
+
+    // Generated signature method - for debugging
+    public String __signatureFor(int eventIndex) {
+        return switch (eventIndex) {
+            case 0 -> "openAccount(String)";
+            case 1 -> "printQueue()";
+            default -> throw new IllegalArgumentException("Unknown event: " + eventIndex);
+        };
+    }
 
     // Original method renamed - this is what event executes
     public void __event_openAccount(String name) {
@@ -267,33 +296,17 @@ public class Bank {
         System.out.println("Opened: " + name);
     }
 
-    // New dispatch method - what users call
-    public void openAccount(String name) {
-        // Schedule event instead of executing directly
-        Controller ctrl = Kairos.getController();
-        ctrl.postEvent(__entityRef, 0, name);  // Event 0 = openAccount
-    }
-
-    // printQueue wasn't transformed (not public? or excluded?)
-    public void printQueue() {
+    // Original public method transformed
+    public void __event_printQueue() {
         System.out.println("Queue: " + queue);
     }
+
+    // Note: The original public methods (openAccount, printQueue) are NOT retained.
+    // Instead, they become events scheduled through the Controller.
 }
 ```
 
-### Generated EntityReference
-```java
-@FunctionalInterface
-public interface Bank__EntityRef extends EntityReference {
-    @Override
-    Object invoke(int eventIndex, Object[] args) {
-        return switch (eventIndex) {
-            case 0 -> bank.__event_openAccount((String) args[0]);
-            default -> throw new IllegalArgumentException("Unknown event: " + eventIndex);
-        };
-    }
-}
-```
+**Note**: Unlike earlier documentation suggested, transformed entities do NOT generate separate `EntityReference` interface implementations. Instead, they implement the `__invoke()` and `__signatureFor()` methods directly in the entity class itself, making the entity class its own EntityReference implementation.
 
 ## Decision Points in Transformation
 
@@ -361,9 +374,9 @@ NOT thread-safe for:
 
 The transform module depends on:
 - `com.hellblazer.primeMover:api` - Annotations and contracts
-- JDK 25+ ClassFile API (java.lang.classfile.*) - Built-in
+- JDK 25+ ClassFile API (`java.lang.classfile.*`) - Built-in to JDK
 
-No external dependencies on ASM, ClassGraph, or similar.
+**No external dependencies**: This module uses only JDK built-in APIs. No ASM, ByteBuddy, ClassGraph, or other third-party bytecode libraries required.
 
 ## Performance Implications
 

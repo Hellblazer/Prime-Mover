@@ -23,20 +23,32 @@ cd <prime-mover-root>
 # HelloWorld - Minimal example
 ./mvnw exec:java -pl demo -Dexec.mainClass=hello.HelloWorld
 
-# Event throughput benchmark
-./mvnw exec:java -pl demo -Dexec.mainClass=demo.EventThroughput
+# Run all demos via Demo driver
+./mvnw exec:java -pl demo -Dexec.mainClass=demo.Demo
 
-# Continuation throughput benchmark
-./mvnw exec:java -pl demo -Dexec.mainClass=demo.ContinuationThroughput
-
-# Use channel example
-./mvnw exec:java -pl demo -Dexec.mainClass=demo.UseChannel
-
-# Threaded simulation
-./mvnw exec:java -pl demo -Dexec.mainClass=demo.Threaded
+# Individual demos are run via the Driver class (see Demo.java for examples)
 ```
 
 ## Example Programs
+
+### Demo.java - Main Driver
+
+**File**: `src/main/java/demo/Demo.java`
+
+**Purpose**: Provides a convenient entry point to run multiple demos. Contains static methods that set up a `SimulationController` and run various benchmarks.
+
+**Available Demos**:
+- `eventThroughput()` - Runs the EventThroughput benchmark with STRING mode
+- `eventContinuationThroughput()` - Runs the ContinuationThroughput benchmark with STRING mode
+- `channel()` - Runs the UseChannel demonstration
+- `threaded()` - Runs the Threaded demonstration
+
+**Running**:
+```bash
+./mvnw exec:java -pl demo -Dexec.mainClass=demo.Demo
+```
+
+The `main()` method runs `eventContinuationThroughput()` and `eventThroughput()` by default.
 
 ### HelloWorld - Minimal Simulation
 
@@ -97,10 +109,10 @@ Note: Events execute in reverse order due to how recursion becomes event schedul
 - High-volume event processing
 - Performance measurement
 - Event rate calculation
-- Large entity populations
+- Recursive event scheduling
 
 **Concept**:
-Creates many entities scheduling many events, then measures how fast the controller can process them.
+Benchmarks different event types (NULL, INT, DOUBLE, STRING) by recursively scheduling events and measuring throughput. Each event schedules the next event after a `sleep(1)` call.
 
 **Output Example**:
 ```
@@ -154,80 +166,87 @@ Blocking operations are slower than non-blocking due to virtual thread context s
 **File**: `src/main/java/demo/UseChannel.java`
 
 **Demonstrates**:
-- Synchronous channels between entities
+- Synchronous channels for coordination
 - `Kronos.createChannel()` usage
-- Producer/consumer pattern
-- Channel blocking behavior
+- Blocking `put()` and `take()` operations
+- Event coordination through channels
 
 **Concept**:
-Two entities communicate through a bounded synchronous channel. Producer puts values, consumer takes them.
+A single entity demonstrates channel operations by calling `take()` and `put()` methods in sequence. The channel blocks operations until matching operations occur.
 
-**Key Code Pattern**:
+**Key Code**:
 ```java
 @Entity
-public class Producer {
-    public void produce(SynchronousQueue<String> channel) {
-        for (int i = 0; i < 10; i++) {
-            channel.put("Item " + i);
-            Kronos.sleep(10);
-        }
-    }
-}
+public class UseChannel {
+    protected final SynchronousQueue<String> channel = Kronos.createChannel(String.class);
 
-@Entity
-public class Consumer {
-    public void consume(SynchronousQueue<String> channel) {
-        for (int i = 0; i < 10; i++) {
-            String item = channel.take();  // Blocks until item available
-            System.out.println("Got: " + item);
-            Kronos.sleep(15);  // Slower consumer
-        }
+    public void test() {
+        take();              // Blocks until put() happens
+        Kronos.sleep(60000);
+        put();               // Matches the waiting take()
+        Kronos.sleep(60000);
+        put();               // Blocks until another take()
+        Kronos.sleep(60000);
+        take();              // Matches the waiting put()
+    }
+
+    public void take() {
+        System.out.println(Kronos.currentTime() + ": take called");
+        Object o = channel.take();
+        System.out.println(Kronos.currentTime() + ": take continues with object: " + o);
+    }
+
+    public void put() {
+        System.out.println(Kronos.currentTime() + ": put called");
+        channel.put("foo");
+        System.out.println(Kronos.currentTime() + ": put continues");
     }
 }
 ```
 
 **Key Points**:
 - Channels are created via `Kronos.createChannel(String.class)`
-- Both `put()` and `take()` block until match
-- Channel synchronizes producers and consumers
-- No buffering - must coordinate timing
+- `put()` blocks until matching `take()` (and vice versa)
+- Channel provides synchronization between event methods
+- No buffering - operations must be paired
 
-### Threaded - Multiple Concurrent Entities
+### Threaded - Concurrent Blocking Operations
 
 **File**: `src/main/java/demo/Threaded.java`
 
 **Demonstrates**:
-- Multiple independent entities
-- Concurrent event execution (within single simulation time)
-- Entity interaction
-- Shared data structures
+- Multiple concurrent processes using blocking sleep
+- Interleaved execution via virtual threads
+- `Kronos.blockingSleep()` behavior
+- Parallel event processing
 
 **Concept**:
-Multiple bank teller entities serve customers, showing how concurrent simulation works.
+Three independent "threads" (entity method calls) execute concurrently using blocking sleep operations. This demonstrates how virtual thread continuations enable concurrent blocking behavior in the simulation.
 
-**Pattern**:
+**Code**:
 ```java
 @Entity
-public class Teller {
-    private Queue<Customer> waitingCustomers = new LinkedList<>();
-
-    public void serveNext() {
-        Customer c = waitingCustomers.poll();
-        if (c != null) {
-            // Serve customer
-            Kronos.sleep(100);  // Service time
-            // Get next customer
-            postContinuingEvent(this, "serveNext");
+public class Threaded {
+    public void process(int id) {
+        for (int i = 1; i <= 5; i++) {
+            System.out.println(Kronos.currentTime() + ": thread=" + id + ", i=" + i);
+            Kronos.blockingSleep(1);
         }
     }
 }
+
+// Usage (from Driver)
+Threaded threaded = new Threaded();
+threaded.process(1);  // Start first "thread"
+threaded.process(2);  // Start second "thread"
+threaded.process(3);  // Start third "thread"
 ```
 
 **Key Insights**:
-- Multiple entities can have concurrent events
-- But events are processed in time order globally
-- At same simulation time: execution order may vary
-- Proper synchronization needed for shared data
+- Each `process()` call runs in its own virtual thread
+- `blockingSleep()` suspends the virtual thread and resumes after delay
+- All three processes interleave their execution
+- Output shows concurrent progress of all three processes
 
 ## Code Patterns
 

@@ -27,13 +27,15 @@ The module is organized into three packages:
 
 ### Probability Distributions (`com.hellblazer.primeMover.desmoj.dist`)
 
-- **Distribution<T>**: Base interface for all distributions
-- **ContinuousDistribution**: Abstract base for continuous distributions
-- **Uniform**: Uniform distribution over a range
-- **Normal**: Normal (Gaussian) distribution
-- **Exponential**: Exponential distribution
-- **Triangular**: Triangular distribution
-- **Constant**: Constant "distribution" (always returns same value)
+- **Distribution<T>**: Base interface for all distributions with `sample()`, `reset()`, `reset(seed)` methods
+- **ContinuousDistribution**: Abstract base for continuous distributions with factory methods
+  - Provides `sampleDuration()` and `sampleDuration(scale)` for simulation time
+  - Uses `L64X128MixRandom` generator for high-quality randomness
+- **Uniform**: Uniform distribution over `[min, max]` range
+- **Normal**: Normal (Gaussian) distribution with mean and standard deviation
+- **Exponential**: Exponential distribution with mean (commonly used for inter-arrival times)
+- **Triangular**: Triangular distribution with min, mode (peak), and max
+- **Constant**: Constant "distribution" (always returns same value, useful for testing)
 
 ### Reporting (`com.hellblazer.primeMover.desmoj.report`)
 
@@ -107,13 +109,26 @@ public void broadcastEvent() {
 ### Using Distributions
 
 ```java
-// Create distributions
-var interArrival = new Exponential(random, 10.0);  // Mean of 10
-var serviceTime = new Uniform(random, 5.0, 15.0);  // Between 5-15
+// Create distributions (with optional seed for reproducibility)
+var interArrival = new Exponential(10.0);           // Mean of 10
+var serviceTime = new Uniform(5.0, 15.0);           // Between 5-15
 
-// Sample values
-long nextArrival = (long) interArrival.sample();
-long service = (long) serviceTime.sample();
+// With explicit seed for reproducible simulations
+var interArrivalSeeded = new Exponential(10.0, 12345L);
+var serviceTimeSeeded = new Uniform(5.0, 15.0, 12345L);
+
+// Factory methods (from ContinuousDistribution)
+var exp = ContinuousDistribution.exponential(10.0);
+var norm = ContinuousDistribution.normal(100.0, 15.0);
+var tri = ContinuousDistribution.triangular(5.0, 10.0, 20.0);
+
+// Sample values as doubles
+double nextArrivalTime = interArrival.sample();
+double serviceTime = serviceTime.sample();
+
+// Sample as simulation time duration (rounds to long)
+long duration = interArrival.sampleDuration();
+long scaledDuration = serviceTime.sampleDuration(1000.0);  // Scale by 1000
 ```
 
 ## Example: M/M/1 Queue

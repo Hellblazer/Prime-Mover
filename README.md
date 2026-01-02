@@ -48,30 +48,36 @@ Then add the repository and dependencies to your `pom.xml`:
     <dependency>
         <groupId>com.hellblazer.primeMover</groupId>
         <artifactId>api</artifactId>
-        <version>0.1.0</version>
+        <version>1.0.5-SNAPSHOT</version>
     </dependency>
 
     <!-- Runtime (needed for test/runtime) -->
     <dependency>
         <groupId>com.hellblazer.primeMover</groupId>
         <artifactId>runtime</artifactId>
-        <version>0.1.0</version>
+        <version>1.0.5-SNAPSHOT</version>
         <scope>test</scope>  <!-- or compile if needed -->
     </dependency>
 </dependencies>
 ```
 
-### 2. Build-Time Transformation
+### 2. Configure Transformation
 
-Add the Maven plugin to enable build-time transformation:
+Choose one of three transformation methods:
 
+**Option A: IntelliJ IDEA Plugin** (Recommended for IDE users)
+- Install from **Settings** > **Plugins** > Search "Prime Mover"
+- Automatically transforms classes on build
+- See [primemover-intellij-plugin/README.md](./primemover-intellij-plugin/README.md)
+
+**Option B: Maven Plugin** (Recommended for CI/CD)
 ```xml
 <build>
     <plugins>
         <plugin>
             <groupId>com.hellblazer.primeMover</groupId>
             <artifactId>primemover-maven-plugin</artifactId>
-            <version>0.1.0</version>
+            <version>1.0.5-SNAPSHOT</version>
             <executions>
                 <execution>
                     <phase>process-classes</phase>
@@ -84,6 +90,11 @@ Add the Maven plugin to enable build-time transformation:
         </plugin>
     </plugins>
 </build>
+```
+
+**Option C: Runtime Java Agent** (For testing/prototyping)
+```bash
+java -javaagent:path/to/sim-agent.jar -cp ... YourSimulation
 ```
 
 ### 3. Write Your First Simulation
@@ -203,7 +214,9 @@ framework/ (runtime)          - Runtime implementation (Kairos, SimulationContro
   |
 transform/                    - Bytecode transformation engine
   |
-primemover-maven-plugin/      - Build-time transformation
+primemover-maven-plugin/      - Build-time transformation (Maven)
+  |
+primemover-intellij-plugin/   - IDE integration (IntelliJ IDEA)
   |
 sim-agent/                    - Runtime transformation (Java agent)
   |
@@ -264,7 +277,8 @@ Each module has detailed documentation:
 - **[api/README.md](./api/README.md)** - Public API and annotations
 - **[framework/README.md](./framework/README.md)** - Runtime implementation and controllers
 - **[transform/README.md](./transform/README.md)** - Bytecode transformation details
-- **[primemover-maven-plugin/README.md](./primemover-maven-plugin/README.md)** - Build-time integration
+- **[primemover-maven-plugin/README.md](./primemover-maven-plugin/README.md)** - Build-time integration (Maven)
+- **[primemover-intellij-plugin/README.md](./primemover-intellij-plugin/README.md)** - IDE integration (IntelliJ IDEA)
 - **[sim-agent/README.md](./sim-agent/README.md)** - Runtime transformation via Java agent
 - **[demo/README.md](./demo/README.md)** - Example programs and patterns
 - **[janus/README.md](./janus/README.md)** - Composite/mixin pattern support
@@ -294,10 +308,11 @@ Each module has detailed documentation:
 
 ## Current Status
 
-**Version**: 0.1.0
+**Version**: 1.0.5-SNAPSHOT
 
 **Recent Changes**:
-- Migrated from ASM to Java 25 ClassFile API
+- IntelliJ IDEA plugin released for seamless IDE integration
+- Migrated from ASM to Java 25 ClassFile API (complete)
 - Removed external bytecode manipulation dependencies
 - Full virtual thread (Project Loom) support
 - Enhanced documentation and examples
@@ -308,6 +323,7 @@ Each module has detailed documentation:
 - More example simulations
 - Advanced debugging tools
 - Tutorial documentation
+- Additional IDE integrations (Eclipse, VS Code)
 
 ## Transformation Example
 
@@ -390,11 +406,13 @@ Prime-Mover/
 ├── README.md                     (this file)
 ├── CLAUDE.md                     (AI assistant guidance)
 ├── CLASSFILE_API_ANALYSIS.md    (technical analysis)
+├── CONCEPTS.md                   (conceptual deep-dive)
 ├── pom.xml                       (root Maven POM)
 ├── api/                          (public API module)
 ├── framework/                    (runtime module)
 ├── transform/                    (transformation engine)
 ├── primemover-maven-plugin/      (Maven plugin)
+├── primemover-intellij-plugin/   (IntelliJ IDEA plugin)
 ├── sim-agent/                    (Java agent)
 ├── demo/                         (examples)
 ├── janus/                        (composite/mixin)
@@ -410,7 +428,7 @@ Licensed under AGPL v3.0. See [LICENSE](./LICENSE) for details.
 ## Contributing
 
 Contributions welcome! Please ensure:
-- Java 24+ code style
+- Java 25+ code style (modern patterns, `var`, virtual threads)
 - All tests pass (`./mvnw test`)
 - Documentation updated
 - Clear commit messages
@@ -421,19 +439,6 @@ Contributions welcome! Please ensure:
 2. **Review examples** - See `demo/` module for usage patterns
 3. **Check CLASSFILE_API_ANALYSIS.md** - Technical deep-dive on transformation
 4. **Run demos** - Execute example programs to understand concepts
-
-## Citation
-
-If you use Prime Mover in research, please cite:
-
-```bibtex
-@software{hildebrand2025primemover,
-  title={Prime Mover: Event-Driven Simulation Framework for Java},
-  author={Hildebrand, Hal},
-  year={2025},
-  url={https://github.com/Hellblazer/Prime-Mover}
-}
-```
 
 ## Contact
 

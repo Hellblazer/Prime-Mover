@@ -33,6 +33,7 @@ This module:
 - Learning the framework
 - Running third-party code with simulation
 - Development and debugging
+- IntelliJ IDEA run configurations (via Prime Mover plugin)
 
 ## Installation
 
@@ -174,7 +175,7 @@ configurations {
 }
 
 dependencies {
-    simAgent 'com.hellblazer.primeMover:sim-agent:0.1.0'
+    simAgent 'com.hellblazer.primeMover:sim-agent:1.0.5-SNAPSHOT'
 }
 ```
 
@@ -235,11 +236,13 @@ Then connect your IDE debugger to localhost:5005.
 
 **Solution**:
 ```bash
-# Verify agent is loaded
-java -javaagent:/path/to/sim-agent.jar=verbose MyClass
+# Verify agent JAR exists
+ls -l /path/to/sim-agent.jar
 
 # Ensure full path
 java -javaagent:$(pwd)/sim-agent/target/sim-agent.jar MyClass
+
+# Check the agent is loaded (look for transformation log messages)
 ```
 
 ### Agent Load Failure
@@ -321,10 +324,10 @@ Prime Mover agent plays well with other agents like JProfiler, YourKit, etc.
 
 ## Limitations
 
-1. **No selective transformation**: Transforms all matching classes
-2. **Cannot untransform**: No way to disable after startup
-3. **Type inspection: Tools like Spring reflection may not work correctly
-4. **Debugging tools**: Some bytecode analyzers may fail
+1. **No selective transformation**: Transforms all `@Entity` classes found
+2. **Cannot untransform**: No way to disable after JVM startup
+3. **Type inspection**: Tools using reflection may see transformed bytecode
+4. **Debugging tools**: Some bytecode analyzers may show unexpected structure
 5. **Dynamic proxies**: May interact with dynamic proxy generation
 
 ## Development Notes
@@ -366,6 +369,17 @@ public class MyTransformer implements ClassFileTransformer {
 }
 ```
 
+## IntelliJ IDEA Integration
+
+The **primemover-intellij-plugin** can automatically add the sim-agent to your run configurations:
+
+1. Install the Prime Mover IntelliJ plugin
+2. The plugin detects Prime Mover projects automatically
+3. Run configurations are patched to include `-javaagent` flag
+4. No manual configuration needed
+
+This provides the best development experience - edit code and run immediately without rebuilding.
+
 ## See Also
 
 - **transform module**: Contains transformation logic
@@ -373,6 +387,7 @@ public class MyTransformer implements ClassFileTransformer {
 - **api module**: Annotations and contracts
 - **framework module**: Runtime implementation
 - **demo module**: Example usage patterns
+- **primemover-intellij-plugin**: IntelliJ IDEA integration
 
 ## Comparison: Maven Plugin vs Java Agent
 

@@ -27,9 +27,9 @@ Seamless bytecode transformation for the [Prime Mover](https://github.com/Hellbl
 
 ### Manual Installation
 
-1. Download the latest release from [GitHub Releases](https://github.com/Hellblazer/Prime-Mover/releases)
+1. Download the plugin `.zip` from [GitHub Releases](https://github.com/Hellblazer/Prime-Mover/releases) or build from source (see below)
 2. Go to **Settings** > **Plugins** > **⚙️** > **Install Plugin from Disk...**
-3. Select the downloaded `.zip` file
+3. Select the `.zip` file from `plugin/build/distributions/` (if built from source) or the downloaded file
 
 ## Usage
 
@@ -42,19 +42,19 @@ Seamless bytecode transformation for the [Prime Mover](https://github.com/Hellbl
 <dependency>
     <groupId>com.hellblazer.primeMover</groupId>
     <artifactId>api</artifactId>
-    <version>1.0.5</version>
+    <version>1.0.5-SNAPSHOT</version>  <!-- Use latest released version -->
 </dependency>
 <dependency>
     <groupId>com.hellblazer.primeMover</groupId>
     <artifactId>runtime</artifactId>
-    <version>1.0.5</version>
+    <version>1.0.5-SNAPSHOT</version>  <!-- Use latest released version -->
 </dependency>
 ```
 
 **Gradle:**
 ```groovy
-implementation 'com.hellblazer.primeMover:api:1.0.5'
-implementation 'com.hellblazer.primeMover:runtime:1.0.5'
+implementation 'com.hellblazer.primeMover:api:1.0.5-SNAPSHOT'  // Use latest released version
+implementation 'com.hellblazer.primeMover:runtime:1.0.5-SNAPSHOT'  // Use latest released version
 ```
 
 2. The plugin automatically detects Prime Mover and transforms `@Entity` classes on build
@@ -99,7 +99,7 @@ To use sim-agent, add it to your dependencies:
 <dependency>
     <groupId>com.hellblazer.primeMover</groupId>
     <artifactId>sim-agent</artifactId>
-    <version>1.0.5</version>
+    <version>1.0.5-SNAPSHOT</version>  <!-- Use latest released version -->
     <scope>runtime</scope>
 </dependency>
 ```
@@ -143,8 +143,12 @@ cd Prime-Mover/primemover-intellij-plugin
 # Build the plugin
 ./gradlew buildPlugin
 
-# Run tests
-./gradlew :jps-plugin:unitTest :plugin:unitTest
+# Run all tests (25 test methods across plugin and jps-plugin modules)
+./gradlew test
+
+# Run tests for specific modules
+./gradlew :jps-plugin:test
+./gradlew :plugin:test
 
 # Plugin ZIP will be in plugin/build/distributions/
 ```
