@@ -132,6 +132,72 @@ public class SteppingController extends Devi implements StatisticalController {
         return true;
     }
 
+    /**
+     * Process a single event from the queue. Useful for debugging and stepping
+     * through simulations one event at a time.
+     *
+     * @return true if an event was processed, false if the queue was empty
+     * @throws SimulationException if an error occurs during event processing
+     */
+    public boolean stepOne() throws SimulationException {
+        if (getCurrentTime() < 0) {
+            setCurrentTime(0);
+        }
+        if (simulationStart == 0) {
+            simulationStart = getCurrentTime();
+        }
+        Devi current = Framework.queryController();
+        try {
+            Kairos.setController(this);
+            var event = eventQueue.poll();
+            if (event == null) {
+                return false;
+            }
+            evaluate(event);
+            totalEvents++;
+            if (trackSpectrum) {
+                spectrum.merge(event.getSignature(), 1, Integer::sum);
+            }
+            simulationEnd = getCurrentTime();
+            return true;
+        } catch (SimulationEnd e) {
+            simulationEnd = getCurrentTime();
+            return true;
+        } finally {
+            Kairos.setController(current);
+        }
+    }
+
+    /**
+     * Check if there are pending events in the queue.
+     *
+     * @return true if there are events waiting to be processed
+     */
+    public boolean hasMoreEvents() {
+        return !eventQueue.isEmpty();
+    }
+
+    /**
+     * Peek at the next event without removing it from the queue.
+     *
+     * @return the next event, or null if the queue is empty
+     */
+    public EventImpl peekNextEvent() {
+        return eventQueue.peek();
+    }
+
+    /**
+     * Clear all pending events and reset statistics.
+     */
+    public void reset() {
+        eventQueue.clear();
+        spectrum.clear();
+        totalEvents = 0;
+        simulationStart = 0;
+        simulationEnd = 0;
+        clear();
+    }
+
     @Override
     public void post(EventImpl event) {
         eventQueue.add(event);
