@@ -19,7 +19,10 @@
 
 package com.hellblazer.primeMover.controllers;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.PriorityQueue;
 import java.util.Queue;
 
 import com.hellblazer.primeMover.api.SimulationException;
@@ -28,7 +31,6 @@ import com.hellblazer.primeMover.runtime.EventImpl;
 import com.hellblazer.primeMover.runtime.Framework;
 import com.hellblazer.primeMover.runtime.Kairos;
 import com.hellblazer.primeMover.runtime.SimulationEnd;
-import java.util.PriorityQueue;
 
 /**
  * Single-threaded simulation controller that allows stepping through events
@@ -43,8 +45,14 @@ import java.util.PriorityQueue;
  *
  * @author <a href="mailto:hal.hildebrand@gmail.com">Hal Hildebrand</a>
  */
-public class SteppingController extends Devi {
-    protected Queue<EventImpl> eventQueue;
+public class SteppingController extends Devi implements StatisticalController {
+    protected Queue<EventImpl>     eventQueue;
+    protected String               name           = "Stepping Controller";
+    protected Map<String, Integer> spectrum       = new HashMap<>();
+    protected int                  totalEvents    = 0;
+    protected long                 simulationStart = 0;
+    protected long                 simulationEnd   = 0;
+    protected boolean              trackSpectrum  = false;
 
     public SteppingController() {
         this(new PriorityQueue<>());
@@ -54,28 +62,140 @@ public class SteppingController extends Devi {
         this.eventQueue = eventQueue;
     }
 
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public long getSimulationStart() {
+        return simulationStart;
+    }
+
+    @Override
+    public long getSimulationEnd() {
+        return simulationEnd;
+    }
+
+    @Override
+    public Map<String, Integer> getSpectrum() {
+        return spectrum;
+    }
+
+    @Override
+    public int getTotalEvents() {
+        return totalEvents;
+    }
+
+    public boolean isTrackSpectrum() {
+        return trackSpectrum;
+    }
+
+    public void setTrackSpectrum(boolean track) {
+        this.trackSpectrum = track;
+    }
+
     public boolean step() throws SimulationException {
         if (getCurrentTime() < 0) {
             setCurrentTime(0);
+        }
+        if (simulationStart == 0) {
+            simulationStart = getCurrentTime();
         }
         Devi current = Framework.queryController();
         try {
             Kairos.setController(this);
             while (true) {
                 try {
-                    evaluate(eventQueue.remove());
+                    var event = eventQueue.remove();
+                    evaluate(event);
+                    totalEvents++;
+                    if (trackSpectrum) {
+                        spectrum.merge(event.getSignature(), 1, Integer::sum);
+                    }
                 } catch (SimulationEnd e) {
-                    // simulation end
+                    simulationEnd = getCurrentTime();
                     return true;
                 } catch (NoSuchElementException e) {
                     // no more events to process
                     break;
                 }
             }
+            simulationEnd = getCurrentTime();
         } finally {
             Kairos.setController(current);
         }
         return true;
+    }
+
+    /**
+     * Process a single event from the queue. Useful for debugging and stepping
+     * through simulations one event at a time.
+     *
+     * @return true if an event was processed, false if the queue was empty
+     * @throws SimulationException if an error occurs during event processing
+     */
+    public boolean stepOne() throws SimulationException {
+        if (getCurrentTime() < 0) {
+            setCurrentTime(0);
+        }
+        if (simulationStart == 0) {
+            simulationStart = getCurrentTime();
+        }
+        Devi current = Framework.queryController();
+        try {
+            Kairos.setController(this);
+            var event = eventQueue.poll();
+            if (event == null) {
+                return false;
+            }
+            evaluate(event);
+            totalEvents++;
+            if (trackSpectrum) {
+                spectrum.merge(event.getSignature(), 1, Integer::sum);
+            }
+            simulationEnd = getCurrentTime();
+            return true;
+        } catch (SimulationEnd e) {
+            simulationEnd = getCurrentTime();
+            return true;
+        } finally {
+            Kairos.setController(current);
+        }
+    }
+
+    /**
+     * Check if there are pending events in the queue.
+     *
+     * @return true if there are events waiting to be processed
+     */
+    public boolean hasMoreEvents() {
+        return !eventQueue.isEmpty();
+    }
+
+    /**
+     * Peek at the next event without removing it from the queue.
+     *
+     * @return the next event, or null if the queue is empty
+     */
+    public EventImpl peekNextEvent() {
+        return eventQueue.peek();
+    }
+
+    /**
+     * Clear all pending events and reset statistics.
+     */
+    public void reset() {
+        eventQueue.clear();
+        spectrum.clear();
+        totalEvents = 0;
+        simulationStart = 0;
+        simulationEnd = 0;
+        clear();
     }
 
     @Override

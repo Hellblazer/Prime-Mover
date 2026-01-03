@@ -21,11 +21,13 @@ package com.hellblazer.primeMover.controllers;
 
 import java.util.Map;
 
+import com.hellblazer.primeMover.ControllerReport;
+
 /**
  * An interface for gathering statistics on the simulation run
- * 
+ *
  * @author <a href="mailto:hal.hildebrand@gmail.com">Hal Hildebrand</a>
- * 
+ *
  */
 public interface StatisticalController {
 
@@ -53,9 +55,33 @@ public interface StatisticalController {
 
     /**
      * Answer the total number of events processed during the simulation
-     * 
+     *
      * @return
      */
     public abstract int getTotalEvents();
 
+    /**
+     * Answer the name of this controller.
+     * Default implementation returns a generic name.
+     *
+     * @return the controller name
+     */
+    default String getName() {
+        return "Simulation";
+    }
+
+    /**
+     * Generate a report of the simulation statistics.
+     *
+     * @return a ControllerReport containing all statistics
+     */
+    default ControllerReport report() {
+        return new ControllerReport(
+            getName(),
+            getSimulationStart(),
+            getSimulationEnd(),
+            getTotalEvents(),
+            getSpectrum()
+        );
+    }
 }
