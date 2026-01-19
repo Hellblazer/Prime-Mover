@@ -710,21 +710,15 @@ public class EntityGenerator {
 
     /**
      * Initialize event mappings and determine which methods are blocking/remapped.
-     * Uses hash-based ordinals for version stability - ordinals remain stable when methods
-     * are added or removed, enabling event queue serialization and binary compatibility.
+     * Uses sequential ordinals based on alphabetical ordering for stability.
+     * Ordinals are deterministic and stable across JVM restarts as long as the
+     * method set remains unchanged, which is sufficient for semantic versioning.
      */
     private void initializeEventMappings(Set<MethodMetadata> eventMethods) {
-        for (var mi : eventMethods.stream().sorted(METHOD_ORDER).toList()) {
-            // Compute stable hash-based ordinal from method signature
-            var ordinal = computeStableOrdinal(mi);
+        var sortedMethods = eventMethods.stream().sorted(METHOD_ORDER).toList();
 
-            // Check for collision (extremely rare with good hash function)
-            if (indexToMethod.containsKey(ordinal)) {
-                throw new IllegalStateException(
-                    "[EntityGenerator] Method ordinal collision detected for " +
-                    mi.getName() + mi.getDescriptor() + " (ordinal: " + ordinal + ") " +
-                    "in class " + className + ". This is extremely rare - please report this issue.");
-            }
+        for (int ordinal = 0; ordinal < sortedMethods.size(); ordinal++) {
+            var mi = sortedMethods.get(ordinal);
 
             indexToMethod.put(ordinal, mi);
             methodToIndex.put(mi, ordinal);
@@ -743,22 +737,6 @@ public class EntityGenerator {
                 remappedMethods.add(mi);
             }
         }
-    }
-
-    /**
-     * Compute a stable ordinal for a method using a hash of its signature.
-     * The ordinal is derived from the method name and descriptor to ensure:
-     * 1. Stability across JVM restarts (same method always gets same ordinal)
-     * 2. Version compatibility (adding/removing methods doesn't change existing ordinals)
-     * 3. Determinism (hash function is pure and deterministic)
-     *
-     * Uses the standard Java String hashCode, masked to positive int range.
-     * Collisions are extremely rare and detected at transformation time.
-     */
-    private int computeStableOrdinal(MethodMetadata method) {
-        var signature = method.getName() + method.getDescriptor();
-        // Use standard Java hashCode, ensure positive value
-        return signature.hashCode() & 0x7FFFFFFF;
     }
 
     private boolean isBlockingEvent(MethodMetadata mi) {

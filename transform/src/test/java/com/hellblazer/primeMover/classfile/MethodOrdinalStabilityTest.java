@@ -105,11 +105,16 @@ public class MethodOrdinalStabilityTest {
             }
         }
 
-        // Verify expected methods are present (ordinals are now hash-based, not sequential)
-        // Ordinals should be stable but non-sequential
+        // Verify expected methods are present with sequential ordinals based on alphabetical ordering
+        // Ordinals are stable and sequential (0, 1, 2, ...) based on method name + descriptor sort
         var ordinals = new ArrayList<>(firstMapping.keySet());
         ordinals.sort(Integer::compareTo);
         assertEquals(3, ordinals.size(), "MyTest should have exactly 3 event methods");
+
+        // Verify ordinals are sequential starting from 0
+        assertEquals(0, ordinals.get(0), "First ordinal should be 0");
+        assertEquals(1, ordinals.get(1), "Second ordinal should be 1");
+        assertEquals(2, ordinals.get(2), "Third ordinal should be 2");
 
         // Verify all methods are present somewhere in the mapping
         boolean hasBar = firstMapping.values().stream().anyMatch(sig -> sig.contains("bar()"));
@@ -146,26 +151,41 @@ public class MethodOrdinalStabilityTest {
     }
 
     /**
-     * Test that hash-based ordinals are deterministic for the same method signature.
-     * This verifies that the hash function produces stable ordinals across multiple invocations.
+     * Test that sequential ordinals are deterministic based on alphabetical ordering.
+     * This verifies that ordinal assignment is based on sorted method order, not hash values.
      */
     @Test
-    public void testHashBasedOrdinalsDeterministic() {
-        // Test that the same signature always produces the same ordinal
-        var signature1 = "bar()V";
-        var signature2 = "bar()V";
-        var signature3 = "myMy()Ljava/lang/String;";
+    public void testSequentialOrdinalsDeterministic() throws Exception {
+        var scanner = new ClassScanner()
+            .addClasspathEntry(Path.of("target/test-classes"))
+            .addClasspathEntry(Path.of("target/classes"))
+            .scan();
 
-        var hash1 = signature1.hashCode() & 0x7FFFFFFF;
-        var hash2 = signature2.hashCode() & 0x7FFFFFFF;
-        var hash3 = signature3.hashCode() & 0x7FFFFFFF;
+        final var className = "com.hellblazer.primeMover.classfile.testClasses.MyTest";
+        var transform = new SimulationTransform(scanner);
+        var generator = transform.generatorOf(className);
+        assertNotNull(generator);
 
-        assertEquals(hash1, hash2, "Identical signatures should produce identical hashes");
-        assertNotEquals(hash1, hash3, "Different signatures should produce different hashes");
+        byte[] bytes = generator.generate();
+        var loader = new ClassLoader(getClass().getClassLoader()) {
+            {
+                defineClass(className, ByteBuffer.wrap(bytes), null);
+            }
+        };
+        var clazz = loader.loadClass(className);
+        var instance = clazz.getConstructor().newInstance();
+        var entityRef = (EntityReference) instance;
 
-        // Verify hash values are positive (masked to remove sign bit)
-        assertTrue(hash1 >= 0, "Hash should be positive");
-        assertTrue(hash3 >= 0, "Hash should be positive");
+        // MyTest has methods: bar()V, myMy()Ljava/lang/String;, someArgs(Ljava/lang/String;Ljava/lang/Object;)[Ljava/lang/String;
+        // Alphabetically sorted: bar, myMy, someArgs
+        // Expected ordinals: 0, 1, 2
+        var sig0 = entityRef.__signatureFor(0);
+        var sig1 = entityRef.__signatureFor(1);
+        var sig2 = entityRef.__signatureFor(2);
+
+        assertTrue(sig0.contains("bar"), "Ordinal 0 should be bar() (alphabetically first)");
+        assertTrue(sig1.contains("myMy"), "Ordinal 1 should be myMy() (alphabetically second)");
+        assertTrue(sig2.contains("someArgs"), "Ordinal 2 should be someArgs() (alphabetically third)");
     }
 
     /**
