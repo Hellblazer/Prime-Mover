@@ -1,5 +1,8 @@
 # Prime Mover Error Handling Strategy
 
+**Effective Date**: 2026-01-19
+**Applies to**: Prime-Mover 1.0.5+
+
 ## Overview
 
 This document defines the comprehensive error handling and recovery strategy for the Prime Mover discrete event simulation framework. It covers the exception taxonomy, recovery patterns, continuation safety, and best practices for handling errors in simulation code.
@@ -144,6 +147,37 @@ catch (Error e) {
 ## Recovery Patterns
 
 Prime Mover supports four recovery patterns, chosen based on simulation requirements.
+
+### Pattern Selection Guide
+
+Use this decision tree to select the appropriate recovery pattern:
+
+```
+                         Error Occurs
+                              |
+                              v
+                   Is data integrity critical?
+                         /           \
+                       Yes            No
+                        |              |
+                        v              v
+                  Fail-Fast      Is failure transient?
+                              /               \
+                            Yes               No
+                             |                 |
+                             v                 v
+                          Retry         Is partial data useful?
+                                       /               \
+                                     Yes               No
+                                      |                 |
+                                      v                 v
+                            Graceful Degradation   Fail-Fast
+```
+
+**Decision Factors:**
+- **Data integrity critical**: Simulations with strict accuracy requirements (financial, safety-critical)
+- **Failure transient**: Temporary issues like network timeouts, resource availability
+- **Partial data useful**: Simulations where progress up to failure has value (analytics, trend analysis)
 
 ### 1. Fail-Fast (Default)
 

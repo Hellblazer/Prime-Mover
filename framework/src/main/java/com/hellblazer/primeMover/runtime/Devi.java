@@ -17,6 +17,8 @@
 
 package com.hellblazer.primeMover.runtime;
 
+import java.util.Objects;
+
 import com.hellblazer.primeMover.api.Controller;
 import com.hellblazer.primeMover.api.Event;
 import com.hellblazer.primeMover.api.SimulationException;
@@ -356,9 +358,7 @@ abstract public class Devi implements Controller, AutoCloseable {
      *                             the event.
      */
     protected final void evaluate(EventImpl next) throws SimulationException {
-        if (next == null) {
-            throw new NullPointerException("Event cannot be null");
-        }
+        Objects.requireNonNull(next, "Event cannot be null");
         try {
             serializer.acquire();
             assert caller == null;

@@ -5,7 +5,7 @@
 This document defines the **stability guarantees** for the Blocking Primitives SPI. It establishes versioning policies, deprecation procedures, and migration guidance to ensure blocking primitive implementations remain compatible across Prime Mover releases.
 
 **Contract Version**: 1.0
-**Effective Date**: 2024
+**Effective Date**: 2026-01-19 (Prime-Mover 1.0.5)
 **Module**: `com.hellblazer.primeMover:runtime`
 
 ## Stability Tiers
@@ -216,7 +216,7 @@ For SPI-related issues:
 
 1. **Bug Reports**: GitHub Issues with `[SPI]` prefix
 2. **Feature Requests**: GitHub Discussions
-3. **Security Issues**: Private disclosure via security@example.com
+3. **Security Issues**: Report via GitHub Security Advisory
 
 ## Document History
 

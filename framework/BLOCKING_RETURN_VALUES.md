@@ -4,6 +4,18 @@
 
 This document describes the best practices for handling return values in blocking primitives within the Prime Mover simulation framework. Blocking primitives use the `Continuation` class to pass return values from the primitive back to the blocked event when it resumes.
 
+## Quick Reference
+
+| Task | Method | Example |
+|------|--------|---------|
+| Get blocked event | `swapCaller(null)` | `var waiter = controller.swapCaller(null);` |
+| Store for later | Queue/deque | `waiters.addLast(waiter);` |
+| Set return value | `getContinuation().setReturnValue(value)` | `waiter.getContinuation().setReturnValue(result);` |
+| Set exception | `getContinuation().setReturnState(null, ex)` | `waiter.getContinuation().setReturnState(null, exception);` |
+| Update event time | `setTime(time)` | `waiter.setTime(controller.getCurrentTime());` |
+| Resume event | `controller.post(event)` | `controller.post(waiter);` |
+| Check if blocked | `getContinuation() != null` | `if (waiter.getContinuation() != null) { ... }` |
+
 ## Return Value Flow
 
 When a blocking primitive needs to return a value to a blocked event, the following flow occurs:
