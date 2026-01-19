@@ -65,4 +65,29 @@ class MockController extends Devi {
         return null;
     }
 
+    @Override
+    public int getTotalEvents() {
+        return 0;
+    }
+
+    @Override
+    public java.util.Map<String, Integer> getSpectrum() {
+        return java.util.Map.of();
+    }
+
+    @Override
+    public String getName() {
+        return "MockController";
+    }
+
+    @Override
+    public long getSimulationStart() {
+        return 0;
+    }
+
+    @Override
+    public long getSimulationEnd() {
+        return 0;
+    }
+
 }

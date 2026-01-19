@@ -32,6 +32,7 @@ import java.util.logging.Logger;
 
 public class ControllerImpl extends Devi {
     public final Queue<EventImpl> eventQueue = new PriorityBlockingQueue<EventImpl>();
+    private int totalEvents = 0;
 
     public boolean send() throws SimulationException {
         if (eventQueue.isEmpty()) {
@@ -48,6 +49,32 @@ public class ControllerImpl extends Devi {
     @Override
     public void post(EventImpl event) {
         eventQueue.add(event);
+        totalEvents++;
         Logger.getLogger(ControllerImpl.class.getCanonicalName()).info("Posting: %s".formatted(event));
+    }
+
+    @Override
+    public int getTotalEvents() {
+        return totalEvents;
+    }
+
+    @Override
+    public java.util.Map<String, Integer> getSpectrum() {
+        return java.util.Map.of();
+    }
+
+    @Override
+    public String getName() {
+        return "ControllerImpl";
+    }
+
+    @Override
+    public long getSimulationStart() {
+        return 0;
+    }
+
+    @Override
+    public long getSimulationEnd() {
+        return 0;
     }
 }

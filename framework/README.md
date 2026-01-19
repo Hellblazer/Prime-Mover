@@ -373,8 +373,14 @@ The framework is designed for single-threaded simulation from user perspective:
 - Framework ensures proper synchronization
 - User code doesn't need explicit synchronization within events
 
+## Documentation
+
+- **[EVENT_TRACKING_PERFORMANCE.md](EVENT_TRACKING_PERFORMANCE.md)** - Performance impact and recommendations for event tracking features
+- **[ERROR_MESSAGE_STANDARD.md](ERROR_MESSAGE_STANDARD.md)** - Error message formatting standards
+
 ## See Also
 
 - **api module**: Public API contracts
 - **transform module**: Bytecode transformation that creates events
 - **demo module**: Usage examples
+- **benchmarks module**: JMH performance benchmarks and measurement tools
