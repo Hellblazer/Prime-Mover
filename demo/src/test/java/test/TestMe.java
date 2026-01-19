@@ -36,4 +36,22 @@ public class TestMe {
             // end
         }
     }
+
+    @Test
+    public void benchmarkEventThroughput() throws Exception {
+        try {
+            eventThroughput();
+        } catch (SimulationEnd e) {
+            // end
+        }
+    }
+
+    @Test
+    public void benchmarkContinuationThroughput() throws Exception {
+        try {
+            eventContinuationThroughput();
+        } catch (SimulationEnd e) {
+            // end
+        }
+    }
 }

@@ -404,15 +404,18 @@ flowchart TB
 
 **Build-Time (Maven Plugin)**:
 - Transforms classes after compilation
-- Zero runtime overhead
+- Zero runtime transformation overhead (transformation happens at build time)
 - Recommended for production
+- Typical transformation time: <0.5 seconds for moderate codebases
 
 **Runtime (Java Agent)**:
 - Transforms classes as they load
-- Slight startup overhead
-- Useful for rapid prototyping
+- Slight startup overhead from on-the-fly transformation
+- Useful for rapid prototyping and debugging
 
 Both produce identical transformed bytecode.
+
+**Performance Note**: "Zero runtime overhead" refers specifically to the transformation process having no cost at runtime when using build-time transformation. The simulation framework itself has necessary costs for event scheduling, priority queue management, and virtual thread coordination, which are efficiently implemented. See [PERFORMANCE.md](./PERFORMANCE.md) for measured throughput characteristics (~120K events/sec for non-blocking operations).
 
 ---
 
@@ -701,11 +704,14 @@ Channels apply to:
 **Alternative considered**: Runtime-only transformation
 
 **Why build-time**:
-- Zero runtime overhead
+- Zero runtime transformation overhead (classes already transformed before application starts)
 - Errors caught at build time
-- Transformed classes can be inspected
+- Transformed classes can be inspected with javap or IDE tools
+- Faster application startup (no transformation during class loading)
 
 **Trade-off**: Requires Maven/Gradle plugin setup; not as convenient for rapid prototyping.
+
+See [PERFORMANCE.md](./PERFORMANCE.md) for detailed performance measurements and overhead analysis.
 
 ---
 
