@@ -128,15 +128,9 @@ import com.hellblazer.primeMover.runtime.Kairos;
 public class SimulationController extends Devi implements StatisticalController {
     private static final Logger log = LoggerFactory.getLogger(SimulationController.class);
 
-    protected long                 endTime         = Long.MAX_VALUE;
-    protected Queue<EventImpl>     eventQueue;
-    protected String               name            = "Prime Mover Simulation Event Evaluation";
-    protected long                 simulationEnd;
-    protected long                 simulationStart;
-    protected boolean              simulationRunning = false;
-    protected Map<String, Integer> spectrum        = new ConcurrentHashMap<>();
-    protected int                  totalEvents;
-    protected boolean              trackSpectrum   = true;
+    protected long               endTime           = Long.MAX_VALUE;
+    protected Queue<EventImpl>   eventQueue;
+    protected boolean            simulationRunning = false;
 
     public SimulationController() {
         this(new PriorityQueue<>());
@@ -144,6 +138,9 @@ public class SimulationController extends Devi implements StatisticalController 
 
     public SimulationController(Queue<EventImpl> eventQueue) {
         this.eventQueue = eventQueue;
+        this.name = "Prime Mover Simulation Event Evaluation";
+        this.trackSpectrum = true;
+        this.spectrum = new ConcurrentHashMap<>();
     }
 
     /**
@@ -454,10 +451,7 @@ public class SimulationController extends Devi implements StatisticalController 
     public void singleStep() throws SimulationException {
         var current = eventQueue.remove();
         evaluate(current);
-        totalEvents++;
-        if (trackSpectrum) {
-            spectrum.merge(current.getSignature(), 1, Integer::sum);
-        }
+        recordEvent(current);
     }
 
     @Override
