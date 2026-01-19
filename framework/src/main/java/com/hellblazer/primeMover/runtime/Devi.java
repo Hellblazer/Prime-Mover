@@ -21,7 +21,10 @@ import com.hellblazer.primeMover.api.Controller;
 import com.hellblazer.primeMover.api.Event;
 import com.hellblazer.primeMover.api.SimulationException;
 import com.hellblazer.primeMover.api.EntityReference;
+import com.hellblazer.primeMover.ControllerReport;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.*;
 
 import org.slf4j.Logger;
@@ -149,6 +152,14 @@ abstract public class Devi implements Controller, AutoCloseable {
     private          Logger                              eventLog;
     private volatile CompletableFuture<EvaluationResult> futureSailor;
     private          boolean                             trackEventSources = false;
+
+    // Statistics tracking infrastructure (subclasses can override for thread-safety)
+    protected String               name            = "Simulation";
+    protected long                 simulationStart = 0;
+    protected long                 simulationEnd   = 0;
+    protected int                  totalEvents     = 0;
+    protected Map<String, Integer> spectrum        = new HashMap<>();
+    protected boolean              trackSpectrum   = false;
 
     public Devi() {
         executor = Executors.newVirtualThreadPerTaskExecutor();
@@ -371,16 +382,140 @@ abstract public class Devi implements Controller, AutoCloseable {
     abstract public void post(EventImpl event);
 
     /**
-     * Swap the calling event for the current caller. Made public to allow
-     * blocking primitives in other packages to capture continuation state.
+     * Swaps the current event caller for continuation management in blocking primitives.
+     * <p>
+     * <b>Internal SPI Method - Do Not Use Directly</b>
+     * <p>
+     * This method is part of the blocking primitives Service Provider Interface (SPI) and is used
+     * exclusively by blocking primitive implementations (SimSignal, SimCondition, SimQueue, etc.)
+     * to manage event continuations across primitive boundaries. Direct use outside the blocking
+     * primitives SPI is not supported and will cause undefined behavior.
+     * <p>
+     * <b>Purpose</b>
+     * <p>
+     * Blocking primitives must temporarily capture and restore the caller context when:
+     * <ul>
+     *   <li>An entity blocks waiting on a resource (queue, condition, signal)</li>
+     *   <li>The primitive needs to defer continuation until resource availability</li>
+     *   <li>Multiple entities may wait and resume in FIFO/priority order</li>
+     * </ul>
+     * The primitive calls {@code swapCaller(null)} to capture the current caller,
+     * stores it internally, then later restores it via {@code swapCaller(savedCaller)}
+     * when resuming the blocked entity.
+     * <p>
+     * <b>Threading Model</b>
+     * <p>
+     * This method is <b>not inherently thread-safe</b>. It relies on Devi's single-threaded
+     * event processing guarantee enforced by the {@code serializer} semaphore. Only one event
+     * evaluates at a time, so {@code caller} access is serialized. The method must only be
+     * called from within event processing context (inside an {@code @Entity} method or blocking
+     * primitive SPI implementation).
+     * <p>
+     * <b>Example Usage (Internal SPI)</b>
+     * <pre>{@code
+     * // In blocking primitive implementation (e.g., SimQueue.enqueue)
+     * public void passivate(ProcessEntity entity) {
+     *     // Capture current caller for later resumption
+     *     EventImpl savedCaller = swapCaller(null);
      *
-     * @param newCaller the new caller to set (typically null to capture current)
-     * @return the current caller event
+     *     // Store in wait queue
+     *     waitQueue.add(new QueueEntry(entity, savedCaller));
+     *
+     *     // When resource available, restore caller and post continuation
+     *     QueueEntry next = waitQueue.poll();
+     *     swapCaller(next.caller);
+     *     // Primitive schedules entity.activate() event
+     * }
+     * }</pre>
+     * <p>
+     * <b>Related SPI Documentation</b>
+     * <ul>
+     *   <li>{@link #post(EventImpl)} - Posts events for continuation scheduling</li>
+     *   <li>{@link EventImpl#getContinuation()} - Accesses continuation state</li>
+     *   <li>{@link EventImpl#setTime(long)} - Adjusts event timing for deferred resume</li>
+     *   <li>BEAD-10 (thread safety) - Complete threading model documentation</li>
+     * </ul>
+     * <p>
+     * Visibility changed from protected to public in BEAD-06 to support blocking primitives
+     * refactored into the desmoj-ish module while maintaining runtime module encapsulation.
+     *
+     * @param newCaller the new caller to set, or null to clear current caller for capture
+     * @return the previous caller event before the swap (for capture/restore pattern)
      */
     public EventImpl swapCaller(EventImpl newCaller) {
         var tmp = caller;
         caller = newCaller;
         return tmp;
+    }
+
+    /**
+     * Answer the name of this controller.
+     * Subclasses must implement to provide controller identification.
+     *
+     * @return the controller name
+     */
+    public abstract String getName();
+
+    /**
+     * Answer the simulation clock at the beginning of the simulation.
+     * Subclasses must implement to track simulation start time.
+     *
+     * @return the simulation start time
+     */
+    public abstract long getSimulationStart();
+
+    /**
+     * Answer the simulation clock at the end of the simulation.
+     * Subclasses must implement to track simulation end time.
+     *
+     * @return the simulation end time
+     */
+    public abstract long getSimulationEnd();
+
+    /**
+     * Answer the spectrum of events.
+     * Subclasses must implement to provide event signature tracking.
+     *
+     * @return a Map where the key is the signature of the event, and the value
+     *         is the number of times the event was invoked
+     */
+    public abstract Map<String, Integer> getSpectrum();
+
+    /**
+     * Answer the total number of events processed during the simulation.
+     * Subclasses must implement to track event count.
+     *
+     * @return the total number of events processed
+     */
+    public abstract int getTotalEvents();
+
+    /**
+     * Helper method for recording event execution.
+     * Subclasses can override for different thread-safety models.
+     *
+     * @param event the event being recorded
+     */
+    protected void recordEvent(EventImpl event) {
+        totalEvents++;
+        if (trackSpectrum) {
+            spectrum.merge(event.getSignature(), 1, Integer::sum);
+        }
+    }
+
+    /**
+     * Generate a report of the simulation statistics.
+     * Uses abstract methods to gather statistics from subclass implementations.
+     *
+     * @return a ControllerReport containing all statistics
+     */
+    public ControllerReport report() {
+        return new ControllerReport(
+            getName(),
+            getSimulationStart(),
+            getSimulationEnd(),
+            getTotalEvents(),
+            getSpectrum()
+        );
     }
 
     private Runnable eval(EventImpl event) {
