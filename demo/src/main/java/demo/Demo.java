@@ -19,6 +19,7 @@ package demo;
 
 import com.hellblazer.primeMover.api.Kronos;
 import com.hellblazer.primeMover.api.SimulationException;
+import com.hellblazer.primeMover.builders.SimulationBuilder;
 import com.hellblazer.primeMover.controllers.SimulationController;
 
 import java.util.Map;
@@ -32,6 +33,20 @@ import java.util.Map;
 public class Demo {
 
     public static void channel() throws SimulationException {
+        // New builder pattern reduces boilerplate
+        var controller = (SimulationController) SimulationBuilder.builder()
+                                                                 .trackSpectrum(true)
+                                                                 .build();
+        new UseChannel().test();
+        controller.eventLoop();
+        System.out.println("Event spectrum:");
+        for (Map.Entry<String, Integer> spectrumEntry : controller.getSpectrum().entrySet()) {
+            System.out.println("\t" + spectrumEntry.getValue() + "\t\t : " + spectrumEntry.getKey());
+        }
+    }
+
+    public static void channelOldWay() throws SimulationException {
+        // Old way still works for backward compatibility
         SimulationController controller = new SimulationController();
         Kronos.setController(controller);
         controller.setCurrentTime(0);
