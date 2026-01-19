@@ -452,6 +452,8 @@ public class SimulationController extends Devi implements StatisticalController 
         var current = eventQueue.remove();
         evaluate(current);
         recordEvent(current);
+        // Clear references to allow garbage collection of entities and caller chains
+        current.clearReferences();
     }
 
     @Override

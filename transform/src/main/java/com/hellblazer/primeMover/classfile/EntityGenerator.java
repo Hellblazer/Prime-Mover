@@ -709,13 +709,25 @@ public class EntityGenerator {
     }
 
     /**
-     * Initialize event mappings and determine which methods are blocking/remapped
+     * Initialize event mappings and determine which methods are blocking/remapped.
+     * Uses hash-based ordinals for version stability - ordinals remain stable when methods
+     * are added or removed, enabling event queue serialization and binary compatibility.
      */
     private void initializeEventMappings(Set<MethodMetadata> eventMethods) {
-        var key = 0;
         for (var mi : eventMethods.stream().sorted(METHOD_ORDER).toList()) {
-            indexToMethod.put(key, mi);
-            methodToIndex.put(mi, key++);
+            // Compute stable hash-based ordinal from method signature
+            var ordinal = computeStableOrdinal(mi);
+
+            // Check for collision (extremely rare with good hash function)
+            if (indexToMethod.containsKey(ordinal)) {
+                throw new IllegalStateException(
+                    "[EntityGenerator] Method ordinal collision detected for " +
+                    mi.getName() + mi.getDescriptor() + " (ordinal: " + ordinal + ") " +
+                    "in class " + className + ". This is extremely rare - please report this issue.");
+            }
+
+            indexToMethod.put(ordinal, mi);
+            methodToIndex.put(mi, ordinal);
 
             // Build O(1) lookup index: "name:descriptor" -> MethodMetadata
             var methodKey = mi.getName() + ":" + mi.getDescriptor();
@@ -731,6 +743,22 @@ public class EntityGenerator {
                 remappedMethods.add(mi);
             }
         }
+    }
+
+    /**
+     * Compute a stable ordinal for a method using a hash of its signature.
+     * The ordinal is derived from the method name and descriptor to ensure:
+     * 1. Stability across JVM restarts (same method always gets same ordinal)
+     * 2. Version compatibility (adding/removing methods doesn't change existing ordinals)
+     * 3. Determinism (hash function is pure and deterministic)
+     *
+     * Uses the standard Java String hashCode, masked to positive int range.
+     * Collisions are extremely rare and detected at transformation time.
+     */
+    private int computeStableOrdinal(MethodMetadata method) {
+        var signature = method.getName() + method.getDescriptor();
+        // Use standard Java hashCode, ensure positive value
+        return signature.hashCode() & 0x7FFFFFFF;
     }
 
     private boolean isBlockingEvent(MethodMetadata mi) {

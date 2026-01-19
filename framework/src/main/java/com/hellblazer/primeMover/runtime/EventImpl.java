@@ -213,6 +213,17 @@ public class EventImpl implements Cloneable, Serializable, Comparable<EventImpl>
         return cont != null;
     }
 
+    /**
+     * Clears fields that hold strong references to allow garbage collection.
+     * Should be called after event processing is complete and the event is no longer needed.
+     * This prevents memory leaks in long-running simulations by allowing completed events,
+     * their entities, and caller chains to be garbage collected.
+     */
+    void clearReferences() {
+        reference = null;
+        caller = null;
+    }
+
     void proceed() {
         final var cont = continuation;
 //        assert (cont != null &&
