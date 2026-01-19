@@ -104,7 +104,7 @@ public class EventImpl implements Cloneable, Serializable, Comparable<EventImpl>
         try {
             clone = (EventImpl) super.clone();
         } catch (CloneNotSupportedException e) {
-            throw new IllegalStateException("Clone not supported for Event!", e);
+            throw new IllegalStateException("[EventImpl] Clone operation not supported for event: " + this, e);
         }
 
         clone.continuation = null;
@@ -197,9 +197,9 @@ public class EventImpl implements Cloneable, Serializable, Comparable<EventImpl>
     }
 
     Object invoke() throws Throwable {
-//        logger.info("Invoking " + this);
+
         final var result = reference.__invoke(event, arguments);
-//        logger.info("Finished invoking " + this);
+
         return result;
     }
 
