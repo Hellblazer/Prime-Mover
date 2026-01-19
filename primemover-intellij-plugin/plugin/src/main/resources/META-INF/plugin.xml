@@ -34,6 +34,7 @@
     </ul>
     ]]></change-notes>
 
+    <!-- License: GNU Affero General Public License v3.0 (AGPL-3.0) -->
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.java</depends>
 
