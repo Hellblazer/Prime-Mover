@@ -50,6 +50,11 @@ import com.hellblazer.primeMover.runtime.Devi.EvaluationResult;
  */
 public class EventImpl implements Cloneable, Serializable, Comparable<EventImpl>, Event {
     private static final Logger       logger           = LoggerFactory.getLogger(EventImpl.class);
+    /**
+     * Serial version UID for serialization compatibility.
+     * Used to ensure that serialized EventImpl objects can be deserialized across
+     * different versions of the Prime Mover framework.
+     */
     private static final long         serialVersionUID = -628833433139964756L;
     /**
      * The arguments for the event

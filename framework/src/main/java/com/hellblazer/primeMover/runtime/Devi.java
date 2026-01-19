@@ -356,6 +356,9 @@ abstract public class Devi implements Controller, AutoCloseable {
      *                             the event.
      */
     protected final void evaluate(EventImpl next) throws SimulationException {
+        if (next == null) {
+            throw new NullPointerException("Event cannot be null");
+        }
         try {
             serializer.acquire();
             assert caller == null;
