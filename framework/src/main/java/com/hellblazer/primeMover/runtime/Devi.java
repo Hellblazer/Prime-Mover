@@ -30,6 +30,111 @@ import org.slf4j.LoggerFactory;
 /**
  * The processor of events, the continuation of time. This is the central
  * control interface of PrimeMover.
+ * <p>
+ * <b>Thread Safety Model: Single Event Processing with Virtual Thread Execution</b>
+ * <p>
+ * Devi enforces single-threaded event processing semantics using a {@link Semaphore}
+ * to serialize event evaluation. Each event executes in its own virtual thread, but
+ * only one event evaluates at a time. This provides:
+ * <ul>
+ *   <li>Predictable, deterministic event ordering</li>
+ *   <li>Safe access to controller state during event processing</li>
+ *   <li>Efficient blocking via virtual thread continuations</li>
+ *   <li>No need for synchronization in entity code</li>
+ * </ul>
+ * <p>
+ * <b>Virtual Thread Execution Model</b>
+ * <p>
+ * Events execute in virtual threads created by {@link Executors#newVirtualThreadPerTaskExecutor()}.
+ * Virtual threads are lightweight (thousands can run concurrently) and use cooperative
+ * scheduling. When an event blocks (e.g., {@code Kronos.blockingSleep()}), the virtual
+ * thread yields without consuming an OS thread, allowing other events to run efficiently.
+ * <p>
+ * The {@code serializer} semaphore ensures that despite concurrent virtual thread execution,
+ * only one event is actively evaluating at any moment. This maintains simulation determinism
+ * while leveraging virtual threads for efficient blocking operations.
+ * <p>
+ * <b>Thread-Safe Operations</b>
+ * <table border="1">
+ *   <tr><th>Operation</th><th>Thread-Safe?</th><th>Notes</th></tr>
+ *   <tr><td>{@link #postEvent(EntityReference, int, Object...)}</td><td>Implementation-dependent</td><td>Subclasses override {@code post()} with their own thread-safety model</td></tr>
+ *   <tr><td>{@link #getCurrentTime()}</td><td>Yes (volatile read)</td><td>Safe to call from any thread, but value may change between calls</td></tr>
+ *   <tr><td>{@link #getCurrentEvent()}</td><td>No</td><td>Only safe during event processing from the current event's virtual thread</td></tr>
+ *   <tr><td>{@link #setCurrentTime(long)}</td><td>No</td><td>Must be called before simulation starts or from event processing</td></tr>
+ *   <tr><td>{@link #advance(long)}</td><td>No</td><td>Only safe from the event processing context</td></tr>
+ *   <tr><td>{@link #clear()}</td><td>No</td><td>Only safe when simulation is not running</td></tr>
+ * </table>
+ * <p>
+ * <b>Event Processing Flow</b>
+ * <ol>
+ *   <li>Event posted via {@code post(EventImpl)} (thread-safety depends on subclass)</li>
+ *   <li>{@code evaluate(EventImpl)} acquires the {@code serializer} semaphore</li>
+ *   <li>Event invoked in a virtual thread via {@code executor.execute()}</li>
+ *   <li>Virtual thread executes entity method, may block and yield</li>
+ *   <li>Event completes, releases semaphore, posts continuation/result events</li>
+ * </ol>
+ * <p>
+ * <b>Blocking Event Continuations</b>
+ * <p>
+ * When an event calls {@code Kronos.blockingSleep()} or similar blocking operations:
+ * <ol>
+ *   <li>{@link #postContinuingEvent} creates a blocking event and a continuation event</li>
+ *   <li>The continuation event captures the current virtual thread continuation state</li>
+ *   <li>The blocking event is posted and evaluated normally</li>
+ *   <li>When the blocking event completes, the continuation event is posted</li>
+ *   <li>The continuation resumes the original virtual thread from its park point</li>
+ * </ol>
+ * Virtual threads make this efficient because parking doesn't block OS threads.
+ * <p>
+ * <b>External Synchronization Required For:</b>
+ * <ul>
+ *   <li>Modifying controller configuration during simulation ({@code setCurrentTime}, {@code setDebugEvents}, etc.)</li>
+ *   <li>Accessing statistics or state from threads outside event processing</li>
+ *   <li>Multiple threads posting events (depends on subclass {@code post()} implementation)</li>
+ * </ul>
+ * <p>
+ * <b>Subclass Thread-Safety Responsibility</b>
+ * <p>
+ * Subclasses must implement {@code post(EventImpl)} with their own thread-safety model:
+ * <ul>
+ *   <li>{@link com.hellblazer.primeMover.controllers.SimulationController}: Single-threaded, no locking</li>
+ *   <li>{@link com.hellblazer.primeMover.controllers.RealTimeController}: Thread-safe with {@code ReentrantLock}</li>
+ *   <li>{@link com.hellblazer.primeMover.controllers.SteppingController}: Single-threaded, no locking</li>
+ * </ul>
+ * <p>
+ * <b>Example Usage: Single-Threaded Event Posting</b>
+ * <pre>{@code
+ * var controller = new SimulationController();
+ *
+ * // Configuration must happen before simulation starts
+ * controller.setCurrentTime(0);
+ * controller.setEndTime(1_000_000);
+ *
+ * // Post initial events (single-threaded)
+ * entity.someMethod(); // Transformed to post event
+ *
+ * // Run simulation (blocks until completion)
+ * controller.eventLoop();
+ *
+ * // Read results after completion (safe)
+ * long endTime = controller.getCurrentTime();
+ * }</pre>
+ * <p>
+ * <b>Example Usage: Multi-Threaded Event Posting</b>
+ * <pre>{@code
+ * var controller = new RealTimeController("My Simulation");
+ *
+ * // Start animation thread
+ * controller.start();
+ *
+ * // Multiple threads can post events concurrently
+ * executor.submit(() -> entity1.action());
+ * executor.submit(() -> entity2.action());
+ *
+ * // Stop and read statistics
+ * controller.stop();
+ * int events = controller.getTotalEvents();
+ * }</pre>
  *
  * @author <a href="mailto:hal.hildebrand@gmail.com">Hal Hildebrand</a>
  */

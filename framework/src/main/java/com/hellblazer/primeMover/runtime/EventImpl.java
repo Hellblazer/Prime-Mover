@@ -21,6 +21,7 @@ package com.hellblazer.primeMover.runtime;
 
 import java.io.PrintStream;
 import java.io.Serializable;
+import java.lang.ref.WeakReference;
 import java.util.concurrent.CompletableFuture;
 
 import org.slf4j.Logger;
@@ -31,10 +32,21 @@ import com.hellblazer.primeMover.api.EntityReference;
 import com.hellblazer.primeMover.runtime.Devi.EvaluationResult;
 
 /**
- * Represents the simulated event
- * 
+ * Represents the simulated event.
+ * <p>
+ * Event source tracking uses weak references to prevent memory leaks in long-running simulations.
+ * When {@link Devi#setTrackEventSources(boolean)} is enabled, each event stores a weak reference
+ * to its source event. This allows the garbage collector to reclaim completed events even when
+ * newer events reference them in the source chain. As a result, {@link #printTrace()} may show
+ * incomplete event chains if intermediate events have been garbage collected.
+ * </p>
+ * <p>
+ * Event source tracking is intended for debugging and development purposes only and should not
+ * be relied upon in production environments where complete event traces are required.
+ * </p>
+ *
  * @author <a href="mailto:hal.hildebrand@gmail.com">Hal Hildebrand</a>
- * 
+ *
  */
 public class EventImpl implements Cloneable, Serializable, Comparable<EventImpl>, Event {
     private static final Logger       logger           = LoggerFactory.getLogger(EventImpl.class);
@@ -62,9 +74,10 @@ public class EventImpl implements Cloneable, Serializable, Comparable<EventImpl>
     private transient EntityReference reference;
 
     /**
-     * The event that was the source of this event
+     * The event that was the source of this event. Uses WeakReference to prevent memory
+     * leaks in long event chains. Marked transient because WeakReference is not serializable.
      */
-    private final Event source;
+    private transient final WeakReference<Event> sourceRef;
 
     /**
      * The instant in time when this event was raised
@@ -83,7 +96,7 @@ public class EventImpl implements Cloneable, Serializable, Comparable<EventImpl>
         this.reference = reference;
         event = ordinal;
         this.arguments = arguments;
-        source = sourceEvent;
+        sourceRef = sourceEvent == null ? null : new WeakReference<>(sourceEvent);
     }
 
     public EventImpl clone(long time) {
@@ -128,7 +141,7 @@ public class EventImpl implements Cloneable, Serializable, Comparable<EventImpl>
 
     @Override
     public Event getSource() {
-        return source;
+        return sourceRef == null ? null : sourceRef.get();
     }
 
     @Override
@@ -152,7 +165,7 @@ public class EventImpl implements Cloneable, Serializable, Comparable<EventImpl>
     public void printTrace(PrintStream s) {
         // PrintStream is already thread-safe for concurrent writes
         s.println(this);
-        var eventSource = source;
+        var eventSource = getSource();
         while (eventSource != null) {
             s.println("\tat " + eventSource);
             eventSource = eventSource.getSource();
