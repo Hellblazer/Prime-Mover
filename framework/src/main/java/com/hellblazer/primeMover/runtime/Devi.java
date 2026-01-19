@@ -393,11 +393,12 @@ abstract public class Devi implements Controller, AutoCloseable {
                 }
                 final var result = event.invoke();
                 if (futureSailor.isDone()) {
-                    logger.error("Future sailor already done");
+                    logger.error("[Devi] Event continuation already completed at time {}: {}",
+                                currentTime, event.getSignature());
                 }
                 futureSailor.complete(new EvaluationResult(result));
             } catch (SimulationEnd e) {
-                logger.info("Simulation has ended at: {}", currentTime);
+                logger.info("[Devi] Simulation ended at time {}", currentTime);
                 futureSailor.completeExceptionally(e);
                 return;
             } catch (Throwable e) {
@@ -432,7 +433,13 @@ abstract public class Devi implements Controller, AutoCloseable {
             if (e.getCause() instanceof SimulationException se) {
                 throw se;
             }
-            throw new SimulationException(e.getCause());
+            var entityName = next.getReference() != null
+                             ? next.getReference().getClass().getSimpleName()
+                             : "unknown";
+            throw new SimulationException(
+                "[Devi] Event evaluation failed for entity " + entityName +
+                " at time " + currentTime + ": " + next.getSignature(),
+                e.getCause());
         } finally {
             futureSailor = null;
             currentEvent = null;
@@ -441,14 +448,21 @@ abstract public class Devi implements Controller, AutoCloseable {
         assert result != null;
 
         if (result.t != null) {
-            logger.error("Cannot evaluate event: {}", next, result.t);
+            var entityName = next.getReference() != null
+                             ? next.getReference().getClass().getSimpleName()
+                             : "unknown";
+            logger.error("[Devi] Event evaluation failed for entity {} at time {}: {}",
+                        entityName, currentTime, next.getSignature(), result.t);
             if (result.t instanceof SimulationException se) {
                 throw se;
             }
             if (result.t instanceof SimulationEnd se) {
                 throw se;
             }
-            throw new SimulationException("error evaluating event: " + next, result.t);
+            throw new SimulationException(
+                "[Devi] Event evaluation failed for entity " + entityName +
+                " at time " + currentTime + ": " + next.getSignature(),
+                result.t);
         }
 
         final var cc = caller;

@@ -76,7 +76,7 @@ public class MemoryOverheadBenchmark {
      * Run with -prof gc to see allocation rates
      */
     @Benchmark
-    public void eventMemoryOverhead(MemoryState state, Blackhole blackhole) {
+    public void eventMemoryOverhead(MemoryState state, Blackhole blackhole) throws Exception {
         for (int i = 0; i < state.eventCount; i++) {
             entity.eventNoPayload();
             controller.eventLoop();
@@ -88,7 +88,7 @@ public class MemoryOverheadBenchmark {
      * Measure memory overhead for blocking events with continuations
      */
     @Benchmark
-    public void blockingEventMemoryOverhead(MemoryState state, Blackhole blackhole) {
+    public void blockingEventMemoryOverhead(MemoryState state, Blackhole blackhole) throws Exception {
         for (int i = 0; i < state.eventCount; i++) {
             entity.blockingEventNoPayload();
             controller.eventLoop();
@@ -100,7 +100,7 @@ public class MemoryOverheadBenchmark {
      * Measure memory overhead for events with typical payload
      */
     @Benchmark
-    public void typicalPayloadMemoryOverhead(MemoryState state, Blackhole blackhole) {
+    public void typicalPayloadMemoryOverhead(MemoryState state, Blackhole blackhole) throws Exception {
         for (int i = 0; i < state.eventCount; i++) {
             entity.eventWithTypicalPayload(
                 "s1", "s2", "s3", "s4", "s5",
