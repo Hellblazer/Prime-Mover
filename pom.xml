@@ -53,6 +53,7 @@
         <module>sim-agent</module>
         <module>api</module>
         <module>primemover-intellij-plugin</module>
+        <module>benchmarks</module>
     </modules>
 
     <dependencyManagement>
