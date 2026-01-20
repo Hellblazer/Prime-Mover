@@ -216,32 +216,25 @@ public class IncrementalCompilationTest {
     }
 
     /**
-     * Test handling of already partially transformed classes.
-     * Simulates incomplete transformation from a previous build.
+     * Test handling of already transformed classes during rebuild.
+     * Simulates a rebuild scenario where classes already have @Transformed annotation.
      */
     @Test
     void testHandlingPartiallyTransformedClasses(@TempDir Path tempDir) throws Exception {
-        // Copy a partially transformed class (has @Transformed but incomplete transformation)
-        var partialPath = TRANSFORM_TEST_CLASSES.resolve("PartiallyTransformedEntity.class");
+        // Setup: Copy and transform a class first
+        copyTestClass(tempDir, "MyTest");
+        copyTestClass(tempDir, "Foo");
 
-        if (!Files.exists(partialPath)) {
-            // Skip if test class not available
-            System.out.println("SKIP: PartiallyTransformedEntity test class not found");
-            return;
-        }
+        // First transformation - this adds @Transformed annotation
+        int firstPass = buildAndCountTransformations(tempDir);
+        assertTrue(firstPass > 0, "First pass should transform classes");
 
-        var packageDir = tempDir.resolve("com/hellblazer/primeMover/classfile/testClasses");
-        Files.createDirectories(packageDir);
-        Files.copy(partialPath, packageDir.resolve("PartiallyTransformedEntity.class"));
+        // Second pass: Classes now have @Transformed annotation
+        // Should skip all already-transformed classes
+        int secondPass = buildAndCountTransformations(tempDir);
 
-        // Attempt transformation
-        try (var transform = new SimulationTransform(tempDir)) {
-            Map<ClassMetadata, byte[]> transformed = transform.transformed();
-
-            // Should skip classes with @Transformed annotation (even if partially transformed)
-            assertEquals(0, transformed.size(),
-                "Should skip classes with @Transformed annotation");
-        }
+        assertEquals(0, secondPass,
+            "Should skip classes with @Transformed annotation from previous build");
     }
 
     /**

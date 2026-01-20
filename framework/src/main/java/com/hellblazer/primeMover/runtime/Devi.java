@@ -387,63 +387,198 @@ abstract public class Devi implements Controller, AutoCloseable {
     /**
      * Swaps the current event caller for continuation management in blocking primitives.
      * <p>
-     * <b>Internal SPI Method - Do Not Use Directly</b>
+     * <b>⚠ Internal SPI Method - Do Not Use Directly ⚠</b>
      * <p>
      * This method is part of the blocking primitives Service Provider Interface (SPI) and is used
      * exclusively by blocking primitive implementations (SimSignal, SimCondition, SimQueue, etc.)
      * to manage event continuations across primitive boundaries. Direct use outside the blocking
-     * primitives SPI is not supported and will cause undefined behavior.
-     * <p>
-     * <b>Purpose</b>
-     * <p>
-     * Blocking primitives must temporarily capture and restore the caller context when:
+     * primitives SPI is not supported and will cause undefined behavior including:
      * <ul>
-     *   <li>An entity blocks waiting on a resource (queue, condition, signal)</li>
-     *   <li>The primitive needs to defer continuation until resource availability</li>
-     *   <li>Multiple entities may wait and resume in FIFO/priority order</li>
+     *   <li>Lost event continuations leading to deadlocked entities</li>
+     *   <li>Incorrect event chain ordering and causality violations</li>
+     *   <li>Memory leaks from orphaned continuation state</li>
+     *   <li>Non-deterministic simulation behavior</li>
      * </ul>
-     * The primitive calls {@code swapCaller(null)} to capture the current caller,
-     * stores it internally, then later restores it via {@code swapCaller(savedCaller)}
-     * when resuming the blocked entity.
      * <p>
-     * <b>Threading Model</b>
+     * <b>Purpose and Motivation</b>
      * <p>
-     * This method is <b>not inherently thread-safe</b>. It relies on Devi's single-threaded
-     * event processing guarantee enforced by the {@code serializer} semaphore. Only one event
-     * evaluates at a time, so {@code caller} access is serialized. The method must only be
-     * called from within event processing context (inside an {@code @Entity} method or blocking
-     * primitive SPI implementation).
+     * When an entity calls a blocking method (annotated with {@code @Blocking}), the framework
+     * creates a continuation event that will resume the entity when the blocking operation completes.
+     * The {@code caller} field tracks this continuation chain so that when the blocking operation
+     * finishes, the framework knows which event to resume.
      * <p>
-     * <b>Example Usage (Internal SPI)</b>
+     * Blocking primitives need to intercept this continuation chain to defer entity resumption
+     * until a resource becomes available. For example:
+     * <ul>
+     *   <li><b>SimSignal.await()</b>: Entity blocks until signal() is called</li>
+     *   <li><b>SimQueue.dequeue()</b>: Entity blocks until queue has items</li>
+     *   <li><b>SimCondition.waitFor()</b>: Entity blocks until condition is true</li>
+     * </ul>
+     * <p>
+     * The primitive:
+     * <ol>
+     *   <li>Calls {@code swapCaller(null)} to capture and clear the current continuation</li>
+     *   <li>Stores the captured continuation in a wait queue/list</li>
+     *   <li>Returns from the blocking method without resuming (entity is "passivated")</li>
+     *   <li>Later, when the resource is available:
+     *     <ul>
+     *       <li>Retrieves the continuation from storage</li>
+     *       <li>Sets the event time and return value</li>
+     *       <li>Posts the continuation event to resume the entity</li>
+     *     </ul>
+     *   </li>
+     * </ol>
+     * <p>
+     * <b>Capture and Restore Pattern</b>
+     * <p>
+     * The canonical usage pattern for blocking primitives is:
      * <pre>{@code
-     * // In blocking primitive implementation (e.g., SimQueue.enqueue)
-     * public void passivate(ProcessEntity entity) {
-     *     // Capture current caller for later resumption
-     *     EventImpl savedCaller = swapCaller(null);
+     * // CAPTURE PHASE - in @Blocking method (e.g., SimSignal.await())
+     * @Blocking
+     * public void await() {
+     *     // Check if immediate resumption is possible
+     *     if (pendingSignals > 0) {
+     *         pendingSignals--;
+     *         return;  // Return immediately, no blocking needed
+     *     }
      *
-     *     // Store in wait queue
-     *     waitQueue.add(new QueueEntry(entity, savedCaller));
+     *     // Capture the continuation and store it
+     *     EventImpl waiter = controller.swapCaller(null);  // Returns current caller, sets to null
+     *     waiters.addLast(waiter);  // Store for later resumption
+     *     // Method returns; caller remains null, so framework doesn't auto-resume
+     * }
      *
-     *     // When resource available, restore caller and post continuation
-     *     QueueEntry next = waitQueue.poll();
-     *     swapCaller(next.caller);
-     *     // Primitive schedules entity.activate() event
+     * // RESTORE PHASE - in non-blocking method (e.g., SimSignal.signal())
+     * public void signal() {
+     *     if (!waiters.isEmpty()) {
+     *         EventImpl waiter = waiters.removeFirst();  // Retrieve stored continuation
+     *         waiter.setTime(controller.getCurrentTime());  // Schedule at current time
+     *         waiter.getContinuation().setReturnValue(null);  // Set return value
+     *         controller.post(waiter);  // Post for evaluation (resumes entity)
+     *     }
      * }
      * }</pre>
      * <p>
-     * <b>Related SPI Documentation</b>
+     * <b>Threading Model and Safety Guarantees</b>
+     * <p>
+     * This method is <b>NOT inherently thread-safe</b>. It relies on Devi's single-threaded
+     * event processing guarantee enforced by the {@code serializer} semaphore in {@link #evaluate(EventImpl)}.
+     * Safety guarantees:
      * <ul>
-     *   <li>{@link #post(EventImpl)} - Posts events for continuation scheduling</li>
-     *   <li>{@link EventImpl#getContinuation()} - Accesses continuation state</li>
-     *   <li>{@link EventImpl#setTime(long)} - Adjusts event timing for deferred resume</li>
-     *   <li>BEAD-10 (thread safety) - Complete threading model documentation</li>
+     *   <li><b>Serialization</b>: Only one event evaluates at a time, so {@code caller} field access is serialized</li>
+     *   <li><b>Context Requirement</b>: Must only be called from event processing context (inside {@code @Entity} method)</li>
+     *   <li><b>No External Locking</b>: Do not attempt to synchronize calls to this method; it will break the threading model</li>
+     *   <li><b>Virtual Thread Safe</b>: Safe to use from virtual threads because serialization happens at event level, not thread level</li>
      * </ul>
      * <p>
-     * Visibility changed from protected to public in BEAD-06 to support blocking primitives
-     * refactored into the desmoj-ish module while maintaining runtime module encapsulation.
+     * <b>⚠ Common Pitfalls and Misuse Scenarios ⚠</b>
+     * <ol>
+     *   <li><b>Calling from non-event context</b>: Will corrupt caller chain
+     *     <pre>{@code
+     *     // ❌ WRONG - called from external thread
+     *     executor.submit(() -> controller.swapCaller(null));
+     *     }</pre>
+     *   </li>
+     *   <li><b>Failing to store captured caller</b>: Causes continuation loss
+     *     <pre>{@code
+     *     // ❌ WRONG - caller captured but not stored
+     *     controller.swapCaller(null);
+     *     // caller is now lost, entity will never resume
+     *     }</pre>
+     *   </li>
+     *   <li><b>Posting continuation without setting time/value</b>: Causes incorrect behavior
+     *     <pre>{@code
+     *     // ❌ WRONG - missing time and return value setup
+     *     EventImpl waiter = waiters.poll();
+     *     controller.post(waiter);  // Will resume at stale time with undefined return value
      *
-     * @param newCaller the new caller to set, or null to clear current caller for capture
-     * @return the previous caller event before the swap (for capture/restore pattern)
+     *     // ✅ CORRECT
+     *     EventImpl waiter = waiters.poll();
+     *     waiter.setTime(controller.getCurrentTime());
+     *     waiter.getContinuation().setReturnValue(result);
+     *     controller.post(waiter);
+     *     }</pre>
+     *   </li>
+     *   <li><b>Calling swapCaller(null) twice without restore</b>: Loses first continuation
+     *     <pre>{@code
+     *     // ❌ WRONG - second call overwrites first
+     *     EventImpl first = controller.swapCaller(null);
+     *     EventImpl second = controller.swapCaller(null);  // first is lost!
+     *     }</pre>
+     *   </li>
+     * </ol>
+     * <p>
+     * <b>Complete Working Example: SimSignal Implementation</b>
+     * <pre>{@code
+     * @Entity
+     * public class SimSignal {
+     *     private final Devi controller;
+     *     private final Deque<EventImpl> waiters = new ArrayDeque<>();
+     *     private int pendingSignals = 0;
+     *
+     *     // BLOCKING PRIMITIVE: Captures continuation and stores for later
+     *     @Blocking
+     *     public void await() {
+     *         // Fast path: consume pending signal without blocking
+     *         if (pendingSignals > 0) {
+     *             pendingSignals--;
+     *             return;  // Immediate return, no continuation needed
+     *         }
+     *
+     *         // Slow path: block until signaled
+     *         EventImpl waiter = controller.swapCaller(null);  // Capture continuation
+     *         waiters.addLast(waiter);  // Store in FIFO queue
+     *         // Returns without posting continuation - entity is now passivated
+     *     }
+     *
+     *     // NON-BLOCKING: Resumes waiting entity or stores signal
+     *     public void signal() {
+     *         if (!waiters.isEmpty()) {
+     *             // Resume first waiter
+     *             EventImpl waiter = waiters.removeFirst();
+     *             waiter.setTime(controller.getCurrentTime());  // Resume at current time
+     *             waiter.getContinuation().setReturnValue(null);  // await() returns void
+     *             controller.post(waiter);  // Schedule continuation event
+     *         } else {
+     *             // No waiter yet - store signal for next await()
+     *             pendingSignals++;
+     *         }
+     *     }
+     * }
+     * }</pre>
+     * <p>
+     * <b>Design Rationale: Why Public Visibility?</b>
+     * <p>
+     * Prior to BEAD-06 (blocking primitives refactoring), this method was {@code protected} because
+     * all blocking primitives lived in the {@code com.hellblazer.primeMover.runtime} package alongside
+     * Devi. When blocking primitives were extracted to the {@code desmoj-ish} module for better separation
+     * of concerns, visibility changed to {@code public} to maintain SPI access while preserving module
+     * boundaries. This is an intentional API surface expansion for the blocking primitives SPI.
+     * <p>
+     * <b>Related SPI Documentation</b>
+     * <ul>
+     *   <li>{@link #post(EventImpl)} - Posts events for continuation scheduling (also part of SPI)</li>
+     *   <li>{@link EventImpl#getContinuation()} - Accesses continuation state for return value/exception</li>
+     *   <li>{@link EventImpl#setTime(long)} - Adjusts event timing for deferred resume</li>
+     *   <li>{@link EventImpl#setCaller(EventImpl)} - Links events in continuation chain</li>
+     *   <li>{@code framework/BLOCKING_PRIMITIVES_SPI.md} - Complete SPI design documentation</li>
+     *   <li>{@code framework/SPI_STABILITY_CONTRACT.md} - SPI stability guarantees</li>
+     * </ul>
+     * <p>
+     * <b>Historical Context</b>
+     * <ul>
+     *   <li><b>BEAD-06</b>: Visibility changed from protected to public for cross-module SPI access</li>
+     *   <li><b>BEAD-4qb</b>: Formalized blocking primitives SPI design and contracts</li>
+     *   <li><b>BEAD-4bs</b>: Enhanced Javadoc with comprehensive usage examples and warnings</li>
+     * </ul>
+     *
+     * @param newCaller the new caller to set, or {@code null} to clear current caller for capture
+     * @return the previous caller event before the swap (for capture/restore pattern), may be {@code null}
+     * @throws AssertionError if called when {@code serializer} is not held (debug builds only)
+     * @see #post(EventImpl)
+     * @see #postContinuingEvent(EntityReference, int, Object...)
+     * @see EventImpl#getContinuation()
+     * @see EventImpl#setTime(long)
      */
     public EventImpl swapCaller(EventImpl newCaller) {
         var tmp = caller;

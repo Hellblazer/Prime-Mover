@@ -56,6 +56,9 @@
         <!-- Notification group for Prime Mover messages -->
         <notificationGroup id="Prime Mover" displayType="BALLOON"/>
 
+        <!-- Notification group for Prime Mover errors -->
+        <notificationGroup id="Prime Mover Errors" displayType="BALLOON" isLogByDefault="true"/>
+
         <!-- Java program patcher for auto-adding -javaagent to run configurations -->
         <java.programPatcher implementation="com.hellblazer.primemover.intellij.agent.PrimeMoverJavaProgramPatcher"/>
     </extensions>
