@@ -261,8 +261,9 @@ public class EntityGenerator {
         byte[] originalBytes = clazz.getOriginalBytes();
         if (originalBytes.length > MAX_CLASS_SIZE) {
             throw new IllegalStateException(
-                "Class file too large: " + originalBytes.length + " bytes for " + clazz.getName() +
-                " (max: " + MAX_CLASS_SIZE + " bytes)");
+                "[EntityGenerator] Class file exceeds maximum size: " +
+                originalBytes.length + " bytes for class " + clazz.getName() +
+                " (maximum: " + MAX_CLASS_SIZE + " bytes)");
         }
         ClassModel originalClass = CLASS_FILE.parse(originalBytes);
 
@@ -280,7 +281,9 @@ public class EntityGenerator {
         var wrapperClass = WRAPPER_CLASSES.get(primitiveType);
         var methodType = BOXING_METHOD_TYPES.get(primitiveType);
         if (wrapperClass == null || methodType == null) {
-            throw new IllegalArgumentException("Unknown primitive type: " + primitiveType);
+            throw new IllegalArgumentException(
+                "[EntityGenerator] Unknown primitive type for boxing: '" + primitiveType +
+                "' in class " + className);
         }
         codeBuilder.invokestatic(wrapperClass, "valueOf", methodType);
     }
@@ -495,7 +498,9 @@ public class EntityGenerator {
                                         Integer methodIdx = methodToIndex.get(originalMethod);
                                         if (methodIdx == null) {
                                             throw new IllegalStateException(
-                                                "No index found for method: " + originalMethod);
+                                                "[EntityGenerator] No event index found for method: " +
+                                                originalMethod.getName() + originalMethod.getDescriptor() +
+                                                " in class " + className);
                                         }
 
                                         // Call Framework.getController()
@@ -527,7 +532,10 @@ public class EntityGenerator {
                                         if (blockingMethods.contains(originalMethod)) {
                                             codeBuilder.invokevirtual(DEVI_CLASS, "postContinuingEvent",
                                                                       POST_CONTINUING_EVENT_METHOD_TYPE);
-                                            // postContinuingEvent returns Object, so pop it off the stack
+                                            // postContinuingEvent returns Object (the continuation result for internal framework use),
+                                            // but this value is not meaningful for the event wrapper caller - the wrapper is scheduling
+                                            // future execution, not executing now. Pop the continuation object and return appropriate
+                                            // default value per the method signature contract.
                                             codeBuilder.pop();
                                         } else {
                                             codeBuilder.invokevirtual(DEVI_CLASS, "postEvent", POST_EVENT_METHOD_TYPE);
@@ -545,7 +553,9 @@ public class EntityGenerator {
     private void generateInvokeCase(CodeBuilder codeBuilder, int methodIdx) {
         MethodMetadata methodMetadata = indexToMethod.get(methodIdx);
         if (methodMetadata == null) {
-            throw new IllegalArgumentException("No method found for index: " + methodIdx);
+            throw new IllegalArgumentException(
+                "[EntityGenerator] No method found for event index " + methodIdx +
+                " in class " + className);
         }
 
         // Load 'this'
@@ -574,8 +584,9 @@ public class EntityGenerator {
                                           MethodTypeDesc.ofDescriptor(methodMetadata.getDescriptor()));
             } else {
                 throw new IllegalStateException(
-                    "Cannot invoke non-remapped method " + methodMetadata.getName() +
-                    " on class " + clazz.getName() + " without superclass");
+                    "[EntityGenerator] Cannot invoke non-remapped method " +
+                    methodMetadata.getName() + " in class " + clazz.getName() +
+                    " - no superclass found");
             }
         }
 
@@ -632,10 +643,10 @@ public class EntityGenerator {
 
             // Generate default case
             codeBuilder.labelBinding(defaultLabel);
-            codeBuilder.new_(ClassDesc.of("java.lang.IllegalStateException"))
+            codeBuilder.new_(ClassDesc.of("java.lang.IllegalArgumentException"))
                        .dup()
-                       .ldc("Unknown event type")
-                       .invokespecial(ClassDesc.of("java.lang.IllegalStateException"), "<init>",
+                       .ldc("[EntityGenerator] Unknown event index for class " + className)
+                       .invokespecial(ClassDesc.of("java.lang.IllegalArgumentException"), "<init>",
                                       MethodTypeDesc.of(ConstantDescs.CD_void, STRING_CLASS))
                        .athrow();
         });
@@ -693,7 +704,7 @@ public class EntityGenerator {
             codeBuilder.labelBinding(defaultLabel);
             codeBuilder.new_(ClassDesc.of("java.lang.IllegalArgumentException"))
                        .dup()
-                       .ldc("Unknown event")
+                       .ldc("[EntityGenerator] Unknown event index for class " + className)
                        .invokespecial(ClassDesc.of("java.lang.IllegalArgumentException"), "<init>",
                                       MethodTypeDesc.of(ConstantDescs.CD_void, STRING_CLASS))
                        .athrow();
@@ -701,13 +712,19 @@ public class EntityGenerator {
     }
 
     /**
-     * Initialize event mappings and determine which methods are blocking/remapped
+     * Initialize event mappings and determine which methods are blocking/remapped.
+     * Uses sequential ordinals based on alphabetical ordering for stability.
+     * Ordinals are deterministic and stable across JVM restarts as long as the
+     * method set remains unchanged, which is sufficient for semantic versioning.
      */
     private void initializeEventMappings(Set<MethodMetadata> eventMethods) {
-        var key = 0;
-        for (var mi : eventMethods.stream().sorted(METHOD_ORDER).toList()) {
-            indexToMethod.put(key, mi);
-            methodToIndex.put(mi, key++);
+        var sortedMethods = eventMethods.stream().sorted(METHOD_ORDER).toList();
+
+        for (int ordinal = 0; ordinal < sortedMethods.size(); ordinal++) {
+            var mi = sortedMethods.get(ordinal);
+
+            indexToMethod.put(ordinal, mi);
+            methodToIndex.put(mi, ordinal);
 
             // Build O(1) lookup index: "name:descriptor" -> MethodMetadata
             var methodKey = mi.getName() + ":" + mi.getDescriptor();
@@ -763,7 +780,9 @@ public class EntityGenerator {
             case 'J' -> codeBuilder.lload(index);
             case 'F' -> codeBuilder.fload(index);
             case 'D' -> codeBuilder.dload(index);
-            default -> throw new IllegalArgumentException("Unknown primitive type: " + primitiveType);
+            default -> throw new IllegalArgumentException(
+                "[EntityGenerator] Unknown primitive type for load: '" + primitiveType +
+                "' in class " + className);
         }
     }
 
@@ -808,7 +827,9 @@ public class EntityGenerator {
                 codeBuilder.dconst_0();
                 codeBuilder.dreturn();
             }
-            default -> throw new IllegalArgumentException("Unknown primitive type: " + primitiveType);
+            default -> throw new IllegalArgumentException(
+                "[EntityGenerator] Unknown primitive type for return: '" + primitiveType +
+                "' in class " + className);
         }
     }
 
@@ -839,7 +860,9 @@ public class EntityGenerator {
         var methodType = UNBOXING_METHOD_TYPES.get(primitiveType);
 
         if (wrapperClass == null || methodName == null || methodType == null) {
-            throw new IllegalArgumentException("Unknown primitive type: " + primitiveType);
+            throw new IllegalArgumentException(
+                "[EntityGenerator] Unknown primitive type for unboxing: '" + primitiveType +
+                "' in class " + className);
         }
 
         codeBuilder.checkcast(wrapperClass);

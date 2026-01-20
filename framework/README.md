@@ -373,8 +373,85 @@ The framework is designed for single-threaded simulation from user perspective:
 - Framework ensures proper synchronization
 - User code doesn't need explicit synchronization within events
 
+## Error Handling
+
+Prime Mover uses a layered exception model for clean error handling in simulations.
+
+### Exception Types
+
+| Exception | Type | Purpose |
+|-----------|------|---------|
+| `SimulationEnd` | `Error` | Control flow signal for normal termination |
+| `SimulationException` | `Exception` | Wraps user exceptions with simulation context |
+| User exceptions | Any | Automatically wrapped in `SimulationException` |
+
+### Basic Error Handling
+
+```java
+try {
+    controller.eventLoop();
+} catch (SimulationEnd e) {
+    // Normal termination - not an error
+    log.info("Simulation completed normally");
+} catch (SimulationException e) {
+    // Simulation error - includes context
+    log.error("Simulation failed: {}", e.getMessage(), e);
+    Throwable cause = e.getCause();  // Original exception
+}
+```
+
+### Recovery Patterns
+
+1. **Fail-Fast** (default): Stop on first error
+2. **Graceful Degradation**: Log and continue with next event
+3. **Retry**: Re-schedule failed event with backoff
+4. **Abort**: Call `Kronos.endSimulation()` for clean shutdown
+
+### Blocking Operations
+
+Methods marked `@Blocking` require special consideration:
+
+```java
+@Entity
+public class BlockingEntity {
+    @Blocking
+    public void safeBlockingCall() {
+        try {
+            Kronos.blockingSleep(100);
+            performWork();
+        } catch (Exception e) {
+            // Handle and optionally re-throw
+            log.error("[BlockingEntity] Operation failed", e);
+            throw e;
+        }
+    }
+}
+```
+
+### Best Practices
+
+- **Never catch `SimulationEnd`** - it's control flow, not an error
+- **Include simulation context** in error messages (time, entity, state)
+- **Use try-with-resources** for automatic cleanup
+- **Enable debug features** during development:
+  ```java
+  controller.setDebugEvents(true);
+  controller.setTrackEventSources(true);
+  ```
+
+For comprehensive error handling guidance, see [ERROR_HANDLING_STRATEGY.md](ERROR_HANDLING_STRATEGY.md).
+
+## Documentation
+
+- **[BLOCKING_PRIMITIVES_SPI.md](BLOCKING_PRIMITIVES_SPI.md)** - Service Provider Interface for blocking primitive implementations
+- **[SPI_STABILITY_CONTRACT.md](SPI_STABILITY_CONTRACT.md)** - Versioning and stability guarantees for the SPI
+- **[ERROR_HANDLING_STRATEGY.md](ERROR_HANDLING_STRATEGY.md)** - Comprehensive error handling and recovery guide
+- **[EVENT_TRACKING_PERFORMANCE.md](EVENT_TRACKING_PERFORMANCE.md)** - Performance impact and recommendations for event tracking features
+- **[ERROR_MESSAGE_STANDARD.md](ERROR_MESSAGE_STANDARD.md)** - Error message formatting standards
+
 ## See Also
 
 - **api module**: Public API contracts
 - **transform module**: Bytecode transformation that creates events
 - **demo module**: Usage examples
+- **benchmarks module**: JMH performance benchmarks and measurement tools

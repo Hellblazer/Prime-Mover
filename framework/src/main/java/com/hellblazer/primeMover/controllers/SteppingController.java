@@ -46,13 +46,7 @@ import com.hellblazer.primeMover.runtime.SimulationEnd;
  * @author <a href="mailto:hal.hildebrand@gmail.com">Hal Hildebrand</a>
  */
 public class SteppingController extends Devi implements StatisticalController {
-    protected Queue<EventImpl>     eventQueue;
-    protected String               name           = "Stepping Controller";
-    protected Map<String, Integer> spectrum       = new HashMap<>();
-    protected int                  totalEvents    = 0;
-    protected long                 simulationStart = 0;
-    protected long                 simulationEnd   = 0;
-    protected boolean              trackSpectrum  = false;
+    protected Queue<EventImpl> eventQueue;
 
     public SteppingController() {
         this(new PriorityQueue<>());
@@ -60,6 +54,7 @@ public class SteppingController extends Devi implements StatisticalController {
 
     public SteppingController(Queue<EventImpl> eventQueue) {
         this.eventQueue = eventQueue;
+        this.name = "Stepping Controller";
     }
 
     @Override
@@ -113,10 +108,7 @@ public class SteppingController extends Devi implements StatisticalController {
                 try {
                     var event = eventQueue.remove();
                     evaluate(event);
-                    totalEvents++;
-                    if (trackSpectrum) {
-                        spectrum.merge(event.getSignature(), 1, Integer::sum);
-                    }
+                    recordEvent(event);
                 } catch (SimulationEnd e) {
                     simulationEnd = getCurrentTime();
                     return true;
@@ -154,10 +146,7 @@ public class SteppingController extends Devi implements StatisticalController {
                 return false;
             }
             evaluate(event);
-            totalEvents++;
-            if (trackSpectrum) {
-                spectrum.merge(event.getSignature(), 1, Integer::sum);
-            }
+            recordEvent(event);
             simulationEnd = getCurrentTime();
             return true;
         } catch (SimulationEnd e) {

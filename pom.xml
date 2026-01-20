@@ -42,6 +42,7 @@
     </properties>
 
     <modules>
+        <module>api</module>
         <module>framework</module>
         <module>transform</module>
         <module>primemover-maven-plugin</module>
@@ -51,8 +52,8 @@
         <module>space-ghost</module>
         <module>janus</module>
         <module>sim-agent</module>
-        <module>api</module>
         <module>primemover-intellij-plugin</module>
+        <module>benchmarks</module>
     </modules>
 
     <dependencyManagement>
@@ -180,6 +181,30 @@
                 </executions>
             </plugin>
             <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                        <configuration>
+                            <excludes>
+                                <exclude>**/*__Transformed.class</exclude>
+                                <exclude>**/*__EntityReference.class</exclude>
+                            </excludes>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <artifactId>maven-deploy-plugin</artifactId>
             </plugin>
         </plugins>
@@ -209,6 +234,11 @@
                     <groupId>com.hellblazer.primeMover</groupId>
                     <artifactId>maven-plugin</artifactId>
                     <version>${project.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>0.8.13</version>
                 </plugin>
                 <plugin>
                     <artifactId>maven-deploy-plugin</artifactId>

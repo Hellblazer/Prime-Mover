@@ -18,27 +18,77 @@
 package com.hellblazer.primeMover.api;
 
 /**
- * Represents a reference to a simulation Entity
+ * Represents a type-safe reference to a simulation entity. EntityReference is a marker interface
+ * implemented by generated proxy classes that enable event-based method dispatch for entities
+ * annotated with {@link com.hellblazer.primeMover.annotations.Entity @Entity}.
+ *
+ * <p><b>Generated Code:</b> When a class is marked with {@code @Entity}, the Prime Mover bytecode
+ * transformer generates a corresponding EntityReference implementation. This generated class:
+ * <ul>
+ *   <li>Implements this interface along with the original entity's public interface</li>
+ *   <li>Delegates method calls through the simulation event queue</li>
+ *   <li>Maps each method to an ordinal for efficient dispatch</li>
+ * </ul>
+ *
+ * <p><b>Usage:</b> Entity references are obtained by casting entity instances:
+ * <pre>{@code
+ * @Entity
+ * public class Server {
+ *     public void processRequest(int id) { ... }
+ * }
+ *
+ * Server server = new Server();
+ * EntityReference ref = (EntityReference) server;
+ * // Method calls on server are now scheduled as events
+ * server.processRequest(42); // Becomes an event in the simulation
+ * }</pre>
+ *
+ * <p><b>Thread Safety:</b> EntityReference implementations are thread-safe. Multiple threads
+ * can schedule events through the same reference concurrently.
+ *
+ * <p><b>Internal Interface:</b> Methods prefixed with {@code __} are internal to the framework
+ * and should not be called directly by application code. They are public only for technical
+ * reasons related to bytecode generation.
  *
  * @author <a href="mailto:hal.hildebrand@gmail.com">Hal Hildebrand</a>
- *
+ * @see com.hellblazer.primeMover.annotations.Entity
+ * @see Controller#postEvent(EntityReference, int, Object...)
  */
 public interface EntityReference {
 
     /**
-     * Invoke the event on the entity
+     * Invokes the method corresponding to the given event ordinal on the underlying entity.
+     * This method is part of the internal framework infrastructure and should not be called
+     * directly by application code.
      *
-     * @param event
-     * @param arguments
-     * @return
+     * <p><b>Internal Use Only:</b> This method is invoked by the simulation framework when
+     * processing events from the event queue. Application code should call entity methods
+     * normally, which the transformed bytecode will route through the event system.
+     *
+     * <p><b>Ordinal Mapping:</b> Each public method in an {@code @Entity} class is assigned
+     * a unique ordinal (positive integer) during bytecode transformation. This ordinal serves
+     * as an efficient method identifier for event dispatch.
+     *
+     * @param event the ordinal identifying which method to invoke (must be positive)
+     * @param arguments the arguments to pass to the method (may be empty but not null)
+     * @return the return value from the invoked method (may be null)
+     * @throws Throwable if the invoked method throws an exception
+     * @throws IllegalArgumentException if the event ordinal is invalid
      */
     Object __invoke(int event, Object[] arguments) throws Throwable;
 
     /**
-     * Answer the signature matching the event ordinal
+     * Returns the method signature corresponding to the given event ordinal. This is used
+     * for debugging, logging, and introspection purposes.
      *
-     * @param event - the ordinal of the event > 0
-     * @return the string signature of the event, or null for none
+     * <p><b>Internal Use Only:</b> This method is part of the framework infrastructure.
+     * It is called by the simulation controller when creating event metadata.
+     *
+     * <p>The returned signature typically includes the class name, method name, and parameter
+     * types in a format like {@code "com.example.Server.processRequest(int, String)"}.
+     *
+     * @param event the ordinal of the event (must be positive)
+     * @return the string signature of the method, or null if the ordinal is invalid
      */
     String __signatureFor(int event);
 }

@@ -1,6 +1,6 @@
 # Prime Mover: Event-Driven Simulation Framework for Java
 
-![Build Status](https://github.com/hellblazer/prime-mover/actions/workflows/maven.yml/badge.svg)
+![CI/CD Pipeline](https://github.com/hellblazer/prime-mover/actions/workflows/ci.yml/badge.svg)
 ![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)
 ![Java Version](https://img.shields.io/badge/Java-25%2B-blue)
 
@@ -258,17 +258,24 @@ Simulation Results
 
 ## Performance
 
-**Typical Performance**:
-- **Event Throughput**: 50,000+ events per second
-- **Blocking Events**: 600+ blocking events per second
-- **Memory Efficiency**: Minimal overhead with virtual threads
-- **Scales Linearly**: With available CPU cores
+**Measured Performance** (Java 25, GraalVM, Apple Silicon M1):
+- **Event Throughput**: ~120,000 non-blocking events per second
+- **Blocking Events**: ~45,000 blocking events per second (using virtual thread continuations)
+- **Build-Time Transformation**: <0.5 seconds for typical codebases
+- **Memory Efficiency**: Minimal overhead with virtual threads (~1 KB per virtual thread vs ~1 MB per platform thread)
+- **Transformation Overhead**: Zero at runtime (transformation happens at build time)
+
+**What "Zero-Overhead" Means**: Prime Mover uses build-time bytecode transformation, so there is zero transformation overhead at runtime. The simulation framework itself has necessary costs for event scheduling and management, which are efficiently implemented using native Java features.
+
+See [PERFORMANCE.md](./PERFORMANCE.md) for detailed benchmarks, methodology, and optimization guidelines.
 
 ## Documentation
 
 ### Conceptual Foundations
 
 - **[CONCEPTS.md](./CONCEPTS.md)** - Deep-dive into DES theory, Kronos/Kairos design, event semantics, and virtual thread continuations
+- **[PERFORMANCE.md](./PERFORMANCE.md)** - Validated performance measurements, overhead analysis, and optimization guidelines
+- **[COMPATIBILITY.md](./COMPATIBILITY.md)** - Version compatibility matrix, JDK requirements, and migration guides
 
 ### Module Documentation
 

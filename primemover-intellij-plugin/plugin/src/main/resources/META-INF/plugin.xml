@@ -34,6 +34,7 @@
     </ul>
     ]]></change-notes>
 
+    <!-- License: GNU Affero General Public License v3.0 (AGPL-3.0) -->
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.java</depends>
 
@@ -54,6 +55,9 @@
 
         <!-- Notification group for Prime Mover messages -->
         <notificationGroup id="Prime Mover" displayType="BALLOON"/>
+
+        <!-- Notification group for Prime Mover errors -->
+        <notificationGroup id="Prime Mover Errors" displayType="BALLOON" isLogByDefault="true"/>
 
         <!-- Java program patcher for auto-adding -javaagent to run configurations -->
         <java.programPatcher implementation="com.hellblazer.primemover.intellij.agent.PrimeMoverJavaProgramPatcher"/>

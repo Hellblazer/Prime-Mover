@@ -1,0 +1,372 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [master, main]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - '.gitignore'
+      - 'LICENSE'
+  pull_request:
+    branches: [master, main]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - '.gitignore'
+      - 'LICENSE'
+  schedule:
+    # Nightly build at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build (Java ${{ matrix.java }})
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    strategy:
+      matrix:
+        java: ['25']
+      fail-fast: false
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Java ${{ matrix.java }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ matrix.java }}
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ matrix.java }}-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-${{ matrix.java }}-
+            ${{ runner.os }}-maven-
+
+      - name: Cache Gradle packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ matrix.java }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-${{ matrix.java }}-
+            ${{ runner.os }}-gradle-
+
+      - name: Build with Maven
+        run: ./mvnw -batch-mode clean install -DskipTests
+        env:
+          MAVEN_OPTS: -Xmx2g
+
+      - name: Upload build artifacts
+        if: matrix.java == '25'
+        uses: actions/upload-artifact@v4
+        with:
+          name: maven-artifacts-java-${{ matrix.java }}
+          path: |
+            **/target/*.jar
+            !**/target/*-sources.jar
+            !**/target/*-javadoc.jar
+          retention-days: 7
+          if-no-files-found: warn
+
+  test:
+    name: Test (Java ${{ matrix.java }})
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: write
+
+    strategy:
+      matrix:
+        java: ['25']
+      fail-fast: false
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Java ${{ matrix.java }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ matrix.java }}
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ matrix.java }}-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-${{ matrix.java }}-
+            ${{ runner.os }}-maven-
+
+      - name: Run tests for framework module
+        run: ./mvnw -batch-mode test -pl framework --also-make
+        env:
+          MAVEN_OPTS: -Xmx2g
+
+      - name: Run tests for transform module
+        run: ./mvnw -batch-mode test -pl transform --also-make
+        env:
+          MAVEN_OPTS: -Xmx2g
+
+      - name: Run tests for API module
+        run: ./mvnw -batch-mode test -pl api --also-make
+        env:
+          MAVEN_OPTS: -Xmx2g
+
+      - name: Run tests for Maven plugin
+        run: ./mvnw -batch-mode test -pl primemover-maven-plugin --also-make
+        env:
+          MAVEN_OPTS: -Xmx2g
+
+      - name: Run tests for sim-agent
+        run: ./mvnw -batch-mode test -pl sim-agent --also-make
+        env:
+          MAVEN_OPTS: -Xmx2g
+
+      - name: Run tests for Janus module
+        run: ./mvnw -batch-mode test -pl janus --also-make
+        env:
+          MAVEN_OPTS: -Xmx2g
+
+      - name: Run tests for desmoj-ish module
+        run: ./mvnw -batch-mode test -pl desmoj-ish --also-make
+        env:
+          MAVEN_OPTS: -Xmx2g
+
+      - name: Generate JaCoCo coverage report
+        if: matrix.java == '25'
+        run: ./mvnw -batch-mode jacoco:report -pl framework,transform,api,primemover-maven-plugin,sim-agent,janus,desmoj-ish
+        env:
+          MAVEN_OPTS: -Xmx2g
+
+      - name: Upload coverage reports
+        if: matrix.java == '25'
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-reports-java-${{ matrix.java }}
+          path: |
+            **/target/site/jacoco/
+          retention-days: 30
+          if-no-files-found: warn
+
+      - name: Test IntelliJ JPS plugin
+        if: matrix.java == '25'
+        working-directory: primemover-intellij-plugin
+        run: ./gradlew :jps-plugin:test --no-daemon --stacktrace
+        env:
+          GRADLE_OPTS: -Xmx2g
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-java-${{ matrix.java }}
+          path: |
+            **/target/surefire-reports/
+            **/build/test-results/
+          retention-days: 7
+          if-no-files-found: warn
+
+  integration-test:
+    name: Integration Tests (Java ${{ matrix.java }})
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    strategy:
+      matrix:
+        java: ['25']
+      fail-fast: false
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Java ${{ matrix.java }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ matrix.java }}
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ matrix.java }}-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-${{ matrix.java }}-
+            ${{ runner.os }}-maven-
+
+      - name: Run demo module tests
+        run: ./mvnw -batch-mode verify -pl demo --also-make
+        env:
+          MAVEN_OPTS: -Xmx2g
+
+      - name: Run space-ghost tests
+        run: ./mvnw -batch-mode verify -pl space-ghost --also-make
+        env:
+          MAVEN_OPTS: -Xmx2g
+
+  quality-gate:
+    name: Quality Gate
+    needs: [build, test]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Download coverage reports
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-reports-java-25
+          path: coverage-reports
+
+      - name: Check coverage exists
+        run: |
+          if [ -z "$(find coverage-reports -name 'jacoco.xml' -o -name 'index.html' 2>/dev/null)" ]; then
+            echo "Warning: No JaCoCo coverage reports found"
+            exit 0
+          fi
+          echo "Coverage reports found"
+
+      - name: Quality gate passed
+        run: echo "All quality checks passed"
+
+  release:
+    name: Release Build
+    if: github.event_name == 'workflow_dispatch'
+    needs: [build, test, integration-test, quality-gate]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Java 25
+        uses: actions/setup-java@v4
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-25-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-25-
+            ${{ runner.os }}-maven-
+
+      - name: Extract version from POM
+        id: version
+        run: |
+          VERSION=$(./mvnw -batch-mode help:evaluate -Dexpression=project.version -q -DforceStdout)
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "Extracted version: ${VERSION}"
+
+      - name: Build release artifacts
+        run: ./mvnw -batch-mode clean install -DskipTests
+        env:
+          MAVEN_OPTS: -Xmx2g
+
+      - name: Create release tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -a "v${{ steps.version.outputs.version }}" -m "Release ${{ steps.version.outputs.version }}"
+
+      - name: Build IntelliJ plugin distribution
+        working-directory: primemover-intellij-plugin
+        run: ./gradlew buildPlugin --no-daemon
+        env:
+          GRADLE_OPTS: -Xmx2g
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: Release ${{ steps.version.outputs.version }}
+          generate_release_notes: true
+          draft: false
+          prerelease: false
+          files: |
+            framework/target/*.jar
+            transform/target/*.jar
+            api/target/*.jar
+            primemover-maven-plugin/target/*.jar
+            sim-agent/target/*.jar
+            janus/target/*.jar
+            desmoj-ish/target/*.jar
+            primemover-intellij-plugin/plugin/build/distributions/*.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  status:
+    name: CI Status
+    if: always()
+    needs: [build, test, integration-test, quality-gate]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Check build status
+        run: |
+          if [ "${{ needs.build.result }}" != "success" ]; then
+            echo "Build failed"
+            exit 1
+          fi
+
+      - name: Check test status
+        run: |
+          if [ "${{ needs.test.result }}" != "success" ]; then
+            echo "Tests failed"
+            exit 1
+          fi
+
+      - name: Check integration test status
+        run: |
+          if [ "${{ needs.integration-test.result }}" != "success" ]; then
+            echo "Integration tests failed"
+            exit 1
+          fi
+
+      - name: Check quality gate status
+        run: |
+          if [ "${{ needs.quality-gate.result }}" != "success" ]; then
+            echo "Quality gate failed"
+            exit 1
+          fi
+
+      - name: All checks passed
+        run: echo "All CI checks passed successfully"

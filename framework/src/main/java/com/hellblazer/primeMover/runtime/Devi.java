@@ -17,11 +17,16 @@
 
 package com.hellblazer.primeMover.runtime;
 
+import java.util.Objects;
+
 import com.hellblazer.primeMover.api.Controller;
 import com.hellblazer.primeMover.api.Event;
 import com.hellblazer.primeMover.api.SimulationException;
 import com.hellblazer.primeMover.api.EntityReference;
+import com.hellblazer.primeMover.ControllerReport;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.*;
 
 import org.slf4j.Logger;
@@ -30,6 +35,111 @@ import org.slf4j.LoggerFactory;
 /**
  * The processor of events, the continuation of time. This is the central
  * control interface of PrimeMover.
+ * <p>
+ * <b>Thread Safety Model: Single Event Processing with Virtual Thread Execution</b>
+ * <p>
+ * Devi enforces single-threaded event processing semantics using a {@link Semaphore}
+ * to serialize event evaluation. Each event executes in its own virtual thread, but
+ * only one event evaluates at a time. This provides:
+ * <ul>
+ *   <li>Predictable, deterministic event ordering</li>
+ *   <li>Safe access to controller state during event processing</li>
+ *   <li>Efficient blocking via virtual thread continuations</li>
+ *   <li>No need for synchronization in entity code</li>
+ * </ul>
+ * <p>
+ * <b>Virtual Thread Execution Model</b>
+ * <p>
+ * Events execute in virtual threads created by {@link Executors#newVirtualThreadPerTaskExecutor()}.
+ * Virtual threads are lightweight (thousands can run concurrently) and use cooperative
+ * scheduling. When an event blocks (e.g., {@code Kronos.blockingSleep()}), the virtual
+ * thread yields without consuming an OS thread, allowing other events to run efficiently.
+ * <p>
+ * The {@code serializer} semaphore ensures that despite concurrent virtual thread execution,
+ * only one event is actively evaluating at any moment. This maintains simulation determinism
+ * while leveraging virtual threads for efficient blocking operations.
+ * <p>
+ * <b>Thread-Safe Operations</b>
+ * <table border="1">
+ *   <tr><th>Operation</th><th>Thread-Safe?</th><th>Notes</th></tr>
+ *   <tr><td>{@link #postEvent(EntityReference, int, Object...)}</td><td>Implementation-dependent</td><td>Subclasses override {@code post()} with their own thread-safety model</td></tr>
+ *   <tr><td>{@link #getCurrentTime()}</td><td>Yes (volatile read)</td><td>Safe to call from any thread, but value may change between calls</td></tr>
+ *   <tr><td>{@link #getCurrentEvent()}</td><td>No</td><td>Only safe during event processing from the current event's virtual thread</td></tr>
+ *   <tr><td>{@link #setCurrentTime(long)}</td><td>No</td><td>Must be called before simulation starts or from event processing</td></tr>
+ *   <tr><td>{@link #advance(long)}</td><td>No</td><td>Only safe from the event processing context</td></tr>
+ *   <tr><td>{@link #clear()}</td><td>No</td><td>Only safe when simulation is not running</td></tr>
+ * </table>
+ * <p>
+ * <b>Event Processing Flow</b>
+ * <ol>
+ *   <li>Event posted via {@code post(EventImpl)} (thread-safety depends on subclass)</li>
+ *   <li>{@code evaluate(EventImpl)} acquires the {@code serializer} semaphore</li>
+ *   <li>Event invoked in a virtual thread via {@code executor.execute()}</li>
+ *   <li>Virtual thread executes entity method, may block and yield</li>
+ *   <li>Event completes, releases semaphore, posts continuation/result events</li>
+ * </ol>
+ * <p>
+ * <b>Blocking Event Continuations</b>
+ * <p>
+ * When an event calls {@code Kronos.blockingSleep()} or similar blocking operations:
+ * <ol>
+ *   <li>{@link #postContinuingEvent} creates a blocking event and a continuation event</li>
+ *   <li>The continuation event captures the current virtual thread continuation state</li>
+ *   <li>The blocking event is posted and evaluated normally</li>
+ *   <li>When the blocking event completes, the continuation event is posted</li>
+ *   <li>The continuation resumes the original virtual thread from its park point</li>
+ * </ol>
+ * Virtual threads make this efficient because parking doesn't block OS threads.
+ * <p>
+ * <b>External Synchronization Required For:</b>
+ * <ul>
+ *   <li>Modifying controller configuration during simulation ({@code setCurrentTime}, {@code setDebugEvents}, etc.)</li>
+ *   <li>Accessing statistics or state from threads outside event processing</li>
+ *   <li>Multiple threads posting events (depends on subclass {@code post()} implementation)</li>
+ * </ul>
+ * <p>
+ * <b>Subclass Thread-Safety Responsibility</b>
+ * <p>
+ * Subclasses must implement {@code post(EventImpl)} with their own thread-safety model:
+ * <ul>
+ *   <li>{@link com.hellblazer.primeMover.controllers.SimulationController}: Single-threaded, no locking</li>
+ *   <li>{@link com.hellblazer.primeMover.controllers.RealTimeController}: Thread-safe with {@code ReentrantLock}</li>
+ *   <li>{@link com.hellblazer.primeMover.controllers.SteppingController}: Single-threaded, no locking</li>
+ * </ul>
+ * <p>
+ * <b>Example Usage: Single-Threaded Event Posting</b>
+ * <pre>{@code
+ * var controller = new SimulationController();
+ *
+ * // Configuration must happen before simulation starts
+ * controller.setCurrentTime(0);
+ * controller.setEndTime(1_000_000);
+ *
+ * // Post initial events (single-threaded)
+ * entity.someMethod(); // Transformed to post event
+ *
+ * // Run simulation (blocks until completion)
+ * controller.eventLoop();
+ *
+ * // Read results after completion (safe)
+ * long endTime = controller.getCurrentTime();
+ * }</pre>
+ * <p>
+ * <b>Example Usage: Multi-Threaded Event Posting</b>
+ * <pre>{@code
+ * var controller = new RealTimeController("My Simulation");
+ *
+ * // Start animation thread
+ * controller.start();
+ *
+ * // Multiple threads can post events concurrently
+ * executor.submit(() -> entity1.action());
+ * executor.submit(() -> entity2.action());
+ *
+ * // Stop and read statistics
+ * controller.stop();
+ * int events = controller.getTotalEvents();
+ * }</pre>
  *
  * @author <a href="mailto:hal.hildebrand@gmail.com">Hal Hildebrand</a>
  */
@@ -44,6 +154,14 @@ abstract public class Devi implements Controller, AutoCloseable {
     private          Logger                              eventLog;
     private volatile CompletableFuture<EvaluationResult> futureSailor;
     private          boolean                             trackEventSources = false;
+
+    // Statistics tracking infrastructure (subclasses can override for thread-safety)
+    protected String               name            = "Simulation";
+    protected long                 simulationStart = 0;
+    protected long                 simulationEnd   = 0;
+    protected int                  totalEvents     = 0;
+    protected Map<String, Integer> spectrum        = new HashMap<>();
+    protected boolean              trackSpectrum   = false;
 
     public Devi() {
         executor = Executors.newVirtualThreadPerTaskExecutor();
@@ -240,6 +358,7 @@ abstract public class Devi implements Controller, AutoCloseable {
      *                             the event.
      */
     protected final void evaluate(EventImpl next) throws SimulationException {
+        Objects.requireNonNull(next, "Event cannot be null");
         try {
             serializer.acquire();
             assert caller == null;
@@ -266,16 +385,275 @@ abstract public class Devi implements Controller, AutoCloseable {
     abstract public void post(EventImpl event);
 
     /**
-     * Swap the calling event for the current caller. Made public to allow
-     * blocking primitives in other packages to capture continuation state.
+     * Swaps the current event caller for continuation management in blocking primitives.
+     * <p>
+     * <b>⚠ Internal SPI Method - Do Not Use Directly ⚠</b>
+     * <p>
+     * This method is part of the blocking primitives Service Provider Interface (SPI) and is used
+     * exclusively by blocking primitive implementations (SimSignal, SimCondition, SimQueue, etc.)
+     * to manage event continuations across primitive boundaries. Direct use outside the blocking
+     * primitives SPI is not supported and will cause undefined behavior including:
+     * <ul>
+     *   <li>Lost event continuations leading to deadlocked entities</li>
+     *   <li>Incorrect event chain ordering and causality violations</li>
+     *   <li>Memory leaks from orphaned continuation state</li>
+     *   <li>Non-deterministic simulation behavior</li>
+     * </ul>
+     * <p>
+     * <b>Purpose and Motivation</b>
+     * <p>
+     * When an entity calls a blocking method (annotated with {@code @Blocking}), the framework
+     * creates a continuation event that will resume the entity when the blocking operation completes.
+     * The {@code caller} field tracks this continuation chain so that when the blocking operation
+     * finishes, the framework knows which event to resume.
+     * <p>
+     * Blocking primitives need to intercept this continuation chain to defer entity resumption
+     * until a resource becomes available. For example:
+     * <ul>
+     *   <li><b>SimSignal.await()</b>: Entity blocks until signal() is called</li>
+     *   <li><b>SimQueue.dequeue()</b>: Entity blocks until queue has items</li>
+     *   <li><b>SimCondition.waitFor()</b>: Entity blocks until condition is true</li>
+     * </ul>
+     * <p>
+     * The primitive:
+     * <ol>
+     *   <li>Calls {@code swapCaller(null)} to capture and clear the current continuation</li>
+     *   <li>Stores the captured continuation in a wait queue/list</li>
+     *   <li>Returns from the blocking method without resuming (entity is "passivated")</li>
+     *   <li>Later, when the resource is available:
+     *     <ul>
+     *       <li>Retrieves the continuation from storage</li>
+     *       <li>Sets the event time and return value</li>
+     *       <li>Posts the continuation event to resume the entity</li>
+     *     </ul>
+     *   </li>
+     * </ol>
+     * <p>
+     * <b>Capture and Restore Pattern</b>
+     * <p>
+     * The canonical usage pattern for blocking primitives is:
+     * <pre>{@code
+     * // CAPTURE PHASE - in @Blocking method (e.g., SimSignal.await())
+     * @Blocking
+     * public void await() {
+     *     // Check if immediate resumption is possible
+     *     if (pendingSignals > 0) {
+     *         pendingSignals--;
+     *         return;  // Return immediately, no blocking needed
+     *     }
      *
-     * @param newCaller the new caller to set (typically null to capture current)
-     * @return the current caller event
+     *     // Capture the continuation and store it
+     *     EventImpl waiter = controller.swapCaller(null);  // Returns current caller, sets to null
+     *     waiters.addLast(waiter);  // Store for later resumption
+     *     // Method returns; caller remains null, so framework doesn't auto-resume
+     * }
+     *
+     * // RESTORE PHASE - in non-blocking method (e.g., SimSignal.signal())
+     * public void signal() {
+     *     if (!waiters.isEmpty()) {
+     *         EventImpl waiter = waiters.removeFirst();  // Retrieve stored continuation
+     *         waiter.setTime(controller.getCurrentTime());  // Schedule at current time
+     *         waiter.getContinuation().setReturnValue(null);  // Set return value
+     *         controller.post(waiter);  // Post for evaluation (resumes entity)
+     *     }
+     * }
+     * }</pre>
+     * <p>
+     * <b>Threading Model and Safety Guarantees</b>
+     * <p>
+     * This method is <b>NOT inherently thread-safe</b>. It relies on Devi's single-threaded
+     * event processing guarantee enforced by the {@code serializer} semaphore in {@link #evaluate(EventImpl)}.
+     * Safety guarantees:
+     * <ul>
+     *   <li><b>Serialization</b>: Only one event evaluates at a time, so {@code caller} field access is serialized</li>
+     *   <li><b>Context Requirement</b>: Must only be called from event processing context (inside {@code @Entity} method)</li>
+     *   <li><b>No External Locking</b>: Do not attempt to synchronize calls to this method; it will break the threading model</li>
+     *   <li><b>Virtual Thread Safe</b>: Safe to use from virtual threads because serialization happens at event level, not thread level</li>
+     * </ul>
+     * <p>
+     * <b>⚠ Common Pitfalls and Misuse Scenarios ⚠</b>
+     * <ol>
+     *   <li><b>Calling from non-event context</b>: Will corrupt caller chain
+     *     <pre>{@code
+     *     // ❌ WRONG - called from external thread
+     *     executor.submit(() -> controller.swapCaller(null));
+     *     }</pre>
+     *   </li>
+     *   <li><b>Failing to store captured caller</b>: Causes continuation loss
+     *     <pre>{@code
+     *     // ❌ WRONG - caller captured but not stored
+     *     controller.swapCaller(null);
+     *     // caller is now lost, entity will never resume
+     *     }</pre>
+     *   </li>
+     *   <li><b>Posting continuation without setting time/value</b>: Causes incorrect behavior
+     *     <pre>{@code
+     *     // ❌ WRONG - missing time and return value setup
+     *     EventImpl waiter = waiters.poll();
+     *     controller.post(waiter);  // Will resume at stale time with undefined return value
+     *
+     *     // ✅ CORRECT
+     *     EventImpl waiter = waiters.poll();
+     *     waiter.setTime(controller.getCurrentTime());
+     *     waiter.getContinuation().setReturnValue(result);
+     *     controller.post(waiter);
+     *     }</pre>
+     *   </li>
+     *   <li><b>Calling swapCaller(null) twice without restore</b>: Loses first continuation
+     *     <pre>{@code
+     *     // ❌ WRONG - second call overwrites first
+     *     EventImpl first = controller.swapCaller(null);
+     *     EventImpl second = controller.swapCaller(null);  // first is lost!
+     *     }</pre>
+     *   </li>
+     * </ol>
+     * <p>
+     * <b>Complete Working Example: SimSignal Implementation</b>
+     * <pre>{@code
+     * @Entity
+     * public class SimSignal {
+     *     private final Devi controller;
+     *     private final Deque<EventImpl> waiters = new ArrayDeque<>();
+     *     private int pendingSignals = 0;
+     *
+     *     // BLOCKING PRIMITIVE: Captures continuation and stores for later
+     *     @Blocking
+     *     public void await() {
+     *         // Fast path: consume pending signal without blocking
+     *         if (pendingSignals > 0) {
+     *             pendingSignals--;
+     *             return;  // Immediate return, no continuation needed
+     *         }
+     *
+     *         // Slow path: block until signaled
+     *         EventImpl waiter = controller.swapCaller(null);  // Capture continuation
+     *         waiters.addLast(waiter);  // Store in FIFO queue
+     *         // Returns without posting continuation - entity is now passivated
+     *     }
+     *
+     *     // NON-BLOCKING: Resumes waiting entity or stores signal
+     *     public void signal() {
+     *         if (!waiters.isEmpty()) {
+     *             // Resume first waiter
+     *             EventImpl waiter = waiters.removeFirst();
+     *             waiter.setTime(controller.getCurrentTime());  // Resume at current time
+     *             waiter.getContinuation().setReturnValue(null);  // await() returns void
+     *             controller.post(waiter);  // Schedule continuation event
+     *         } else {
+     *             // No waiter yet - store signal for next await()
+     *             pendingSignals++;
+     *         }
+     *     }
+     * }
+     * }</pre>
+     * <p>
+     * <b>Design Rationale: Why Public Visibility?</b>
+     * <p>
+     * Prior to BEAD-06 (blocking primitives refactoring), this method was {@code protected} because
+     * all blocking primitives lived in the {@code com.hellblazer.primeMover.runtime} package alongside
+     * Devi. When blocking primitives were extracted to the {@code desmoj-ish} module for better separation
+     * of concerns, visibility changed to {@code public} to maintain SPI access while preserving module
+     * boundaries. This is an intentional API surface expansion for the blocking primitives SPI.
+     * <p>
+     * <b>Related SPI Documentation</b>
+     * <ul>
+     *   <li>{@link #post(EventImpl)} - Posts events for continuation scheduling (also part of SPI)</li>
+     *   <li>{@link EventImpl#getContinuation()} - Accesses continuation state for return value/exception</li>
+     *   <li>{@link EventImpl#setTime(long)} - Adjusts event timing for deferred resume</li>
+     *   <li>{@link EventImpl#setCaller(EventImpl)} - Links events in continuation chain</li>
+     *   <li>{@code framework/BLOCKING_PRIMITIVES_SPI.md} - Complete SPI design documentation</li>
+     *   <li>{@code framework/SPI_STABILITY_CONTRACT.md} - SPI stability guarantees</li>
+     * </ul>
+     * <p>
+     * <b>Historical Context</b>
+     * <ul>
+     *   <li><b>BEAD-06</b>: Visibility changed from protected to public for cross-module SPI access</li>
+     *   <li><b>BEAD-4qb</b>: Formalized blocking primitives SPI design and contracts</li>
+     *   <li><b>BEAD-4bs</b>: Enhanced Javadoc with comprehensive usage examples and warnings</li>
+     * </ul>
+     *
+     * @param newCaller the new caller to set, or {@code null} to clear current caller for capture
+     * @return the previous caller event before the swap (for capture/restore pattern), may be {@code null}
+     * @throws AssertionError if called when {@code serializer} is not held (debug builds only)
+     * @see #post(EventImpl)
+     * @see #postContinuingEvent(EntityReference, int, Object...)
+     * @see EventImpl#getContinuation()
+     * @see EventImpl#setTime(long)
      */
     public EventImpl swapCaller(EventImpl newCaller) {
         var tmp = caller;
         caller = newCaller;
         return tmp;
+    }
+
+    /**
+     * Answer the name of this controller.
+     * Subclasses must implement to provide controller identification.
+     *
+     * @return the controller name
+     */
+    public abstract String getName();
+
+    /**
+     * Answer the simulation clock at the beginning of the simulation.
+     * Subclasses must implement to track simulation start time.
+     *
+     * @return the simulation start time
+     */
+    public abstract long getSimulationStart();
+
+    /**
+     * Answer the simulation clock at the end of the simulation.
+     * Subclasses must implement to track simulation end time.
+     *
+     * @return the simulation end time
+     */
+    public abstract long getSimulationEnd();
+
+    /**
+     * Answer the spectrum of events.
+     * Subclasses must implement to provide event signature tracking.
+     *
+     * @return a Map where the key is the signature of the event, and the value
+     *         is the number of times the event was invoked
+     */
+    public abstract Map<String, Integer> getSpectrum();
+
+    /**
+     * Answer the total number of events processed during the simulation.
+     * Subclasses must implement to track event count.
+     *
+     * @return the total number of events processed
+     */
+    public abstract int getTotalEvents();
+
+    /**
+     * Helper method for recording event execution.
+     * Subclasses can override for different thread-safety models.
+     *
+     * @param event the event being recorded
+     */
+    protected void recordEvent(EventImpl event) {
+        totalEvents++;
+        if (trackSpectrum) {
+            spectrum.merge(event.getSignature(), 1, Integer::sum);
+        }
+    }
+
+    /**
+     * Generate a report of the simulation statistics.
+     * Uses abstract methods to gather statistics from subclass implementations.
+     *
+     * @return a ControllerReport containing all statistics
+     */
+    public ControllerReport report() {
+        return new ControllerReport(
+            getName(),
+            getSimulationStart(),
+            getSimulationEnd(),
+            getTotalEvents(),
+            getSpectrum()
+        );
     }
 
     private Runnable eval(EventImpl event) {
@@ -288,11 +666,12 @@ abstract public class Devi implements Controller, AutoCloseable {
                 }
                 final var result = event.invoke();
                 if (futureSailor.isDone()) {
-                    logger.error("Future sailor already done");
+                    logger.error("[Devi] Event continuation already completed at time {}: {}",
+                                currentTime, event.getSignature());
                 }
                 futureSailor.complete(new EvaluationResult(result));
             } catch (SimulationEnd e) {
-                logger.info("Simulation has ended at: {}", currentTime);
+                logger.info("[Devi] Simulation ended at time {}", currentTime);
                 futureSailor.completeExceptionally(e);
                 return;
             } catch (Throwable e) {
@@ -327,7 +706,13 @@ abstract public class Devi implements Controller, AutoCloseable {
             if (e.getCause() instanceof SimulationException se) {
                 throw se;
             }
-            throw new SimulationException(e.getCause());
+            var entityName = next.getReference() != null
+                             ? next.getReference().getClass().getSimpleName()
+                             : "unknown";
+            throw new SimulationException(
+                "[Devi] Event evaluation failed for entity " + entityName +
+                " at time " + currentTime + ": " + next.getSignature(),
+                e.getCause());
         } finally {
             futureSailor = null;
             currentEvent = null;
@@ -336,14 +721,21 @@ abstract public class Devi implements Controller, AutoCloseable {
         assert result != null;
 
         if (result.t != null) {
-            logger.error("Cannot evaluate event: {}", next, result.t);
+            var entityName = next.getReference() != null
+                             ? next.getReference().getClass().getSimpleName()
+                             : "unknown";
+            logger.error("[Devi] Event evaluation failed for entity {} at time {}: {}",
+                        entityName, currentTime, next.getSignature(), result.t);
             if (result.t instanceof SimulationException se) {
                 throw se;
             }
             if (result.t instanceof SimulationEnd se) {
                 throw se;
             }
-            throw new SimulationException("error evaluating event: " + next, result.t);
+            throw new SimulationException(
+                "[Devi] Event evaluation failed for entity " + entityName +
+                " at time " + currentTime + ": " + next.getSignature(),
+                result.t);
         }
 
         final var cc = caller;

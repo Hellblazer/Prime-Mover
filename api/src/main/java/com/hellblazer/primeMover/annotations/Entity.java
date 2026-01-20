@@ -36,7 +36,7 @@ public @interface Entity {
      * The interface classes which determine which methods on the simulation entity
      * represent simulation events.
      *
-     * @return
+     * @return an array of interface classes defining events, or AllMethodsMarker if all public methods should be events
      */
     Class<?>[] value() default AllMethodsMarker.class;
 }

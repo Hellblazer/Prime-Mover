@@ -33,7 +33,7 @@ final public class Framework {
     public static Devi getController() {
         Devi controller = CONTROLLER.get();
         if (controller == null) {
-            throw new IllegalStateException("No controller has been set for the process");
+            throw new IllegalStateException("[Framework] No simulation controller set for current thread");
         }
         return controller;
     }
@@ -45,7 +45,7 @@ final public class Framework {
 
     public static void postEvent(EntityReference entity, Object[] arguments, int event) {
         if (entity == null) {
-            throw new NullPointerException("entity is null");
+            throw new NullPointerException("[Framework] Cannot post event to null entity");
         }
         getController().postEvent(entity, event, arguments);
     }

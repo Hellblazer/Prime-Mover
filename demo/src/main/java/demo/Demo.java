@@ -19,6 +19,7 @@ package demo;
 
 import com.hellblazer.primeMover.api.Kronos;
 import com.hellblazer.primeMover.api.SimulationException;
+import com.hellblazer.primeMover.builders.SimulationBuilder;
 import com.hellblazer.primeMover.controllers.SimulationController;
 
 import java.util.Map;
@@ -32,9 +33,27 @@ import java.util.Map;
 public class Demo {
 
     public static void channel() throws SimulationException {
+        // New builder pattern reduces boilerplate
+        var controller = (SimulationController) SimulationBuilder.builder()
+                                                                 .trackSpectrum(true)
+                                                                 .build();
+        new UseChannel().test();
+        controller.eventLoop();
+        System.out.println("Event spectrum:");
+        for (Map.Entry<String, Integer> spectrumEntry : controller.getSpectrum().entrySet()) {
+            System.out.println("\t" + spectrumEntry.getValue() + "\t\t : " + spectrumEntry.getKey());
+        }
+    }
+
+    public static void channelOldWay() throws SimulationException {
+        // Old way still works for backward compatibility
+        // Demonstrates explicit time configuration
         SimulationController controller = new SimulationController();
         Kronos.setController(controller);
-        controller.setCurrentTime(0);
+        // Configure simulation time bounds BEFORE starting
+        controller.setStartTime(0);     // Simulation begins at time 0
+        controller.setCurrentTime(0);   // Initialize clock to 0
+        controller.setEndTime(Long.MAX_VALUE); // Run until no more events
         new UseChannel().test();
         controller.eventLoop();
         System.out.println("Event spectrum:");
@@ -46,7 +65,10 @@ public class Demo {
     public static void eventContinuationThroughput() throws SimulationException {
         SimulationController controller = new SimulationController();
         Kronos.setController(controller);
+        // Configure simulation time: start at 0, run until completion
+        controller.setStartTime(0);
         controller.setCurrentTime(0);
+        controller.setEndTime(Long.MAX_VALUE);
         new Driver().runContinuationBenchmark("STRING", 100000, 10);
         controller.eventLoop();
         System.out.println("Event spectrum:");
@@ -58,7 +80,10 @@ public class Demo {
     public static void eventThroughput() throws SimulationException {
         SimulationController controller = new SimulationController();
         Kronos.setController(controller);
+        // Configure simulation time: start at 0, run until completion
+        controller.setStartTime(0);
         controller.setCurrentTime(0);
+        controller.setEndTime(Long.MAX_VALUE);
         new Driver().runEventBenchmark("STRING", 100000, 100);
         controller.eventLoop();
         System.out.println("Event spectrum:");
@@ -81,7 +106,10 @@ public class Demo {
     public static void threaded() throws SimulationException {
         SimulationController controller = new SimulationController();
         Kronos.setController(controller);
+        // Configure simulation time: start at 0, run until completion
+        controller.setStartTime(0);
         controller.setCurrentTime(0);
+        controller.setEndTime(Long.MAX_VALUE);
         controller.eventLoop();
         System.out.println("Event spectrum:");
         for (Map.Entry<String, Integer> spectrumEntry : controller.getSpectrum().entrySet()) {

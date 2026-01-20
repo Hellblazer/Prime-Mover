@@ -21,6 +21,8 @@ package demo;
 
 import java.util.NoSuchElementException;
 import java.util.Queue;
+import java.util.Map;
+import java.util.HashMap;
 
 import com.hellblazer.primeMover.api.SimulationException;
 import com.hellblazer.primeMover.runtime.Devi;
@@ -57,5 +59,30 @@ public class ControllerImpl extends Devi {
     @Override
     public void post(EventImpl event) {
         eventQueue.add(event);
+    }
+
+    @Override
+    public int getTotalEvents() {
+        return 0; // Test implementation - not tracked
+    }
+
+    @Override
+    public Map<String, Integer> getSpectrum() {
+        return new HashMap<>(); // Test implementation - not tracked
+    }
+
+    @Override
+    public String getName() {
+        return "TestController";
+    }
+
+    @Override
+    public long getSimulationStart() {
+        return 0;
+    }
+
+    @Override
+    public long getSimulationEnd() {
+        return 0;
     }
 }

@@ -201,7 +201,8 @@ public class RealTimeController extends Devi implements StatisticalController {
                             spectrum.merge(event.getSignature(), 1, Integer::sum);
                         }
                     } catch (SimulationException e) {
-                        log.error("Error firing: {}", event, e.getCause());
+                        log.error("[RealTimeController] Event evaluation failed at time {}: {}",
+                                 event.getTime(), event.getSignature(), e.getCause());
                     }
                 } else {
                     // Wait outside the lock until the next event time
