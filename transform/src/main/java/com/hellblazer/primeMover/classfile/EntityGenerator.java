@@ -532,7 +532,10 @@ public class EntityGenerator {
                                         if (blockingMethods.contains(originalMethod)) {
                                             codeBuilder.invokevirtual(DEVI_CLASS, "postContinuingEvent",
                                                                       POST_CONTINUING_EVENT_METHOD_TYPE);
-                                            // postContinuingEvent returns Object, so pop it off the stack
+                                            // postContinuingEvent returns Object (the continuation result for internal framework use),
+                                            // but this value is not meaningful for the event wrapper caller - the wrapper is scheduling
+                                            // future execution, not executing now. Pop the continuation object and return appropriate
+                                            // default value per the method signature contract.
                                             codeBuilder.pop();
                                         } else {
                                             codeBuilder.invokevirtual(DEVI_CLASS, "postEvent", POST_EVENT_METHOD_TYPE);
