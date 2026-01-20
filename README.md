@@ -1,6 +1,6 @@
 # Prime Mover: Event-Driven Simulation Framework for Java
 
-![Build Status](https://github.com/hellblazer/prime-mover/actions/workflows/maven.yml/badge.svg)
+![CI/CD Pipeline](https://github.com/hellblazer/prime-mover/actions/workflows/ci.yml/badge.svg)
 ![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)
 ![Java Version](https://img.shields.io/badge/Java-25%2B-blue)
 
@@ -275,6 +275,7 @@ See [PERFORMANCE.md](./PERFORMANCE.md) for detailed benchmarks, methodology, and
 
 - **[CONCEPTS.md](./CONCEPTS.md)** - Deep-dive into DES theory, Kronos/Kairos design, event semantics, and virtual thread continuations
 - **[PERFORMANCE.md](./PERFORMANCE.md)** - Validated performance measurements, overhead analysis, and optimization guidelines
+- **[COMPATIBILITY.md](./COMPATIBILITY.md)** - Version compatibility matrix, JDK requirements, and migration guides
 
 ### Module Documentation
 

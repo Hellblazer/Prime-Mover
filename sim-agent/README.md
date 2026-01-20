@@ -69,6 +69,63 @@ java -javaagent:/path/to/sim-agent.jar=com.example.*,org.test.* MyClass
 java -javaagent:/path/to/sim-agent.jar MyClass
 ```
 
+## Architecture
+
+### Component Overview
+
+The sim-agent module consists of three main components:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                        SimAgent                             │
+│  Entry point: premain() / agentmain()                       │
+│  Installs SimulationTransformerClassFileAPI                 │
+└──────────────────────────┬──────────────────────────────────┘
+                           │
+                           ▼
+┌─────────────────────────────────────────────────────────────┐
+│           SimulationTransformerClassFileAPI                 │
+│  ClassFileTransformer implementation                        │
+│  - Scans classes for @Entity, @Event, @Blocking            │
+│  - Delegates to EntityGenerator for full transformation     │
+│  - Remaps Kronos API calls to Kairos runtime               │
+└──────────────────────────┬──────────────────────────────────┘
+                           │
+                           ▼
+┌─────────────────────────────────────────────────────────────┐
+│                   AnnotationScanner                         │
+│  Detects transformation annotations                         │
+│  - @Entity: Full entity transformation required            │
+│  - @Transformed: Skip (already processed)                  │
+│  - @Event/@Blocking: Method-level markers                  │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### ClassFile API Integration
+
+The agent uses Java 25's native ClassFile API (JEP 484) for bytecode manipulation:
+
+- **No external dependencies**: Unlike ASM or ByteBuddy, ClassFile API is part of the JDK
+- **Type-safe generation**: Compile-time checked bytecode construction
+- **Modern API**: Functional builders, immutable models, pattern matching support
+
+Key classes from `java.lang.classfile`:
+- `ClassFile.of()` - Entry point for parsing and building
+- `ClassModel` - Parsed representation of a class file
+- `ClassBuilder` - Fluent API for constructing classes
+- `ClassRemapper` - Transform class references (used for Kronos→Kairos)
+
+### Module Dependencies
+
+```
+sim-agent
+    └─> transform (EntityGenerator, ClassRemapper, ClassMetadata)
+            └─> runtime (Kairos, Devi, Controller interfaces)
+                    └─> api (Kronos, annotations)
+```
+
+The shaded JAR bundles all dependencies, making deployment a single-file operation.
+
 ## How It Works
 
 ### Class Loading Interception

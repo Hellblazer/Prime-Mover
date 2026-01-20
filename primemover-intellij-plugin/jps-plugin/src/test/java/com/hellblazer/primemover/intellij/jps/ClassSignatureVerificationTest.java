@@ -13,12 +13,10 @@ package com.hellblazer.primemover.intellij.jps;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import java.lang.classfile.AccessFlags;
 import java.lang.classfile.ClassFile;
 import java.lang.classfile.ClassModel;
 import java.lang.classfile.MethodModel;
 import java.lang.classfile.attribute.RuntimeVisibleAnnotationsAttribute;
-import java.lang.classfile.constantpool.ClassEntry;
 import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Set;
@@ -79,7 +77,7 @@ public class ClassSignatureVerificationTest {
             "__invoke should have signature (int, Object[]) -> Object");
 
         // Verify it's public
-        assertTrue(invokeMethod.flags().has(AccessFlags.ACC_PUBLIC),
+        assertTrue((invokeMethod.flags().flagsMask() & ClassFile.ACC_PUBLIC) != 0,
             "__invoke should be public");
     }
 
@@ -103,7 +101,7 @@ public class ClassSignatureVerificationTest {
             "__signatureFor should have signature (int) -> String");
 
         // Verify it's public
-        assertTrue(signatureForMethod.flags().has(AccessFlags.ACC_PUBLIC),
+        assertTrue((signatureForMethod.flags().flagsMask() & ClassFile.ACC_PUBLIC) != 0,
             "__signatureFor should be public");
     }
 
@@ -331,8 +329,9 @@ public class ClassSignatureVerificationTest {
 
         // Verify all methods have valid code attributes
         for (var method : classModel.methods()) {
-            if (!method.flags().has(AccessFlags.ACC_ABSTRACT) &&
-                !method.flags().has(AccessFlags.ACC_NATIVE)) {
+            var flags = method.flags().flagsMask();
+            if ((flags & ClassFile.ACC_ABSTRACT) == 0 &&
+                (flags & ClassFile.ACC_NATIVE) == 0) {
 
                 var code = method.code();
                 assertTrue(code.isPresent(),
