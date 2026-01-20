@@ -52,11 +52,7 @@
         <module>space-ghost</module>
         <module>janus</module>
         <module>sim-agent</module>
-        <!-- TEMPORARY: IntelliJ plugin disabled for v1.0.6 release due to Gradle build issues.
-             Will be fixed in v1.0.7 as part of post-release work.
-             The plugin build requires investigation and is not critical for core framework release.
-        -->
-        <!-- <module>primemover-intellij-plugin</module> -->
+        <module>primemover-intellij-plugin</module>
         <module>benchmarks</module>
     </modules>
 
