@@ -44,7 +44,6 @@ import com.hellblazer.primeMover.controllers.SimulationController;
  *
  * @author <a href="mailto:hal.hildebrand@gmail.com">Hal Hildebrand</a>
  */
-@org.junit.jupiter.api.Disabled("Temporary disable for CI stability - eventLoop hang")
 public class EventTrackingMemoryLeakTest {
 
     /**

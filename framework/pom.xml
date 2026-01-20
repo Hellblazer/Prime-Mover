@@ -36,12 +36,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <!-- CRITICAL: Temporary test skip due to eventLoop hang investigation -->
-                    <!-- All framework tests hang indefinitely - root cause TBD -->
-                    <!-- TODO: Investigate and fix eventLoop hang issue post-v1.0.6 -->
-                    <skipTests>true</skipTests>
-                </configuration>
             </plugin>
         </plugins>
     </build>

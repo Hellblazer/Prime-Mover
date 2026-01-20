@@ -29,7 +29,7 @@ jobs:
 
     strategy:
       matrix:
-        java: ['25']
+        java: ['25', '23']
       fail-fast: false
 
     steps:
@@ -92,7 +92,7 @@ jobs:
 
     strategy:
       matrix:
-        java: ['25']
+        java: ['25', '23']
       fail-fast: false
 
     steps:
@@ -195,7 +195,7 @@ jobs:
 
     strategy:
       matrix:
-        java: ['25']
+        java: ['25', '23']
       fail-fast: false
 
     steps:

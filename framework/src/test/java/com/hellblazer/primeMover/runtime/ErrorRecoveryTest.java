@@ -52,7 +52,6 @@ import com.hellblazer.primeMover.controllers.SimulationController;
  * @see com.hellblazer.primeMover.api.SimulationException
  * @see com.hellblazer.primeMover.runtime.SimulationEnd
  */
-@org.junit.jupiter.api.Disabled("Temporary disable for CI stability - investigate hang")
 public class ErrorRecoveryTest {
 
     private SimulationController controller;
