@@ -42,6 +42,7 @@
     </properties>
 
     <modules>
+        <module>api</module>
         <module>framework</module>
         <module>transform</module>
         <module>primemover-maven-plugin</module>
@@ -51,7 +52,6 @@
         <module>space-ghost</module>
         <module>janus</module>
         <module>sim-agent</module>
-        <module>api</module>
         <module>primemover-intellij-plugin</module>
         <module>benchmarks</module>
     </modules>
