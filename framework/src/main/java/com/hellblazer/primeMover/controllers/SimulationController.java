@@ -450,10 +450,14 @@ public class SimulationController extends Devi implements StatisticalController 
      */
     public void singleStep() throws SimulationException {
         var current = eventQueue.remove();
-        evaluate(current);
-        recordEvent(current);
-        // Clear references to allow garbage collection of entities and caller chains
-        current.clearReferences();
+        try {
+            evaluate(current);
+            recordEvent(current);
+        } finally {
+            // Clear references to allow garbage collection of entities and caller chains
+            // This is done in finally block to ensure cleanup even if evaluation throws
+            current.clearReferences();
+        }
     }
 
     @Override

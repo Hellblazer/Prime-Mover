@@ -79,6 +79,12 @@ public class EventImpl implements Cloneable, Serializable, Comparable<EventImpl>
     private transient EntityReference reference;
 
     /**
+     * Cached signature for the event, computed lazily on first access.
+     * Cached to allow signature access even after clearReferences() is called.
+     */
+    private transient String cachedSignature;
+
+    /**
      * The event that was the source of this event. Uses WeakReference to prevent memory
      * leaks in long event chains. Marked transient because WeakReference is not serializable.
      */
@@ -141,7 +147,10 @@ public class EventImpl implements Cloneable, Serializable, Comparable<EventImpl>
 
     @Override
     public String getSignature() {
-        return reference.__signatureFor(event);
+        if (cachedSignature == null && reference != null) {
+            cachedSignature = reference.__signatureFor(event);
+        }
+        return cachedSignature != null ? cachedSignature : "<unknown>";
     }
 
     @Override
@@ -215,11 +224,27 @@ public class EventImpl implements Cloneable, Serializable, Comparable<EventImpl>
 
     /**
      * Clears fields that hold strong references to allow garbage collection.
-     * Should be called after event processing is complete and the event is no longer needed.
-     * This prevents memory leaks in long-running simulations by allowing completed events,
-     * their entities, and caller chains to be garbage collected.
+     * <p>
+     * This method should be called by controller implementations after event processing is complete
+     * and the event is no longer needed. It nulls out the {@code reference} (entity) and {@code caller}
+     * fields to break strong reference chains that would otherwise prevent garbage collection.
+     * <p>
+     * <b>When to call:</b>
+     * <ul>
+     *   <li>After {@link #invoke()} completes successfully</li>
+     *   <li>After {@link Devi#recordEvent(EventImpl)} finishes</li>
+     *   <li>Before discarding the event object from controller state</li>
+     * </ul>
+     * <p>
+     * <b>Why this matters:</b> In long-running simulations, completed events can accumulate
+     * if they remain reachable through controller data structures. Even if the event itself
+     * becomes unreachable, strong references to entities and caller chains prevent garbage
+     * collection. Calling this method breaks those chains, allowing the GC to reclaim memory.
+     * <p>
+     * <b>Note:</b> This is an internal cleanup method intended for controller implementations.
+     * Do not call this method if the event may be used again (e.g., for retry or replay).
      */
-    void clearReferences() {
+    public void clearReferences() {
         reference = null;
         caller = null;
     }
