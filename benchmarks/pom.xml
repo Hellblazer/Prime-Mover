@@ -27,6 +27,10 @@
             <artifactId>runtime</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.hellblazer.primeMover</groupId>
+            <artifactId>transform</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.openjdk.jmh</groupId>
             <artifactId>jmh-core</artifactId>
             <version>${jmh.version}</version>
@@ -41,6 +45,19 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.openjdk.jmh</groupId>
+                            <artifactId>jmh-generator-annprocess</artifactId>
+                            <version>${jmh.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>com.hellblazer.primeMover</groupId>
                 <artifactId>primemover-maven-plugin</artifactId>
