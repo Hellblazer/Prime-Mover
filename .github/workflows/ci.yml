@@ -25,6 +25,7 @@ jobs:
   build:
     name: Build (Java ${{ matrix.java }})
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     permissions:
       contents: read
 
@@ -87,6 +88,7 @@ jobs:
     name: Test (Java ${{ matrix.java }})
     needs: build
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     permissions:
       contents: read
       checks: write
@@ -169,6 +171,12 @@ jobs:
           retention-days: 30
           if-no-files-found: warn
 
+      - name: Install transform artifacts for JPS plugin tests
+        if: matrix.java == '25'
+        run: ./mvnw -batch-mode install -pl transform --also-make -DskipTests -Djacoco.skip=true
+        env:
+          MAVEN_OPTS: -Xmx2g
+
       - name: Test IntelliJ JPS plugin
         if: matrix.java == '25'
         working-directory: primemover-intellij-plugin
@@ -191,6 +199,7 @@ jobs:
     name: Integration Tests (Java ${{ matrix.java }})
     needs: test
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     permissions:
       contents: read
 
@@ -235,6 +244,7 @@ jobs:
     name: Quality Gate
     needs: [build, test]
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     permissions:
       contents: read
 
@@ -261,6 +271,7 @@ jobs:
     if: github.event_name == 'workflow_dispatch'
     needs: [build, test, integration-test, quality-gate]
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     permissions:
       contents: write
       packages: write
@@ -337,6 +348,7 @@ jobs:
     if: always()
     needs: [build, test, integration-test, quality-gate]
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     permissions:
       contents: read
 

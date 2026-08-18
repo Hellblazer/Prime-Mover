@@ -42,6 +42,16 @@ public class Continuation implements Serializable {
         return thread != null;
     }
 
+    /**
+     * SUSPENDS the calling thread until {@link #resume()} is called from another
+     * thread. Records the current thread, completes {@code sailorMoon} with
+     * {@code result} (this happens strictly BEFORE parking, so callers may treat
+     * completion of {@code sailorMoon} as a happens-before gate for observing
+     * state written before this call), then calls
+     * {@link java.util.concurrent.locks.LockSupport#park()} and blocks until
+     * unparked. Must never be called on a thread with no resumer (e.g. a test's
+     * main thread) - the calling thread will park forever.
+     */
     public Object park(CompletableFuture<EvaluationResult> sailorMoon, EvaluationResult result) throws Throwable {
         assert thread == null;
         thread = Thread.currentThread();

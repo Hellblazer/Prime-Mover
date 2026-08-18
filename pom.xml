@@ -224,6 +224,13 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>3.5.2</version>
+                    <configuration>
+                        <!-- Hang tripwire (bead Prime-Mover-d1m): if a test parks its thread
+                             with no resumer, the forked JVM never exits and Maven waits
+                             forever. This bounds that fork's lifetime so CI fails fast
+                             instead of running (and billing) unbounded. -->
+                        <forkedProcessTimeoutInSeconds>900</forkedProcessTimeoutInSeconds>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>

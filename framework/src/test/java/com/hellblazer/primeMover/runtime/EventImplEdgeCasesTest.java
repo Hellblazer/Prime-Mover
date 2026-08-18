@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -169,31 +170,62 @@ public class EventImplEdgeCasesTest {
     }
 
     /**
-     * Test continuation edge case: double park
-     * Attempting to park twice should replace the continuation
+     * Test continuation edge case: double park.
+     * <p>
+     * {@link EventImpl#park} SUSPENDS its calling thread (see class javadoc on
+     * {@code park}), so a single thread can never call it twice in a row - the
+     * second call would be unreachable dead code. The real, reachable semantics
+     * of "double park" is two <em>sequential</em> park/resume cycles: after the
+     * first cycle fully completes (park, then resume, then the parking thread
+     * returns), calling {@code park()} again always installs a brand-new
+     * {@link Continuation} instance - it never reuses or mutates the prior one.
+     * Each cycle runs on its own virtual thread; {@code future.get()} is the
+     * happens-before gate, since {@link Continuation#park} completes the future
+     * strictly before parking the thread.
      */
     @Test
     void testDoubleParkReplacesContinuation() throws Throwable {
         var mockRef = new TestEntityReference();
         var event = new EventImpl(100, null, mockRef, 0);
 
+        // --- First park/resume cycle ---
         var future1 = new CompletableFuture<EvaluationResult>();
         var result1 = new EvaluationResult(event, null);
+        var parker1 = Thread.ofVirtual().start(() -> {
+            try {
+                event.park(future1, result1);
+            } catch (Throwable t) {
+                future1.completeExceptionally(t);
+            }
+        });
 
-        // First park
-        event.park(future1, result1);
+        future1.get(5, TimeUnit.SECONDS);
         var cont1 = event.getContinuation();
         assertNotNull(cont1, "First park should create continuation");
 
-        // Second park - creates new continuation
+        cont1.resume();
+        parker1.join(5_000);
+        assertFalse(parker1.isAlive(), "First parker thread should terminate after resume");
+
+        // --- Second park/resume cycle ---
         var future2 = new CompletableFuture<EvaluationResult>();
         var result2 = new EvaluationResult(event, null);
-        event.park(future2, result2);
+        var parker2 = Thread.ofVirtual().start(() -> {
+            try {
+                event.park(future2, result2);
+            } catch (Throwable t) {
+                future2.completeExceptionally(t);
+            }
+        });
 
+        future2.get(5, TimeUnit.SECONDS);
         var cont2 = event.getContinuation();
         assertNotNull(cont2, "Second park should create new continuation");
-        assertNotSame(cont1, cont2,
-                     "Second park should replace first continuation");
+        assertNotSame(cont1, cont2, "Second park should replace first continuation");
+
+        cont2.resume();
+        parker2.join(5_000);
+        assertFalse(parker2.isAlive(), "Second parker thread should terminate after resume");
     }
 
     /**
@@ -308,7 +340,13 @@ public class EventImplEdgeCasesTest {
     }
 
     /**
-     * Test continuation state check
+     * Test continuation state check.
+     * <p>
+     * {@link EventImpl#park} SUSPENDS the calling thread until resumed, so it is
+     * run on a separate virtual thread here rather than the test's main thread.
+     * {@code future.get()} is a safe happens-before gate: {@link Continuation#park}
+     * completes the future strictly before parking, so once {@code get()} returns,
+     * {@code continuation} is guaranteed visible on this thread.
      */
     @Test
     void testIsContinuation() throws Throwable {
@@ -318,13 +356,26 @@ public class EventImplEdgeCasesTest {
         assertFalse(event.isContinuation(),
                    "Event without continuation should return false");
 
-        // Create continuation
+        // Create continuation on a separate thread - park() suspends the caller
         var future = new CompletableFuture<EvaluationResult>();
         var result = new EvaluationResult(event, null);
-        event.park(future, result);
+        var parker = Thread.ofVirtual().start(() -> {
+            try {
+                event.park(future, result);
+            } catch (Throwable t) {
+                future.completeExceptionally(t);
+            }
+        });
+
+        future.get(5, TimeUnit.SECONDS);
 
         assertTrue(event.isContinuation(),
                   "Event with continuation should return true");
+
+        // Release the parked thread
+        event.getContinuation().resume();
+        parker.join(5_000);
+        assertFalse(parker.isAlive(), "Parker thread should terminate after resume");
     }
 
     /**
@@ -347,7 +398,13 @@ public class EventImplEdgeCasesTest {
     }
 
     /**
-     * Test event toString with continuation marker
+     * Test event toString with continuation marker.
+     * <p>
+     * {@link EventImpl#park} SUSPENDS the calling thread until resumed, so it is
+     * run on a separate virtual thread here rather than the test's main thread.
+     * {@code future.get()} is a safe happens-before gate: {@link Continuation#park}
+     * completes the future strictly before parking, so once {@code get()} returns,
+     * the {@code continuation} field is guaranteed visible on this thread.
      */
     @Test
     void testToStringWithContinuation() throws Throwable {
@@ -358,14 +415,27 @@ public class EventImplEdgeCasesTest {
         assertFalse(beforeCont.contains(" : c"),
                    "toString should not show continuation marker initially");
 
-        // Add continuation
+        // Add continuation on a separate thread - park() suspends the caller
         var future = new CompletableFuture<EvaluationResult>();
         var result = new EvaluationResult(event, null);
-        event.park(future, result);
+        var parker = Thread.ofVirtual().start(() -> {
+            try {
+                event.park(future, result);
+            } catch (Throwable t) {
+                future.completeExceptionally(t);
+            }
+        });
+
+        future.get(5, TimeUnit.SECONDS);
 
         var afterCont = event.toString();
         assertTrue(afterCont.contains(" : c"),
                   "toString should show continuation marker");
+
+        // Release the parked thread
+        event.getContinuation().resume();
+        parker.join(5_000);
+        assertFalse(parker.isAlive(), "Parker thread should terminate after resume");
     }
 
     /**
