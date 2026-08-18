@@ -171,6 +171,12 @@ jobs:
           retention-days: 30
           if-no-files-found: warn
 
+      - name: Install transform artifacts for JPS plugin tests
+        if: matrix.java == '25'
+        run: ./mvnw -batch-mode install -pl transform --also-make -DskipTests -Djacoco.skip=true
+        env:
+          MAVEN_OPTS: -Xmx2g
+
       - name: Test IntelliJ JPS plugin
         if: matrix.java == '25'
         working-directory: primemover-intellij-plugin
