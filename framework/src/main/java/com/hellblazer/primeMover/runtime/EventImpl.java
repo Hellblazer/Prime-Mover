@@ -182,6 +182,17 @@ public class EventImpl implements Cloneable, Serializable, Comparable<EventImpl>
         return time;
     }
 
+    /**
+     * SUSPENDS the calling thread. Despite the setter-like name, this is not a
+     * simple state mutation: it delegates to {@link Continuation#park}, which
+     * parks the calling thread via {@link java.util.concurrent.locks.LockSupport#park()}
+     * and returns only when {@link Continuation#resume()} unparks it.
+     * <p>
+     * Never call this method from a test's main thread (or any thread without a
+     * resumer) - doing so parks that thread forever with no way to return. Call
+     * it from a dedicated (virtual) thread and resume the returned continuation
+     * from elsewhere, e.g. a controller's event loop.
+     */
     public Object park(CompletableFuture<EvaluationResult> sailorMoon, EvaluationResult result) throws Throwable {
         final var newCont = new Continuation();
         continuation = newCont;

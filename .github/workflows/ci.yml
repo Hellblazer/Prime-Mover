@@ -25,6 +25,7 @@ jobs:
   build:
     name: Build (Java ${{ matrix.java }})
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     permissions:
       contents: read
 
@@ -87,6 +88,7 @@ jobs:
     name: Test (Java ${{ matrix.java }})
     needs: build
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     permissions:
       contents: read
       checks: write
@@ -191,6 +193,7 @@ jobs:
     name: Integration Tests (Java ${{ matrix.java }})
     needs: test
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     permissions:
       contents: read
 
@@ -235,6 +238,7 @@ jobs:
     name: Quality Gate
     needs: [build, test]
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     permissions:
       contents: read
 
@@ -261,6 +265,7 @@ jobs:
     if: github.event_name == 'workflow_dispatch'
     needs: [build, test, integration-test, quality-gate]
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     permissions:
       contents: write
       packages: write
@@ -337,6 +342,7 @@ jobs:
     if: always()
     needs: [build, test, integration-test, quality-gate]
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     permissions:
       contents: read
 
