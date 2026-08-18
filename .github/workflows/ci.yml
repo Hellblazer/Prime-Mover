@@ -17,6 +17,10 @@ on:
       - 'LICENSE'
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     name: Build (Java ${{ matrix.java }})
@@ -26,7 +30,7 @@ jobs:
 
     strategy:
       matrix:
-        java: ['25', '23']
+        java: ['25']
       fail-fast: false
 
     steps:
@@ -89,7 +93,7 @@ jobs:
 
     strategy:
       matrix:
-        java: ['25', '23']
+        java: ['25']
       fail-fast: false
 
     steps:
@@ -192,7 +196,7 @@ jobs:
 
     strategy:
       matrix:
-        java: ['25', '23']
+        java: ['25']
       fail-fast: false
 
     steps:
